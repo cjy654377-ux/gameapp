@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/domain/services/prestige_service.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/prestige_provider.dart';
 
@@ -10,13 +11,14 @@ class PrestigeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final playerState = ref.watch(playerProvider);
     final player = playerState.player;
     final prestige = ref.watch(prestigeProvider);
 
     if (player == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('전생')),
+        appBar: AppBar(title: Text(l.prestige)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -31,7 +33,7 @@ class PrestigeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('전생 (프레스티지)'),
+        title: Text(l.prestigeTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
@@ -47,17 +49,17 @@ class PrestigeScreen extends ConsumerWidget {
 
             // Current bonuses
             _InfoCard(
-              title: '현재 전생 보너스',
+              title: l.prestigeCurrentBonus,
               children: [
                 _BonusRow(
                   icon: Icons.monetization_on,
-                  label: '골드 획득량',
+                  label: l.goldGain,
                   value: '+${currentBonus.toInt()}%',
                   color: Colors.amber,
                 ),
                 _BonusRow(
                   icon: Icons.auto_awesome,
-                  label: '경험치 획득량',
+                  label: l.expGain,
                   value: '+${currentBonus.toInt()}%',
                   color: Colors.green,
                 ),
@@ -67,27 +69,27 @@ class PrestigeScreen extends ConsumerWidget {
 
             // Requirements
             _InfoCard(
-              title: '전생 조건',
+              title: l.prestigeCondition,
               children: [
                 _RequirementRow(
-                  label: '플레이어 레벨 ${PrestigeService.minLevelToPrestige}+',
+                  label: l.prestigeMinLevel(PrestigeService.minLevelToPrestige),
                   met: player.playerLevel >= PrestigeService.minLevelToPrestige,
                   current: 'Lv.${player.playerLevel}',
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Text(
-                    '또는',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                    l.or,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 _RequirementRow(
-                  label: '${PrestigeService.minAreaToPrestige}지역 이상 클리어',
+                  label: l.prestigeMinArea(PrestigeService.minAreaToPrestige),
                   met: _clearedArea(player.maxClearedStageId) >=
                       PrestigeService.minAreaToPrestige,
                   current: player.maxClearedStageId.isEmpty
-                      ? '없음'
+                      ? l.none
                       : player.maxClearedStageId,
                 ),
               ],
@@ -97,24 +99,24 @@ class PrestigeScreen extends ConsumerWidget {
             // What you get / lose
             if (!isMaxPrestige) ...[
               _InfoCard(
-                title: '전생 시 얻는 것',
+                title: l.prestigeGains,
                 color: Colors.green.withValues(alpha: 0.1),
                 children: [
                   _RewardRow(
                     icon: Icons.diamond,
-                    label: '다이아몬드',
+                    label: l.diamondFull,
                     value: '+$diamondReward',
                     color: Colors.cyanAccent,
                   ),
                   _RewardRow(
                     icon: Icons.confirmation_number,
-                    label: '소환권',
+                    label: l.gachaTicket,
                     value: '+$ticketReward',
                     color: Colors.purple,
                   ),
                   _RewardRow(
                     icon: Icons.trending_up,
-                    label: '영구 보너스',
+                    label: l.permanentBonus,
                     value: '${currentBonus.toInt()}% → ${nextBonus.toInt()}%',
                     color: Colors.orange,
                   ),
@@ -122,26 +124,26 @@ class PrestigeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               _InfoCard(
-                title: '전생 시 초기화되는 것',
+                title: l.prestigeLosses,
                 color: Colors.red.withValues(alpha: 0.1),
-                children: const [
-                  _LossRow(label: '플레이어 레벨 → Lv.1'),
-                  _LossRow(label: '스테이지 진행 → 1-1'),
-                  _LossRow(label: '던전 기록 초기화'),
-                  _LossRow(label: '보유 몬스터 전체 삭제'),
-                  _LossRow(label: '골드/파편/포션 초기화'),
-                  _LossRow(label: '퀘스트 진행 초기화'),
+                children: [
+                  _LossRow(label: l.prestigeLossLevel),
+                  _LossRow(label: l.prestigeLossStage),
+                  _LossRow(label: l.prestigeLossDungeon),
+                  _LossRow(label: l.prestigeLossMonster),
+                  _LossRow(label: l.prestigeLossGold),
+                  _LossRow(label: l.prestigeLossQuest),
                 ],
               ),
             ] else
               _InfoCard(
-                title: '최대 전생 달성!',
+                title: l.prestigeMaxTitle,
                 color: Colors.amber.withValues(alpha: 0.15),
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Text(
-                      '최대 전생 레벨 ${PrestigeService.maxPrestigeLevel}에 도달했습니다!',
+                      l.prestigeMaxDesc(PrestigeService.maxPrestigeLevel),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -195,7 +197,7 @@ class PrestigeScreen extends ConsumerWidget {
                             : null,
                         icon: const Icon(Icons.autorenew, size: 28),
                         label: Text(
-                          canPrestige ? '전생하기' : '조건 미달',
+                          canPrestige ? l.prestigeExecute : l.prestigeNotMet,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -221,26 +223,23 @@ class PrestigeScreen extends ConsumerWidget {
   }
 
   void _showPrestigeConfirm(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E2E),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber, color: Colors.orange, size: 28),
-            SizedBox(width: 8),
-            Text('전생 확인'),
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 28),
+            const SizedBox(width: 8),
+            Text(l.prestigeConfirmTitle),
           ],
         ),
-        content: const Text(
-          '전생하면 레벨, 스테이지, 몬스터, 재화가 모두 초기화됩니다.\n\n'
-          '대신 영구 보너스와 다이아몬드를 획득합니다.\n\n'
-          '정말 전생하시겠습니까?',
-        ),
+        content: Text(l.prestigeConfirmDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('취소'),
+            child: Text(l.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -250,7 +249,7 @@ class PrestigeScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.deepPurple,
             ),
-            child: const Text('전생하기'),
+            child: Text(l.prestigeExecute),
           ),
         ],
       ),
@@ -276,6 +275,7 @@ class _PrestigeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final starCount = level.clamp(0, 20);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
@@ -304,7 +304,7 @@ class _PrestigeBadge extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '전생 Lv.$level',
+            l.prestigeLevelN(level),
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

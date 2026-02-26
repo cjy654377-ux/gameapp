@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/game_config.dart';
 import '../../../core/enums/monster_element.dart';
@@ -67,6 +68,7 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final roster = ref.watch(monsterListProvider);
     final selectedSet = _selectedIds.toSet();
 
@@ -82,12 +84,12 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('팀 편성'),
+        title: Text(l.teamEdit),
         actions: [
           TextButton(
             onPressed: _isDirty ? _save : null,
             child: Text(
-              '저장',
+              l.save,
               style: TextStyle(
                 color: _isDirty ? AppColors.primary : AppColors.disabled,
                 fontWeight: FontWeight.bold,
@@ -105,7 +107,7 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              '총 전투력: ${_totalPower.round()}',
+              l.totalPower(_totalPower.round().toString()),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -118,7 +120,7 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
             child: roster.isEmpty
                 ? Center(
                     child: Text(
-                      '보유한 몬스터가 없습니다\n소환에서 몬스터를 획득하세요',
+                      '${l.noMonsterOwned}\n${l.getMonsterFromGacha}',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textTertiary),
                     ),

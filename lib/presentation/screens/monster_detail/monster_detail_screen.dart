@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../core/enums/monster_rarity.dart';
@@ -19,6 +20,7 @@ class MonsterDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final rarity = MonsterRarity.fromRarity(monster.rarity);
     final element =
         MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
@@ -113,17 +115,17 @@ class MonsterDetailScreen extends ConsumerWidget {
                     children: [
                       _InfoChip(
                         icon: Icons.auto_awesome,
-                        label: '진화 ${monster.evolutionStage}단계',
+                        label: l.evolutionStage(monster.evolutionStage),
                         color: rarity.color,
                       ),
                       _InfoChip(
                         icon: monster.isInTeam ? Icons.check_circle : Icons.remove_circle_outline,
-                        label: monster.isInTeam ? '팀 배치중' : '미배치',
+                        label: monster.isInTeam ? l.teamAssigned : l.teamNotAssigned,
                         color: monster.isInTeam ? Colors.green : AppColors.textTertiary,
                       ),
                       _InfoChip(
                         icon: Icons.calendar_today,
-                        label: '획득 ${_formatDate(monster.acquiredAt)}',
+                        label: l.acquiredDate(_formatDate(monster.acquiredAt)),
                         color: AppColors.textSecondary,
                       ),
                     ],
@@ -131,7 +133,7 @@ class MonsterDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
 
                   // Stat radar chart
-                  _SectionTitle(title: '스탯'),
+                  _SectionTitle(title: l.stats),
                   const SizedBox(height: 8),
                   _StatRadarChart(monster: monster, relicBonus: relicBonus),
                   const SizedBox(height: 8),
@@ -164,35 +166,35 @@ class MonsterDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
 
                   // EXP progress
-                  _SectionTitle(title: '경험치'),
+                  _SectionTitle(title: l.experience),
                   const SizedBox(height: 8),
                   _ExpBar(monster: monster),
                   const SizedBox(height: 20),
 
                   // Affinity
-                  _SectionTitle(title: '친밀도'),
+                  _SectionTitle(title: l.affinity),
                   const SizedBox(height: 8),
                   _AffinityBar(monster: monster),
                   const SizedBox(height: 20),
 
                   // Skill
-                  _SectionTitle(title: '스킬'),
+                  _SectionTitle(title: l.skill),
                   const SizedBox(height: 8),
                   if (skill != null)
                     _SkillCard(skill: skill)
                   else
                     Text(
-                      '스킬 없음',
+                      l.noSkill,
                       style: TextStyle(color: AppColors.textTertiary),
                     ),
                   const SizedBox(height: 20),
 
                   // Equipped relics
-                  _SectionTitle(title: '장착 유물 (${equippedRelics.length})'),
+                  _SectionTitle(title: '${l.equippedRelics} (${equippedRelics.length})'),
                   const SizedBox(height: 8),
                   if (equippedRelics.isEmpty)
                     Text(
-                      '장착된 유물이 없습니다',
+                      l.noRelics,
                       style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
                     )
                   else
@@ -502,11 +504,12 @@ class _AffinityBar extends StatelessWidget {
   const _AffinityBar({required this.monster});
   final MonsterModel monster;
 
-  static const _levelNames = ['없음', 'Lv.1 관심', 'Lv.2 신뢰', 'Lv.3 우정', 'Lv.4 유대', 'Lv.5 최대'];
   static const _thresholds = [10, 30, 60, 100, 150];
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final levelNames = l.affinityNames.split(',');
     final level = monster.affinityLevel;
     final isMax = level >= 5;
     final currentThreshold = isMax ? 150 : _thresholds[level];
@@ -529,7 +532,7 @@ class _AffinityBar extends StatelessWidget {
               ),
             const SizedBox(width: 8),
             Text(
-              _levelNames[level],
+              levelNames[level],
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -538,7 +541,7 @@ class _AffinityBar extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '전투 ${monster.battleCount}회',
+              l.affinityBattleCount(monster.battleCount),
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
@@ -556,7 +559,7 @@ class _AffinityBar extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           isMax
-              ? '보너스: 전 스탯 +${(level * 2)}%'
+              ? l.affinityBonus(level * 2)
               : '다음 레벨까지 ${monster.battleCountToNextAffinity}회 (보너스: +${(level * 2)}%)',
           style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
@@ -681,6 +684,7 @@ class _RelicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.all(10),
@@ -706,7 +710,7 @@ class _RelicTile extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  '${_statLabel(relic.statType)} +${relic.statValue.toInt()} | ${relic.rarity}성',
+                  '${_statLabel(relic.statType, l)} +${relic.statValue.toInt()} | ${relic.rarity}성',
                   style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
                 ),
               ],
@@ -726,12 +730,12 @@ class _RelicTile extends StatelessWidget {
     }
   }
 
-  String _statLabel(String stat) {
+  String _statLabel(String stat, AppLocalizations l) {
     switch (stat) {
-      case 'atk': return '공격력';
-      case 'def': return '방어력';
-      case 'hp': return '체력';
-      case 'spd': return '속도';
+      case 'atk': return l.statAttack;
+      case 'def': return l.statDefense;
+      case 'hp': return l.statHp;
+      case 'spd': return l.statSpeed;
       default: return stat;
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/constants/game_config.dart';
 import 'package:gameapp/core/enums/monster_element.dart';
@@ -68,23 +69,24 @@ class _MonsterSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final roster = ref.watch(monsterListProvider);
 
     if (roster.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.pets_rounded, size: 48, color: AppColors.textTertiary),
-            SizedBox(height: 12),
+            const Icon(Icons.pets_rounded, size: 48, color: AppColors.textTertiary),
+            const SizedBox(height: 12),
             Text(
-              '보유한 몬스터가 없습니다',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              l.noMonsterOwned,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              '소환에서 몬스터를 획득하세요',
-              style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
+              l.getMonsterFromGacha,
+              style: const TextStyle(color: AppColors.textTertiary, fontSize: 12),
             ),
           ],
         ),
@@ -102,11 +104,11 @@ class _MonsterSelector extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Text(
-            '강화할 몬스터 선택',
-            style: TextStyle(
+            l.selectMonsterToUpgrade,
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -367,10 +369,11 @@ class _TabSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         _TabButton(
-          label: '레벨 업',
+          label: l.upgradeLevelUp,
           icon: Icons.arrow_upward_rounded,
           isActive: activeTab == UpgradeTab.levelUp,
           onTap: () =>
@@ -378,7 +381,7 @@ class _TabSelector extends ConsumerWidget {
         ),
         const SizedBox(width: 6),
         _TabButton(
-          label: '진화',
+          label: l.upgradeEvolution,
           icon: Icons.auto_awesome_rounded,
           isActive: activeTab == UpgradeTab.evolution,
           onTap: () =>
@@ -386,7 +389,7 @@ class _TabSelector extends ConsumerWidget {
         ),
         const SizedBox(width: 6),
         _TabButton(
-          label: '융합',
+          label: l.upgradeFusion,
           icon: Icons.merge_rounded,
           isActive: activeTab == UpgradeTab.fusion,
           onTap: () =>
@@ -394,7 +397,7 @@ class _TabSelector extends ConsumerWidget {
         ),
         const SizedBox(width: 6),
         _TabButton(
-          label: '각성',
+          label: l.upgradeAwakening,
           icon: Icons.brightness_7_rounded,
           isActive: activeTab == UpgradeTab.awakening,
           onTap: () =>
@@ -469,6 +472,7 @@ class _LevelUpPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final currency = ref.watch(currencyProvider);
     final isProcessing =
         ref.watch(upgradeProvider.select((s) => s.isProcessing));
@@ -486,20 +490,20 @@ class _LevelUpPanel extends ConsumerWidget {
         if (isMaxLevel) ...[
           _InfoBanner(
             icon: Icons.emoji_events_rounded,
-            text: '최대 레벨 도달! (Lv.${GameConfig.maxMonsterLevel})',
+            text: l.maxLevelReached(GameConfig.maxMonsterLevel),
             color: AppColors.rarityLegendary,
           ),
         ] else ...[
           // Level-up stat preview
           _StatPreview(
-            title: '레벨 업 시',
+            title: l.levelUpPreview,
             preview: UpgradeService.levelUpStatPreview(monster),
           ),
           const SizedBox(height: 12),
 
           // Gold level-up button
           _ActionButton(
-            label: '골드로 레벨 업',
+            label: l.levelUpWithGold,
             sublabel: FormatUtils.formatGold(goldCost),
             icon: Icons.monetization_on_rounded,
             iconColor: AppColors.gold,
@@ -508,7 +512,7 @@ class _LevelUpPanel extends ConsumerWidget {
               final ok =
                   await ref.read(upgradeProvider.notifier).levelUpWithGold();
               if (!ok && context.mounted) {
-                _showError(context, '골드가 부족합니다');
+                _showError(context, l.goldShort);
               }
             },
           ),
@@ -530,9 +534,9 @@ class _LevelUpPanel extends ConsumerWidget {
                     const Icon(Icons.science_rounded,
                         color: AppColors.experience, size: 16),
                     const SizedBox(width: 6),
-                    const Text(
-                      '경험치 물약',
-                      style: TextStyle(
+                    Text(
+                      l.expPotion,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -540,7 +544,7 @@ class _LevelUpPanel extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '보유: ${currency.expPotion}개  (개당 $expPerPotion EXP)',
+                      l.expPotionOwned(currency.expPotion, expPerPotion),
                       style: const TextStyle(
                         color: AppColors.textTertiary,
                         fontSize: 10,
@@ -552,28 +556,28 @@ class _LevelUpPanel extends ConsumerWidget {
                 Row(
                   children: [
                     _SmallActionButton(
-                      label: '1개',
+                      label: l.potionUse1,
                       enabled: currency.expPotion >= 1 && !isProcessing,
-                      onTap: () => _usePotion(ref, context, 1),
+                      onTap: () => _usePotion(ref, context, 1, l),
                     ),
                     const SizedBox(width: 6),
                     _SmallActionButton(
-                      label: '5개',
+                      label: l.potionUse5,
                       enabled: currency.expPotion >= 5 && !isProcessing,
-                      onTap: () => _usePotion(ref, context, 5),
+                      onTap: () => _usePotion(ref, context, 5, l),
                     ),
                     const SizedBox(width: 6),
                     _SmallActionButton(
-                      label: '10개',
+                      label: l.potionUse10,
                       enabled: currency.expPotion >= 10 && !isProcessing,
-                      onTap: () => _usePotion(ref, context, 10),
+                      onTap: () => _usePotion(ref, context, 10, l),
                     ),
                     const SizedBox(width: 6),
                     _SmallActionButton(
-                      label: '전부',
+                      label: l.potionUseAll,
                       enabled: currency.expPotion >= 1 && !isProcessing,
                       onTap: () =>
-                          _usePotion(ref, context, currency.expPotion),
+                          _usePotion(ref, context, currency.expPotion, l),
                     ),
                   ],
                 ),
@@ -585,10 +589,10 @@ class _LevelUpPanel extends ConsumerWidget {
     );
   }
 
-  void _usePotion(WidgetRef ref, BuildContext context, int count) async {
+  void _usePotion(WidgetRef ref, BuildContext context, int count, AppLocalizations l) async {
     final ok = await ref.read(upgradeProvider.notifier).useExpPotions(count);
     if (!ok && context.mounted) {
-      _showError(context, '경험치 물약이 부족합니다');
+      _showError(context, l.expPotionShort);
     }
   }
 }
@@ -603,6 +607,7 @@ class _EvolutionPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final currency = ref.watch(currencyProvider);
     final isProcessing =
         ref.watch(upgradeProvider.select((s) => s.isProcessing));
@@ -622,13 +627,13 @@ class _EvolutionPanel extends ConsumerWidget {
         if (isMaxEvo) ...[
           _InfoBanner(
             icon: Icons.workspace_premium_rounded,
-            text: '최종 진화 완료!',
+            text: l.finalEvolutionDone,
             color: AppColors.rarityLegendary,
           ),
         ] else ...[
           // Evolution stat preview
           _StatPreview(
-            title: '진화 시',
+            title: l.evolutionPreview,
             preview: UpgradeService.evolutionStatPreview(monster),
           ),
           const SizedBox(height: 12),
@@ -645,8 +650,8 @@ class _EvolutionPanel extends ConsumerWidget {
                 gold: goldCost, monsterShard: shardCost);
 
             return _ActionButton(
-              label: monster.evolutionStage == 0 ? '1차 진화' : '최종 진화',
-              sublabel: '진화하기',
+              label: monster.evolutionStage == 0 ? l.firstEvolution : l.finalEvolution,
+              sublabel: l.evolve,
               icon: Icons.auto_awesome_rounded,
               iconColor: AppColors.rarityEpic,
               enabled: canAfford && !isProcessing,
@@ -654,7 +659,7 @@ class _EvolutionPanel extends ConsumerWidget {
                 final ok =
                     await ref.read(upgradeProvider.notifier).evolve();
                 if (!ok && context.mounted) {
-                  _showError(context, '재료가 부족합니다');
+                  _showError(context, l.materialShort);
                 }
               },
             );
@@ -675,6 +680,7 @@ class _FusionPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final roster = ref.watch(monsterListProvider);
     final fusionId =
         ref.watch(upgradeProvider.select((s) => s.fusionMonsterId));
@@ -684,18 +690,18 @@ class _FusionPanel extends ConsumerWidget {
 
     // Can't fuse 5★
     if (monster.rarity >= 5) {
-      return const _InfoBanner(
+      return _InfoBanner(
         icon: Icons.workspace_premium_rounded,
-        text: '전설 등급은 융합할 수 없습니다',
+        text: l.fusionLegendaryLimit,
         color: AppColors.rarityLegendary,
       );
     }
 
     // Can't fuse team members
     if (monster.isInTeam) {
-      return const _InfoBanner(
+      return _InfoBanner(
         icon: Icons.info_rounded,
-        text: '팀에 배치된 몬스터는 융합할 수 없습니다',
+        text: l.fusionTeamLimit,
         color: AppColors.warning,
       );
     }
@@ -746,7 +752,7 @@ class _FusionPanel extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '같은 등급 몬스터 2마리를 융합하여\n${nextRarity.starsDisplay} ${nextRarity.koreanName} 등급 몬스터를 획득합니다',
+                  l.fusionDesc(nextRarity.starsDisplay, nextRarity.koreanName),
                   style: const TextStyle(
                     color: Color(0xFFCE93D8),
                     fontSize: 11,
@@ -773,7 +779,7 @@ class _FusionPanel extends ConsumerWidget {
               Expanded(
                 child: _FusionSlot(
                   monster: monster,
-                  label: '소재 1',
+                  label: l.material1,
                 ),
               ),
               const Padding(
@@ -786,7 +792,7 @@ class _FusionPanel extends ConsumerWidget {
                 child: fusionMonster != null
                     ? _FusionSlot(
                         monster: fusionMonster,
-                        label: '소재 2',
+                        label: l.material2,
                         onClear: () => ref
                             .read(upgradeProvider.notifier)
                             .clearFusionSelection(),
@@ -801,10 +807,10 @@ class _FusionPanel extends ConsumerWidget {
                             style: BorderStyle.solid,
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            '소재 2 선택',
-                            style: TextStyle(
+                            l.selectMaterial2,
+                            style: const TextStyle(
                               color: AppColors.textTertiary,
                               fontSize: 11,
                             ),
@@ -861,9 +867,9 @@ class _FusionPanel extends ConsumerWidget {
               const Icon(Icons.monetization_on_rounded,
                   color: AppColors.gold, size: 16),
               const SizedBox(width: 6),
-              const Text(
-                '융합 비용',
-                style: TextStyle(
+              Text(
+                l.fusionCost,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -885,15 +891,15 @@ class _FusionPanel extends ConsumerWidget {
 
         // Fuse button
         _ActionButton(
-          label: '융합하기',
-          sublabel: '${monster.rarity}성 + ${monster.rarity}성 → ${monster.rarity + 1}성',
+          label: l.fusionExecute,
+          sublabel: l.fusionFormula(monster.rarity, monster.rarity + 1),
           icon: Icons.merge_rounded,
           iconColor: const Color(0xFFCE93D8),
           enabled: canFuse && !isProcessing,
           onTap: () async {
             final ok = await ref.read(upgradeProvider.notifier).fuse();
             if (!ok && context.mounted) {
-              _showError(context, '융합 조건을 확인하세요');
+              _showError(context, l.fusionCheckCondition);
             }
           },
         ),
@@ -901,15 +907,15 @@ class _FusionPanel extends ConsumerWidget {
 
         // Eligible partners grid
         if (eligible.isEmpty)
-          const _InfoBanner(
+          _InfoBanner(
             icon: Icons.search_off_rounded,
-            text: '같은 등급의 융합 가능한 몬스터가 없습니다',
+            text: l.noFusionMaterial,
             color: AppColors.textTertiary,
           )
         else ...[
-          const Text(
-            '융합 소재 선택',
-            style: TextStyle(
+          Text(
+            l.selectFusionMaterial,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -1061,6 +1067,7 @@ class _EvolutionStageIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: BoxDecoration(
@@ -1071,11 +1078,11 @@ class _EvolutionStageIndicator extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _StageNode(label: '기본', isActive: true, isCurrent: stage == 0),
+          _StageNode(label: l.basic, isActive: true, isCurrent: stage == 0),
           _StageArrow(done: stage >= 1),
-          _StageNode(label: '1차 진화', isActive: stage >= 1, isCurrent: stage == 1),
+          _StageNode(label: l.firstEvo, isActive: stage >= 1, isCurrent: stage == 1),
           _StageArrow(done: stage >= 2),
-          _StageNode(label: '최종 진화', isActive: stage >= 2, isCurrent: stage == 2),
+          _StageNode(label: l.finalEvo, isActive: stage >= 2, isCurrent: stage == 2),
         ],
       ),
     );
@@ -1169,6 +1176,7 @@ class _EvolutionCostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final shardCost = UpgradeService.evolutionShardCost(monster);
     final goldCost = UpgradeService.evolutionGoldCost(monster);
     final hasShards = currency.monsterShard >= shardCost;
@@ -1184,9 +1192,9 @@ class _EvolutionCostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '진화 재료',
-            style: TextStyle(
+          Text(
+            l.evolutionMaterial,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -1196,7 +1204,7 @@ class _EvolutionCostCard extends StatelessWidget {
           // Shards
           _CostRow(
             icon: Icons.diamond_outlined,
-            label: '진화석',
+            label: l.evolutionStone,
             required: shardCost,
             current: currency.monsterShard,
             sufficient: hasShards,
@@ -1205,7 +1213,7 @@ class _EvolutionCostCard extends StatelessWidget {
           // Gold
           _CostRow(
             icon: Icons.monetization_on_rounded,
-            label: '골드',
+            label: l.gold,
             required: goldCost,
             current: currency.gold,
             sufficient: hasGold,
@@ -1641,6 +1649,7 @@ class _AwakeningPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final isMaxEvo = monster.evolutionStage >= GameConfig.maxEvolutionStage;
     final canAwaken = UpgradeNotifier.canAwaken(monster);
     final isMaxAwakening = monster.awakeningStars >= UpgradeNotifier.maxAwakeningStars;
@@ -1648,7 +1657,7 @@ class _AwakeningPanel extends ConsumerWidget {
     if (!isMaxEvo) {
       return _buildInfoBanner(
         icon: Icons.lock_outline,
-        text: '최종 진화 후 각성할 수 있습니다',
+        text: l.awakeningRequireEvo,
         color: AppColors.textTertiary,
       );
     }
@@ -1660,11 +1669,11 @@ class _AwakeningPanel extends ConsumerWidget {
           const SizedBox(height: 12),
           _buildInfoBanner(
             icon: Icons.brightness_7_rounded,
-            text: '최대 각성 완료!',
+            text: l.awakeningMaxDone,
             color: Colors.amber,
           ),
           const SizedBox(height: 8),
-          _buildStatPreview(),
+          _buildStatPreview(l),
         ],
       );
     }
@@ -1679,7 +1688,7 @@ class _AwakeningPanel extends ConsumerWidget {
       children: [
         _buildStarsDisplay(),
         const SizedBox(height: 12),
-        _buildStatPreview(),
+        _buildStatPreview(l),
         const SizedBox(height: 16),
 
         // Cost display
@@ -1693,7 +1702,7 @@ class _AwakeningPanel extends ConsumerWidget {
           child: Column(
             children: [
               Text(
-                '각성 ${monster.awakeningStars + 1}성 비용',
+                l.awakeningCostTitle(monster.awakeningStars + 1),
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -1707,7 +1716,7 @@ class _AwakeningPanel extends ConsumerWidget {
                   ),
                   _CostChip(
                     icon: Icons.diamond_rounded,
-                    label: '$shardCost 진화석',
+                    label: l.shardCost(shardCost),
                     available: currency.monsterShard >= shardCost,
                   ),
                 ],
@@ -1726,7 +1735,7 @@ class _AwakeningPanel extends ConsumerWidget {
                 : null,
             icon: const Icon(Icons.brightness_7_rounded, size: 18),
             label: Text(
-              processing ? '각성 중...' : '각성하기',
+              processing ? l.awakeningInProgress : l.awakening,
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
@@ -1761,7 +1770,7 @@ class _AwakeningPanel extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatPreview() {
+  Widget _buildStatPreview(AppLocalizations l) {
     final bonus = monster.awakeningStars * 10;
     final nextBonus = (monster.awakeningStars + 1) * 10;
     final isMax = monster.awakeningStars >= UpgradeNotifier.maxAwakeningStars;
@@ -1776,7 +1785,7 @@ class _AwakeningPanel extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            '현재 각성 보너스: +$bonus%',
+            l.currentAwakeningBonus(bonus),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -1786,7 +1795,7 @@ class _AwakeningPanel extends ConsumerWidget {
           if (!isMax) ...[
             const SizedBox(height: 4),
             Text(
-              '다음 각성 보너스: +$nextBonus%',
+              l.nextAwakeningBonus(nextBonus),
               style: TextStyle(fontSize: 12, color: Colors.green[300]),
             ),
           ],
