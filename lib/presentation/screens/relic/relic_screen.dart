@@ -24,6 +24,9 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
     final relics = ref.watch(relicProvider);
     final monsters = ref.watch(monsterListProvider);
 
+    // Build monster ID → name map once (avoids O(n) lookup per relic).
+    final monsterNameMap = {for (final m in monsters) m.id: m.name};
+
     List<RelicModel> filtered;
     switch (_filter) {
       case 'weapon':
@@ -97,15 +100,12 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (ctx, i) {
                       final relic = filtered[i];
-                      final equippedMonster = relic.equippedMonsterId != null
-                          ? monsters
-                              .where((m) => m.id == relic.equippedMonsterId)
-                              .firstOrNull
-                          : null;
 
                       return _RelicCard(
                         relic: relic,
-                        equippedMonsterName: equippedMonster?.name,
+                        equippedMonsterName: relic.equippedMonsterId != null
+                            ? monsterNameMap[relic.equippedMonsterId]
+                            : null,
                         onTap: () => _showRelicDetail(relic),
                       );
                     },
@@ -302,10 +302,10 @@ class _RelicDetailSheet extends ConsumerWidget {
     final monsters = ref.watch(monsterListProvider);
     final relics = ref.watch(relicProvider);
 
+    // Build monster map once for O(1) lookups.
+    final monsterMap = {for (final m in monsters) m.id: m};
     final equippedMonster = relic.equippedMonsterId != null
-        ? monsters
-            .where((m) => m.id == relic.equippedMonsterId)
-            .firstOrNull
+        ? monsterMap[relic.equippedMonsterId]
         : null;
 
     return Padding(

@@ -102,7 +102,12 @@
   - 던전 레벨 스케일링 완화: floor*2→floor*1.8, 회복 20%→25%
   - 스킬: 암흑참격 3.0→2.5×, 번개폭풍 1.2→1.4× AoE, 심판의빛 1.5→1.6×+15%힐, 치유의노래 15→18%힐
   - 월드보스 다이아 보상: damage/5000→damage/4000
-- [ ] C11: 성능 최적화 (ListView 가상화 등)
+- [x] C11: 성능 최적화 + 코드리뷰 버그 수정
+  - relic_screen: O(n) 몬스터 룩업 → O(1) 맵 기반 최적화
+  - team_edit_screen: 팀 슬롯 룩업 맵 최적화
+  - arena_provider: 배열 인덱스 바운드 체크 추가 (HIGH 버그)
+  - event_dungeon_provider: nullable force unwrap → null guard (HIGH 버그)
+  - world_boss_provider: boss null safety 개선 (HIGH 버그)
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

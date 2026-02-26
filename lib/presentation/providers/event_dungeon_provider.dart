@@ -236,7 +236,8 @@ class EventDungeonNotifier extends StateNotifier<EventDungeonState> {
     int roundSize,
   ) {
     final endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
-    final event = state.selectedEvent!;
+    final event = state.selectedEvent;
+    if (event == null) return;
 
     if (endPhase == BattlePhase.victory) {
       AudioService.instance.playVictory();
@@ -288,7 +289,8 @@ class EventDungeonNotifier extends StateNotifier<EventDungeonState> {
 
   void advanceWave() {
     if (state.phase != EventDungeonPhase.waveCleared) return;
-    final event = state.selectedEvent!;
+    final event = state.selectedEvent;
+    if (event == null) return;
     final nextWave = state.currentWave + 1;
 
     // Heal 15% between waves.

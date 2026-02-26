@@ -297,7 +297,9 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
 
     if (endPhase == BattlePhase.victory) {
       AudioService.instance.playVictory();
-      final opponent = state.opponents[state.selectedOpponentIndex];
+      final idx = state.selectedOpponentIndex;
+      if (idx < 0 || idx >= state.opponents.length) return;
+      final opponent = state.opponents[idx];
       final newRating = state.rating + opponent.ratingGain;
       state = state.copyWith(
         phase: ArenaPhase.victory,
@@ -317,7 +319,8 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
 
     if (endPhase == BattlePhase.defeat) {
       AudioService.instance.playDefeat();
-      final loss = ArenaService.ratingLoss(state.selectedOpponentIndex);
+      final defeatIdx = state.selectedOpponentIndex.clamp(0, 2);
+      final loss = ArenaService.ratingLoss(defeatIdx);
       final newRating = (state.rating + loss).clamp(0, 99999);
       state = state.copyWith(
         phase: ArenaPhase.defeat,

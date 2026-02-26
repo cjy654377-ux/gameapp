@@ -193,7 +193,9 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
     }
 
     final playerTeam = _copyTeam(state.playerTeam);
-    final boss = state.boss!.copyWith();
+    final currentBoss = state.boss;
+    if (currentBoss == null) return;
+    final boss = currentBoss.copyWith();
 
     // Build turn order: all alive player monsters + boss.
     final allUnits = <BattleMonster>[

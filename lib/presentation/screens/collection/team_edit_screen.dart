@@ -151,10 +151,11 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
 
   Widget _buildTeamSlots(
       List<MonsterModel> roster, Set<String> selectedSet) {
+    // Build ID→Monster map for O(1) lookups.
+    final rosterMap = {for (final m in roster) m.id: m};
     final selectedMonsters = <MonsterModel?>[];
     for (final id in _selectedIds) {
-      final m = roster.where((m) => m.id == id).firstOrNull;
-      selectedMonsters.add(m);
+      selectedMonsters.add(rosterMap[id]);
     }
     // Fill remaining slots.
     while (selectedMonsters.length < GameConfig.maxTeamSize) {
