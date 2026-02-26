@@ -157,7 +157,10 @@
   - TowerProvider: 층간 회복 없음, 상태이펙트만 리셋, 누적 보상
   - TowerScreen: 전용 전투 UI, 마일스톤 다이아/소환권 보상
   - 전투 대기화면 빠른이동, /tower 라우트, ko/en l10n
-- [ ] H7: 몬스터 조합 레시피 (특정 조합 → 히든 몬스터 해금)
+- [x] H7: 몬스터 조합 레시피 (특정 조합 → 히든 몬스터 해금)
+  - 히든 몬스터 5종 (화염골렘/숲의수호자/수정피닉스/그림자용/번개인어)
+  - RecipeDatabase 5개 레시피, 크로스 레어리티 허용
+  - 가챠/일반융합에서 히든 제외 (gachaWeight 필터)
 - [x] H8: 일일 출석 보상 (7일 주기 누적 보상)
   - PlayerModel 3필드 추가 (lastCheckInDate/checkInStreak/totalCheckInDays)
   - AttendanceProvider: 7일 주기 출석, 연속/리셋 판정, 보상 지급
