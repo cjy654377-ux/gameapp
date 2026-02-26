@@ -8,6 +8,7 @@ import '../../../core/enums/monster_rarity.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/collection_provider.dart';
 import '../../widgets/common/currency_bar.dart';
+import '../../widgets/tutorial_overlay.dart';
 
 class CollectionScreen extends ConsumerWidget {
   const CollectionScreen({super.key});
@@ -18,25 +19,29 @@ class CollectionScreen extends ConsumerWidget {
     final stats = ref.watch(collectionStatsProvider);
     final filter = ref.watch(collectionFilterProvider);
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.teamEdit),
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.groups, color: Colors.white),
-        label: const Text('팀 편성', style: TextStyle(color: Colors.white)),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const CurrencyBar(),
-            _buildHeader(context, stats),
-            _buildFilterBar(context, ref, filter),
-            Expanded(
-              child: entries.isEmpty
-                  ? _buildEmpty(context)
-                  : _buildGrid(context, ref, entries),
-            ),
-          ],
+    return TutorialOverlay(
+      forStep: TutorialSteps.teamIntro,
+      nextStep: TutorialSteps.completed,
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => context.push(AppRoutes.teamEdit),
+          backgroundColor: AppColors.primary,
+          icon: const Icon(Icons.groups, color: Colors.white),
+          label: const Text('팀 편성', style: TextStyle(color: Colors.white)),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              const CurrencyBar(),
+              _buildHeader(context, stats),
+              _buildFilterBar(context, ref, filter),
+              Expanded(
+                child: entries.isEmpty
+                    ? _buildEmpty(context)
+                    : _buildGrid(context, ref, entries),
+              ),
+            ],
+          ),
         ),
       ),
     );

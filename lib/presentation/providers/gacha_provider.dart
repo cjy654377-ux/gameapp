@@ -11,6 +11,7 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 // =============================================================================
 // GachaState
@@ -232,6 +233,11 @@ class GachaNotifier extends StateNotifier<GachaState> {
           QuestTrigger.gachaPull,
           count: count,
         );
+    // Advance tutorial after first gacha.
+    final step = ref.read(playerProvider).player?.tutorialStep ?? 0;
+    if (step <= TutorialSteps.gachaIntro) {
+      ref.read(playerProvider.notifier).advanceTutorial(TutorialSteps.upgradeIntro);
+    }
   }
 
   void _updateCollectProgress() {

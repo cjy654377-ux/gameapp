@@ -50,6 +50,10 @@ class PlayerModel extends HiveObject {
   @HiveField(13)
   double prestigeBonusPercent;
 
+  /// Current tutorial step (0 = not started, 99 = completed).
+  @HiveField(14)
+  int tutorialStep;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -65,6 +69,7 @@ class PlayerModel extends HiveObject {
     this.maxDungeonFloor = 0,
     this.prestigeLevel = 0,
     this.prestigeBonusPercent = 0.0,
+    this.tutorialStep = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -98,6 +103,7 @@ class PlayerModel extends HiveObject {
       maxDungeonFloor: 0,
       prestigeLevel: 0,
       prestigeBonusPercent: 0.0,
+      tutorialStep: 0,
     );
   }
 
@@ -120,6 +126,7 @@ class PlayerModel extends HiveObject {
     int? maxDungeonFloor,
     int? prestigeLevel,
     double? prestigeBonusPercent,
+    int? tutorialStep,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -136,6 +143,7 @@ class PlayerModel extends HiveObject {
       maxDungeonFloor: maxDungeonFloor ?? this.maxDungeonFloor,
       prestigeLevel: prestigeLevel ?? this.prestigeLevel,
       prestigeBonusPercent: prestigeBonusPercent ?? this.prestigeBonusPercent,
+      tutorialStep: tutorialStep ?? this.tutorialStep,
     );
   }
 
@@ -176,13 +184,14 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       maxDungeonFloor:    fields[11] as int? ?? 0,
       prestigeLevel:      fields[12] as int? ?? 0,
       prestigeBonusPercent: (fields[13] as num?)?.toDouble() ?? 0.0,
+      tutorialStep:       fields[14] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(14) // number of fields
+      ..writeByte(15) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -210,7 +219,9 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(12)
       ..write(obj.prestigeLevel)
       ..writeByte(13)
-      ..write(obj.prestigeBonusPercent);
+      ..write(obj.prestigeBonusPercent)
+      ..writeByte(14)
+      ..write(obj.tutorialStep);
   }
 
   @override

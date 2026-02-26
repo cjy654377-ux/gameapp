@@ -10,6 +10,7 @@ import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
 
 // =============================================================================
@@ -28,42 +29,48 @@ class BattleScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final phase = ref.watch(battleProvider.select((s) => s.phase));
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          // ── Main vertical layout ─────────────────────────────────────────
-          Column(
+    return TutorialOverlay(
+      forStep: TutorialSteps.battleIntro,
+      child: TutorialOverlay(
+        forStep: TutorialSteps.afterFirstVictory,
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          body: Stack(
             children: [
-              // Currency bar — handles its own SafeArea top padding
-              const CurrencyBar(),
+              // ── Main vertical layout ─────────────────────────────────────
+              Column(
+                children: [
+                  // Currency bar — handles its own SafeArea top padding
+                  const CurrencyBar(),
 
-              // Stage header
-              const _StageHeader(),
+                  // Stage header
+                  const _StageHeader(),
 
-              // Battle arena: ~40 % of the remaining height
-              const Expanded(
-                flex: 5,
-                child: _BattleArena(),
+                  // Battle arena: ~40 % of the remaining height
+                  const Expanded(
+                    flex: 5,
+                    child: _BattleArena(),
+                  ),
+
+                  // Thin divider
+                  Container(height: 1, color: AppColors.border),
+
+                  // Battle log: ~25 % of the remaining height
+                  const Expanded(
+                    flex: 3,
+                    child: _BattleLog(),
+                  ),
+
+                  // Control bar — handles its own SafeArea bottom padding
+                  const _ControlBar(),
+                ],
               ),
 
-              // Thin divider
-              Container(height: 1, color: AppColors.border),
-
-              // Battle log: ~25 % of the remaining height
-              const Expanded(
-                flex: 3,
-                child: _BattleLog(),
-              ),
-
-              // Control bar — handles its own SafeArea bottom padding
-              const _ControlBar(),
+              // ── Victory dialog overlay ───────────────────────────────────
+              if (phase == BattlePhase.victory) const _VictoryDialog(),
             ],
           ),
-
-          // ── Victory dialog overlay ───────────────────────────────────────
-          if (phase == BattlePhase.victory) const _VictoryDialog(),
-        ],
+        ),
       ),
     );
   }

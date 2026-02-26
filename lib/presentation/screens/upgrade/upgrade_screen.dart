@@ -11,6 +11,7 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/upgrade_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 class UpgradeScreen extends ConsumerWidget {
   const UpgradeScreen({super.key});
@@ -38,17 +39,20 @@ class UpgradeScreen extends ConsumerWidget {
       }
     });
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          const CurrencyBar(),
-          Expanded(
-            child: selectedId == null
-                ? const _MonsterSelector()
-                : const _UpgradePanel(),
-          ),
-        ],
+    return TutorialOverlay(
+      forStep: TutorialSteps.upgradeIntro,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Column(
+          children: [
+            const CurrencyBar(),
+            Expanded(
+              child: selectedId == null
+                  ? const _MonsterSelector()
+                  : const _UpgradePanel(),
+            ),
+          ],
+        ),
       ),
     );
   }

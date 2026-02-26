@@ -214,6 +214,26 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Tutorial
+  // ---------------------------------------------------------------------------
+
+  /// Advances the tutorial step if [step] is the next expected step.
+  Future<void> advanceTutorial(int step) async {
+    final current = state.player;
+    if (current == null) return;
+    if (current.tutorialStep >= step) return; // already past this step
+
+    final updated = current.copyWith(tutorialStep: step);
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
+  /// Marks the tutorial as fully completed (step 99).
+  Future<void> completeTutorial() async {
+    await advanceTutorial(99);
+  }
+
+  // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
 

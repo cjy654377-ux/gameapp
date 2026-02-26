@@ -70,7 +70,11 @@
   - gacha_provider: 풀/카드공개/고레어 피드백
   - upgrade_provider: 레벨업/진화/융합 피드백
   - settings_screen: 진동 효과 ON/OFF 토글
-- [ ] A4: 튜토리얼 (첫 플레이어 단계별 가이드)
+- [x] A4: 튜토리얼 (첫 플레이어 단계별 가이드)
+  - PlayerModel.tutorialStep (HiveField 14): 단계 추적
+  - TutorialOverlay 위젯: 단계별 힌트 오버레이
+  - 5단계 흐름: 전투소개→승리→소환→강화→팀편성→완료
+  - battle/gacha/upgrade/collection_screen 통합
 ### 콘텐츠 확장
 - [ ] B5: PvP 아레나 (AI 대전, 랭킹)
 - [ ] B6: 이벤트 던전 (기간한정 스테이지)

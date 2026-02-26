@@ -464,6 +464,12 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
     AudioService.instance.playRewardCollect();
 
+    // Advance tutorial: after first reward → show gacha hint.
+    final tutorialStep = playerData?.tutorialStep ?? 0;
+    if (tutorialStep <= 1) {
+      await player.advanceTutorial(2); // → gachaIntro
+    }
+
     // Clear reward from state.
     state = state.copyWith(clearReward: true);
 

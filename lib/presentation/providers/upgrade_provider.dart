@@ -10,7 +10,9 @@ import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
+import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 // =============================================================================
 // UpgradeTab enum
@@ -130,6 +132,12 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     await ref.read(monsterListProvider.notifier).updateMonster(upgraded);
     ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterLevelUp);
     AudioService.instance.playLevelUp();
+
+    // Advance tutorial after first level-up.
+    final step = ref.read(playerProvider).player?.tutorialStep ?? 0;
+    if (step <= TutorialSteps.upgradeIntro) {
+      ref.read(playerProvider.notifier).advanceTutorial(TutorialSteps.teamIntro);
+    }
 
     state = state.copyWith(
       isProcessing: false,

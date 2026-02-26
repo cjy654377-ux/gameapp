@@ -11,6 +11,7 @@ import 'package:gameapp/domain/services/gacha_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/gacha_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 class GachaScreen extends ConsumerWidget {
   const GachaScreen({super.key});
@@ -19,35 +20,38 @@ class GachaScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showResults = ref.watch(gachaProvider.select((s) => s.showResults));
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          Column(
-            children: const [
-              CurrencyBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 12),
-                      _GachaBanner(),
-                      SizedBox(height: 16),
-                      _PityBar(),
-                      SizedBox(height: 16),
-                      _RateTable(),
-                      SizedBox(height: 20),
-                      _PullButtons(),
-                      SizedBox(height: 24),
-                    ],
+    return TutorialOverlay(
+      forStep: TutorialSteps.gachaIntro,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Stack(
+          children: [
+            Column(
+              children: const [
+                CurrencyBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 12),
+                        _GachaBanner(),
+                        SizedBox(height: 16),
+                        _PityBar(),
+                        SizedBox(height: 16),
+                        _RateTable(),
+                        SizedBox(height: 20),
+                        _PullButtons(),
+                        SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (showResults) const _ResultOverlay(),
-        ],
+              ],
+            ),
+            if (showResults) const _ResultOverlay(),
+          ],
+        ),
       ),
     );
   }
