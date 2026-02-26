@@ -59,13 +59,13 @@ class FormatUtils {
 
     final parts = <String>[];
     if (hours > 0) {
-      parts.add('${hours}시간');
+      parts.add('$hours시간');
     }
     if (minutes > 0) {
-      parts.add('${minutes}분');
+      parts.add('$minutes분');
     }
     if (secs > 0 || parts.isEmpty) {
-      parts.add('${secs}초');
+      parts.add('$secs초');
     }
 
     return parts.join(' ');
@@ -120,17 +120,17 @@ class FormatUtils {
   /// Example: 125 → "2분 5초", 5 → "5초"
   static String formatShortDuration(int seconds) {
     if (seconds < 60) {
-      return '${seconds}초';
+      return '$seconds초';
     }
 
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
 
     if (remainingSeconds == 0) {
-      return '${minutes}분';
+      return '$minutes분';
     }
 
-    return '${minutes}분 ${remainingSeconds}초';
+    return '$minutes분 $remainingSeconds초';
   }
 
   /// Format level with prefix

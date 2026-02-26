@@ -1,7 +1,7 @@
-/// Battle domain entities for the monster idle game.
-///
-/// These are pure Dart value objects used exclusively within the battle
-/// domain.  They have no Hive annotations and no Flutter dependencies.
+// Battle domain entities for the monster idle game.
+//
+// These are pure Dart value objects used exclusively within the battle
+// domain.  They have no Hive annotations and no Flutter dependencies.
 
 // =============================================================================
 // BattlePhase

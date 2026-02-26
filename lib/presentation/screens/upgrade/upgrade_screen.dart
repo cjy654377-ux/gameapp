@@ -515,7 +515,7 @@ class _LevelUpPanel extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '보유: ${currency.expPotion}개  (개당 ${expPerPotion} EXP)',
+                      '보유: ${currency.expPotion}개  (개당 $expPerPotion EXP)',
                       style: const TextStyle(
                         color: AppColors.textTertiary,
                         fontSize: 10,
@@ -832,7 +832,7 @@ class _CostRow extends StatelessWidget {
         ),
         const Spacer(),
         Text(
-          '${FormatUtils.formatNumber(current)}',
+          FormatUtils.formatNumber(current),
           style: TextStyle(
             color: sufficient ? AppColors.textPrimary : AppColors.error,
             fontSize: 11,

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 /// Immutable data describing a single battle stage.
 class StageData {
   /// Unique stage identifier, e.g. '1-1', '2-3', '5-6'.
@@ -54,17 +52,6 @@ class StageData {
 ///   flame_dragon, archangel
 class StageDatabase {
   StageDatabase._();
-
-  // ---------------------------------------------------------------------------
-  // Reward calculation helper (used when building the list below)
-  // ---------------------------------------------------------------------------
-
-  /// Calculates the scaled reward for a given linear [stageIndex] (0-based).
-  static int _gold(int stageIndex) =>
-      (50 * math.pow(1.15, stageIndex)).round();
-
-  static int _exp(int stageIndex) =>
-      (30 * math.pow(1.15, stageIndex)).round();
 
   // ---------------------------------------------------------------------------
   // Area 1 — 시작의 숲  (Beginner Forest)
