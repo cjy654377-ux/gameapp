@@ -23,11 +23,13 @@
   - QuestProvider: 트리거 기반 진행추적, 일일 리셋, 보상 수령
   - QuestScreen: 일일/업적 탭, 진행바, 수령 버튼
   - 6번째 탭 '퀘스트', 전투/가챠/강화/진화/클리어/수집 트리거 연동
-- [ ] Feature 5: 몬스터 스킬 시스템
-  - skill_database.dart, skill_entity.dart
-  - BattleMonster에 shieldHp/burnTurns/stunTurns/skillCooldown 추가
-  - BattleService에 processSkillIfReady() 추가
-  - monster_battle_card에 스킬 아이콘 + 발동 표시
+- [x] Feature 5: 몬스터 스킬 시스템
+  - skill_database.dart: 20개 몬스터별 고유 스킬 (데미지/쉴드/힐/화상/기절/흡수/AOE)
+  - BattleMonster에 skillId/skillCooldown/shieldHp/burnTurns/stunTurns 추가
+  - BattleService: processSkill(), processBurn(), processStun(), 쉴드흡수
+  - battle_provider processTurn 턴플로우: 화상→기절→스킬/일반공격
+  - MonsterBattleCard: 스킬준비표시, 상태이상아이콘, CD카운터
+  - HpBar 쉴드오버레이, 로그 스킬발동 보라색 강조
 - [ ] Feature 6: 무한 던전
 - [ ] Feature 7: 몬스터 융합
 - [ ] Feature 8: 전생/프레스티지
@@ -42,6 +44,7 @@
 - lib/data/static/quest_database.dart
 - lib/presentation/providers/quest_provider.dart
 - lib/presentation/screens/quest/quest_screen.dart
+- lib/data/static/skill_database.dart
 
 ### 수정
 - lib/core/enums/monster_element.dart (fromName 추가)
@@ -54,3 +57,7 @@
 - lib/presentation/screens/home_screen.dart (6탭, 퀘스트로드, 알림)
 - lib/data/datasources/local_storage.dart (quest box 추가)
 - lib/main.dart (NotificationService 초기화)
+- lib/domain/entities/battle_entity.dart (스킬필드 추가)
+- lib/domain/services/battle_service.dart (스킬처리/화상/기절/쉴드)
+- lib/presentation/widgets/battle/monster_battle_card.dart (스킬UI)
+- lib/presentation/widgets/battle/hp_bar.dart (쉴드 오버레이)
