@@ -18,6 +18,7 @@ import '../presentation/screens/relic/relic_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
 import '../presentation/screens/arena/arena_screen.dart';
 import '../presentation/screens/event_dungeon/event_dungeon_screen.dart';
+import '../presentation/screens/guild/guild_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -42,6 +43,7 @@ class AppRoutes {
   static const relic = '/relic';
   static const arena = '/arena';
   static const eventDungeon = '/event-dungeon';
+  static const guild = '/guild';
 }
 
 // ---------------------------------------------------------------------------
@@ -99,6 +101,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.eventDungeon,
         builder: (context, state) => const EventDungeonScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.guild,
+        builder: (context, state) => const GuildScreen(),
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {

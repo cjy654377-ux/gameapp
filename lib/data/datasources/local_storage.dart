@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/guild_model.dart';
 import '../models/monster_model.dart';
 import '../models/player_model.dart';
 import '../models/currency_model.dart';
@@ -19,6 +20,8 @@ const String _kPlayerBoxName   = 'player';
 const String _kCurrencyBoxName = 'currency';
 const String _kQuestBoxName    = 'quests';
 const String _kRelicBoxName    = 'relics';
+const String _kGuildBoxName    = 'guild';
+const String _kGuildKey        = 'guild';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -37,6 +40,7 @@ class LocalStorage {
   late Box<CurrencyModel> _currencyBox;
   late Box<QuestModel>    _questBox;
   late Box<RelicModel>    _relicBox;
+  late Box<GuildModel>    _guildBox;
 
   bool _initialised = false;
 
@@ -66,12 +70,16 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(RelicModelAdapter().typeId)) {
       Hive.registerAdapter(RelicModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(GuildModelAdapter().typeId)) {
+      Hive.registerAdapter(GuildModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
     _currencyBox = await Hive.openBox<CurrencyModel>(_kCurrencyBoxName);
     _questBox    = await Hive.openBox<QuestModel>(_kQuestBoxName);
     _relicBox    = await Hive.openBox<RelicModel>(_kRelicBoxName);
+    _guildBox    = await Hive.openBox<GuildModel>(_kGuildBoxName);
 
     _initialised = true;
   }
@@ -236,6 +244,23 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Guild CRUD
+  // -------------------------------------------------------------------------
+
+  /// Returns the stored guild or null.
+  GuildModel? getGuild() => _guildBox.get(_kGuildKey);
+
+  /// Persists the guild.
+  Future<void> saveGuild(GuildModel guild) async {
+    await _guildBox.put(_kGuildKey, guild);
+  }
+
+  /// Deletes the guild.
+  Future<void> deleteGuild() async {
+    await _guildBox.delete(_kGuildKey);
+  }
+
+  // -------------------------------------------------------------------------
   // Bulk operations
   // -------------------------------------------------------------------------
 
@@ -278,6 +303,7 @@ class LocalStorage {
       _currencyBox.clear(),
       _questBox.clear(),
       _relicBox.clear(),
+      _guildBox.clear(),
     ]);
   }
 
@@ -494,6 +520,7 @@ class LocalStorage {
       _currencyBox.close(),
       _questBox.close(),
       _relicBox.close(),
+      _guildBox.close(),
     ]);
     _initialised = false;
   }

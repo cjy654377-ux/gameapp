@@ -379,6 +379,35 @@ class _IdleBanner extends StatelessWidget {
                   ),
                 ),
               ),
+              GestureDetector(
+                onTap: () => context.push(AppRoutes.guild),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.indigo.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.groups, color: Colors.indigo, size: 18),
+                      SizedBox(width: 6),
+                      Text(
+                        '길드',
+                        style: TextStyle(
+                          color: Colors.indigo,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ],

@@ -86,7 +86,12 @@
   - EventDungeonProvider: 로비/전투/웨이브클리어/결과 상태
   - EventDungeonScreen: 이벤트목록/전투/보상 UI
   - battle_screen 이벤트던전 진입, /event-dungeon 라우트
-- [ ] B7: 길드/클랜 시스템 (공동보스, 길드상점)
+- [x] B7: 길드/클랜 시스템 (공동보스, 길드상점)
+  - GuildModel (Hive typeId:5): 길드 데이터 (레벨/코인/멤버/보스HP)
+  - GuildService: AI 멤버 시뮬레이션, 주간 보스 로테이션 3종, 길드 상점 5종
+  - GuildProvider: 길드 생성, 보스전투, 상점 구매, 자동전투
+  - GuildScreen: 로비/전투/결과/상점 UI
+  - battle_screen 길드 진입 버튼, /guild 라우트
 - [x] B8: 몬스터 도감 보상 (완성도 보너스)
   - 4단계 마일스톤 (5/10/15/20종), 골드+다이아+소환권 보상
   - PlayerModel.collectionRewardsClaimed(HiveField 15) 비트마스크
