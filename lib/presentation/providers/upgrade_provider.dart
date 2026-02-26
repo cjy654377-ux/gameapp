@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/quest_database.dart';
+import 'package:gameapp/data/static/recipe_database.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
@@ -251,12 +252,17 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
   /// Gold cost for fusion: 300 * rarity.
   static int fusionGoldCost(int rarity) => 300 * rarity;
 
-  /// Whether two monsters can be fused.
+  /// Whether two monsters can be fused (same rarity OR recipe match).
   static bool canFuse(MonsterModel a, MonsterModel b) {
     if (a.id == b.id) return false;
-    if (a.rarity != b.rarity) return false;
-    if (a.rarity >= 5) return false; // Cannot fuse legendary
     if (a.isInTeam || b.isInTeam) return false;
+    // Recipe match allows cross-rarity fusion
+    if (RecipeDatabase.findMatch(a.templateId, b.templateId) != null) {
+      return true;
+    }
+    // Normal fusion: same rarity, max 4★
+    if (a.rarity != b.rarity) return false;
+    if (a.rarity >= 5) return false;
     return true;
   }
 
@@ -278,18 +284,27 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
       return false;
     }
 
-    // Pick a random monster of the next rarity.
-    final nextRarity = monsterA.rarity + 1;
-    final candidates = MonsterDatabase.byRarity(nextRarity);
-    if (candidates.isEmpty) {
-      // Refund gold if no candidates (shouldn't happen).
-      await ref.read(currencyProvider.notifier).addGold(cost);
-      state = state.copyWith(isProcessing: false);
-      return false;
-    }
+    // Check for recipe match first.
+    final recipe = RecipeDatabase.findMatch(
+        monsterA.templateId, monsterB.templateId);
+    final MonsterTemplate template;
 
-    final random = math.Random();
-    final template = candidates[random.nextInt(candidates.length)];
+    if (recipe != null) {
+      template = MonsterDatabase.findById(recipe.resultTemplateId)!;
+    } else {
+      // Normal fusion: pick random monster of next rarity.
+      final nextRarity = monsterA.rarity + 1;
+      final candidates = MonsterDatabase.byRarity(nextRarity)
+          .where((t) => t.gachaWeight > 0)
+          .toList();
+      if (candidates.isEmpty) {
+        await ref.read(currencyProvider.notifier).addGold(cost);
+        state = state.copyWith(isProcessing: false);
+        return false;
+      }
+      final random = math.Random();
+      template = candidates[random.nextInt(candidates.length)];
+    }
 
     // Create the new monster.
     final newMonster = MonsterModel.fromTemplate(
@@ -325,7 +340,9 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
       isProcessing: false,
       clearSelection: true,
       clearFusion: true,
-      successMessage: '${template.name} 획득! ($nextRarity성)',
+      successMessage: recipe != null
+          ? '${template.name} 해금! (${template.rarity}성 히든)'
+          : '${template.name} 획득! (${template.rarity}성)',
       fusionResultName: template.name,
     );
     return true;

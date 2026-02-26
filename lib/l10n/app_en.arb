@@ -451,5 +451,12 @@
   "towerNextFloor": "Next Floor",
   "towerCollect": "Collect Rewards",
   "towerComplete": "Tower Conquered!",
-  "towerNoHeal": "No healing between floors!"
+  "towerNoHeal": "No healing between floors!",
+
+  "recipeTitle": "Recipes",
+  "recipeHidden": "Hidden Monster",
+  "recipeUnlocked": "Unlocked",
+  "recipeLocked": "???",
+  "recipeHint": "Combine specific monsters to unlock hidden ones!",
+  "recipeMatch": "Recipe found!"
 }

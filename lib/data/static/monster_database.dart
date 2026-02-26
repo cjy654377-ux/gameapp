@@ -361,6 +361,80 @@ class MonsterDatabase {
   );
 
   // ---------------------------------------------------------------------------
+  // Hidden monsters (recipe-only, not in gacha)
+  // ---------------------------------------------------------------------------
+
+  static const MonsterTemplate flameGolem = MonsterTemplate(
+    id:          'flame_golem',
+    name:        '화염 골렘',
+    rarity:      3,
+    element:     'fire',
+    size:        'large',
+    description: '불꽃과 바위가 융합하여 탄생한 거대한 골렘. 용암이 온몸을 감싸고 있다.',
+    baseAtk:     88.0,
+    baseDef:     90.0,
+    baseHp:      680.0,
+    baseSpd:     8.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate forestGuardian = MonsterTemplate(
+    id:          'forest_guardian',
+    name:        '숲의 수호자',
+    rarity:      3,
+    element:     'grass',
+    size:        'large',
+    description: '고대 숲의 정령이 육체를 얻은 존재. 자연의 힘으로 아군을 지킨다.',
+    baseAtk:     72.0,
+    baseDef:     95.0,
+    baseHp:      700.0,
+    baseSpd:     10.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate crystalPhoenix = MonsterTemplate(
+    id:          'crystal_phoenix',
+    name:        '수정 피닉스',
+    rarity:      4,
+    element:     'light',
+    size:        'large',
+    description: '수정 거북의 방어와 피닉스의 불사가 결합된 신비한 존재.',
+    baseAtk:     120.0,
+    baseDef:     95.0,
+    baseHp:      820.0,
+    baseSpd:     18.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate shadowDragon = MonsterTemplate(
+    id:          'shadow_dragon',
+    name:        '그림자 용',
+    rarity:      5,
+    element:     'dark',
+    size:        'extraLarge',
+    description: '어둠의 기사와 화염 용의 힘이 하나로. 모든 것을 삼키는 절대적 존재.',
+    baseAtk:     175.0,
+    baseDef:     135.0,
+    baseHp:      1150.0,
+    baseSpd:     24.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate thunderMermaid = MonsterTemplate(
+    id:          'thunder_mermaid',
+    name:        '번개 인어',
+    rarity:      3,
+    element:     'electric',
+    size:        'medium',
+    description: '천둥 늑대의 전기와 인어의 물이 결합하여 탄생한 폭풍의 화신.',
+    baseAtk:     90.0,
+    baseDef:     55.0,
+    baseHp:      520.0,
+    baseSpd:     22.0,
+    gachaWeight: 0,
+  );
+
+  // ---------------------------------------------------------------------------
   // Master list and lookup helpers
   // ---------------------------------------------------------------------------
 
@@ -391,7 +465,17 @@ class MonsterDatabase {
     // 5성 전설
     flameDragon,
     archangel,
+    // Hidden (recipe-only)
+    flameGolem,
+    forestGuardian,
+    crystalPhoenix,
+    shadowDragon,
+    thunderMermaid,
   ];
+
+  /// Hidden monsters obtainable only through recipes (gachaWeight = 0).
+  static List<MonsterTemplate> get hidden =>
+      all.where((t) => t.gachaWeight == 0).toList();
 
   /// Returns templates filtered by [rarity].
   static List<MonsterTemplate> byRarity(int rarity) =>

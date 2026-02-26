@@ -38,7 +38,9 @@ class GachaService {
 
     // Pity guarantee: force a legendary after threshold.
     if (updatedPity >= GameConfig.pityThreshold) {
-      final legendaries = MonsterDatabase.byRarity(5);
+      final legendaries = MonsterDatabase.byRarity(5)
+          .where((t) => t.gachaWeight > 0)
+          .toList();
       if (legendaries.isNotEmpty) {
         final template = legendaries[_random.nextInt(legendaries.length)];
         return (

@@ -527,5 +527,12 @@
   "towerNextFloor": "다음 층",
   "towerCollect": "보상 수집",
   "towerComplete": "탑 정복 완료!",
-  "towerNoHeal": "층 사이 회복 없음!"
+  "towerNoHeal": "층 사이 회복 없음!",
+
+  "recipeTitle": "조합 레시피",
+  "recipeHidden": "히든 몬스터",
+  "recipeUnlocked": "해금됨",
+  "recipeLocked": "???",
+  "recipeHint": "특정 몬스터 조합으로 히든 몬스터를 해금하세요!",
+  "recipeMatch": "레시피 발견!"
 }
