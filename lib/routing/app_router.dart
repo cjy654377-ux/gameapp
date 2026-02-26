@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/datasources/local_storage.dart';
+import '../data/models/monster_model.dart';
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/battle/battle_screen.dart';
 import '../presentation/screens/gacha/gacha_screen.dart';
@@ -19,6 +20,7 @@ import '../presentation/screens/stage_select/stage_select_screen.dart';
 import '../presentation/screens/arena/arena_screen.dart';
 import '../presentation/screens/event_dungeon/event_dungeon_screen.dart';
 import '../presentation/screens/guild/guild_screen.dart';
+import '../presentation/screens/monster_detail/monster_detail_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -44,6 +46,7 @@ class AppRoutes {
   static const arena = '/arena';
   static const eventDungeon = '/event-dungeon';
   static const guild = '/guild';
+  static const monsterDetail = '/monster-detail';
 }
 
 // ---------------------------------------------------------------------------
@@ -105,6 +108,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.guild,
         builder: (context, state) => const GuildScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.monsterDetail,
+        builder: (context, state) {
+          final monster = state.extra as MonsterModel;
+          return MonsterDetailScreen(monster: monster);
+        },
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {

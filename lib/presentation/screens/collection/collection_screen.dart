@@ -267,6 +267,12 @@ class CollectionScreen extends ConsumerWidget {
   }
 
   void _showDetail(BuildContext context, CollectionEntry entry) {
+    // Owned monster → full detail screen
+    if (entry.isOwned && entry.best != null) {
+      context.push(AppRoutes.monsterDetail, extra: entry.best);
+      return;
+    }
+    // Unowned → bottom sheet
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
