@@ -72,6 +72,10 @@ class MonsterModel extends HiveObject {
   @HiveField(16)
   int awakeningStars;
 
+  /// Cumulative battle participation count (for affinity bonus).
+  @HiveField(17)
+  int battleCount;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -90,6 +94,7 @@ class MonsterModel extends HiveObject {
     required this.size,
     this.skillName,
     this.awakeningStars = 0,
+    this.battleCount = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -115,9 +120,31 @@ class MonsterModel extends HiveObject {
   /// Per-awakening-star multiplier. Each star adds 10% of the base stat.
   double get _awakeningMultiplier => 1.0 + awakeningStars * 0.10;
 
-  /// Composite multiplier (cached per access chain, avoids 3× recompute per stat).
+  /// Affinity level derived from battle count.
+  /// 0~9 battles = Lv0, 10~29 = Lv1, 30~59 = Lv2, 60~99 = Lv3,
+  /// 100~149 = Lv4, 150+ = Lv5 (max).
+  int get affinityLevel {
+    if (battleCount >= 150) return 5;
+    if (battleCount >= 100) return 4;
+    if (battleCount >= 60) return 3;
+    if (battleCount >= 30) return 2;
+    if (battleCount >= 10) return 1;
+    return 0;
+  }
+
+  /// Affinity bonus multiplier: each level adds 2% stats.
+  double get _affinityMultiplier => 1.0 + affinityLevel * 0.02;
+
+  /// Battle count needed for next affinity level (0 if already max).
+  int get battleCountToNextAffinity {
+    const thresholds = [10, 30, 60, 100, 150];
+    if (affinityLevel >= 5) return 0;
+    return thresholds[affinityLevel] - battleCount;
+  }
+
+  /// Composite multiplier (cached per access chain, avoids repeated recompute per stat).
   double get _compositeMultiplier =>
-      _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+      _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier * _affinityMultiplier;
 
   // -------------------------------------------------------------------------
   // Computed final stats
@@ -195,6 +222,7 @@ class MonsterModel extends HiveObject {
     String? size,
     Object? skillName = _sentinel,
     int? awakeningStars,
+    int? battleCount,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -216,6 +244,7 @@ class MonsterModel extends HiveObject {
           ? this.skillName
           : skillName as String?,
       awakeningStars: awakeningStars ?? this.awakeningStars,
+      battleCount: battleCount ?? this.battleCount,
     );
   }
 
@@ -264,13 +293,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       size:           fields[14] as String? ?? 'small',
       skillName:      fields[15] as String?,
       awakeningStars: fields[16] as int? ?? 0,
+      battleCount:    fields[17] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(17) // total number of fields
+      ..writeByte(18) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -304,7 +334,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(15)
       ..write(obj.skillName)
       ..writeByte(16)
-      ..write(obj.awakeningStars);
+      ..write(obj.awakeningStars)
+      ..writeByte(17)
+      ..write(obj.battleCount);
   }
 
   @override

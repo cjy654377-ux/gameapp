@@ -110,6 +110,36 @@ class MonsterListNotifier extends StateNotifier<List<MonsterModel>> {
   }
 
   // ---------------------------------------------------------------------------
+  // Affinity — battle count
+  // ---------------------------------------------------------------------------
+
+  /// Increments the [battleCount] for all monsters whose IDs are in [ids].
+  /// Used after a victorious battle to track affinity (친밀도).
+  Future<void> incrementBattleCounts(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final idSet = Set<String>.from(ids);
+    final updated = <MonsterModel>[];
+    final changed = <MonsterModel>[];
+
+    for (final m in state) {
+      if (idSet.contains(m.id)) {
+        final inc = m.copyWith(battleCount: m.battleCount + 1);
+        updated.add(inc);
+        changed.add(inc);
+      } else {
+        updated.add(m);
+      }
+    }
+
+    if (changed.isNotEmpty) {
+      for (final m in changed) {
+        await _storage.saveMonster(m);
+      }
+      state = updated;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Persistence
   // ---------------------------------------------------------------------------
 

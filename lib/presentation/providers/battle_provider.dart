@@ -441,6 +441,13 @@ class BattleNotifier extends StateNotifier<BattleState> {
     await player.updateStage(clearedStageKey);
     await player.addBattleCount();
 
+    // Increment affinity (battle count) for team monsters.
+    final teamIds = ref.read(monsterListProvider)
+        .where((m) => m.isInTeam)
+        .map((m) => m.id)
+        .toList();
+    await ref.read(monsterListProvider.notifier).incrementBattleCounts(teamIds);
+
     // Quest triggers: battleWin + stageFirstClear.
     final questNotifier = ref.read(questProvider.notifier);
     await questNotifier.onTrigger(QuestTrigger.battleWin);

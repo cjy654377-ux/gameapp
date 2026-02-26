@@ -169,6 +169,12 @@ class MonsterDetailScreen extends ConsumerWidget {
                   _ExpBar(monster: monster),
                   const SizedBox(height: 20),
 
+                  // Affinity
+                  _SectionTitle(title: '친밀도'),
+                  const SizedBox(height: 8),
+                  _AffinityBar(monster: monster),
+                  const SizedBox(height: 20),
+
                   // Skill
                   _SectionTitle(title: '스킬'),
                   const SizedBox(height: 8),
@@ -482,6 +488,77 @@ class _ExpBar extends StatelessWidget {
         Text(
           '${monster.experience} / $expNeeded EXP',
           style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Affinity bar
+// =============================================================================
+
+class _AffinityBar extends StatelessWidget {
+  const _AffinityBar({required this.monster});
+  final MonsterModel monster;
+
+  static const _levelNames = ['없음', 'Lv.1 관심', 'Lv.2 신뢰', 'Lv.3 우정', 'Lv.4 유대', 'Lv.5 최대'];
+  static const _thresholds = [10, 30, 60, 100, 150];
+
+  @override
+  Widget build(BuildContext context) {
+    final level = monster.affinityLevel;
+    final isMax = level >= 5;
+    final currentThreshold = isMax ? 150 : _thresholds[level];
+    final prevThreshold = level > 0 ? _thresholds[level - 1] : 0;
+    final progressInLevel = isMax
+        ? 1.0
+        : ((monster.battleCount - prevThreshold) / (currentThreshold - prevThreshold)).clamp(0.0, 1.0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Hearts for level
+            for (int i = 0; i < 5; i++)
+              Icon(
+                i < level ? Icons.favorite : Icons.favorite_border,
+                size: 16,
+                color: i < level ? Colors.pinkAccent : AppColors.textTertiary,
+              ),
+            const SizedBox(width: 8),
+            Text(
+              _levelNames[level],
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: level > 0 ? Colors.pinkAccent : AppColors.textTertiary,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '전투 ${monster.battleCount}회',
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progressInLevel,
+            backgroundColor: AppColors.surfaceVariant,
+            color: Colors.pinkAccent,
+            minHeight: 8,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          isMax
+              ? '보너스: 전 스탯 +${(level * 2)}%'
+              : '다음 레벨까지 ${monster.battleCountToNextAffinity}회 (보너스: +${(level * 2)}%)',
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );

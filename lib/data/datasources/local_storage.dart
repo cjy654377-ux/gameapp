@@ -389,6 +389,7 @@ class LocalStorage {
                 'size': m.size,
                 'skillName': m.skillName,
                 'awakeningStars': m.awakeningStars,
+                'battleCount': m.battleCount,
               })
           .toList(),
       'quests': quests
@@ -488,6 +489,7 @@ class LocalStorage {
             size: map['size'] as String? ?? 'medium',
             skillName: map['skillName'] as String?,
             awakeningStars: map['awakeningStars'] as int? ?? 0,
+            battleCount: map['battleCount'] as int? ?? 0,
           );
         }).toList();
         await saveMonsters(monsters);
