@@ -9,6 +9,7 @@ import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helper — mirrors BattleService._linearIdToKey without exposing it.
@@ -193,12 +194,29 @@ class BattleNotifier extends StateNotifier<BattleState> {
         roster.where((m) => m.isInTeam).toList());
     if (result.team.isEmpty) return;
 
+    // Apply relic bonuses to each team member.
+    final relicNotifier = ref.read(relicProvider.notifier);
+    final teamWithRelics = result.team.map((m) {
+      final bonus = relicNotifier.relicBonuses(m.monsterId);
+      if (bonus.atk == 0 && bonus.def == 0 && bonus.hp == 0 && bonus.spd == 0) {
+        return m;
+      }
+      final newHp = m.maxHp + bonus.hp;
+      return m.copyWith(
+        atk: m.atk + bonus.atk,
+        def: m.def + bonus.def,
+        maxHp: newHp,
+        currentHp: newHp,
+        spd: m.spd + bonus.spd,
+      );
+    }).toList();
+
     // Build enemy team.
     final enemyTeam = BattleService.createEnemiesForStage(resolvedId);
 
     state = BattleState(
       phase:            BattlePhase.fighting,
-      playerTeam:       result.team,
+      playerTeam:       teamWithRelics,
       enemyTeam:        enemyTeam,
       activeSynergies:  result.synergies,
       battleLog:        const [],

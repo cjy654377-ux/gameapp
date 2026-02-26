@@ -7,6 +7,7 @@ import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // =============================================================================
 // DungeonPhase
@@ -119,6 +120,23 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
         roster.where((m) => m.isInTeam).toList());
     if (result.team.isEmpty) return;
 
+    // Apply relic bonuses.
+    final relicNotifier = ref.read(relicProvider.notifier);
+    final teamWithRelics = result.team.map((m) {
+      final bonus = relicNotifier.relicBonuses(m.monsterId);
+      if (bonus.atk == 0 && bonus.def == 0 && bonus.hp == 0 && bonus.spd == 0) {
+        return m;
+      }
+      final newHp = m.maxHp + bonus.hp;
+      return m.copyWith(
+        atk: m.atk + bonus.atk,
+        def: m.def + bonus.def,
+        maxHp: newHp,
+        currentHp: newHp,
+        spd: m.spd + bonus.spd,
+      );
+    }).toList();
+
     final bestFloor =
         ref.read(playerProvider).player?.maxDungeonFloor ?? 0;
 
@@ -129,7 +147,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
       phase: DungeonPhase.fighting,
       currentFloor: 1,
       bestFloor: bestFloor,
-      playerTeam: result.team,
+      playerTeam: teamWithRelics,
       enemyTeam: enemies,
       battleLog: const [],
       currentTurn: 1,
@@ -309,6 +327,14 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
     }
     if (state.accumulatedShard > 0) {
       await currency.addShard(state.accumulatedShard);
+    }
+
+    // Drop a random relic every 5 floors.
+    if (state.currentFloor >= 5 && state.currentFloor % 5 == 0) {
+      final relicNotifier = ref.read(relicProvider.notifier);
+      final maxRarity = (state.currentFloor / 10).ceil().clamp(1, 5);
+      final relic = await relicNotifier.generateRandomRelic(maxRarity: maxRarity);
+      await relicNotifier.addRelic(relic);
     }
 
     // Update best floor record.

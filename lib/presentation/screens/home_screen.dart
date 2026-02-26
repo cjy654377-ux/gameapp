@@ -12,6 +12,7 @@ import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
 import '../../domain/services/prestige_service.dart';
 import '../providers/quest_provider.dart';
+import '../providers/relic_provider.dart';
 
 /// Tab configuration used by [HomeScreen].
 class _TabItem {
@@ -98,6 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     await ref.read(currencyProvider.notifier).load();
     await ref.read(monsterListProvider.notifier).loadMonsters();
     await ref.read(questProvider.notifier).load();
+    await ref.read(relicProvider.notifier).loadRelics();
     _loaded = true;
     _checkOfflineReward();
   }

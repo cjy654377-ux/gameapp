@@ -61,6 +61,30 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
+            // Relic
+            _SectionHeader(title: '유물/장비'),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push(AppRoutes.relic),
+                icon: const Icon(Icons.inventory, size: 22),
+                label: const Text(
+                  '유물 관리',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber[800],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Prestige
             _SectionHeader(title: '전생 (프레스티지)'),
             const SizedBox(height: 8),

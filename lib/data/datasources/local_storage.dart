@@ -5,6 +5,7 @@ import '../models/monster_model.dart';
 import '../models/player_model.dart';
 import '../models/currency_model.dart';
 import '../models/quest_model.dart';
+import '../models/relic_model.dart';
 
 /// Keys used to store singleton documents in their respective boxes.
 const String _kPlayerKey   = 'player';
@@ -15,6 +16,7 @@ const String _kMonsterBoxName  = 'monsters';
 const String _kPlayerBoxName   = 'player';
 const String _kCurrencyBoxName = 'currency';
 const String _kQuestBoxName    = 'quests';
+const String _kRelicBoxName    = 'relics';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -32,6 +34,7 @@ class LocalStorage {
   late Box<PlayerModel>   _playerBox;
   late Box<CurrencyModel> _currencyBox;
   late Box<QuestModel>    _questBox;
+  late Box<RelicModel>    _relicBox;
 
   bool _initialised = false;
 
@@ -58,11 +61,15 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(QuestModelAdapter().typeId)) {
       Hive.registerAdapter(QuestModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(RelicModelAdapter().typeId)) {
+      Hive.registerAdapter(RelicModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
     _currencyBox = await Hive.openBox<CurrencyModel>(_kCurrencyBoxName);
     _questBox    = await Hive.openBox<QuestModel>(_kQuestBoxName);
+    _relicBox    = await Hive.openBox<RelicModel>(_kRelicBoxName);
 
     _initialised = true;
   }
@@ -196,6 +203,37 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Relic CRUD
+  // -------------------------------------------------------------------------
+
+  /// Returns all relics stored in the collection.
+  List<RelicModel> getAllRelics() => _relicBox.values.toList();
+
+  /// Returns a single relic by its [id], or null if not found.
+  RelicModel? getRelic(String id) => _relicBox.get(id);
+
+  /// Adds or updates a relic.
+  Future<void> saveRelic(RelicModel relic) async {
+    await _relicBox.put(relic.id, relic);
+  }
+
+  /// Batch saves multiple relics.
+  Future<void> saveRelics(List<RelicModel> relics) async {
+    final map = {for (final r in relics) r.id: r};
+    await _relicBox.putAll(map);
+  }
+
+  /// Removes a relic from the collection.
+  Future<void> deleteRelic(String id) async {
+    await _relicBox.delete(id);
+  }
+
+  /// Clears all relics.
+  Future<void> clearRelics() async {
+    await _relicBox.clear();
+  }
+
+  // -------------------------------------------------------------------------
   // Bulk operations
   // -------------------------------------------------------------------------
 
@@ -237,6 +275,7 @@ class LocalStorage {
       _playerBox.clear(),
       _currencyBox.clear(),
       _questBox.clear(),
+      _relicBox.clear(),
     ]);
   }
 
@@ -247,6 +286,7 @@ class LocalStorage {
       _playerBox.close(),
       _currencyBox.close(),
       _questBox.close(),
+      _relicBox.close(),
     ]);
     _initialised = false;
   }

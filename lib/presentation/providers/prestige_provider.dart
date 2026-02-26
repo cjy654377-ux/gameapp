@@ -6,6 +6,7 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // =============================================================================
 // PrestigeState
@@ -98,6 +99,10 @@ class PrestigeNotifier extends StateNotifier<PrestigeState> {
     // 4. Clear quest progress.
     await LocalStorage.instance.clearQuests();
     await ref.read(questProvider.notifier).load();
+
+    // 5. Clear relics.
+    await LocalStorage.instance.clearRelics();
+    await ref.read(relicProvider.notifier).loadRelics();
 
     state = PrestigeState(
       isProcessing: false,

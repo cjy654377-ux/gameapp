@@ -7,6 +7,7 @@ import 'package:gameapp/domain/services/world_boss_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // =============================================================================
 // WorldBossPhase
@@ -135,6 +136,23 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
         roster.where((m) => m.isInTeam).toList());
     if (result.team.isEmpty) return;
 
+    // Apply relic bonuses.
+    final relicNotifier = ref.read(relicProvider.notifier);
+    final teamWithRelics = result.team.map((m) {
+      final bonus = relicNotifier.relicBonuses(m.monsterId);
+      if (bonus.atk == 0 && bonus.def == 0 && bonus.hp == 0 && bonus.spd == 0) {
+        return m;
+      }
+      final newHp = m.maxHp + bonus.hp;
+      return m.copyWith(
+        atk: m.atk + bonus.atk,
+        def: m.def + bonus.def,
+        maxHp: newHp,
+        currentHp: newHp,
+        spd: m.spd + bonus.spd,
+      );
+    }).toList();
+
     final playerLevel = ref.read(playerProvider).player?.playerLevel ?? 1;
     final boss = WorldBossService.createBoss(playerLevel: playerLevel);
 
@@ -146,7 +164,7 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
     state = WorldBossState(
       phase: WorldBossPhase.fighting,
       boss: boss,
-      playerTeam: result.team,
+      playerTeam: teamWithRelics,
       battleLog: const [],
       currentTurn: 1,
       turnWithinRound: 0,
@@ -349,6 +367,12 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
     await currency.addDiamond(reward.diamond);
     await currency.addShard(reward.shard);
     await player.addPlayerExp((reward.exp * multiplier).round());
+
+    // Drop a random relic from world boss.
+    final relicNotifier = ref.read(relicProvider.notifier);
+    final maxRarity = (reward.totalDamage / 10000).ceil().clamp(2, 5);
+    final relic = await relicNotifier.generateRandomRelic(maxRarity: maxRarity);
+    await relicNotifier.addRelic(relic);
 
     state = state.copyWith(
       phase: WorldBossPhase.idle,
