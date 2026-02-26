@@ -272,21 +272,20 @@ class GuildNotifier extends StateNotifier<GuildState> {
 
     if (boss.currentHp <= 0 || allPlayerDead ||
         state.currentTurn >= GuildService.maxTurns) {
-      // Fight over.
-      final phase = allPlayerDead ? GuildPhase.defeat : GuildPhase.victory;
-      if (allPlayerDead) {
-        AudioService.instance.playDefeat();
-      } else {
-        AudioService.instance.playVictory();
-      }
-
+      // Fight over — always finalize (rewards + attempt count).
       state = state.copyWith(
-        phase: phase,
         playerTeam: playerTeam,
         boss: boss,
         battleLog: log,
         damageThisFight: dmgThisFight,
       );
+      if (allPlayerDead) {
+        AudioService.instance.playDefeat();
+        _finishFight(isDefeat: true);
+      } else {
+        AudioService.instance.playVictory();
+        _finishFight(isDefeat: false);
+      }
       return;
     }
 
@@ -305,12 +304,12 @@ class GuildNotifier extends StateNotifier<GuildState> {
     );
   }
 
-  void _finishFight() {
+  void _finishFight({bool isDefeat = false}) {
     final guild = state.guild;
     if (guild == null) return;
 
-    final coins = GuildService.calculateGuildCoins(state.damageThisFight);
-    final guildExp = GuildService.calculateGuildExp(state.damageThisFight);
+    final coins = isDefeat ? 0 : GuildService.calculateGuildCoins(state.damageThisFight);
+    final guildExp = isDefeat ? 0 : GuildService.calculateGuildExp(state.damageThisFight);
     final newBossHp =
         (guild.bossHpRemaining - state.damageThisFight).clamp(0.0, double.infinity);
 
@@ -331,9 +330,9 @@ class GuildNotifier extends StateNotifier<GuildState> {
     );
     LocalStorage.instance.saveGuild(updated);
 
-    AudioService.instance.playRewardCollect();
+    if (!isDefeat) AudioService.instance.playRewardCollect();
     state = state.copyWith(
-      phase: GuildPhase.victory,
+      phase: isDefeat ? GuildPhase.defeat : GuildPhase.victory,
       guild: updated,
       lastRewardCoins: coins,
     );

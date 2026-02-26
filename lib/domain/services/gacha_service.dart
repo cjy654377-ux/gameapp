@@ -39,21 +39,25 @@ class GachaService {
     // Pity guarantee: force a legendary after threshold.
     if (updatedPity >= GameConfig.pityThreshold) {
       final legendaries = MonsterDatabase.byRarity(5);
-      if (legendaries.isEmpty) {
-        // Fallback: treat as normal pull if no legendaries exist.
-        return performSinglePull(0);
+      if (legendaries.isNotEmpty) {
+        final template = legendaries[_random.nextInt(legendaries.length)];
+        return (
+          result: GachaPullResult(template: template, wasPity: true),
+          newPityCount: 0,
+        );
       }
-      final template = legendaries[_random.nextInt(legendaries.length)];
-      return (
-        result: GachaPullResult(template: template, wasPity: true),
-        newPityCount: 0,
-      );
+      // No legendaries defined — fall through to normal pull with reset pity.
     }
 
     // Normal weighted random selection.
     final pool = MonsterDatabase.weightedPool;
+    if (pool.isEmpty) {
+      // Safety: use first available template.
+      final fallback = MonsterDatabase.all.first;
+      return (result: GachaPullResult(template: fallback), newPityCount: 0);
+    }
     final templateId = pool[_random.nextInt(pool.length)];
-    final template = MonsterDatabase.findById(templateId)!;
+    final template = MonsterDatabase.findById(templateId) ?? MonsterDatabase.all.first;
 
     // Reset pity if legendary.
     final int finalPity = template.rarity == 5 ? 0 : updatedPity;

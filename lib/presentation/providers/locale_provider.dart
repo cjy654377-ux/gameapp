@@ -16,6 +16,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
   static const _key = 'locale';
 
   void _load() {
+    if (!Hive.isBoxOpen(_boxName)) return; // box not yet opened
     final box = Hive.box(_boxName);
     final code = box.get(_key, defaultValue: 'ko') as String;
     state = code == 'en' ? const Locale('en', 'US') : const Locale('ko', 'KR');
@@ -26,6 +27,8 @@ class LocaleNotifier extends StateNotifier<Locale> {
         ? const Locale('en', 'US')
         : const Locale('ko', 'KR');
     state = next;
-    Hive.box(_boxName).put(_key, next.languageCode);
+    if (Hive.isBoxOpen(_boxName)) {
+      Hive.box(_boxName).put(_key, next.languageCode);
+    }
   }
 }

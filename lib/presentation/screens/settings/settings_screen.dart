@@ -70,7 +70,7 @@ class SettingsScreen extends ConsumerWidget {
             _InfoTile(label: '버전', value: '1.0.0'),
             _InfoTile(
               label: '보유 몬스터',
-              value: '${ref.watch(monsterListProvider).length}마리',
+              value: '${ref.watch(monsterListProvider.select((l) => l.length))}마리',
             ),
             const SizedBox(height: 24),
 

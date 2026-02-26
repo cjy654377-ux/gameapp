@@ -346,8 +346,13 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
 
     AudioService.instance.playRewardCollect();
 
-    // Update best floor record.
-    await player.updateMaxDungeonFloor(state.currentFloor);
+    // Update best floor record (only count cleared floors, not death floor).
+    final clearedFloor = state.phase == DungeonPhase.floorCleared
+        ? state.currentFloor
+        : (state.currentFloor - 1).clamp(0, state.currentFloor);
+    if (clearedFloor > 0) {
+      await player.updateMaxDungeonFloor(clearedFloor);
+    }
 
     state = DungeonState(
       bestFloor: ref.read(playerProvider).player?.maxDungeonFloor ?? 0,
