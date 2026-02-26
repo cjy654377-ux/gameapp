@@ -240,8 +240,10 @@ class _UpgradePanel extends ConsumerWidget {
           // Tab content
           if (activeTab == UpgradeTab.levelUp)
             _LevelUpPanel(monster: monster)
+          else if (activeTab == UpgradeTab.evolution)
+            _EvolutionPanel(monster: monster)
           else
-            _EvolutionPanel(monster: monster),
+            _FusionPanel(monster: monster),
           const SizedBox(height: 24),
         ],
       ),
@@ -367,13 +369,21 @@ class _TabSelector extends ConsumerWidget {
           onTap: () =>
               ref.read(upgradeProvider.notifier).setTab(UpgradeTab.levelUp),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         _TabButton(
           label: '진화',
           icon: Icons.auto_awesome_rounded,
           isActive: activeTab == UpgradeTab.evolution,
           onTap: () =>
               ref.read(upgradeProvider.notifier).setTab(UpgradeTab.evolution),
+        ),
+        const SizedBox(width: 6),
+        _TabButton(
+          label: '융합',
+          icon: Icons.merge_rounded,
+          isActive: activeTab == UpgradeTab.fusion,
+          onTap: () =>
+              ref.read(upgradeProvider.notifier).setTab(UpgradeTab.fusion),
         ),
       ],
     );
@@ -636,6 +646,392 @@ class _EvolutionPanel extends ConsumerWidget {
           }),
         ],
       ],
+    );
+  }
+}
+
+// =============================================================================
+// _FusionPanel
+// =============================================================================
+
+class _FusionPanel extends ConsumerWidget {
+  const _FusionPanel({required this.monster});
+  final MonsterModel monster;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final roster = ref.watch(monsterListProvider);
+    final fusionId =
+        ref.watch(upgradeProvider.select((s) => s.fusionMonsterId));
+    final isProcessing =
+        ref.watch(upgradeProvider.select((s) => s.isProcessing));
+    final currency = ref.watch(currencyProvider);
+
+    // Can't fuse 5★
+    if (monster.rarity >= 5) {
+      return const _InfoBanner(
+        icon: Icons.workspace_premium_rounded,
+        text: '전설 등급은 융합할 수 없습니다',
+        color: AppColors.rarityLegendary,
+      );
+    }
+
+    // Can't fuse team members
+    if (monster.isInTeam) {
+      return const _InfoBanner(
+        icon: Icons.info_rounded,
+        text: '팀에 배치된 몬스터는 융합할 수 없습니다',
+        color: AppColors.warning,
+      );
+    }
+
+    // Find eligible fusion partners (same rarity, not in team, not self).
+    final eligible = roster
+        .where((m) =>
+            m.id != monster.id &&
+            m.rarity == monster.rarity &&
+            !m.isInTeam)
+        .toList()
+      ..sort((a, b) => b.level.compareTo(a.level));
+
+    MonsterModel? fusionMonster;
+    if (fusionId != null) {
+      try {
+        fusionMonster = roster.firstWhere((m) => m.id == fusionId);
+      } catch (_) {
+        fusionMonster = null;
+      }
+    }
+
+    final goldCost = UpgradeNotifier.fusionGoldCost(monster.rarity);
+    final canAfford = currency.canAfford(gold: goldCost);
+    final canFuse = fusionMonster != null &&
+        UpgradeNotifier.canFuse(monster, fusionMonster) &&
+        canAfford;
+
+    final nextRarity = MonsterRarity.fromRarity(monster.rarity + 1);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Explanation
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFFCE93D8).withValues(alpha: 0.1),
+            border: Border.all(
+              color: const Color(0xFFCE93D8).withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.merge_rounded,
+                  color: Color(0xFFCE93D8), size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '같은 등급 몬스터 2마리를 융합하여\n${nextRarity.starsDisplay} ${nextRarity.koreanName} 등급 몬스터를 획득합니다',
+                  style: const TextStyle(
+                    color: Color(0xFFCE93D8),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Fusion preview
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: AppColors.surface,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              // Monster A (selected)
+              Expanded(
+                child: _FusionSlot(
+                  monster: monster,
+                  label: '소재 1',
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(Icons.add_rounded,
+                    color: AppColors.textTertiary, size: 20),
+              ),
+              // Monster B (fusion partner)
+              Expanded(
+                child: fusionMonster != null
+                    ? _FusionSlot(
+                        monster: fusionMonster,
+                        label: '소재 2',
+                        onClear: () => ref
+                            .read(upgradeProvider.notifier)
+                            .clearFusionSelection(),
+                      )
+                    : Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: AppColors.card,
+                          border: Border.all(
+                            color: AppColors.border,
+                            style: BorderStyle.solid,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '소재 2 선택',
+                            style: TextStyle(
+                              color: AppColors.textTertiary,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(Icons.arrow_forward_rounded,
+                    color: AppColors.textTertiary, size: 20),
+              ),
+              // Result
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: nextRarity.color.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: nextRarity.color.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.help_outline_rounded,
+                        color: nextRarity.color, size: 20),
+                    Text(
+                      nextRarity.starsDisplay,
+                      style: TextStyle(
+                        color: nextRarity.color,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Cost
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: AppColors.surface,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.monetization_on_rounded,
+                  color: AppColors.gold, size: 16),
+              const SizedBox(width: 6),
+              const Text(
+                '융합 비용',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                FormatUtils.formatGold(goldCost),
+                style: TextStyle(
+                  color: canAfford ? AppColors.gold : AppColors.error,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Fuse button
+        _ActionButton(
+          label: '융합하기',
+          sublabel: '${monster.rarity}성 + ${monster.rarity}성 → ${monster.rarity + 1}성',
+          icon: Icons.merge_rounded,
+          iconColor: const Color(0xFFCE93D8),
+          enabled: canFuse && !isProcessing,
+          onTap: () async {
+            final ok = await ref.read(upgradeProvider.notifier).fuse();
+            if (!ok && context.mounted) {
+              _showError(context, '융합 조건을 확인하세요');
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // Eligible partners grid
+        if (eligible.isEmpty)
+          const _InfoBanner(
+            icon: Icons.search_off_rounded,
+            text: '같은 등급의 융합 가능한 몬스터가 없습니다',
+            color: AppColors.textTertiary,
+          )
+        else ...[
+          const Text(
+            '융합 소재 선택',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: eligible.map((m) {
+              final isSelected = m.id == fusionId;
+              final rarityEnum = MonsterRarity.fromRarity(m.rarity);
+              return GestureDetector(
+                onTap: () => ref
+                    .read(upgradeProvider.notifier)
+                    .selectFusionMonster(m.id),
+                child: Container(
+                  width: 72,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: isSelected
+                        ? const Color(0xFFCE93D8).withValues(alpha: 0.2)
+                        : AppColors.surface,
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFFCE93D8)
+                          : rarityEnum.color.withValues(alpha: 0.3),
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _elementIcon(m.element),
+                        color: rarityEnum.color,
+                        size: 18,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        m.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: rarityEnum.color,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        'Lv.${m.level}',
+                        style: const TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _FusionSlot extends StatelessWidget {
+  const _FusionSlot({
+    required this.monster,
+    required this.label,
+    this.onClear,
+  });
+
+  final MonsterModel monster;
+  final String label;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final rarityEnum = MonsterRarity.fromRarity(monster.rarity);
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: rarityEnum.color.withValues(alpha: 0.1),
+        border: Border.all(color: rarityEnum.color.withValues(alpha: 0.3)),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _elementIcon(monster.element),
+                  color: rarityEnum.color,
+                  size: 18,
+                ),
+                Text(
+                  monster.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: rarityEnum.color,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textTertiary,
+                    fontSize: 8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (onClear != null)
+            Positioned(
+              top: 2,
+              right: 2,
+              child: GestureDetector(
+                onTap: onClear,
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 14,
+                  color: AppColors.textTertiary,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

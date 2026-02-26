@@ -1,6 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:gameapp/data/models/monster_model.dart';
+import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
@@ -11,7 +15,7 @@ import 'package:gameapp/presentation/providers/quest_provider.dart';
 // UpgradeTab enum
 // =============================================================================
 
-enum UpgradeTab { levelUp, evolution }
+enum UpgradeTab { levelUp, evolution, fusion }
 
 // =============================================================================
 // UpgradeState
@@ -21,7 +25,7 @@ class UpgradeState {
   /// Currently selected monster ID (null = none selected).
   final String? selectedMonsterId;
 
-  /// Active tab (level-up or evolution).
+  /// Active tab (level-up, evolution, or fusion).
   final UpgradeTab activeTab;
 
   /// Whether an upgrade operation is in progress.
@@ -30,11 +34,19 @@ class UpgradeState {
   /// Flash message after a successful operation (auto-dismissed).
   final String? successMessage;
 
+  /// Second monster ID selected for fusion (null = none).
+  final String? fusionMonsterId;
+
+  /// The result monster name after a fusion (for display in success message).
+  final String? fusionResultName;
+
   const UpgradeState({
     this.selectedMonsterId,
     this.activeTab = UpgradeTab.levelUp,
     this.isProcessing = false,
     this.successMessage,
+    this.fusionMonsterId,
+    this.fusionResultName,
   });
 
   UpgradeState copyWith({
@@ -44,6 +56,10 @@ class UpgradeState {
     bool? isProcessing,
     String? successMessage,
     bool clearMessage = false,
+    String? fusionMonsterId,
+    bool clearFusion = false,
+    String? fusionResultName,
+    bool clearFusionResult = false,
   }) {
     return UpgradeState(
       selectedMonsterId:
@@ -52,6 +68,10 @@ class UpgradeState {
       isProcessing: isProcessing ?? this.isProcessing,
       successMessage:
           clearMessage ? null : (successMessage ?? this.successMessage),
+      fusionMonsterId:
+          clearFusion ? null : (fusionMonsterId ?? this.fusionMonsterId),
+      fusionResultName:
+          clearFusionResult ? null : (fusionResultName ?? this.fusionResultName),
     );
   }
 }
@@ -198,6 +218,115 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
       successMessage: '$stageName 성공!',
     );
     return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Fusion
+  // ---------------------------------------------------------------------------
+
+  /// Selects or deselects the second monster for fusion.
+  void selectFusionMonster(String monsterId) {
+    if (state.fusionMonsterId == monsterId) {
+      state = state.copyWith(clearFusion: true, clearMessage: true);
+    } else {
+      state = state.copyWith(fusionMonsterId: monsterId, clearMessage: true);
+    }
+  }
+
+  void clearFusionSelection() {
+    state = state.copyWith(clearFusion: true, clearMessage: true);
+  }
+
+  /// Gold cost for fusion: 300 * rarity.
+  static int fusionGoldCost(int rarity) => 300 * rarity;
+
+  /// Whether two monsters can be fused.
+  static bool canFuse(MonsterModel a, MonsterModel b) {
+    if (a.id == b.id) return false;
+    if (a.rarity != b.rarity) return false;
+    if (a.rarity >= 5) return false; // Cannot fuse legendary
+    if (a.isInTeam || b.isInTeam) return false;
+    return true;
+  }
+
+  /// Performs fusion: consumes both selected monsters, creates a new one of
+  /// the next rarity. Returns `true` on success.
+  Future<bool> fuse() async {
+    final monsterA = _selectedMonster;
+    final monsterB = _fusionMonster;
+    if (monsterA == null || monsterB == null) return false;
+    if (!canFuse(monsterA, monsterB)) return false;
+    if (state.isProcessing) return false;
+
+    final cost = fusionGoldCost(monsterA.rarity);
+    state = state.copyWith(isProcessing: true, clearMessage: true);
+
+    final spent = await ref.read(currencyProvider.notifier).spendGold(cost);
+    if (!spent) {
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    // Pick a random monster of the next rarity.
+    final nextRarity = monsterA.rarity + 1;
+    final candidates = MonsterDatabase.byRarity(nextRarity);
+    if (candidates.isEmpty) {
+      // Refund gold if no candidates (shouldn't happen).
+      await ref.read(currencyProvider.notifier).addGold(cost);
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    final random = math.Random();
+    final template = candidates[random.nextInt(candidates.length)];
+
+    // Create the new monster.
+    final newMonster = MonsterModel.fromTemplate(
+      id: const Uuid().v4(),
+      templateId: template.id,
+      name: template.name,
+      rarity: template.rarity,
+      element: template.element,
+      baseAtk: template.baseAtk,
+      baseDef: template.baseDef,
+      baseHp: template.baseHp,
+      baseSpd: template.baseSpd,
+      size: template.size,
+    );
+
+    // Remove both source monsters and add the new one.
+    final monsterNotifier = ref.read(monsterListProvider.notifier);
+    await monsterNotifier.removeMonster(monsterA.id);
+    await monsterNotifier.removeMonster(monsterB.id);
+    await monsterNotifier.addMonster(newMonster);
+
+    // Update collection progress for quests.
+    final roster = ref.read(monsterListProvider);
+    final uniqueCount = roster.map((m) => m.templateId).toSet().length;
+    ref.read(questProvider.notifier).onTrigger(
+          QuestTrigger.collectMonster,
+          absoluteValue: uniqueCount,
+        );
+
+    state = state.copyWith(
+      isProcessing: false,
+      clearSelection: true,
+      clearFusion: true,
+      successMessage: '${template.name} 획득! ($nextRarity성)',
+      fusionResultName: template.name,
+    );
+    return true;
+  }
+
+  MonsterModel? get _fusionMonster {
+    final id = state.fusionMonsterId;
+    if (id == null) return null;
+    final roster = ref.read(monsterListProvider);
+    try {
+      return roster.firstWhere((m) => m.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
   // ---------------------------------------------------------------------------
