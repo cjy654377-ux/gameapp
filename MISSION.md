@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 5 완료
+## 현재 Phase: 6 완료
 
 ## 진행 상황
 - [x] Phase 1: 프로젝트 기반 셋업
@@ -8,7 +8,7 @@
 - [x] Phase 3: 가챠 시스템
 - [x] Phase 4: 강화/진화 시스템
 - [x] Phase 5: 오프라인 보상 + 저장
-- [ ] Phase 6: 도감 + 팀편성
+- [x] Phase 6: 도감 + 팀편성
 - [ ] Phase 7: 폴리싱
 
 ## Phase 1 세부 (완료)
@@ -54,7 +54,13 @@
 - [x] paused→즉시저장+lastOnlineAt 갱신, resumed→보상계산+팝업
 - [x] GameConfig에 offlineBattlesPerHour(60), minOfflineMinutes(1) 추가
 
-## 완료된 파일 목록 (43개 .dart + 65 이미지)
+## Phase 6 세부 (완료)
+- [x] CollectionProvider (필터상태, 템플릿+보유몬스터 결합, 도감통계)
+- [x] CollectionScreen (그리드뷰, 등급/속성/보유 필터, 미획득 실루엣, 상세 바텀시트)
+- [x] TeamEditScreen (4슬롯 편성, 전투력합계, 저장)
+- [x] app_router.dart 도감 플레이스홀더 → CollectionScreen 교체 + /collection/team 라우트 추가
+
+## 완료된 파일 목록 (47개 .dart + 65 이미지)
 ### Core
 - lib/main.dart, lib/app.dart, lib/routing/app_router.dart
 - lib/core/constants/{app_colors,game_config,strings_ko}.dart
@@ -72,7 +78,7 @@
 - lib/domain/services/{synergy_service,battle_service,game_tick_service,gacha_service,upgrade_service,offline_reward_service}.dart
 
 ### Presentation
-- lib/presentation/providers/{game_state,player,currency,monster,battle,gacha,upgrade,offline_reward}_provider.dart
+- lib/presentation/providers/{game_state,player,currency,monster,battle,gacha,upgrade,offline_reward,collection}_provider.dart
 - lib/presentation/dialogs/offline_reward_dialog.dart
 - lib/presentation/screens/home_screen.dart
 - lib/presentation/screens/battle/battle_screen.dart
@@ -80,8 +86,10 @@
 - lib/presentation/widgets/battle/{hp_bar,monster_battle_card}.dart
 - lib/presentation/screens/gacha/gacha_screen.dart
 - lib/presentation/screens/upgrade/upgrade_screen.dart
+- lib/presentation/screens/collection/{collection_screen,team_edit_screen}.dart
 
-## 다음 작업: Phase 6 - 도감 + 팀편성
-- [ ] CollectionScreen (그리드뷰, 필터-속성/희귀도, 미획득=실루엣)
-- [ ] TeamEditScreen (4마리 편성, 전투력합계)
-- [ ] CollectionProvider (도감 상태, 필터, 검색)
+## 다음 작업: Phase 7 - 폴리싱
+- [ ] 밸런스 조정
+- [ ] 튜토리얼 / 첫 실행 가이드
+- [ ] 효과음 + 진동 피드백
+- [ ] 전반적 UI 다듬기

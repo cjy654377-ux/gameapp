@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/gacha/gacha_screen.dart';
+import '../presentation/screens/collection/collection_screen.dart';
+import '../presentation/screens/collection/team_edit_screen.dart';
 import '../presentation/screens/upgrade/upgrade_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -16,6 +18,7 @@ class AppRoutes {
   static const battle = '/battle';
   static const gacha = '/gacha';
   static const collection = '/collection';
+  static const teamEdit = '/collection/team';
   static const upgrade = '/upgrade';
   static const settings = '/settings';
 }
@@ -29,6 +32,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.battle,
     debugLogDiagnostics: false,
     routes: [
+      // Full-screen routes (no bottom nav)
+      GoRoute(
+        path: AppRoutes.teamEdit,
+        builder: (context, state) => const TeamEditScreen(),
+      ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {
           return HomeScreen(child: child);
@@ -49,7 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.collection,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _CollectionPlaceholder(),
+              child: CollectionScreen(),
             ),
           ),
           GoRoute(
@@ -80,15 +88,6 @@ class _BattlePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _TabPlaceholder(label: '전투', icon: Icons.shield);
-  }
-}
-
-class _CollectionPlaceholder extends StatelessWidget {
-  const _CollectionPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _TabPlaceholder(label: '도감', icon: Icons.collections_bookmark);
   }
 }
 
