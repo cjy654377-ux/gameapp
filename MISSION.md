@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 고도화 작업 진행 중 (Feature 9 다음)
+## 현재 Phase: 고도화 작업 진행 중 (Feature 10 다음)
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -48,7 +48,11 @@
   - PrestigeScreen: 배지, 조건/보상/손실 표시, 확인 다이얼로그
   - 전투/던전/오프라인 보상에 프레스티지 배율 적용 (+10%/전생)
   - 설정화면 전생진입 버튼, /prestige 라우트
-- [ ] Feature 9: 월드 보스
+- [x] Feature 9: 월드 보스
+  - WorldBossService: 5종 보스 일일 로테이션, 레벨 스케일링, 턴제한 30턴
+  - WorldBossProvider: 하루 3회 도전, 최고 데미지 추적, 딜량 기반 보상
+  - WorldBossScreen: 대기/전투/결과 UI, 보스HP바, 데미지카운터
+  - battle_screen에 월드보스 진입 버튼, /world-boss 라우트
 - [ ] Feature 10: 유물/장비
 
 ## 핵심 파일 (고도화에서 추가/수정)
@@ -86,3 +90,6 @@
 - lib/domain/services/prestige_service.dart
 - lib/presentation/providers/prestige_provider.dart
 - lib/presentation/screens/prestige/prestige_screen.dart
+- lib/domain/services/world_boss_service.dart
+- lib/presentation/providers/world_boss_provider.dart
+- lib/presentation/screens/world_boss/world_boss_screen.dart
