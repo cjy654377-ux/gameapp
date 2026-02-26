@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/battle_service.dart';
 import 'package:gameapp/domain/services/dungeon_service.dart';
+import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
@@ -294,11 +295,17 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
     final currency = ref.read(currencyProvider.notifier);
     final player = ref.read(playerProvider.notifier);
 
+    // Apply prestige bonus multiplier to gold and exp.
+    final playerData = ref.read(playerProvider).player;
+    final multiplier = playerData != null
+        ? PrestigeService.bonusMultiplier(playerData)
+        : 1.0;
+
     if (state.accumulatedGold > 0) {
-      await currency.addGold(state.accumulatedGold);
+      await currency.addGold((state.accumulatedGold * multiplier).round());
     }
     if (state.accumulatedExp > 0) {
-      await player.addPlayerExp(state.accumulatedExp);
+      await player.addPlayerExp((state.accumulatedExp * multiplier).round());
     }
     if (state.accumulatedShard > 0) {
       await currency.addShard(state.accumulatedShard);

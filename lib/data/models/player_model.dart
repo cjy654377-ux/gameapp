@@ -42,6 +42,14 @@ class PlayerModel extends HiveObject {
   @HiveField(11)
   int maxDungeonFloor;
 
+  /// Number of prestige resets performed.
+  @HiveField(12)
+  int prestigeLevel;
+
+  /// Cumulative prestige bonus percent (e.g. 10.0 = +10% gold/exp).
+  @HiveField(13)
+  double prestigeBonusPercent;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -55,6 +63,8 @@ class PlayerModel extends HiveObject {
     required this.totalBattleCount,
     required this.totalGachaPullCount,
     this.maxDungeonFloor = 0,
+    this.prestigeLevel = 0,
+    this.prestigeBonusPercent = 0.0,
   });
 
   // -------------------------------------------------------------------------
@@ -86,6 +96,8 @@ class PlayerModel extends HiveObject {
       totalBattleCount: 0,
       totalGachaPullCount: 0,
       maxDungeonFloor: 0,
+      prestigeLevel: 0,
+      prestigeBonusPercent: 0.0,
     );
   }
 
@@ -106,6 +118,8 @@ class PlayerModel extends HiveObject {
     int? totalBattleCount,
     int? totalGachaPullCount,
     int? maxDungeonFloor,
+    int? prestigeLevel,
+    double? prestigeBonusPercent,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -120,6 +134,8 @@ class PlayerModel extends HiveObject {
       totalBattleCount: totalBattleCount ?? this.totalBattleCount,
       totalGachaPullCount: totalGachaPullCount ?? this.totalGachaPullCount,
       maxDungeonFloor: maxDungeonFloor ?? this.maxDungeonFloor,
+      prestigeLevel: prestigeLevel ?? this.prestigeLevel,
+      prestigeBonusPercent: prestigeBonusPercent ?? this.prestigeBonusPercent,
     );
   }
 
@@ -158,13 +174,15 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       totalBattleCount:   fields[9]  as int,
       totalGachaPullCount: fields[10] as int,
       maxDungeonFloor:    fields[11] as int? ?? 0,
+      prestigeLevel:      fields[12] as int? ?? 0,
+      prestigeBonusPercent: (fields[13] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(12) // number of fields
+      ..writeByte(14) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -188,7 +206,11 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(10)
       ..write(obj.totalGachaPullCount)
       ..writeByte(11)
-      ..write(obj.maxDungeonFloor);
+      ..write(obj.maxDungeonFloor)
+      ..writeByte(12)
+      ..write(obj.prestigeLevel)
+      ..writeByte(13)
+      ..write(obj.prestigeBonusPercent);
   }
 
   @override

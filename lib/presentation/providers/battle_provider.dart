@@ -7,6 +7,7 @@ import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -403,23 +404,31 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final currency = ref.read(currencyProvider.notifier);
     final player   = ref.read(playerProvider.notifier);
 
-    // Award gold.
-    await currency.addGold(reward.gold);
+    // Apply prestige bonus multiplier to gold and exp.
+    final playerData = ref.read(playerProvider).player;
+    final multiplier = playerData != null
+        ? PrestigeService.bonusMultiplier(playerData)
+        : 1.0;
+    final bonusGold = (reward.gold * multiplier).round();
+    final bonusExp = (reward.exp * multiplier).round();
+
+    // Award gold (with prestige bonus).
+    await currency.addGold(bonusGold);
 
     // Award bonus shard (if any).
     if (reward.bonusShard != null) {
       await currency.addShard(reward.bonusShard!);
     }
 
-    // Award player experience.
-    await player.addPlayerExp(reward.exp);
+    // Award player experience (with prestige bonus).
+    await player.addPlayerExp(bonusExp);
 
     // Mark stage as cleared and advance to next.
     final clearedStageKey = _stageIndexToKey(state.currentStageId);
-    final playerData = ref.read(playerProvider).player;
-    final wasNewClear = playerData != null &&
+    final currentPlayer = ref.read(playerProvider).player;
+    final wasNewClear = currentPlayer != null &&
         _stageStringToIndex(clearedStageKey) >
-            _stageStringToIndex(playerData.maxClearedStageId);
+            _stageStringToIndex(currentPlayer.maxClearedStageId);
     await player.updateStage(clearedStageKey);
     await player.addBattleCount();
 

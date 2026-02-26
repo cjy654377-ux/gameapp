@@ -10,6 +10,7 @@ import '../providers/currency_provider.dart';
 import '../providers/monster_provider.dart';
 import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
+import '../../domain/services/prestige_service.dart';
 import '../providers/quest_provider.dart';
 
 /// Tab configuration used by [HomeScreen].
@@ -176,9 +177,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     if (claimed) {
       final reward = rewardState.pendingReward!;
-      // Apply rewards.
-      await ref.read(currencyProvider.notifier).addGold(reward.gold);
-      await ref.read(playerProvider.notifier).addPlayerExp(reward.exp);
+      // Apply prestige bonus multiplier to offline rewards.
+      final multiplier = PrestigeService.bonusMultiplier(player);
+      final bonusGold = (reward.gold * multiplier).round();
+      final bonusExp = (reward.exp * multiplier).round();
+      await ref.read(currencyProvider.notifier).addGold(bonusGold);
+      await ref.read(playerProvider.notifier).addPlayerExp(bonusExp);
       ref.read(offlineRewardProvider.notifier).markClaimed();
     }
 

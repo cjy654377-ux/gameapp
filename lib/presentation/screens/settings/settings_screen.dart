@@ -45,6 +45,10 @@ class SettingsScreen extends ConsumerWidget {
                 label: '소환 횟수',
                 value: '${player.totalGachaPullCount}회',
               ),
+              _InfoTile(
+                label: '전생 레벨',
+                value: '${player.prestigeLevel}회 (+${player.prestigeBonusPercent.toInt()}%)',
+              ),
               const SizedBox(height: 24),
             ],
 
@@ -54,6 +58,30 @@ class SettingsScreen extends ConsumerWidget {
             _InfoTile(
               label: '보유 몬스터',
               value: '${ref.watch(monsterListProvider).length}마리',
+            ),
+            const SizedBox(height: 24),
+
+            // Prestige
+            _SectionHeader(title: '전생 (프레스티지)'),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push(AppRoutes.prestige),
+                icon: const Icon(Icons.autorenew, size: 22),
+                label: const Text(
+                  '전생 화면으로',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 
