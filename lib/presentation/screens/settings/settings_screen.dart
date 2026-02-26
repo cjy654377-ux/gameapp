@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../data/datasources/local_storage.dart';
+import '../../../domain/services/audio_service.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
 import '../../providers/monster_provider.dart';
@@ -51,6 +52,11 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
             ],
+
+            // Sound / Haptic toggle
+            _SectionHeader(title: '효과'),
+            _SoundToggleTile(),
+            const SizedBox(height: 24),
 
             // Game info
             _SectionHeader(title: '게임 정보'),
@@ -190,6 +196,46 @@ class _SectionHeader extends StatelessWidget {
           color: AppColors.textTertiary,
           letterSpacing: 1,
         ),
+      ),
+    );
+  }
+}
+
+class _SoundToggleTile extends StatefulWidget {
+  @override
+  State<_SoundToggleTile> createState() => _SoundToggleTileState();
+}
+
+class _SoundToggleTileState extends State<_SoundToggleTile> {
+  @override
+  Widget build(BuildContext context) {
+    final enabled = AudioService.instance.isEnabled;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(
+            enabled ? Icons.vibration : Icons.notifications_off,
+            color: enabled ? Colors.amber : AppColors.textTertiary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            '진동 효과',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          Switch(
+            value: enabled,
+            activeTrackColor: Colors.amber.withValues(alpha: 0.5),
+            activeThumbColor: Colors.amber,
+            onChanged: (v) {
+              AudioService.instance.setEnabled(v);
+              setState(() {});
+            },
+          ),
+        ],
       ),
     );
   }

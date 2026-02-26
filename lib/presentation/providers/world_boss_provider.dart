@@ -7,6 +7,7 @@ import 'package:gameapp/domain/services/world_boss_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // =============================================================================
@@ -247,6 +248,7 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
       // Player monster attacks the boss.
       if (attacker.isSkillReady) {
         // Use skill — treat boss as single-member "enemy team".
+        AudioService.instance.playSkillActivation();
         final bossTeam = [boss];
         final skillLogs = BattleService.processSkill(
           caster: attacker,
@@ -268,6 +270,7 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
         );
         log.add(entry);
         damageThisTurn += entry.damage;
+        AudioService.instance.playHit();
       }
     }
 
@@ -367,6 +370,8 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
     await currency.addDiamond(reward.diamond);
     await currency.addShard(reward.shard);
     await player.addPlayerExp((reward.exp * multiplier).round());
+
+    AudioService.instance.playRewardCollect();
 
     // Drop a random relic from world boss.
     final relicNotifier = ref.read(relicProvider.notifier);

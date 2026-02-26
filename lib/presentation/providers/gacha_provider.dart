@@ -6,6 +6,7 @@ import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/domain/services/gacha_service.dart';
 import 'package:gameapp/data/static/quest_database.dart';
+import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
@@ -135,7 +136,14 @@ class GachaNotifier extends StateNotifier<GachaState> {
   /// Advance the reveal animation to show the next card.
   void revealNext() {
     if (state.revealIndex < state.lastResults.length - 1) {
-      state = state.copyWith(revealIndex: state.revealIndex + 1);
+      final nextIdx = state.revealIndex + 1;
+      final result = state.lastResults[nextIdx];
+      if (result.template.rarity >= 4) {
+        AudioService.instance.playHighRarityReveal();
+      } else {
+        AudioService.instance.playCardReveal();
+      }
+      state = state.copyWith(revealIndex: nextIdx);
     }
   }
 
@@ -150,6 +158,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
 
   Future<bool> _executeSinglePull() async {
     state = state.copyWith(isAnimating: true);
+    AudioService.instance.playGachaPull();
 
     final pull = GachaService.performSinglePull(state.pityCount);
     final monster = _createMonsterFromTemplate(pull.result.template);
@@ -157,6 +166,11 @@ class GachaNotifier extends StateNotifier<GachaState> {
     await ref.read(monsterListProvider.notifier).addMonster(monster);
     _incrementPlayerPullCount(1);
     _updateCollectProgress();
+
+    // High rarity feedback (4-5 star).
+    if (pull.result.template.rarity >= 4) {
+      AudioService.instance.playHighRarityReveal();
+    }
 
     state = state.copyWith(
       pityCount: pull.newPityCount,
@@ -172,6 +186,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
 
   Future<bool> _executeTenPull() async {
     state = state.copyWith(isAnimating: true);
+    AudioService.instance.playGachaPull();
 
     final pull = GachaService.performTenPull(state.pityCount);
 

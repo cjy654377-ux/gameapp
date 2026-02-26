@@ -7,6 +7,7 @@ import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // =============================================================================
@@ -204,6 +205,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
     BattleService.tickSkillCooldown(attacker);
 
     if (attacker.isSkillReady) {
+      AudioService.instance.playSkillActivation();
       final skillLogs = BattleService.processSkill(
         caster: attacker,
         playerTeam: playerTeam,
@@ -223,6 +225,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
           target: targetInList,
         );
         log.add(entry);
+        AudioService.instance.playHit();
       }
     }
 
@@ -239,6 +242,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
     final endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
 
     if (endPhase == BattlePhase.victory) {
+      AudioService.instance.playVictory();
       // Floor cleared — accumulate rewards.
       final floorReward =
           DungeonService.calculateFloorReward(state.currentFloor);
@@ -256,6 +260,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
     }
 
     if (endPhase == BattlePhase.defeat) {
+      AudioService.instance.playDefeat();
       state = state.copyWith(
         phase: DungeonPhase.defeated,
         playerTeam: playerTeam,
@@ -336,6 +341,8 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
       final relic = await relicNotifier.generateRandomRelic(maxRarity: maxRarity);
       await relicNotifier.addRelic(relic);
     }
+
+    AudioService.instance.playRewardCollect();
 
     // Update best floor record.
     await player.updateMaxDungeonFloor(state.currentFloor);

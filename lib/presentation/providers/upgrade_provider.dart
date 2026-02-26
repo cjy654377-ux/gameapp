@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/quest_database.dart';
+import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
@@ -128,6 +129,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     final upgraded = UpgradeService.applyLevelUp(monster);
     await ref.read(monsterListProvider.notifier).updateMonster(upgraded);
     ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterLevelUp);
+    AudioService.instance.playLevelUp();
 
     state = state.copyWith(
       isProcessing: false,
@@ -211,6 +213,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     final evolved = UpgradeService.applyEvolution(monster);
     await ref.read(monsterListProvider.notifier).updateMonster(evolved);
     ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterEvolve);
+    AudioService.instance.playEvolution();
 
     final stageName = evolved.evolutionStage == 1 ? '1차 진화' : '최종 진화';
     state = state.copyWith(
@@ -307,6 +310,8 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
           QuestTrigger.collectMonster,
           absoluteValue: uniqueCount,
         );
+
+    AudioService.instance.playEvolution();
 
     state = state.copyWith(
       isProcessing: false,

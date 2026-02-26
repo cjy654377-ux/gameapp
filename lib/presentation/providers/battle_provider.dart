@@ -9,6 +9,7 @@ import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -292,6 +293,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
     if (attacker.isSkillReady) {
       // Skill activation.
+      AudioService.instance.playSkillActivation();
       final skillLogs = BattleService.processSkill(
         caster: attacker,
         playerTeam: playerTeam,
@@ -312,6 +314,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
           target: targetInList,
         );
         log.add(entry);
+        AudioService.instance.playHit();
       }
     }
 
@@ -332,6 +335,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
 
     if (endPhase == BattlePhase.victory) {
+      AudioService.instance.playVictory();
       final reward = BattleService.calculateReward(state.currentStageId);
       state = state.copyWith(
         phase:      BattlePhase.victory,
@@ -344,6 +348,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
     }
 
     if (endPhase == BattlePhase.defeat) {
+      AudioService.instance.playDefeat();
       state = state.copyWith(
         phase:      BattlePhase.defeat,
         playerTeam: playerTeam,
@@ -456,6 +461,8 @@ class BattleNotifier extends StateNotifier<BattleState> {
     if (wasNewClear) {
       await questNotifier.onTrigger(QuestTrigger.stageFirstClear);
     }
+
+    AudioService.instance.playRewardCollect();
 
     // Clear reward from state.
     state = state.copyWith(clearReward: true);
