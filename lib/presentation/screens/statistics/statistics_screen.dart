@@ -11,6 +11,7 @@ import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 
 // =============================================================================
 // StatisticsScreen
@@ -45,10 +46,12 @@ class StatisticsScreen extends ConsumerWidget {
     final completedQuests = questState.quests.where((q) => q.isCompleted).length;
     final stageProgress = StageDatabase.linearIndex(player.maxClearedStageId);
 
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('통계', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(l.statistics, style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
@@ -58,7 +61,7 @@ class StatisticsScreen extends ConsumerWidget {
         children: [
           // ── Player ────────────────────────────────────────────────
           _StatSection(
-            title: '플레이어',
+            title: l.playerInfo,
             icon: Icons.person,
             color: AppColors.primary,
             children: [
@@ -75,7 +78,7 @@ class StatisticsScreen extends ConsumerWidget {
 
           // ── Battle ────────────────────────────────────────────────
           _StatSection(
-            title: '전투',
+            title: l.battleStats,
             icon: Icons.sports_mma,
             color: Colors.red,
             children: [
@@ -94,7 +97,7 @@ class StatisticsScreen extends ConsumerWidget {
 
           // ── Monster ───────────────────────────────────────────────
           _StatSection(
-            title: '몬스터',
+            title: l.monsterStats,
             icon: Icons.catching_pokemon,
             color: Colors.orange,
             children: [
@@ -120,7 +123,7 @@ class StatisticsScreen extends ConsumerWidget {
 
           // ── Gacha ─────────────────────────────────────────────────
           _StatSection(
-            title: '소환',
+            title: l.gachaStats,
             icon: Icons.auto_awesome,
             color: Colors.purple,
             children: [
@@ -144,7 +147,7 @@ class StatisticsScreen extends ConsumerWidget {
 
           // ── Resources ─────────────────────────────────────────────
           _StatSection(
-            title: '재화',
+            title: l.resources,
             icon: Icons.account_balance_wallet,
             color: AppColors.gold,
             children: [
@@ -160,7 +163,7 @@ class StatisticsScreen extends ConsumerWidget {
 
           // ── Equipment ─────────────────────────────────────────────
           _StatSection(
-            title: '장비/퀘스트',
+            title: l.equipmentQuests,
             icon: Icons.shield,
             color: Colors.teal,
             children: [

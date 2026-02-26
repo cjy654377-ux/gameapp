@@ -87,6 +87,7 @@ class LocalStorage {
     _relicBox    = await Hive.openBox<RelicModel>(_kRelicBoxName);
     _guildBox    = await Hive.openBox<GuildModel>(_kGuildBoxName);
     _expeditionBox = await Hive.openBox<ExpeditionModel>(_kExpeditionBoxName);
+    await Hive.openBox('settings');
 
     _initialised = true;
   }

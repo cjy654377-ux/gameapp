@@ -8,6 +8,7 @@ import '../../../data/datasources/local_storage.dart';
 import '../../../domain/services/audio_service.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
 
@@ -53,6 +54,11 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
             ],
+
+            // Language toggle
+            _SectionHeader(title: '언어 / Language'),
+            _LanguageToggleTile(),
+            const SizedBox(height: 24),
 
             // Sound / Haptic toggle
             _SectionHeader(title: '효과'),
@@ -354,6 +360,37 @@ class _SoundToggleTileState extends State<_SoundToggleTile> {
             onChanged: (v) {
               AudioService.instance.setEnabled(v);
               setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageToggleTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    final isKorean = locale.languageCode == 'ko';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(Icons.language, color: Colors.blue, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            isKorean ? '한국어' : 'English',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          Switch(
+            value: !isKorean,
+            activeTrackColor: Colors.blue.withValues(alpha: 0.5),
+            activeThumbColor: Colors.blue,
+            onChanged: (_) {
+              ref.read(localeProvider.notifier).toggle();
             },
           ),
         ],

@@ -1,0 +1,89 @@
+{
+  "@@locale": "ko",
+  "appTitle": "몬스터 수집",
+  "tabBattle": "전투",
+  "tabGacha": "소환",
+  "tabCollection": "도감",
+  "tabUpgrade": "강화",
+  "tabQuest": "퀘스트",
+  "tabSettings": "설정",
+  "battleIdle": "전투 대기",
+  "battleFighting": "전투 중...",
+  "battleVictory": "승리!",
+  "battleDefeat": "패배",
+  "battleAutoMode": "자동",
+  "battleSpeed": "속도",
+  "battleStart": "전투 시작",
+  "battleRetreat": "후퇴",
+  "stageSelect": "스테이지 선택",
+  "gachaSinglePull": "1회 소환",
+  "gachaTenPull": "10회 소환",
+  "gachaPity": "천장: {count}/80",
+  "@gachaPity": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "monsterLevel": "Lv.{level}",
+  "@monsterLevel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+  "upgradeLevelUp": "레벨업",
+  "upgradeEvolution": "진화",
+  "upgradeFusion": "융합",
+  "upgradeAwakening": "각성",
+  "questDaily": "일일",
+  "questWeekly": "주간",
+  "questAchievement": "업적",
+  "questClaim": "수령",
+  "questNoQuests": "퀘스트가 없습니다",
+  "settingsTitle": "설정",
+  "settingsLanguage": "언어",
+  "settingsSound": "진동 효과",
+  "settingsBackup": "데이터 백업",
+  "settingsRestore": "데이터 복원",
+  "settingsPrestige": "전생",
+  "gold": "골드",
+  "diamond": "다이아",
+  "gachaTicket": "소환권",
+  "confirm": "확인",
+  "cancel": "취소",
+  "close": "닫기",
+  "infiniteDungeon": "무한 던전",
+  "worldBoss": "월드 보스",
+  "arena": "아레나",
+  "eventDungeon": "이벤트",
+  "guild": "길드",
+  "relic": "유물",
+  "expedition": "원정",
+  "statistics": "통계",
+  "affinity": "친밀도",
+  "skill": "스킬",
+  "equippedRelics": "장착 유물",
+  "noRelics": "장착된 유물이 없습니다",
+  "noSkill": "스킬 없음",
+  "stats": "스탯",
+  "experience": "경험치",
+  "teamAssigned": "팀 배치중",
+  "teamNotAssigned": "미배치",
+  "evolutionStage": "진화 {stage}단계",
+  "@evolutionStage": {
+    "placeholders": {
+      "stage": {"type": "int"}
+    }
+  },
+  "acquiredDate": "획득 {date}",
+  "@acquiredDate": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "playerInfo": "플레이어",
+  "battleStats": "전투",
+  "monsterStats": "몬스터",
+  "gachaStats": "소환",
+  "resources": "재화",
+  "equipmentQuests": "장비/퀘스트"
+}
