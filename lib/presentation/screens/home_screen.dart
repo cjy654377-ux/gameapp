@@ -93,15 +93,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> _initProviders() async {
     if (_loaded) return;
-    await ref.read(playerProvider.notifier).loadPlayer();
-    await ref.read(currencyProvider.notifier).load();
-    await ref.read(monsterListProvider.notifier).loadMonsters();
-    await ref.read(questProvider.notifier).load();
-    await ref.read(relicProvider.notifier).loadRelics();
-    ref.read(expeditionProvider.notifier).load();
-    ref.read(guildProvider.notifier).loadGuild();
-    _loaded = true;
-    _checkOfflineReward();
+    try {
+      await ref.read(playerProvider.notifier).loadPlayer();
+      await ref.read(currencyProvider.notifier).load();
+      await ref.read(monsterListProvider.notifier).loadMonsters();
+      await ref.read(questProvider.notifier).load();
+      await ref.read(relicProvider.notifier).loadRelics();
+      ref.read(expeditionProvider.notifier).load();
+      ref.read(guildProvider.notifier).loadGuild();
+      _loaded = true;
+      _checkOfflineReward();
+    } catch (e) {
+      debugPrint('[HomeScreen] _initProviders error: $e');
+      _loaded = true; // prevent infinite retry
+    }
   }
 
   @override

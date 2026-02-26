@@ -39,35 +39,48 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     final nickname = _nicknameController.text.trim();
 
-    // Create player
-    await ref.read(playerProvider.notifier).createNewPlayer(nickname);
+    try {
+      // Create player
+      await ref.read(playerProvider.notifier).createNewPlayer(nickname);
 
-    // Load currency (defaults)
-    await ref.read(currencyProvider.notifier).load();
+      // Load currency (defaults)
+      await ref.read(currencyProvider.notifier).load();
 
-    // Create starter monster
-    final template = MonsterDatabase.all.firstWhere(
-      (t) => t.id == _selectedTemplateId,
-    );
-    final starterMonster = MonsterModel.fromTemplate(
-      id: 'starter_${template.id}',
-      templateId: template.id,
-      name: template.name,
-      rarity: template.rarity,
-      element: template.element,
-      baseAtk: template.baseAtk,
-      baseDef: template.baseDef,
-      baseHp: template.baseHp,
-      baseSpd: template.baseSpd,
-      size: template.size,
-    );
-    await ref.read(monsterListProvider.notifier).addMonster(starterMonster);
+      // Create starter monster
+      final template = MonsterDatabase.all.firstWhere(
+        (t) => t.id == _selectedTemplateId,
+        orElse: () => MonsterDatabase.all.first,
+      );
+      final starterMonster = MonsterModel.fromTemplate(
+        id: 'starter_${template.id}',
+        templateId: template.id,
+        name: template.name,
+        rarity: template.rarity,
+        element: template.element,
+        baseAtk: template.baseAtk,
+        baseDef: template.baseDef,
+        baseHp: template.baseHp,
+        baseSpd: template.baseSpd,
+        size: template.size,
+      );
+      await ref.read(monsterListProvider.notifier).addMonster(starterMonster);
 
-    // Set as team
-    await ref.read(monsterListProvider.notifier).setTeam([starterMonster.id]);
-    await ref.read(playerProvider.notifier).updateTeamIds([starterMonster.id]);
+      // Set as team
+      await ref.read(monsterListProvider.notifier).setTeam([starterMonster.id]);
+      await ref.read(playerProvider.notifier).updateTeamIds([starterMonster.id]);
 
-    if (mounted) context.go(AppRoutes.battle);
+      if (mounted) context.go(AppRoutes.battle);
+    } catch (e) {
+      debugPrint('[Onboarding] _completeOnboarding error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error during setup. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
