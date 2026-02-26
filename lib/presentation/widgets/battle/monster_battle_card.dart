@@ -39,9 +39,27 @@ class MonsterBattleCard extends StatelessWidget {
   Color get _elementColor => _element.color;
   Color get _rarityColor => _rarity.color;
 
-  String get _avatarChar {
-    final n = monster.name.trim();
-    return n.isNotEmpty ? n.characters.first : '?';
+  IconData get _elementIcon {
+    switch (monster.element) {
+      case 'fire':
+        return Icons.local_fire_department_rounded;
+      case 'water':
+        return Icons.water_drop_rounded;
+      case 'electric':
+        return Icons.flash_on_rounded;
+      case 'stone':
+        return Icons.terrain_rounded;
+      case 'grass':
+        return Icons.eco_rounded;
+      case 'ghost':
+        return Icons.visibility_off_rounded;
+      case 'light':
+        return Icons.wb_sunny_rounded;
+      case 'dark':
+        return Icons.dark_mode_rounded;
+      default:
+        return Icons.pets_rounded;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -90,20 +108,24 @@ class MonsterBattleCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Avatar background
-              CircleAvatar(
-                radius: avatarSize / 2,
-                backgroundColor:
-                    _elementColor.withValues(alpha:isDead ? 0.15 : 0.28),
-                child: Text(
-                  _avatarChar,
-                  style: TextStyle(
-                    fontSize: avatarSize * 0.42,
-                    fontWeight: FontWeight.bold,
-                    color: isDead
-                        ? AppColors.disabledText
-                        : AppColors.textPrimary,
+              // Avatar background with element icon
+              Container(
+                width: avatarSize,
+                height: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: isDead
+                        ? [Colors.grey.withValues(alpha: 0.15), Colors.grey.withValues(alpha: 0.08)]
+                        : [_elementColor.withValues(alpha: 0.35), _elementColor.withValues(alpha: 0.12)],
                   ),
+                ),
+                child: Icon(
+                  _elementIcon,
+                  size: avatarSize * 0.45,
+                  color: isDead ? AppColors.disabledText : _elementColor,
                 ),
               ),
               // Dead skull overlay on avatar
