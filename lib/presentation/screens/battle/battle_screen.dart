@@ -434,6 +434,7 @@ class _IdleBanner extends ConsumerWidget {
               _QuickNavBtn(icon: Icons.inventory_2, label: l.relic, color: Colors.orange, route: AppRoutes.relic),
               _QuickNavBtn(icon: Icons.explore, label: l.expedition, color: Colors.lightBlue, route: AppRoutes.expedition),
               _QuickNavBtn(icon: Icons.military_tech, label: l.seasonPassTitle, color: Colors.deepOrange, route: AppRoutes.seasonPass),
+              _QuickNavBtn(icon: Icons.fitness_center, label: l.trainingTitle, color: Colors.orange, route: AppRoutes.training),
               _QuickNavBtn(icon: Icons.bar_chart, label: l.statistics, color: Colors.blueGrey, route: AppRoutes.statistics),
             ],
           ),

@@ -545,5 +545,16 @@
   "seasonPassPremium": "수령",
   "seasonPassPremiumActive": "프리미엄",
   "seasonPassPremiumBuy": "프리미엄 잠금",
-  "seasonPassPremiumBadge": "PREMIUM"
+  "seasonPassPremiumBadge": "PREMIUM",
+
+  "trainingTitle": "트레이닝",
+  "trainingDesc": "몬스터를 배치하면 시간 경과 후 자동으로 경험치를 획득합니다",
+  "trainingEmpty": "몬스터 배치하기",
+  "trainingSelectMonster": "트레이닝할 몬스터 선택",
+  "trainingDuration": "트레이닝 시간 선택",
+  "trainingComplete": "완료!",
+  "trainingRemaining": "남음",
+  "trainingCollect": "수집",
+  "trainingCancel": "취소",
+  "trainingNoMonsters": "배치 가능한 몬스터가 없습니다"
 }

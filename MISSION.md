@@ -209,6 +209,12 @@
 - [x] _IdleBanner .select() 적용 (arena/worldBoss/guild/quest 4개 provider)
 - [x] TutorialOverlay .select() 적용 (tutorialStep만 구독)
 
+## 코드 최적화 (5차)
+- [x] _RadarPainter.shouldRepaint() 값 비교 (항상 true → 변경시만)
+- [x] battle_screen _MonsterGrid RepaintBoundary 적용 (양팀)
+- [x] gacha_screen 결과 GridView RepaintBoundary 적용
+- [x] season_pass/relic/collection ListView cacheExtent 추가
+
 ## 5차 고도화 (J1~)
 ### 콘텐츠 확장
 - [x] J3: 시즌 패스/배틀패스 (30레벨 보상 트랙)
@@ -217,6 +223,12 @@
   - SeasonPassScreen: 레벨/XP바, 30단계 보상목록, 프리미엄토글
   - 전투 승리 XP 트리거 (+20/승리, +50/첫클리어)
   - /season-pass 라우트, battle_screen 빠른이동, ko/en l10n
+- [x] J5: 몬스터 트레이닝 (자동 레벨업 슬롯)
+  - TrainingService: 3슬롯, 1h/4h/8h, 레벨 기반 XP 스케일링
+  - TrainingProvider: 슬롯 시작/수집/취소, Hive settings 영속화
+  - TrainingScreen: 활성/빈 슬롯 카드, 몬스터 선택 시트, 시간 선택
+  - 시간 기반 XP → 몬스터 직접 적용 (multi-level-up 지원)
+  - /training 라우트, battle_screen 빠른이동, ko/en l10n
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

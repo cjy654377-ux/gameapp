@@ -469,5 +469,16 @@
   "seasonPassPremium": "Claim",
   "seasonPassPremiumActive": "Premium",
   "seasonPassPremiumBuy": "Premium Locked",
-  "seasonPassPremiumBadge": "PREMIUM"
+  "seasonPassPremiumBadge": "PREMIUM",
+
+  "trainingTitle": "Training",
+  "trainingDesc": "Place monsters to gain XP automatically over time",
+  "trainingEmpty": "Place a monster",
+  "trainingSelectMonster": "Select monster to train",
+  "trainingDuration": "Select training duration",
+  "trainingComplete": "Complete!",
+  "trainingRemaining": "remaining",
+  "trainingCollect": "Collect",
+  "trainingCancel": "Cancel",
+  "trainingNoMonsters": "No available monsters"
 }
