@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 고도화 작업 진행 중 (Feature 7 다음)
+## 현재 Phase: 고도화 작업 진행 중 (Feature 8 다음)
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -36,7 +36,11 @@
   - DungeonScreen: 전용 전투UI, 누적보상 바, 자동전투/속도
   - PlayerModel maxDungeonFloor (HiveField 11), 최고기록 추적
   - battle_screen 대기화면 무한던전 진입버튼, /dungeon 라우트
-- [ ] Feature 7: 몬스터 융합
+- [x] Feature 7: 몬스터 융합
+  - UpgradeTab.fusion 추가, 같은 등급 2마리 → 상위 등급 랜덤 몬스터
+  - canFuse() 검증 (같은등급, 5성이하, 팀미배치)
+  - fusionGoldCost (300*rarity), _FusionPanel UI, _FusionSlot 위젯
+  - 융합 실행 시 재료 삭제 + 신규 생성 + 도감/퀘스트 연동
 - [ ] Feature 8: 전생/프레스티지
 - [ ] Feature 9: 월드 보스
 - [ ] Feature 10: 유물/장비
@@ -71,3 +75,5 @@
 - lib/presentation/widgets/battle/hp_bar.dart (쉴드 오버레이)
 - lib/data/models/player_model.dart (maxDungeonFloor 추가)
 - lib/presentation/providers/player_provider.dart (updateMaxDungeonFloor)
+- lib/presentation/providers/upgrade_provider.dart (융합 상태+메서드 추가)
+- lib/presentation/screens/upgrade/upgrade_screen.dart (융합 탭+_FusionPanel)
