@@ -571,5 +571,11 @@
   "titleNone": "칭호 없음",
   "titleHidden": "숨겨진 업적을 달성하면 해금됩니다",
   "titleEquip": "장착",
-  "titleUnequip": "해제"
+  "titleUnequip": "해제",
+
+  "mailboxTitle": "우편함",
+  "mailboxEmpty": "우편이 없습니다",
+  "mailboxClaim": "수령",
+  "mailboxClaimed": "수령 완료",
+  "mailboxClaimAll": "모두 수령"
 }

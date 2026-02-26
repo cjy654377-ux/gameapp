@@ -495,5 +495,11 @@
   "titleNone": "No Title",
   "titleHidden": "Complete hidden achievements to unlock",
   "titleEquip": "Equip",
-  "titleUnequip": "Unequip"
+  "titleUnequip": "Unequip",
+
+  "mailboxTitle": "Mailbox",
+  "mailboxEmpty": "No mail",
+  "mailboxClaim": "Claim",
+  "mailboxClaimed": "Claimed",
+  "mailboxClaimAll": "Claim All"
 }
