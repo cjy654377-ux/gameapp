@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
+import 'package:gameapp/domain/services/battle_statistics_service.dart';
 import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
@@ -960,20 +961,35 @@ class _ActionButton extends StatelessWidget {
 // _VictoryDialog — full-screen overlay shown on BattlePhase.victory
 // =============================================================================
 
-class _VictoryDialog extends ConsumerWidget {
+class _VictoryDialog extends ConsumerStatefulWidget {
   const _VictoryDialog();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final reward   = ref.watch(battleProvider.select((s) => s.lastReward));
+  ConsumerState<_VictoryDialog> createState() => _VictoryDialogState();
+}
+
+class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
+  bool _showStats = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final state    = ref.watch(battleProvider);
+    final reward   = state.lastReward;
     final notifier = ref.read(battleProvider.notifier);
+
+    // Compute battle statistics
+    final stats = BattleStatisticsService.calculate(
+      log: state.battleLog,
+      playerTeam: state.playerTeam,
+      turnCount: state.currentTurn,
+    );
 
     return Material(
       color: Colors.black.withValues(alpha:0.72),
       child: Center(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 32),
-          padding: const EdgeInsets.all(24),
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          constraints: const BoxConstraints(maxHeight: 520),
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(20),
@@ -989,108 +1005,286 @@ class _VictoryDialog extends ConsumerWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ── Title ────────────────────────────────────────────────────
-              const Icon(
-                Icons.emoji_events_rounded,
-                color: AppColors.gold,
-                size: 52,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '승리!',
-                style: TextStyle(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── Title ──────────────────────────────────────────────────
+                const Icon(
+                  Icons.emoji_events_rounded,
                   color: AppColors.gold,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
+                  size: 48,
                 ),
-              ),
-
-              const SizedBox(height: 20),
-              const Divider(color: AppColors.border),
-              const SizedBox(height: 12),
-
-              // ── Reward section ───────────────────────────────────────────
-              if (reward != null) ...[
+                const SizedBox(height: 6),
                 const Text(
-                  '획득 보상',
+                  '승리!',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _RewardChip(
-                      icon: Icons.monetization_on_rounded,
-                      iconColor: AppColors.gold,
-                      label: FormatUtils.formatNumber(reward.gold),
-                      sublabel: '골드',
-                    ),
-                    _RewardChip(
-                      icon: Icons.auto_awesome_rounded,
-                      iconColor: AppColors.experience,
-                      label: FormatUtils.formatNumber(reward.exp),
-                      sublabel: '경험치',
-                    ),
-                    if (reward.bonusShard != null)
-                      _RewardChip(
-                        icon: Icons.diamond_rounded,
-                        iconColor: AppColors.primaryLight,
-                        label: '×${reward.bonusShard}',
-                        sublabel: '파편',
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ] else
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    '보상을 집계 중입니다...',
-                    style: TextStyle(
-                      color: AppColors.textTertiary,
-                      fontSize: 13,
-                    ),
+                    color: AppColors.gold,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
                   ),
                 ),
 
-              // ── Collect button ───────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => notifier.collectReward(),
-                  icon: const Icon(Icons.emoji_events_rounded, size: 18),
-                  label: const Text(
-                    '보상 받기',
+                const SizedBox(height: 14),
+                const Divider(color: AppColors.border),
+                const SizedBox(height: 10),
+
+                // ── Reward section ─────────────────────────────────────────
+                if (reward != null) ...[
+                  const Text(
+                    '획득 보상',
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.gold.withValues(alpha:0.9),
-                    foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _RewardChip(
+                        icon: Icons.monetization_on_rounded,
+                        iconColor: AppColors.gold,
+                        label: FormatUtils.formatNumber(reward.gold),
+                        sublabel: '골드',
+                      ),
+                      _RewardChip(
+                        icon: Icons.auto_awesome_rounded,
+                        iconColor: AppColors.experience,
+                        label: FormatUtils.formatNumber(reward.exp),
+                        sublabel: '경험치',
+                      ),
+                      if (reward.bonusShard != null)
+                        _RewardChip(
+                          icon: Icons.diamond_rounded,
+                          iconColor: AppColors.primaryLight,
+                          label: '×${reward.bonusShard}',
+                          sublabel: '파편',
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ] else
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      '보상을 집계 중입니다...',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 13,
+                      ),
                     ),
-                    elevation: 4,
-                    shadowColor: AppColors.gold.withValues(alpha:0.4),
+                  ),
+
+                // ── Stats toggle ───────────────────────────────────────────
+                GestureDetector(
+                  onTap: () => setState(() => _showStats = !_showStats),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _showStats ? Icons.expand_less : Icons.expand_more,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _showStats ? '통계 접기' : '전투 통계 보기',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+
+                // ── Battle statistics panel ────────────────────────────────
+                if (_showStats) ...[
+                  const SizedBox(height: 12),
+                  _BattleStatsPanel(stats: stats),
+                ],
+
+                const SizedBox(height: 14),
+
+                // ── Collect button ─────────────────────────────────────────
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => notifier.collectReward(),
+                    icon: const Icon(Icons.emoji_events_rounded, size: 18),
+                    label: const Text(
+                      '보상 받기',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.gold.withValues(alpha:0.9),
+                      foregroundColor: Colors.black87,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 4,
+                      shadowColor: AppColors.gold.withValues(alpha:0.4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+// =============================================================================
+// Battle statistics panel
+// =============================================================================
+
+class _BattleStatsPanel extends StatelessWidget {
+  const _BattleStatsPanel({required this.stats});
+  final BattleStatistics stats;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _StatMini(label: '총 데미지', value: FormatUtils.formatCompact(stats.totalDamage.round())),
+              _StatMini(label: '턴', value: '${stats.totalTurns}'),
+              _StatMini(label: '치명타', value: '${stats.totalCriticals}'),
+              _StatMini(label: '스킬', value: '${stats.totalSkillUses}'),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 10),
+
+          // MVP
+          if (stats.mvpName.isNotEmpty) ...[
+            Row(
+              children: [
+                const Icon(Icons.star, color: AppColors.gold, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  'MVP: ${stats.mvpName}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.gold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+
+          // Damage contribution bars
+          ...stats.monsterStats.map((m) => _DamageBar(stat: m)),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatMini extends StatelessWidget {
+  const _StatMini({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 10, color: AppColors.textTertiary),
+        ),
+      ],
+    );
+  }
+}
+
+class _DamageBar extends StatelessWidget {
+  const _DamageBar({required this.stat});
+  final MonsterBattleStats stat;
+
+  @override
+  Widget build(BuildContext context) {
+    final pctText = '${(stat.damagePercent * 100).toStringAsFixed(1)}%';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              stat.name,
+              style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: stat.damagePercent.clamp(0.0, 1.0),
+                backgroundColor: AppColors.surfaceVariant,
+                color: _barColor(stat.damagePercent),
+                minHeight: 10,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 40,
+            child: Text(
+              pctText,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _barColor(double pct) {
+    if (pct >= 0.4) return AppColors.gold;
+    if (pct >= 0.25) return Colors.cyan;
+    return AppColors.primary;
   }
 }
 
