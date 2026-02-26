@@ -16,7 +16,9 @@ import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
 import '../../domain/services/prestige_service.dart';
 import '../providers/quest_provider.dart';
+import '../providers/attendance_provider.dart';
 import '../providers/relic_provider.dart';
+import '../dialogs/attendance_dialog.dart';
 
 /// Tab configuration used by [HomeScreen].
 class _TabItem {
@@ -188,6 +190,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     // Update lastOnlineAt to now.
     await ref.read(playerProvider.notifier).updateLastOnline();
+    _showingDialog = false;
+
+    // Check daily attendance after offline reward
+    _checkAttendance();
+  }
+
+  Future<void> _checkAttendance() async {
+    if (_showingDialog) return;
+    if (!mounted) return;
+
+    final attendance = ref.read(attendanceProvider.notifier);
+    attendance.refresh();
+    final state = ref.read(attendanceProvider);
+    if (!state.canCheckIn) return;
+
+    _showingDialog = true;
+    final claimed = await showAttendanceDialog(context, attendance: state);
+
+    if (claimed && mounted) {
+      final reward = await ref.read(attendanceProvider.notifier).checkIn();
+      if (reward != null && mounted) {
+        final l = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.attendanceClaimed),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
     _showingDialog = false;
   }
 

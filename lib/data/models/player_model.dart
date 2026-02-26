@@ -58,6 +58,18 @@ class PlayerModel extends HiveObject {
   @HiveField(15)
   int collectionRewardsClaimed;
 
+  /// Last daily check-in date (null = never checked in).
+  @HiveField(16)
+  DateTime? lastCheckInDate;
+
+  /// Current consecutive check-in streak (1-7, resets after day 7).
+  @HiveField(17)
+  int checkInStreak;
+
+  /// Total check-in days ever.
+  @HiveField(18)
+  int totalCheckInDays;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -75,6 +87,9 @@ class PlayerModel extends HiveObject {
     this.prestigeBonusPercent = 0.0,
     this.tutorialStep = 0,
     this.collectionRewardsClaimed = 0,
+    this.lastCheckInDate,
+    this.checkInStreak = 0,
+    this.totalCheckInDays = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -113,6 +128,9 @@ class PlayerModel extends HiveObject {
       prestigeBonusPercent: 0.0,
       tutorialStep: 0,
       collectionRewardsClaimed: 0,
+      lastCheckInDate: null,
+      checkInStreak: 0,
+      totalCheckInDays: 0,
     );
   }
 
@@ -137,6 +155,9 @@ class PlayerModel extends HiveObject {
     double? prestigeBonusPercent,
     int? tutorialStep,
     int? collectionRewardsClaimed,
+    DateTime? lastCheckInDate,
+    int? checkInStreak,
+    int? totalCheckInDays,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -156,6 +177,9 @@ class PlayerModel extends HiveObject {
       tutorialStep: tutorialStep ?? this.tutorialStep,
       collectionRewardsClaimed:
           collectionRewardsClaimed ?? this.collectionRewardsClaimed,
+      lastCheckInDate: lastCheckInDate ?? this.lastCheckInDate,
+      checkInStreak: checkInStreak ?? this.checkInStreak,
+      totalCheckInDays: totalCheckInDays ?? this.totalCheckInDays,
     );
   }
 
@@ -198,13 +222,16 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       prestigeBonusPercent: (fields[13] as num?)?.toDouble() ?? 0.0,
       tutorialStep:       fields[14] as int? ?? 0,
       collectionRewardsClaimed: fields[15] as int? ?? 0,
+      lastCheckInDate: fields[16] as DateTime?,
+      checkInStreak: fields[17] as int? ?? 0,
+      totalCheckInDays: fields[18] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(16) // number of fields
+      ..writeByte(19) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -236,7 +263,13 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(14)
       ..write(obj.tutorialStep)
       ..writeByte(15)
-      ..write(obj.collectionRewardsClaimed);
+      ..write(obj.collectionRewardsClaimed)
+      ..writeByte(16)
+      ..write(obj.lastCheckInDate)
+      ..writeByte(17)
+      ..write(obj.checkInStreak)
+      ..writeByte(18)
+      ..write(obj.totalCheckInDays);
   }
 
   @override

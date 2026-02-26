@@ -497,5 +497,22 @@
   "@questInProgress": {"placeholders": {"count": {"type": "int"}}},
   "shortcut": "바로가기",
   "prestigeN": "전생 {level}",
-  "@prestigeN": {"placeholders": {"level": {"type": "int"}}}
+  "@prestigeN": {"placeholders": {"level": {"type": "int"}}},
+
+  "attendanceTitle": "일일 출석 보상",
+  "attendanceDesc": "누적 출석 {days}일째",
+  "@attendanceDesc": {"placeholders": {"days": {"type": "int"}}},
+  "attendanceCheckIn": "출석 체크!",
+  "attendanceDay": "Day {day}",
+  "@attendanceDay": {"placeholders": {"day": {"type": "int"}}},
+  "attendanceRewardGold": "골드 {amount}",
+  "@attendanceRewardGold": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardDiamond": "다이아 {amount}",
+  "@attendanceRewardDiamond": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardTicket": "소환권 {amount}",
+  "@attendanceRewardTicket": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardPotion": "경험치 물약 {amount}",
+  "@attendanceRewardPotion": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceClaimed": "출석 보상을 받았습니다!",
+  "attendanceAlreadyClaimed": "오늘은 이미 출석했습니다"
 }

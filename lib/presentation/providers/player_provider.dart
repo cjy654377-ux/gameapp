@@ -123,6 +123,11 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   // ---------------------------------------------------------------------------
 
   /// Updates [PlayerModel.lastOnlineAt] to the current time and persists.
+  /// Replaces the current player model with [player] and updates state.
+  void forceUpdate(PlayerModel player) {
+    state = state.copyWith(player: player);
+  }
+
   Future<void> updateLastOnline() async {
     final current = state.player;
     if (current == null) return;

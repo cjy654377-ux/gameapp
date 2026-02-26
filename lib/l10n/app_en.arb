@@ -421,5 +421,22 @@
   "questRewardAvailable": "{count} quest rewards available!",
   "questInProgress": "{count} quests in progress",
   "shortcut": "Shortcuts",
-  "prestigeN": "Prestige {level}"
+  "prestigeN": "Prestige {level}",
+
+  "attendanceTitle": "Daily Check-in",
+  "attendanceDesc": "Total {days} days checked in",
+  "@attendanceDesc": {"placeholders": {"days": {"type": "int"}}},
+  "attendanceCheckIn": "Check In!",
+  "attendanceDay": "Day {day}",
+  "@attendanceDay": {"placeholders": {"day": {"type": "int"}}},
+  "attendanceRewardGold": "Gold {amount}",
+  "@attendanceRewardGold": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardDiamond": "Diamond {amount}",
+  "@attendanceRewardDiamond": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardTicket": "Ticket {amount}",
+  "@attendanceRewardTicket": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceRewardPotion": "EXP Potion {amount}",
+  "@attendanceRewardPotion": {"placeholders": {"amount": {"type": "int"}}},
+  "attendanceClaimed": "Check-in reward claimed!",
+  "attendanceAlreadyClaimed": "Already checked in today"
 }
