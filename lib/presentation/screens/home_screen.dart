@@ -6,6 +6,7 @@ import '../../data/datasources/local_storage.dart';
 import '../../routing/app_router.dart';
 import '../dialogs/offline_reward_dialog.dart';
 import '../providers/currency_provider.dart';
+import '../providers/monster_provider.dart';
 import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
 
@@ -71,15 +72,24 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with WidgetsBindingObserver {
   bool _showingDialog = false;
+  bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Check for offline rewards after the first frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkOfflineReward();
+      _initProviders();
     });
+  }
+
+  Future<void> _initProviders() async {
+    if (_loaded) return;
+    await ref.read(playerProvider.notifier).loadPlayer();
+    await ref.read(currencyProvider.notifier).load();
+    await ref.read(monsterListProvider.notifier).loadMonsters();
+    _loaded = true;
+    _checkOfflineReward();
   }
 
   @override
