@@ -15,6 +15,7 @@ import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/dungeon/dungeon_screen.dart';
 import '../presentation/screens/prestige/prestige_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
+import '../presentation/screens/world_boss/world_boss_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -34,6 +35,7 @@ class AppRoutes {
   static const stageSelect = '/stage-select';
   static const dungeon = '/dungeon';
   static const prestige = '/prestige';
+  static const worldBoss = '/world-boss';
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +77,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.prestige,
         builder: (context, state) => const PrestigeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.worldBoss,
+        builder: (context, state) => const WorldBossScreen(),
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {
