@@ -168,6 +168,23 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Gacha statistics
+  // ---------------------------------------------------------------------------
+
+  /// Increments [PlayerModel.totalGachaPullCount] by [count] and persists.
+  Future<void> addGachaPullCount(int count) async {
+    final current = state.player;
+    if (current == null) return;
+
+    final updated = current.copyWith(
+      totalGachaPullCount: current.totalGachaPullCount + count,
+    );
+
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
+  // ---------------------------------------------------------------------------
   // Team management (mirror of monster provider, player model side)
   // ---------------------------------------------------------------------------
 

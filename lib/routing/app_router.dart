@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/home_screen.dart';
+import '../presentation/screens/gacha/gacha_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -41,7 +42,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.gacha,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _GachaPlaceholder(),
+              child: GachaScreen(),
             ),
           ),
           GoRoute(
@@ -78,15 +79,6 @@ class _BattlePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _TabPlaceholder(label: '전투', icon: Icons.shield);
-  }
-}
-
-class _GachaPlaceholder extends StatelessWidget {
-  const _GachaPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _TabPlaceholder(label: '소환', icon: Icons.card_giftcard);
   }
 }
 
