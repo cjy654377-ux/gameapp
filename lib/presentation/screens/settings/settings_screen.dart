@@ -9,6 +9,7 @@ import '../../../domain/services/audio_service.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/theme_provider.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
@@ -60,6 +61,11 @@ class SettingsScreen extends ConsumerWidget {
             // Language toggle
             _SectionHeader(title: l.settingsLanguage),
             _LanguageToggleTile(),
+            const SizedBox(height: 24),
+
+            // Theme toggle
+            _SectionHeader(title: 'Theme'),
+            _ThemeToggleTile(),
             const SizedBox(height: 24),
 
             // Sound / Haptic toggle
@@ -368,6 +374,41 @@ class _SoundToggleTileState extends State<_SoundToggleTile> {
             onChanged: (v) {
               AudioService.instance.setEnabled(v);
               setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeToggleTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    final isDark = mode == ThemeMode.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(
+            isDark ? Icons.dark_mode : Icons.light_mode,
+            color: isDark ? Colors.indigo : Colors.orange,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            isDark ? 'Dark' : 'Light',
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          Switch(
+            value: !isDark,
+            activeTrackColor: Colors.orange.withValues(alpha: 0.5),
+            activeThumbColor: Colors.orange,
+            onChanged: (_) {
+              ref.read(themeModeProvider.notifier).toggle();
             },
           ),
         ],

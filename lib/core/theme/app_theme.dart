@@ -330,6 +330,144 @@ class AppTheme {
 
     );
   }
+
+  /// Get the light theme data for the application
+  static ThemeData getLightTheme() {
+    const bg = Color(0xFFF5F5FA);
+    const surface = Color(0xFFFFFFFF);
+    const card = Color(0xFFEEEEF5);
+    const border = Color(0xFFD0D0DD);
+    const textPrimary = Color(0xFF1A1A2E);
+    const textSecondary = Color(0xFF5F5F7A);
+    const textTertiary = Color(0xFF9999AA);
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: bg,
+      primaryColor: AppColors.primary,
+
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        onPrimary: Colors.white,
+        secondary: AppColors.accentSecondary,
+        onSecondary: Colors.white,
+        surface: surface,
+        onSurface: textPrimary,
+        error: AppColors.error,
+        onError: Colors.white,
+        brightness: Brightness.light,
+      ),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        foregroundColor: textPrimary,
+        elevation: 1,
+        shadowColor: Color(0x1A000000),
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: textPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(color: textPrimary),
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 2,
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+
+      cardTheme: CardThemeData(
+        color: card,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: border, width: 0.5),
+        ),
+      ),
+
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: surface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: textTertiary,
+        elevation: 4,
+        type: BottomNavigationBarType.fixed,
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titleTextStyle: const TextStyle(
+          color: textPrimary, fontSize: 20, fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: const TextStyle(color: textSecondary, fontSize: 14),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: bg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        hintStyle: const TextStyle(color: textTertiary),
+      ),
+
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(color: textPrimary, fontSize: 16, fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: textPrimary, fontSize: 16, height: 1.5),
+        bodyMedium: TextStyle(color: textPrimary, fontSize: 14, height: 1.5),
+        bodySmall: TextStyle(color: textSecondary, fontSize: 12, height: 1.4),
+        labelLarge: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+
+      chipTheme: ChipThemeData(
+        backgroundColor: bg,
+        selectedColor: AppColors.primary,
+        labelStyle: const TextStyle(color: textPrimary, fontSize: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        side: const BorderSide(color: border),
+      ),
+
+      tabBarTheme: const TabBarThemeData(
+        labelColor: AppColors.primary,
+        unselectedLabelColor: textSecondary,
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+        ),
+      ),
+
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: surface,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+      ),
+
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.primary,
+        linearTrackColor: border,
+      ),
+    );
+  }
 }
 
 /// Pre-defined button styles for common actions
