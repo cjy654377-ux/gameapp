@@ -20,6 +20,7 @@ import '../presentation/screens/stage_select/stage_select_screen.dart';
 import '../presentation/screens/arena/arena_screen.dart';
 import '../presentation/screens/event_dungeon/event_dungeon_screen.dart';
 import '../presentation/screens/guild/guild_screen.dart';
+import '../presentation/screens/expedition/expedition_screen.dart';
 import '../presentation/screens/monster_detail/monster_detail_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
@@ -47,6 +48,7 @@ class AppRoutes {
   static const eventDungeon = '/event-dungeon';
   static const guild = '/guild';
   static const monsterDetail = '/monster-detail';
+  static const expedition = '/expedition';
 }
 
 // ---------------------------------------------------------------------------
@@ -108,6 +110,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.guild,
         builder: (context, state) => const GuildScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.expedition,
+        builder: (context, state) => const ExpeditionScreen(),
       ),
       GoRoute(
         path: AppRoutes.monsterDetail,

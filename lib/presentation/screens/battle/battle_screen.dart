@@ -384,6 +384,7 @@ class _IdleBanner extends ConsumerWidget {
               _QuickNavBtn(icon: Icons.event, label: '이벤트', color: Colors.teal, route: AppRoutes.eventDungeon),
               _QuickNavBtn(icon: Icons.groups, label: '길드', color: Colors.indigo, route: AppRoutes.guild),
               _QuickNavBtn(icon: Icons.inventory_2, label: '유물', color: Colors.orange, route: AppRoutes.relic),
+              _QuickNavBtn(icon: Icons.explore, label: '원정', color: Colors.lightBlue, route: AppRoutes.expedition),
             ],
           ),
         ],

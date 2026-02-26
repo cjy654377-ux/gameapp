@@ -8,6 +8,7 @@ import '../models/monster_model.dart';
 import '../models/player_model.dart';
 import '../models/currency_model.dart';
 import '../models/quest_model.dart';
+import '../models/expedition_model.dart';
 import '../models/relic_model.dart';
 
 /// Keys used to store singleton documents in their respective boxes.
@@ -20,8 +21,9 @@ const String _kPlayerBoxName   = 'player';
 const String _kCurrencyBoxName = 'currency';
 const String _kQuestBoxName    = 'quests';
 const String _kRelicBoxName    = 'relics';
-const String _kGuildBoxName    = 'guild';
-const String _kGuildKey        = 'guild';
+const String _kGuildBoxName       = 'guild';
+const String _kGuildKey           = 'guild';
+const String _kExpeditionBoxName  = 'expeditions';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -41,6 +43,7 @@ class LocalStorage {
   late Box<QuestModel>    _questBox;
   late Box<RelicModel>    _relicBox;
   late Box<GuildModel>    _guildBox;
+  late Box<ExpeditionModel> _expeditionBox;
 
   bool _initialised = false;
 
@@ -73,6 +76,9 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(GuildModelAdapter().typeId)) {
       Hive.registerAdapter(GuildModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(ExpeditionModelAdapter().typeId)) {
+      Hive.registerAdapter(ExpeditionModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
@@ -80,6 +86,7 @@ class LocalStorage {
     _questBox    = await Hive.openBox<QuestModel>(_kQuestBoxName);
     _relicBox    = await Hive.openBox<RelicModel>(_kRelicBoxName);
     _guildBox    = await Hive.openBox<GuildModel>(_kGuildBoxName);
+    _expeditionBox = await Hive.openBox<ExpeditionModel>(_kExpeditionBoxName);
 
     _initialised = true;
   }
@@ -261,6 +268,20 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Expedition CRUD
+  // -------------------------------------------------------------------------
+
+  List<ExpeditionModel> getAllExpeditions() => _expeditionBox.values.toList();
+
+  Future<void> saveExpedition(ExpeditionModel exp) async {
+    await _expeditionBox.put(exp.id, exp);
+  }
+
+  Future<void> deleteExpedition(String id) async {
+    await _expeditionBox.delete(id);
+  }
+
+  // -------------------------------------------------------------------------
   // Bulk operations
   // -------------------------------------------------------------------------
 
@@ -304,6 +325,7 @@ class LocalStorage {
       _questBox.clear(),
       _relicBox.clear(),
       _guildBox.clear(),
+      _expeditionBox.clear(),
     ]);
   }
 
@@ -523,6 +545,7 @@ class LocalStorage {
       _questBox.close(),
       _relicBox.close(),
       _guildBox.close(),
+      _expeditionBox.close(),
     ]);
     _initialised = false;
   }
