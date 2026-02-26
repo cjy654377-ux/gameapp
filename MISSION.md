@@ -87,7 +87,11 @@
   - EventDungeonScreen: 이벤트목록/전투/보상 UI
   - battle_screen 이벤트던전 진입, /event-dungeon 라우트
 - [ ] B7: 길드/클랜 시스템 (공동보스, 길드상점)
-- [ ] B8: 몬스터 도감 보상 (완성도 보너스)
+- [x] B8: 몬스터 도감 보상 (완성도 보너스)
+  - 4단계 마일스톤 (5/10/15/20종), 골드+다이아+소환권 보상
+  - PlayerModel.collectionRewardsClaimed(HiveField 15) 비트마스크
+  - collectionMilestoneProvider: 달성/수령 상태 추적
+  - collection_screen 마일스톤 보상 바 UI
 ### 시스템 안정성
 - [ ] C9: 데이터 백업/복원 (JSON export/import)
 - [ ] C10: 밸런스 조정 (난이도, 보상, 스킬 수치)

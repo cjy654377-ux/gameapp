@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/monster_model.dart';
 import '../../data/static/monster_database.dart';
+import '../../domain/services/audio_service.dart';
+import 'currency_provider.dart';
 import 'monster_provider.dart';
+import 'player_provider.dart';
 
 // =============================================================================
 // Filter state
@@ -138,3 +141,83 @@ final collectionStatsProvider = Provider<({int total, int owned})>((ref) {
     owned: ownedTemplateIds.length,
   );
 });
+
+// =============================================================================
+// Collection milestone rewards
+// =============================================================================
+
+class CollectionMilestone {
+  final int index; // 0-based, used for bitmask
+  final int requiredCount;
+  final int gold;
+  final int diamond;
+  final int gachaTickets;
+  final String label;
+
+  const CollectionMilestone({
+    required this.index,
+    required this.requiredCount,
+    required this.gold,
+    required this.diamond,
+    required this.gachaTickets,
+    required this.label,
+  });
+}
+
+const collectionMilestones = [
+  CollectionMilestone(
+    index: 0, requiredCount: 5, gold: 200, diamond: 20, gachaTickets: 1,
+    label: '5종 수집',
+  ),
+  CollectionMilestone(
+    index: 1, requiredCount: 10, gold: 500, diamond: 50, gachaTickets: 2,
+    label: '10종 수집',
+  ),
+  CollectionMilestone(
+    index: 2, requiredCount: 15, gold: 1000, diamond: 100, gachaTickets: 3,
+    label: '15종 수집',
+  ),
+  CollectionMilestone(
+    index: 3, requiredCount: 20, gold: 2000, diamond: 300, gachaTickets: 5,
+    label: '도감 완성!',
+  ),
+];
+
+/// Provides milestone status: reached, claimed, claimable.
+final collectionMilestoneProvider =
+    Provider<List<({CollectionMilestone milestone, bool reached, bool claimed})>>(
+        (ref) {
+  final stats = ref.watch(collectionStatsProvider);
+  final player = ref.watch(playerProvider).player;
+  final claimedBitmask = player?.collectionRewardsClaimed ?? 0;
+
+  return collectionMilestones.map((m) {
+    final reached = stats.owned >= m.requiredCount;
+    final claimed = (claimedBitmask & (1 << m.index)) != 0;
+    return (milestone: m, reached: reached, claimed: claimed);
+  }).toList();
+});
+
+/// Claims a collection milestone reward.
+Future<void> claimCollectionMilestone(WidgetRef ref, int milestoneIndex) async {
+  final milestone = collectionMilestones[milestoneIndex];
+  final player = ref.read(playerProvider).player;
+  if (player == null) return;
+
+  // Check not already claimed.
+  if ((player.collectionRewardsClaimed & (1 << milestone.index)) != 0) return;
+
+  // Grant rewards.
+  final currency = ref.read(currencyProvider.notifier);
+  if (milestone.gold > 0) await currency.addGold(milestone.gold);
+  if (milestone.diamond > 0) await currency.addDiamond(milestone.diamond);
+  if (milestone.gachaTickets > 0) {
+    await currency.addGachaTicket(milestone.gachaTickets);
+  }
+
+  // Mark as claimed.
+  final newBitmask = player.collectionRewardsClaimed | (1 << milestone.index);
+  await ref.read(playerProvider.notifier).updateCollectionRewards(newBitmask);
+
+  AudioService.instance.playRewardCollect();
+}

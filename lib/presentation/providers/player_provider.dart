@@ -214,6 +214,19 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Collection rewards
+  // ---------------------------------------------------------------------------
+
+  Future<void> updateCollectionRewards(int bitmask) async {
+    final current = state.player;
+    if (current == null) return;
+
+    final updated = current.copyWith(collectionRewardsClaimed: bitmask);
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
+  // ---------------------------------------------------------------------------
   // Tutorial
   // ---------------------------------------------------------------------------
 

@@ -34,6 +34,7 @@ class CollectionScreen extends ConsumerWidget {
             children: [
               const CurrencyBar(),
               _buildHeader(context, stats),
+              _buildMilestoneBar(context, ref),
               _buildFilterBar(context, ref, filter),
               Expanded(
                 child: entries.isEmpty
@@ -82,6 +83,72 @@ class CollectionScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMilestoneBar(BuildContext context, WidgetRef ref) {
+    final milestones = ref.watch(collectionMilestoneProvider);
+
+    return SizedBox(
+      height: 44,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        children: milestones.map((m) {
+          final canClaim = m.reached && !m.claimed;
+          final color = m.claimed
+              ? Colors.green
+              : m.reached
+                  ? Colors.amber
+                  : AppColors.textTertiary;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ActionChip(
+              avatar: Icon(
+                m.claimed
+                    ? Icons.check_circle
+                    : m.reached
+                        ? Icons.card_giftcard
+                        : Icons.lock,
+                size: 16,
+                color: color,
+              ),
+              label: Text(
+                m.milestone.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: canClaim ? FontWeight.bold : FontWeight.normal,
+                  color: color,
+                ),
+              ),
+              backgroundColor: canClaim
+                  ? Colors.amber.withValues(alpha: 0.15)
+                  : AppColors.surface,
+              side: BorderSide(
+                color: canClaim
+                    ? Colors.amber.withValues(alpha: 0.5)
+                    : AppColors.border,
+              ),
+              onPressed: canClaim
+                  ? () async {
+                      await claimCollectionMilestone(ref, m.milestone.index);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                '${m.milestone.label} 보상 수령! 골드 +${m.milestone.gold}, 다이아 +${m.milestone.diamond}'),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    }
+                  : null,
+            ),
+          );
+        }).toList(),
       ),
     );
   }
