@@ -148,15 +148,22 @@
 ### UI/UX 완성도
 - [x] G1: l10n 전면 적용 (17개 화면 + 위젯, 300+ 키, 한/영 완전 국제화)
 - [x] G2: 다크/라이트 테마 전환 (설정에서 토글, Hive persist)
-- [ ] G3: 전투 연출 강화 (데미지 넘버 애니메이션, 크리티컬 이펙트)
+- [x] G3: 전투 연출 강화 (데미지 넘버 애니메이션, 크리티컬 이펙트)
 - [ ] G4: 온보딩 개선 (닉네임 입력 UI 리디자인, 초기 몬스터 선택)
 ### 콘텐츠 확장
 - [ ] H5: 몬스터 스킨/의상 시스템 (외형 커스터마이징)
 - [ ] H6: 도전의 탑 (주간 리셋 고난이도 컨텐츠, 층별 고정 보상)
 - [ ] H7: 몬스터 조합 레시피 (특정 조합 → 히든 몬스터 해금)
-- [ ] H8: 일일 출석 보상 (7일 주기 누적 보상)
+- [x] H8: 일일 출석 보상 (7일 주기 누적 보상)
+  - PlayerModel 3필드 추가 (lastCheckInDate/checkInStreak/totalCheckInDays)
+  - AttendanceProvider: 7일 주기 출석, 연속/리셋 판정, 보상 지급
+  - AttendanceDialog: 7일 그리드 UI, 완료/오늘/미래 상태 표시
+  - HomeScreen 앱 진입시 자동 출석 팝업, ko/en l10n
 ### 시스템 안정성
-- [ ] I9: 에러 핸들링 강화 (home_screen init try/catch, 전역 에러바운더리)
+- [x] I9: 에러 핸들링 강화 (home_screen init try/catch, 전역 에러바운더리)
+  - _initProviders() try/catch로 Hive 초기화 크래시 방지
+  - _completeOnboarding() try/catch + 에러 SnackBar
+  - firstWhere orElse 폴백 추가
 - [ ] I10: 추가 유닛 테스트 (provider/service 계층 커버리지 확대)
 - [ ] I11: 접근성 개선 (Semantics, 텍스트 크기 대응)
 - [ ] I12: 성능 프로파일링 (빌드 최적화, 이미지 캐싱)
@@ -170,6 +177,13 @@
 - [x] QuestState 사전 계산 + 개별 저장 최적화
 - [x] claimReward/claimMilestone addReward() 단일 호출
 - [x] HomeScreen indexOf → indexed loop
+
+## 코드 최적화 (4차)
+- [x] G3 데미지 넘버 race condition 수정 (oldLen 캡처)
+- [x] mounted 체크 추가 (dispose 후 콜백 방지)
+- [x] _ControlBar .select() 적용 (불필요한 리빌드 방지)
+- [x] 린트 이슈 7개 수정 (unnecessary_brace_in_string_interps)
+- [x] 출석 다이얼로그 isClaimed 삼항 로직 단순화
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
