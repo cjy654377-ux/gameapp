@@ -12,6 +12,7 @@ import '../presentation/screens/upgrade/upgrade_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/quest/quest_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
+import '../presentation/screens/dungeon/dungeon_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@ class AppRoutes {
   static const quest = '/quest';
   static const settings = '/settings';
   static const stageSelect = '/stage-select';
+  static const dungeon = '/dungeon';
 }
 
 // ---------------------------------------------------------------------------
@@ -63,6 +65,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.stageSelect,
         builder: (context, state) => const StageSelectScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.dungeon,
+        builder: (context, state) => const DungeonScreen(),
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {

@@ -185,6 +185,21 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Dungeon
+  // ---------------------------------------------------------------------------
+
+  /// Updates [PlayerModel.maxDungeonFloor] if [floor] is a new record.
+  Future<void> updateMaxDungeonFloor(int floor) async {
+    final current = state.player;
+    if (current == null) return;
+    if (floor <= current.maxDungeonFloor) return;
+
+    final updated = current.copyWith(maxDungeonFloor: floor);
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
+  // ---------------------------------------------------------------------------
   // Team management (mirror of monster provider, player model side)
   // ---------------------------------------------------------------------------
 

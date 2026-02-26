@@ -249,6 +249,37 @@ class _IdleBanner extends StatelessWidget {
               fontSize: 13,
             ),
           ),
+          const SizedBox(height: 20),
+          // Dungeon entry button
+          GestureDetector(
+            onTap: () => context.push(AppRoutes.dungeon),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFCE93D8).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFCE93D8).withValues(alpha: 0.5),
+                  width: 1,
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.layers, color: Color(0xFFCE93D8), size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    '무한 던전',
+                    style: TextStyle(
+                      color: Color(0xFFCE93D8),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

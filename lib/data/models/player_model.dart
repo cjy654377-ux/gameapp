@@ -38,6 +38,10 @@ class PlayerModel extends HiveObject {
   @HiveField(10)
   int totalGachaPullCount;
 
+  /// Highest floor reached in the infinite dungeon (0 = never attempted).
+  @HiveField(11)
+  int maxDungeonFloor;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -50,6 +54,7 @@ class PlayerModel extends HiveObject {
     required this.createdAt,
     required this.totalBattleCount,
     required this.totalGachaPullCount,
+    this.maxDungeonFloor = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -80,6 +85,7 @@ class PlayerModel extends HiveObject {
       createdAt: now,
       totalBattleCount: 0,
       totalGachaPullCount: 0,
+      maxDungeonFloor: 0,
     );
   }
 
@@ -99,6 +105,7 @@ class PlayerModel extends HiveObject {
     DateTime? createdAt,
     int? totalBattleCount,
     int? totalGachaPullCount,
+    int? maxDungeonFloor,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -112,6 +119,7 @@ class PlayerModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       totalBattleCount: totalBattleCount ?? this.totalBattleCount,
       totalGachaPullCount: totalGachaPullCount ?? this.totalGachaPullCount,
+      maxDungeonFloor: maxDungeonFloor ?? this.maxDungeonFloor,
     );
   }
 
@@ -149,13 +157,14 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       createdAt:          fields[8]  as DateTime,
       totalBattleCount:   fields[9]  as int,
       totalGachaPullCount: fields[10] as int,
+      maxDungeonFloor:    fields[11] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(11) // number of fields
+      ..writeByte(12) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -177,7 +186,9 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(9)
       ..write(obj.totalBattleCount)
       ..writeByte(10)
-      ..write(obj.totalGachaPullCount);
+      ..write(obj.totalGachaPullCount)
+      ..writeByte(11)
+      ..write(obj.maxDungeonFloor);
   }
 
   @override
