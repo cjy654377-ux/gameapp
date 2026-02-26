@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/gacha/gacha_screen.dart';
+import '../presentation/screens/upgrade/upgrade_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -54,7 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.upgrade,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _UpgradePlaceholder(),
+              child: UpgradeScreen(),
             ),
           ),
           GoRoute(
@@ -88,15 +89,6 @@ class _CollectionPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const _TabPlaceholder(label: '도감', icon: Icons.collections_bookmark);
-  }
-}
-
-class _UpgradePlaceholder extends StatelessWidget {
-  const _UpgradePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _TabPlaceholder(label: '강화', icon: Icons.upgrade);
   }
 }
 

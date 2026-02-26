@@ -1,12 +1,12 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 3 완료
+## 현재 Phase: 4 완료
 
 ## 진행 상황
 - [x] Phase 1: 프로젝트 기반 셋업
 - [x] Phase 2: 자동 전투 시스템
 - [x] Phase 3: 가챠 시스템
-- [ ] Phase 4: 강화/진화 시스템
+- [x] Phase 4: 강화/진화 시스템
 - [ ] Phase 5: 오프라인 보상 + 저장
 - [ ] Phase 6: 도감 + 팀편성
 - [ ] Phase 7: 폴리싱
@@ -40,7 +40,13 @@
 - [x] PlayerNotifier.addGachaPullCount 메서드 추가
 - [x] app_router.dart 가챠 플레이스홀더 → 실제 GachaScreen 교체
 
-## 완료된 파일 목록 (36개 .dart + 65 이미지)
+## Phase 4 세부 (완료)
+- [x] UpgradeService (레벨업 골드비용, 경험치물약, 진화 샤드+골드, 스탯 미리보기)
+- [x] UpgradeProvider (StateNotifier, 몬스터선택, 탭전환, 레벨업/물약/진화 실행)
+- [x] UpgradeScreen UI (몬스터 그리드, 레벨업/진화 탭, 스탯비교, 진화단계 인디케이터)
+- [x] app_router.dart 강화 플레이스홀더 → 실제 UpgradeScreen 교체
+
+## 완료된 파일 목록 (39개 .dart + 65 이미지)
 ### Core
 - lib/main.dart, lib/app.dart, lib/routing/app_router.dart
 - lib/core/constants/{app_colors,game_config,strings_ko}.dart
@@ -55,17 +61,18 @@
 
 ### Domain
 - lib/domain/entities/{synergy,battle_entity}.dart
-- lib/domain/services/{synergy_service,battle_service,game_tick_service,gacha_service}.dart
+- lib/domain/services/{synergy_service,battle_service,game_tick_service,gacha_service,upgrade_service}.dart
 
 ### Presentation
-- lib/presentation/providers/{game_state,player,currency,monster,battle,gacha}_provider.dart
+- lib/presentation/providers/{game_state,player,currency,monster,battle,gacha,upgrade}_provider.dart
 - lib/presentation/screens/home_screen.dart
 - lib/presentation/screens/battle/battle_screen.dart
 - lib/presentation/widgets/common/currency_bar.dart
 - lib/presentation/widgets/battle/{hp_bar,monster_battle_card}.dart
 - lib/presentation/screens/gacha/gacha_screen.dart
+- lib/presentation/screens/upgrade/upgrade_screen.dart
 
-## 다음 작업: Phase 4 - 강화/진화 시스템
-- [ ] UpgradeService (레벨업, 진화, 스탯공식)
-- [ ] UpgradeProvider (상태관리)
-- [ ] UpgradeScreen UI (몬스터선택, 레벨업/진화탭, 전후비교)
+## 다음 작업: Phase 5 - 오프라인 보상 + 저장
+- [ ] OfflineRewardService (최대12시간, 골드50%/경험치30% 효율)
+- [ ] AppLifecycle 관리 (paused→저장, resumed→보상계산)
+- [ ] 오프라인 보상 팝업 UI
