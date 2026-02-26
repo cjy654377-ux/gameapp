@@ -116,18 +116,39 @@
 
 ## 3차 고도화 (D1~F11)
 ### UI/UX 고급화
-- [ ] D1: 몬스터 상세 화면 (풀스크린 프로필, 스탯 레이더, 스킬/유물 표시)
-- [ ] D2: 전투 결과 통계 (데미지 기여도, MVP, 턴별 요약)
-- [ ] D3: 메인 대시보드 (일일 현황 위젯, 남은 도전횟수)
+- [x] D1: 몬스터 상세 화면 (풀스크린 프로필, 스탯 레이더, 스킬/유물 표시)
+  - CustomScrollView + SliverAppBar, 레이더 차트 CustomPainter
+  - 장착 유물/스킬 표시, 도감 → 상세화면 네비게이션
+- [x] D2: 전투 결과 통계 (데미지 기여도, MVP, 턴별 요약)
+  - BattleStatisticsService: 전투 데이터 분석, 몬스터별 데미지/크리/스킬 통계
+  - 승리 다이얼로그 토글 통계 패널, MVP 표시, 데미지 바
+- [x] D3: 메인 대시보드 (일일 현황 위젯, 남은 도전횟수)
+  - 플레이어 정보, 일일 도전현황 (아레나/월보/길드), 퀘스트 상태, 빠른 이동
 ### 콘텐츠 심화
-- [ ] E5: 몬스터 각성 시스템 (최종진화 이후 추가 강화)
-- [ ] E6: 원정대 시스템 (몬스터 파견 → 시간 경과 보상)
-- [ ] E7: 주간 퀘스트/시즌 패스
+- [x] E5: 몬스터 각성 시스템 (최종진화 이후 추가 강화)
+  - awakeningStars (최대 5성), 성별 +10% 스탯 보너스
+  - 각성 패널 UI: 별 표시, 스탯 미리보기, 비용 표시
+- [x] E6: 원정대 시스템 (몬스터 파견 → 시간 경과 보상)
+  - ExpeditionModel (Hive typeId:6), 3슬롯, 1h/4h/8h 옵션
+  - 타이머 기반 UI, 몬스터 선택기, 보상 수집
+- [x] E7: 주간 퀘스트 시스템
+  - QuestType.weekly 추가, 주간 퀘스트 4종
+  - 주간 리셋 (매주 월요일), 퀘스트 화면 3탭 (일일/주간/업적)
 - [ ] E8: 몬스터 친밀도 (전투 참여 → 보너스 스탯)
 ### 시스템
 - [ ] F9: 통계 대시보드 (플레이 기록, 누적 데이터)
 - [ ] F10: 유닛 테스트 (핵심 서비스)
 - [ ] F11: 국제화 i18n (한/영)
+
+## 코드 최적화 (3차)
+- [x] MonsterElement.icon 공유 getter (4곳 중복 제거)
+- [x] StageDatabase 공유 유틸 (3곳 중복 제거)
+- [x] MonsterModel compositeMultiplier 캐시
+- [x] CurrencyBar select() 적용
+- [x] PlayerModel.expForLevel() static 함수
+- [x] QuestState 사전 계산 + 개별 저장 최적화
+- [x] claimReward/claimMilestone addReward() 단일 호출
+- [x] HomeScreen indexOf → indexed loop
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
