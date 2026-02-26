@@ -425,6 +425,7 @@ class _IdleBanner extends ConsumerWidget {
             runSpacing: 8,
             children: [
               _QuickNavBtn(icon: Icons.layers, label: l.infiniteDungeon, color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
+              _QuickNavBtn(icon: Icons.castle, label: l.towerTitle, color: Colors.amber, route: AppRoutes.tower),
               _QuickNavBtn(icon: Icons.whatshot, label: l.worldBoss, color: Colors.red, route: AppRoutes.worldBoss),
               _QuickNavBtn(icon: Icons.emoji_events, label: l.arenaShort, color: Colors.amber, route: AppRoutes.arena),
               _QuickNavBtn(icon: Icons.event, label: l.eventDungeonShort, color: Colors.teal, route: AppRoutes.eventDungeon),

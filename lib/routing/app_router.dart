@@ -14,6 +14,7 @@ import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/quest/quest_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/dungeon/dungeon_screen.dart';
+import '../presentation/screens/tower/tower_screen.dart';
 import '../presentation/screens/prestige/prestige_screen.dart';
 import '../presentation/screens/relic/relic_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
@@ -51,6 +52,7 @@ class AppRoutes {
   static const monsterDetail = '/monster-detail';
   static const expedition = '/expedition';
   static const statistics = '/statistics';
+  static const tower = '/tower';
 }
 
 // ---------------------------------------------------------------------------
@@ -88,6 +90,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.dungeon,
         builder: (context, state) => const DungeonScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.tower,
+        builder: (context, state) => const TowerScreen(),
       ),
       GoRoute(
         path: AppRoutes.prestige,

@@ -514,5 +514,18 @@
   "attendanceRewardPotion": "경험치 물약 {amount}",
   "@attendanceRewardPotion": {"placeholders": {"amount": {"type": "int"}}},
   "attendanceClaimed": "출석 보상을 받았습니다!",
-  "attendanceAlreadyClaimed": "오늘은 이미 출석했습니다"
+  "attendanceAlreadyClaimed": "오늘은 이미 출석했습니다",
+
+  "towerTitle": "도전의 탑",
+  "towerStart": "도전 시작",
+  "towerReady": "도전 준비 완료!",
+  "towerNoAttempts": "이번 주 도전 횟수 소진",
+  "towerAttempts": "남은 도전: {remaining}/{max}",
+  "@towerAttempts": {"placeholders": {"remaining": {"type": "int"}, "max": {"type": "int"}}},
+  "towerBest": "최고 {floor}층",
+  "@towerBest": {"placeholders": {"floor": {"type": "int"}}},
+  "towerNextFloor": "다음 층",
+  "towerCollect": "보상 수집",
+  "towerComplete": "탑 정복 완료!",
+  "towerNoHeal": "층 사이 회복 없음!"
 }

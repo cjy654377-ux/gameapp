@@ -438,5 +438,18 @@
   "attendanceRewardPotion": "EXP Potion {amount}",
   "@attendanceRewardPotion": {"placeholders": {"amount": {"type": "int"}}},
   "attendanceClaimed": "Check-in reward claimed!",
-  "attendanceAlreadyClaimed": "Already checked in today"
+  "attendanceAlreadyClaimed": "Already checked in today",
+
+  "towerTitle": "Tower of Challenge",
+  "towerStart": "Start Challenge",
+  "towerReady": "Ready to challenge!",
+  "towerNoAttempts": "No attempts left this week",
+  "towerAttempts": "Remaining: {remaining}/{max}",
+  "@towerAttempts": {"placeholders": {"remaining": {"type": "int"}, "max": {"type": "int"}}},
+  "towerBest": "Best: {floor}F",
+  "@towerBest": {"placeholders": {"floor": {"type": "int"}}},
+  "towerNextFloor": "Next Floor",
+  "towerCollect": "Collect Rewards",
+  "towerComplete": "Tower Conquered!",
+  "towerNoHeal": "No healing between floors!"
 }
