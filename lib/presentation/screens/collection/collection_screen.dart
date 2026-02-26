@@ -243,7 +243,7 @@ class _MonsterCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Monster icon (silhouette if not owned)
-            _buildIcon(element, rarity),
+            _buildIcon(element),
             const SizedBox(height: 4),
             // Name
             Text(
@@ -280,7 +280,7 @@ class _MonsterCard extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(MonsterElement element, MonsterRarity rarity) {
+  Widget _buildIcon(MonsterElement element) {
     if (!entry.isOwned) {
       return Icon(
         Icons.help_outline,

@@ -169,7 +169,6 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
         children: List.generate(GameConfig.maxTeamSize, (i) {
           final m = selectedMonsters[i];
           return _TeamSlot(
-            index: i,
             monster: m,
             onRemove: m != null ? () => _toggle(m) : null,
           );
@@ -185,12 +184,10 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
 
 class _TeamSlot extends StatelessWidget {
   const _TeamSlot({
-    required this.index,
     required this.monster,
     this.onRemove,
   });
 
-  final int index;
   final MonsterModel? monster;
   final VoidCallback? onRemove;
 
