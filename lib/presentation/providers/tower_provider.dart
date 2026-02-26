@@ -381,6 +381,7 @@ class TowerNotifier extends StateNotifier<TowerState> {
       battleSpeed: state.battleSpeed,
       isAutoMode: state.isAutoMode,
     );
+    _saveProgress();
   }
 
   // ---------------------------------------------------------------------------
