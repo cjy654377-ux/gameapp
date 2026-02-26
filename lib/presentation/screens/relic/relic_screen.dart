@@ -99,6 +99,7 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(8),
+                    cacheExtent: 800,
                     itemCount: filtered.length,
                     itemBuilder: (ctx, i) {
                       final relic = filtered[i];

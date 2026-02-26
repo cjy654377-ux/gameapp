@@ -256,6 +256,7 @@ class CollectionScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, List<CollectionEntry> entries) {
     return GridView.builder(
       padding: const EdgeInsets.all(12),
+      cacheExtent: 600,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         mainAxisSpacing: 8,

@@ -57,6 +57,7 @@ class _SeasonPassScreenState extends ConsumerState<SeasonPassScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              cacheExtent: 500,
               itemCount: SeasonPassDatabase.maxLevel,
               itemBuilder: (_, i) {
                 final rewardLevel = i + 1;

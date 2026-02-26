@@ -392,7 +392,13 @@ class _RadarPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _RadarPainter oldDelegate) {
+    if (oldDelegate.values.length != values.length) return true;
+    for (int i = 0; i < values.length; i++) {
+      if (oldDelegate.values[i] != values[i]) return true;
+    }
+    return false;
+  }
 }
 
 // =============================================================================

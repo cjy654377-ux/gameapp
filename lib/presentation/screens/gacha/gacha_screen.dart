@@ -670,7 +670,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: GridView.builder(
+                          child: RepaintBoundary(child: GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 5,
@@ -685,7 +685,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
                                 revealed: index <= revealIndex,
                               );
                             },
-                          ),
+                          )),
                         ),
                 ),
               ),

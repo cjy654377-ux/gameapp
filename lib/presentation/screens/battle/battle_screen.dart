@@ -221,10 +221,12 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
         children: [
           // ── Player team (left) ──────────────────────────────────────────
           Expanded(
-            child: _MonsterGrid(
-              monsters: state.playerTeam,
-              label: l.ourTeam,
-              labelColor: AppColors.primary,
+            child: RepaintBoundary(
+              child: _MonsterGrid(
+                monsters: state.playerTeam,
+                label: l.ourTeam,
+                labelColor: AppColors.primary,
+              ),
             ),
           ),
 
@@ -259,10 +261,12 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
 
           // ── Enemy team (right) ──────────────────────────────────────────
           Expanded(
-            child: _MonsterGrid(
-              monsters: state.enemyTeam,
-              label: l.enemyTeam,
-              labelColor: AppColors.error,
+            child: RepaintBoundary(
+              child: _MonsterGrid(
+                monsters: state.enemyTeam,
+                label: l.enemyTeam,
+                labelColor: AppColors.error,
+              ),
             ),
           ),
         ],
