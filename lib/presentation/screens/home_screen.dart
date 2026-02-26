@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/datasources/local_storage.dart';
 import '../../routing/app_router.dart';
+import '../dialogs/offline_reward_dialog.dart';
+import '../providers/currency_provider.dart';
+import '../providers/offline_reward_provider.dart';
+import '../providers/player_provider.dart';
 
 /// Tab configuration used by [HomeScreen].
 class _TabItem {
@@ -51,15 +57,114 @@ const List<_TabItem> _tabs = [
   ),
 ];
 
-/// Root scaffold that hosts the [BottomNavigationBar] and delegates the body
-/// to the currently active GoRouter shell route child.
-class HomeScreen extends StatelessWidget {
+/// Root scaffold that hosts the [BottomNavigationBar], manages app lifecycle
+/// events (pause/resume), and triggers offline reward calculations.
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.child});
 
-  /// The currently active route's page widget provided by [ShellRoute].
   final Widget child;
 
-  /// Resolves the [BottomNavigationBar] index from the current route location.
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
+  bool _showingDialog = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Check for offline rewards after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOfflineReward();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lifecycle
+  // ---------------------------------------------------------------------------
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        _onPaused();
+        break;
+      case AppLifecycleState.resumed:
+        _onResumed();
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _onPaused() async {
+    // Update lastOnlineAt and save all data immediately.
+    await ref.read(playerProvider.notifier).updateLastOnline();
+    await LocalStorage.instance.saveAll(
+      player: ref.read(playerProvider).player,
+      currency: ref.read(currencyProvider),
+    );
+  }
+
+  Future<void> _onResumed() async {
+    _checkOfflineReward();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Offline reward
+  // ---------------------------------------------------------------------------
+
+  Future<void> _checkOfflineReward() async {
+    if (_showingDialog) return;
+
+    final player = ref.read(playerProvider).player;
+    if (player == null) return;
+
+    // Calculate offline rewards.
+    ref.read(offlineRewardProvider.notifier).calculateRewards(
+          lastOnlineAt: player.lastOnlineAt,
+          stageId: player.currentStageId,
+        );
+
+    final rewardState = ref.read(offlineRewardProvider);
+    if (!rewardState.hasPendingReward) return;
+
+    _showingDialog = true;
+
+    if (!mounted) return;
+
+    final claimed = await showOfflineRewardDialog(
+      context,
+      reward: rewardState.pendingReward!,
+    );
+
+    if (claimed) {
+      final reward = rewardState.pendingReward!;
+      // Apply rewards.
+      await ref.read(currencyProvider.notifier).addGold(reward.gold);
+      await ref.read(playerProvider.notifier).addPlayerExp(reward.exp);
+      ref.read(offlineRewardProvider.notifier).markClaimed();
+    }
+
+    // Update lastOnlineAt to now.
+    await ref.read(playerProvider.notifier).updateLastOnline();
+    _showingDialog = false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tab index
+  // ---------------------------------------------------------------------------
+
   int _resolveIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     for (int i = 0; i < _tabs.length; i++) {
@@ -67,15 +172,19 @@ class HomeScreen extends StatelessWidget {
         return i;
       }
     }
-    return 0; // default to 전투
+    return 0;
   }
+
+  // ---------------------------------------------------------------------------
+  // Build
+  // ---------------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
     final currentIndex = _resolveIndex(context);
 
     return Scaffold(
-      body: child,
+      body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {

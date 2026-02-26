@@ -15,6 +15,12 @@ class GameConfig {
   /// Experience earning efficiency during offline (0.0 - 1.0)
   static const double offlineExpEfficiency = 0.3;
 
+  /// Assumed battles per hour while offline
+  static const int offlineBattlesPerHour = 60;
+
+  /// Minimum offline minutes before showing reward popup
+  static const int minOfflineMinutes = 1;
+
   /// Gacha rates by rarity level: {rarity: probability}
   /// Rarity: 1=일반, 2=고급, 3=희귀, 4=영웅, 5=전설
   static const Map<int, double> gachaRates = {
