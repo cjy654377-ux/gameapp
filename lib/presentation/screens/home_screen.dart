@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/datasources/local_storage.dart';
+import '../../domain/services/notification_service.dart';
 import '../../routing/app_router.dart';
 import '../dialogs/offline_reward_dialog.dart';
 import '../providers/currency_provider.dart';
@@ -120,9 +121,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Update lastOnlineAt (saves player internally), then save currency.
     await ref.read(playerProvider.notifier).updateLastOnline();
     await LocalStorage.instance.saveCurrency(ref.read(currencyProvider));
+
+    // Schedule offline reminder notifications.
+    final player = ref.read(playerProvider).player;
+    if (player != null) {
+      NotificationService.instance.scheduleOfflineReminders(player.lastOnlineAt);
+    }
   }
 
   Future<void> _onResumed() async {
+    // Cancel pending notifications since user is back.
+    NotificationService.instance.cancelAll();
     _checkOfflineReward();
   }
 

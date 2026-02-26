@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app.dart';
 import 'data/datasources/local_storage.dart';
+import 'domain/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,9 @@ void main() async {
 
   // Initialize LocalStorage (registers adapters + opens all boxes)
   await LocalStorage.instance.init();
+
+  // Initialize notification service
+  await NotificationService.instance.init();
 
   runApp(
     const ProviderScope(
