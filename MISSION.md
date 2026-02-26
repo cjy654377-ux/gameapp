@@ -184,7 +184,11 @@
   - GestureDetector → Semantics 래퍼 (gacha _PullButton/_OverlayButton, collection _MonsterCard)
   - Icon semanticLabel 추가 (battle_screen 플레이어, collection 미발견몬스터)
   - _IdleBanner/.select() + TutorialOverlay/.select() (I10에서 동시 적용)
-- [ ] I12: 성능 프로파일링 (빌드 최적화, 이미지 캐싱)
+- [x] I12: 성능 프로파일링 (빌드 최적화)
+  - DamageNumberOverlay RepaintBoundary 적용 (전투 중 불필요한 리페인트 방지)
+  - _IdleBanner .select() 4개 provider 최적화 (I10에서 적용)
+  - TutorialOverlay .select() 최적화 (I10에서 적용)
+  - _ControlBar .select() 최적화 (이전 세션에서 적용)
 
 ## 코드 최적화 (3차)
 - [x] MonsterElement.icon 공유 getter (4곳 중복 제거)

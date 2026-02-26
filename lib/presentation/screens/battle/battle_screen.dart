@@ -270,7 +270,9 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
         ),
         // Floating damage numbers overlay
         Positioned.fill(
-          child: DamageNumberOverlay(key: _overlayKey),
+          child: RepaintBoundary(
+            child: DamageNumberOverlay(key: _overlayKey),
+          ),
         ),
       ],
     );
