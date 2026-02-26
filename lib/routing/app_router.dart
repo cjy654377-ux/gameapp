@@ -10,6 +10,7 @@ import '../presentation/screens/collection/collection_screen.dart';
 import '../presentation/screens/collection/team_edit_screen.dart';
 import '../presentation/screens/upgrade/upgrade_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
+import '../presentation/screens/quest/quest_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
 
@@ -26,6 +27,7 @@ class AppRoutes {
   static const collection = '/collection';
   static const teamEdit = '/collection/team';
   static const upgrade = '/upgrade';
+  static const quest = '/quest';
   static const settings = '/settings';
   static const stageSelect = '/stage-select';
 }
@@ -89,6 +91,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.upgrade,
             pageBuilder: (context, state) => const NoTransitionPage(
               child: UpgradeScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.quest,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: QuestScreen(),
             ),
           ),
           GoRoute(

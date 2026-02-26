@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/monster_model.dart';
 import '../models/player_model.dart';
 import '../models/currency_model.dart';
+import '../models/quest_model.dart';
 
 /// Keys used to store singleton documents in their respective boxes.
 const String _kPlayerKey   = 'player';
@@ -13,6 +14,7 @@ const String _kCurrencyKey = 'currency';
 const String _kMonsterBoxName  = 'monsters';
 const String _kPlayerBoxName   = 'player';
 const String _kCurrencyBoxName = 'currency';
+const String _kQuestBoxName    = 'quests';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -29,6 +31,7 @@ class LocalStorage {
   late Box<MonsterModel>  _monsterBox;
   late Box<PlayerModel>   _playerBox;
   late Box<CurrencyModel> _currencyBox;
+  late Box<QuestModel>    _questBox;
 
   bool _initialised = false;
 
@@ -52,10 +55,14 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(CurrencyModelAdapter().typeId)) {
       Hive.registerAdapter(CurrencyModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(QuestModelAdapter().typeId)) {
+      Hive.registerAdapter(QuestModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
     _currencyBox = await Hive.openBox<CurrencyModel>(_kCurrencyBoxName);
+    _questBox    = await Hive.openBox<QuestModel>(_kQuestBoxName);
 
     _initialised = true;
   }
@@ -163,6 +170,32 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Quest CRUD
+  // -------------------------------------------------------------------------
+
+  /// Returns all quest progress records.
+  List<QuestModel> getAllQuests() => _questBox.values.toList();
+
+  /// Returns quest progress by quest ID, or null.
+  QuestModel? getQuest(String questId) => _questBox.get(questId);
+
+  /// Saves or updates a single quest record.
+  Future<void> saveQuest(QuestModel quest) async {
+    await _questBox.put(quest.questId, quest);
+  }
+
+  /// Batch saves multiple quest records.
+  Future<void> saveQuests(List<QuestModel> quests) async {
+    final map = {for (final q in quests) q.questId: q};
+    await _questBox.putAll(map);
+  }
+
+  /// Clears all quest progress data.
+  Future<void> clearQuests() async {
+    await _questBox.clear();
+  }
+
+  // -------------------------------------------------------------------------
   // Bulk operations
   // -------------------------------------------------------------------------
 
@@ -203,6 +236,7 @@ class LocalStorage {
       _monsterBox.clear(),
       _playerBox.clear(),
       _currencyBox.clear(),
+      _questBox.clear(),
     ]);
   }
 
@@ -212,6 +246,7 @@ class LocalStorage {
       _monsterBox.close(),
       _playerBox.close(),
       _currencyBox.close(),
+      _questBox.close(),
     ]);
     _initialised = false;
   }

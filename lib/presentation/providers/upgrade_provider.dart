@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/data/models/monster_model.dart';
+import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
+import 'package:gameapp/presentation/providers/quest_provider.dart';
 
 // =============================================================================
 // UpgradeTab enum
@@ -105,6 +107,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
 
     final upgraded = UpgradeService.applyLevelUp(monster);
     await ref.read(monsterListProvider.notifier).updateMonster(upgraded);
+    ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterLevelUp);
 
     state = state.copyWith(
       isProcessing: false,
@@ -187,6 +190,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
 
     final evolved = UpgradeService.applyEvolution(monster);
     await ref.read(monsterListProvider.notifier).updateMonster(evolved);
+    ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterEvolve);
 
     final stageName = evolved.evolutionStage == 1 ? '1차 진화' : '최종 진화';
     state = state.copyWith(

@@ -10,6 +10,7 @@ import '../providers/currency_provider.dart';
 import '../providers/monster_provider.dart';
 import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
+import '../providers/quest_provider.dart';
 
 /// Tab configuration used by [HomeScreen].
 class _TabItem {
@@ -52,6 +53,12 @@ const List<_TabItem> _tabs = [
     activeIcon: Icons.upgrade,
   ),
   _TabItem(
+    route: AppRoutes.quest,
+    label: '퀘스트',
+    icon: Icons.assignment_outlined,
+    activeIcon: Icons.assignment,
+  ),
+  _TabItem(
     route: AppRoutes.settings,
     label: '설정',
     icon: Icons.settings_outlined,
@@ -89,6 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     await ref.read(playerProvider.notifier).loadPlayer();
     await ref.read(currencyProvider.notifier).load();
     await ref.read(monsterListProvider.notifier).loadMonsters();
+    await ref.read(questProvider.notifier).load();
     _loaded = true;
     _checkOfflineReward();
   }

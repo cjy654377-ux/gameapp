@@ -5,9 +5,11 @@ import 'package:gameapp/core/constants/game_config.dart';
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/domain/services/gacha_service.dart';
+import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/presentation/providers/quest_provider.dart';
 
 // =============================================================================
 // GachaState
@@ -154,6 +156,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
 
     await ref.read(monsterListProvider.notifier).addMonster(monster);
     _incrementPlayerPullCount(1);
+    _updateCollectProgress();
 
     state = state.copyWith(
       pityCount: pull.newPityCount,
@@ -179,6 +182,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
         .toList();
     await monsterNotifier.addMonsters(newMonsters);
     _incrementPlayerPullCount(10);
+    _updateCollectProgress();
 
     state = state.copyWith(
       pityCount: pull.newPityCount,
@@ -209,6 +213,19 @@ class GachaNotifier extends StateNotifier<GachaState> {
 
   void _incrementPlayerPullCount(int count) {
     ref.read(playerProvider.notifier).addGachaPullCount(count);
+    ref.read(questProvider.notifier).onTrigger(
+          QuestTrigger.gachaPull,
+          count: count,
+        );
+  }
+
+  void _updateCollectProgress() {
+    final roster = ref.read(monsterListProvider);
+    final uniqueCount = roster.map((m) => m.templateId).toSet().length;
+    ref.read(questProvider.notifier).onTrigger(
+          QuestTrigger.collectMonster,
+          absoluteValue: uniqueCount,
+        );
   }
 }
 

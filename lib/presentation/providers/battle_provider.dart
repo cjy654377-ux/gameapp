@@ -3,9 +3,11 @@ import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/domain/services/battle_service.dart';
+import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/presentation/providers/quest_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helper — mirrors BattleService._linearIdToKey without exposing it.
@@ -380,8 +382,19 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
     // Mark stage as cleared and advance to next.
     final clearedStageKey = _stageIndexToKey(state.currentStageId);
+    final playerData = ref.read(playerProvider).player;
+    final wasNewClear = playerData != null &&
+        _stageStringToIndex(clearedStageKey) >
+            _stageStringToIndex(playerData.maxClearedStageId);
     await player.updateStage(clearedStageKey);
     await player.addBattleCount();
+
+    // Quest triggers: battleWin + stageFirstClear.
+    final questNotifier = ref.read(questProvider.notifier);
+    await questNotifier.onTrigger(QuestTrigger.battleWin);
+    if (wasNewClear) {
+      await questNotifier.onTrigger(QuestTrigger.stageFirstClear);
+    }
 
     // Clear reward from state.
     state = state.copyWith(clearReward: true);
