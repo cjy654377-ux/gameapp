@@ -8,11 +8,19 @@ import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/battle_statistics_service.dart';
 import 'package:gameapp/domain/entities/synergy.dart';
+import 'package:gameapp/presentation/providers/arena_provider.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
+import 'package:gameapp/presentation/providers/collection_provider.dart';
+import 'package:gameapp/presentation/providers/guild_provider.dart';
+import 'package:gameapp/presentation/providers/monster_provider.dart';
+import 'package:gameapp/presentation/providers/player_provider.dart';
+import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/providers/world_boss_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
+import 'package:gameapp/domain/services/guild_service.dart';
 
 // =============================================================================
 // BattleScreen — root entry point
@@ -226,192 +234,246 @@ class _BattleArena extends ConsumerWidget {
 
 // ── _IdleBanner ───────────────────────────────────────────────────────────────
 
-class _IdleBanner extends StatelessWidget {
+class _IdleBanner extends ConsumerWidget {
   const _IdleBanner();
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final player = ref.watch(playerProvider).player;
+    final arenaState = ref.watch(arenaProvider);
+    final wbState = ref.watch(worldBossProvider);
+    final guildState = ref.watch(guildProvider);
+    final questState = ref.watch(questProvider);
+    final collection = ref.watch(collectionStatsProvider);
+
+    // Team power
+    final team = ref.watch(monsterListProvider).where((m) => m.isInTeam).toList();
+    final teamPower = team.fold<double>(0, (s, m) => s + m.finalAtk + m.finalDef + m.finalHp + m.finalSpd);
+
+    // Guild remaining
+    final guildRemaining = guildState.guild != null
+        ? (GuildService.maxDailyAttempts - guildState.guild!.dailyBossAttempts).clamp(0, GuildService.maxDailyAttempts)
+        : 0;
+
+    // Daily quest progress
+    final dailyQuests = questState.quests.where((q) => q.isCompleted == false).toList();
+    final claimable = questState.claimableCount;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.shield_outlined,
-            size: 52,
-            color: AppColors.primary.withValues(alpha:0.45),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            '전투 대기중',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+          // ── Player info row ──────────────────────────────────────────
+          if (player != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.person, color: AppColors.primary, size: 28),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Lv.${player.playerLevel}  |  스테이지 ${player.currentStageId}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '전투력 ${FormatUtils.formatNumber(teamPower.round())}  |  팀 ${team.length}/4  |  도감 ${collection.owned}/${collection.total}',
+                          style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (player.prestigeLevel > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '전생 ${player.prestigeLevel}',
+                        style: TextStyle(fontSize: 10, color: Colors.purple[300], fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
             ),
+          const SizedBox(height: 10),
+
+          // ── Daily attempts ───────────────────────────────────────────
+          const Text(
+            '일일 현황',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 6),
-          const Text(
-            '아래 버튼으로 전투를 시작하세요',
-            style: TextStyle(
-              color: AppColors.textTertiary,
-              fontSize: 13,
-            ),
+          Row(
+            children: [
+              Expanded(child: _AttemptCard(
+                icon: Icons.emoji_events, color: Colors.amber,
+                label: '아레나', remaining: arenaState.remainingAttempts, max: 5,
+              )),
+              const SizedBox(width: 8),
+              Expanded(child: _AttemptCard(
+                icon: Icons.whatshot, color: Colors.red,
+                label: '월드보스', remaining: wbState.remainingAttempts, max: 3,
+              )),
+              const SizedBox(width: 8),
+              Expanded(child: _AttemptCard(
+                icon: Icons.groups, color: Colors.indigo,
+                label: '길드', remaining: guildRemaining, max: GuildService.maxDailyAttempts,
+              )),
+            ],
           ),
-          const SizedBox(height: 20),
-          // Dungeon & World Boss & Arena entry buttons
+          const SizedBox(height: 6),
+          // Quest status
+          if (claimable > 0)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.card_giftcard, color: Colors.amber, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    '퀘스트 보상 $claimable개 수령 가능!',
+                    style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            )
+          else
+            Text(
+              '진행중 퀘스트 ${dailyQuests.length}개',
+              style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+            ),
+          const SizedBox(height: 14),
+
+          // ── Quick navigation ─────────────────────────────────────────
+          const Text(
+            '바로가기',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 6),
           Wrap(
             alignment: WrapAlignment.center,
-            spacing: 10,
+            spacing: 8,
             runSpacing: 8,
             children: [
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.dungeon),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFCE93D8).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFCE93D8).withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.layers, color: Color(0xFFCE93D8), size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        '무한 던전',
-                        style: TextStyle(
-                          color: Color(0xFFCE93D8),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.worldBoss),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.whatshot, color: Colors.red, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        '월드 보스',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.arena),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.amber.withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        'PvP 아레나',
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.eventDungeon),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.teal.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.teal.withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.event, color: Colors.teal, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        '이벤트 던전',
-                        style: TextStyle(
-                          color: Colors.teal,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.guild),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.indigo.withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.groups, color: Colors.indigo, size: 18),
-                      SizedBox(width: 6),
-                      Text(
-                        '길드',
-                        style: TextStyle(
-                          color: Colors.indigo,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _QuickNavBtn(icon: Icons.layers, label: '무한 던전', color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
+              _QuickNavBtn(icon: Icons.whatshot, label: '월드 보스', color: Colors.red, route: AppRoutes.worldBoss),
+              _QuickNavBtn(icon: Icons.emoji_events, label: '아레나', color: Colors.amber, route: AppRoutes.arena),
+              _QuickNavBtn(icon: Icons.event, label: '이벤트', color: Colors.teal, route: AppRoutes.eventDungeon),
+              _QuickNavBtn(icon: Icons.groups, label: '길드', color: Colors.indigo, route: AppRoutes.guild),
+              _QuickNavBtn(icon: Icons.inventory_2, label: '유물', color: Colors.orange, route: AppRoutes.relic),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── _AttemptCard ─────────────────────────────────────────────────────────────
+
+class _AttemptCard extends StatelessWidget {
+  const _AttemptCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.remaining,
+    required this.max,
+  });
+  final IconData icon;
+  final Color color;
+  final String label;
+  final int remaining;
+  final int max;
+
+  @override
+  Widget build(BuildContext context) {
+    final used = max - remaining;
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+          const SizedBox(height: 2),
+          Text(
+            '$used/$max',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: remaining > 0 ? color : AppColors.textTertiary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── _QuickNavBtn ─────────────────────────────────────────────────────────────
+
+class _QuickNavBtn extends StatelessWidget {
+  const _QuickNavBtn({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.route,
+  });
+  final IconData icon;
+  final String label;
+  final Color color;
+  final String route;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push(route),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }
