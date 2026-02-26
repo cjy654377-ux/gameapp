@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -277,6 +279,211 @@ class LocalStorage {
       _questBox.clear(),
       _relicBox.clear(),
     ]);
+  }
+
+  // -------------------------------------------------------------------------
+  // JSON backup / restore
+  // -------------------------------------------------------------------------
+
+  /// Exports all game data as a JSON string.
+  String exportToJson() {
+    final player = getPlayer();
+    final currency = getCurrency();
+    final monsters = getAllMonsters();
+    final quests = getAllQuests();
+    final relics = getAllRelics();
+
+    final data = <String, dynamic>{
+      'version': 1,
+      'exportedAt': DateTime.now().toIso8601String(),
+      if (player != null)
+        'player': {
+          'id': player.id,
+          'nickname': player.nickname,
+          'playerLevel': player.playerLevel,
+          'playerExp': player.playerExp,
+          'currentStageId': player.currentStageId,
+          'maxClearedStageId': player.maxClearedStageId,
+          'teamMonsterIds': player.teamMonsterIds,
+          'lastOnlineAt': player.lastOnlineAt.toIso8601String(),
+          'createdAt': player.createdAt.toIso8601String(),
+          'totalBattleCount': player.totalBattleCount,
+          'totalGachaPullCount': player.totalGachaPullCount,
+          'maxDungeonFloor': player.maxDungeonFloor,
+          'prestigeLevel': player.prestigeLevel,
+          'prestigeBonusPercent': player.prestigeBonusPercent,
+          'tutorialStep': player.tutorialStep,
+          'collectionRewardsClaimed': player.collectionRewardsClaimed,
+        },
+      'currency': {
+        'gold': currency.gold,
+        'diamond': currency.diamond,
+        'monsterShard': currency.monsterShard,
+        'expPotion': currency.expPotion,
+        'gachaTicket': currency.gachaTicket,
+      },
+      'monsters': monsters
+          .map((m) => {
+                'id': m.id,
+                'templateId': m.templateId,
+                'name': m.name,
+                'rarity': m.rarity,
+                'element': m.element,
+                'level': m.level,
+                'experience': m.experience,
+                'evolutionStage': m.evolutionStage,
+                'baseAtk': m.baseAtk,
+                'baseDef': m.baseDef,
+                'baseHp': m.baseHp,
+                'baseSpd': m.baseSpd,
+                'acquiredAt': m.acquiredAt.toIso8601String(),
+                'isInTeam': m.isInTeam,
+                'size': m.size,
+                'skillName': m.skillName,
+              })
+          .toList(),
+      'quests': quests
+          .map((q) => {
+                'questId': q.questId,
+                'currentProgress': q.currentProgress,
+                'isCompleted': q.isCompleted,
+                'resetAt': q.resetAt?.toIso8601String(),
+              })
+          .toList(),
+      'relics': relics
+          .map((r) => {
+                'id': r.id,
+                'templateId': r.templateId,
+                'name': r.name,
+                'type': r.type,
+                'rarity': r.rarity,
+                'statType': r.statType,
+                'statValue': r.statValue,
+                'equippedMonsterId': r.equippedMonsterId,
+                'acquiredAt': r.acquiredAt.toIso8601String(),
+              })
+          .toList(),
+    };
+
+    return const JsonEncoder.withIndent('  ').convert(data);
+  }
+
+  /// Imports game data from a JSON string. Returns true on success.
+  Future<bool> importFromJson(String jsonStr) async {
+    try {
+      final data = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      // Clear existing data first.
+      await clearAll();
+
+      // Restore player.
+      if (data.containsKey('player')) {
+        final p = data['player'] as Map<String, dynamic>;
+        final player = PlayerModel(
+          id: p['id'] as String,
+          nickname: p['nickname'] as String,
+          playerLevel: p['playerLevel'] as int,
+          playerExp: p['playerExp'] as int,
+          currentStageId: p['currentStageId'] as String,
+          maxClearedStageId: p['maxClearedStageId'] as String,
+          teamMonsterIds: (p['teamMonsterIds'] as List).cast<String>(),
+          lastOnlineAt: DateTime.parse(p['lastOnlineAt'] as String),
+          createdAt: DateTime.parse(p['createdAt'] as String),
+          totalBattleCount: p['totalBattleCount'] as int,
+          totalGachaPullCount: p['totalGachaPullCount'] as int,
+          maxDungeonFloor: p['maxDungeonFloor'] as int? ?? 0,
+          prestigeLevel: p['prestigeLevel'] as int? ?? 0,
+          prestigeBonusPercent:
+              (p['prestigeBonusPercent'] as num?)?.toDouble() ?? 0.0,
+          tutorialStep: p['tutorialStep'] as int? ?? 99,
+          collectionRewardsClaimed:
+              p['collectionRewardsClaimed'] as int? ?? 0,
+        );
+        await savePlayer(player);
+      }
+
+      // Restore currency.
+      if (data.containsKey('currency')) {
+        final c = data['currency'] as Map<String, dynamic>;
+        final currency = CurrencyModel(
+          gold: c['gold'] as int,
+          diamond: c['diamond'] as int,
+          monsterShard: c['monsterShard'] as int,
+          expPotion: c['expPotion'] as int? ?? 0,
+          gachaTicket: c['gachaTicket'] as int? ?? 0,
+        );
+        await saveCurrency(currency);
+      }
+
+      // Restore monsters.
+      if (data.containsKey('monsters')) {
+        final monsters = (data['monsters'] as List).map((m) {
+          final map = m as Map<String, dynamic>;
+          return MonsterModel(
+            id: map['id'] as String,
+            templateId: map['templateId'] as String,
+            name: map['name'] as String,
+            rarity: map['rarity'] as int,
+            element: map['element'] as String,
+            level: map['level'] as int,
+            experience: map['experience'] as int? ?? 0,
+            evolutionStage: map['evolutionStage'] as int? ?? 0,
+            baseAtk: (map['baseAtk'] as num).toDouble(),
+            baseDef: (map['baseDef'] as num).toDouble(),
+            baseHp: (map['baseHp'] as num).toDouble(),
+            baseSpd: (map['baseSpd'] as num).toDouble(),
+            acquiredAt: map['acquiredAt'] != null
+                ? DateTime.parse(map['acquiredAt'] as String)
+                : DateTime.now(),
+            isInTeam: map['isInTeam'] as bool? ?? false,
+            size: map['size'] as String? ?? 'medium',
+            skillName: map['skillName'] as String?,
+          );
+        }).toList();
+        await saveMonsters(monsters);
+      }
+
+      // Restore quests.
+      if (data.containsKey('quests')) {
+        final quests = (data['quests'] as List).map((q) {
+          final map = q as Map<String, dynamic>;
+          return QuestModel(
+            questId: map['questId'] as String,
+            currentProgress: map['currentProgress'] as int? ?? 0,
+            isCompleted: map['isCompleted'] as bool? ?? false,
+            resetAt: map['resetAt'] != null
+                ? DateTime.parse(map['resetAt'] as String)
+                : null,
+          );
+        }).toList();
+        await saveQuests(quests);
+      }
+
+      // Restore relics.
+      if (data.containsKey('relics')) {
+        final relics = (data['relics'] as List).map((r) {
+          final map = r as Map<String, dynamic>;
+          return RelicModel(
+            id: map['id'] as String,
+            templateId: map['templateId'] as String,
+            name: map['name'] as String,
+            type: map['type'] as String,
+            rarity: map['rarity'] as int,
+            statType: map['statType'] as String,
+            statValue: (map['statValue'] as num).toDouble(),
+            equippedMonsterId: map['equippedMonsterId'] as String?,
+            acquiredAt: map['acquiredAt'] != null
+                ? DateTime.parse(map['acquiredAt'] as String)
+                : DateTime.now(),
+          );
+        }).toList();
+        await saveRelics(relics);
+      }
+
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Closes all open Hive boxes (call this during app teardown).

@@ -93,7 +93,10 @@
   - collectionMilestoneProvider: 달성/수령 상태 추적
   - collection_screen 마일스톤 보상 바 UI
 ### 시스템 안정성
-- [ ] C9: 데이터 백업/복원 (JSON export/import)
+- [x] C9: 데이터 백업/복원 (JSON export/import)
+  - LocalStorage: exportToJson(), importFromJson() 전체 데이터 직렬화
+  - settings_screen: 백업(클립보드 복사)/복원(클립보드 붙여넣기) UI
+  - Player, Currency, Monster, Quest, Relic 전체 지원
 - [ ] C10: 밸런스 조정 (난이도, 보상, 스킬 수치)
 - [ ] C11: 성능 최적화 (ListView 가상화 등)
 
