@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 고도화 작업 진행 중 (Feature 10 다음)
+## 현재 Phase: 고도화 작업 전체 완료 (Feature 1~10)
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -53,7 +53,12 @@
   - WorldBossProvider: 하루 3회 도전, 최고 데미지 추적, 딜량 기반 보상
   - WorldBossScreen: 대기/전투/결과 UI, 보스HP바, 데미지카운터
   - battle_screen에 월드보스 진입 버튼, /world-boss 라우트
-- [ ] Feature 10: 유물/장비
+- [x] Feature 10: 유물/장비
+  - RelicModel (Hive typeId:4): 유물 인스턴스 (타입/등급/스탯/장착상태)
+  - RelicDatabase: 15종 유물 템플릿 (무기5/방어구5/악세서리5)
+  - RelicProvider: 인벤토리 CRUD, 장착/해제, 랜덤 생성, 스탯 보너스
+  - RelicScreen: 필터, 유물카드, 상세시트 (장착/해제/분해)
+  - 전투/던전/월드보스에 유물 스탯 적용, 던전5층+월드보스 유물 드롭
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
@@ -93,3 +98,7 @@
 - lib/domain/services/world_boss_service.dart
 - lib/presentation/providers/world_boss_provider.dart
 - lib/presentation/screens/world_boss/world_boss_screen.dart
+- lib/data/models/relic_model.dart
+- lib/data/static/relic_database.dart
+- lib/presentation/providers/relic_provider.dart
+- lib/presentation/screens/relic/relic_screen.dart
