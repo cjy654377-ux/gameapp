@@ -350,6 +350,35 @@ class _IdleBanner extends StatelessWidget {
                   ),
                 ),
               ),
+              GestureDetector(
+                onTap: () => context.push(AppRoutes.eventDungeon),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.teal.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.teal.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.event, color: Colors.teal, size: 18),
+                      SizedBox(width: 6),
+                      Text(
+                        '이벤트 던전',
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ],

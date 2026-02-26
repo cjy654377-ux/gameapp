@@ -81,7 +81,11 @@
   - ArenaProvider: 로비/전투/결과 상태, 일일 5회 도전
   - ArenaScreen: 상대선택/전투/결과 UI, 랭크 배지
   - battle_screen 아레나 진입 버튼, /arena 라우트
-- [ ] B6: 이벤트 던전 (기간한정 스테이지)
+- [x] B6: 이벤트 던전 (기간한정 스테이지)
+  - EventDungeonService: 주간 로테이션 2개 이벤트, 속성별 테마
+  - EventDungeonProvider: 로비/전투/웨이브클리어/결과 상태
+  - EventDungeonScreen: 이벤트목록/전투/보상 UI
+  - battle_screen 이벤트던전 진입, /event-dungeon 라우트
 - [ ] B7: 길드/클랜 시스템 (공동보스, 길드상점)
 - [ ] B8: 몬스터 도감 보상 (완성도 보너스)
 ### 시스템 안정성
