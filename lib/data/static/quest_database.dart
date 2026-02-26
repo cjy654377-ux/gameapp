@@ -1,5 +1,5 @@
 /// Quest type: resets daily vs. permanent achievements.
-enum QuestType { daily, achievement }
+enum QuestType { daily, weekly, achievement }
 
 /// The in-game event that increments a quest's progress counter.
 enum QuestTrigger {
@@ -132,6 +132,52 @@ class QuestDatabase {
   );
 
   // ---------------------------------------------------------------------------
+  // Weekly quests (4 total) — reset each Monday
+  // ---------------------------------------------------------------------------
+
+  static const QuestDefinition weeklyBattle30 = QuestDefinition(
+    id:            'weekly_battle_30',
+    name:          '주간 전투 30회',
+    description:   '이번 주 전투에서 30번 승리하세요.',
+    type:          QuestType.weekly,
+    trigger:       QuestTrigger.battleWin,
+    targetCount:   30,
+    rewardGold:    2000,
+    rewardDiamond: 100,
+  );
+
+  static const QuestDefinition weeklyGacha10 = QuestDefinition(
+    id:                'weekly_gacha_10',
+    name:              '주간 소환 10회',
+    description:       '이번 주 가챠 소환을 10번 수행하세요.',
+    type:              QuestType.weekly,
+    trigger:           QuestTrigger.gachaPull,
+    targetCount:       10,
+    rewardDiamond:     150,
+    rewardGachaTicket: 2,
+  );
+
+  static const QuestDefinition weeklyLevelUp10 = QuestDefinition(
+    id:          'weekly_levelup_10',
+    name:        '주간 강화 10회',
+    description: '이번 주 몬스터를 10번 강화하세요.',
+    type:        QuestType.weekly,
+    trigger:     QuestTrigger.monsterLevelUp,
+    targetCount: 10,
+    rewardGold:  3000,
+  );
+
+  static const QuestDefinition weeklyEvolve3 = QuestDefinition(
+    id:            'weekly_evolve_3',
+    name:          '주간 진화 3회',
+    description:   '이번 주 몬스터를 3번 진화시키세요.',
+    type:          QuestType.weekly,
+    trigger:       QuestTrigger.monsterEvolve,
+    targetCount:   3,
+    rewardDiamond: 200,
+  );
+
+  // ---------------------------------------------------------------------------
   // Achievements (6 total) — never reset
   // ---------------------------------------------------------------------------
 
@@ -209,6 +255,14 @@ class QuestDatabase {
     dailyEvolve1,
   ];
 
+  /// All four weekly quests.
+  static const List<QuestDefinition> weeklyQuests = [
+    weeklyBattle30,
+    weeklyGacha10,
+    weeklyLevelUp10,
+    weeklyEvolve3,
+  ];
+
   /// All six achievement quests.
   static const List<QuestDefinition> achievements = [
     achBattle100,
@@ -222,6 +276,7 @@ class QuestDatabase {
   /// Every quest definition in the database.
   static const List<QuestDefinition> all = [
     ...dailyQuests,
+    ...weeklyQuests,
     ...achievements,
   ];
 

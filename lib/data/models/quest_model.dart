@@ -33,13 +33,17 @@ class QuestModel extends HiveObject {
   // -------------------------------------------------------------------------
 
   factory QuestModel.fromDefinition(QuestDefinition def) {
+    DateTime? resetAt;
+    if (def.type == QuestType.daily) {
+      resetAt = _nextDailyReset();
+    } else if (def.type == QuestType.weekly) {
+      resetAt = _nextWeeklyReset();
+    }
     return QuestModel(
       questId:         def.id,
       currentProgress: 0,
       isCompleted:     false,
-      resetAt:         def.type == QuestType.daily
-          ? _nextDailyReset()
-          : null,
+      resetAt:         resetAt,
     );
   }
 
@@ -71,6 +75,14 @@ class QuestModel extends HiveObject {
   static DateTime _nextDailyReset() {
     final now = DateTime.now().toUtc();
     return DateTime.utc(now.year, now.month, now.day + 1);
+  }
+
+  /// Returns the UTC timestamp for the next Monday midnight.
+  static DateTime _nextWeeklyReset() {
+    final now = DateTime.now().toUtc();
+    final daysUntilMonday = (DateTime.monday - now.weekday + 7) % 7;
+    final nextMonday = daysUntilMonday == 0 ? 7 : daysUntilMonday;
+    return DateTime.utc(now.year, now.month, now.day + nextMonday);
   }
 
   @override

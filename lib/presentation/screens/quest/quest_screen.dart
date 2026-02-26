@@ -26,7 +26,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     // Ensure quests are loaded.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final questState = ref.read(questProvider);
@@ -57,7 +57,8 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
               labelColor: AppColors.textPrimary,
               unselectedLabelColor: AppColors.textTertiary,
               tabs: const [
-                Tab(text: '일일 퀘스트'),
+                Tab(text: '일일'),
+                Tab(text: '주간'),
                 Tab(text: '업적'),
               ],
             ),
@@ -67,6 +68,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
               controller: _tabController,
               children: const [
                 _QuestList(questType: QuestType.daily),
+                _QuestList(questType: QuestType.weekly),
                 _QuestList(questType: QuestType.achievement),
               ],
             ),
@@ -96,9 +98,11 @@ class _QuestList extends ConsumerWidget {
       );
     }
 
-    final quests = questType == QuestType.daily
-        ? questState.dailyQuests
-        : questState.achievements;
+    final quests = switch (questType) {
+      QuestType.daily => questState.dailyQuests,
+      QuestType.weekly => questState.weeklyQuests,
+      QuestType.achievement => questState.achievements,
+    };
 
     if (quests.isEmpty) {
       return const Center(

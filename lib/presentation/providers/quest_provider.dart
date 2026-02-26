@@ -33,6 +33,11 @@ class QuestState {
       .where((q) => QuestDatabase.findById(q.questId)?.type == QuestType.daily)
       .toList();
 
+  /// Weekly quests.
+  List<QuestModel> get weeklyQuests => quests
+      .where((q) => QuestDatabase.findById(q.questId)?.type == QuestType.weekly)
+      .toList();
+
   /// Achievement quests.
   List<QuestModel> get achievements => quests
       .where((q) =>
