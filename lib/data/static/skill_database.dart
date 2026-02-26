@@ -209,7 +209,7 @@ class SkillDatabase {
     name: '치유의 노래',
     description: '아름다운 노래로 아군 전체의 체력을 회복한다.',
     cooldown: 4,
-    healPercent: 0.15,
+    healPercent: 0.18,
     isTeamHeal: true,
   );
 
@@ -248,7 +248,7 @@ class SkillDatabase {
     name: '번개 폭풍',
     description: '날개짓으로 번개 폭풍을 일으켜 모든 적에게 피해를 준다.',
     cooldown: 3,
-    damageMultiplier: 1.2,
+    damageMultiplier: 1.4,
     damageTarget: SkillTargetType.allEnemies,
   );
 
@@ -282,7 +282,7 @@ class SkillDatabase {
     name: '암흑참격',
     description: '어둠의 검기를 날려 적에게 초강력 피해를 준다.',
     cooldown: 3,
-    damageMultiplier: 3.0,
+    damageMultiplier: 2.5,
   );
 
   // ---------------------------------------------------------------------------
@@ -305,9 +305,9 @@ class SkillDatabase {
     name: '심판의 빛',
     description: '성스러운 빛으로 적 전체에 피해를 주고 아군 전체를 회복한다.',
     cooldown: 4,
-    damageMultiplier: 1.5,
+    damageMultiplier: 1.6,
     damageTarget: SkillTargetType.allEnemies,
-    healPercent: 0.12,
+    healPercent: 0.15,
     isTeamHeal: true,
   );
 

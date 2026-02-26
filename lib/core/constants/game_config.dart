@@ -13,7 +13,7 @@ class GameConfig {
   static const double offlineGoldEfficiency = 0.5;
 
   /// Experience earning efficiency during offline (0.0 - 1.0)
-  static const double offlineExpEfficiency = 0.3;
+  static const double offlineExpEfficiency = 0.4;
 
   /// Assumed battles per hour while offline
   static const int offlineBattlesPerHour = 60;
@@ -32,7 +32,7 @@ class GameConfig {
   };
 
   /// Pity threshold for gacha (guarantee legendary after N pulls without one)
-  static const int pityThreshold = 100;
+  static const int pityThreshold = 80;
 
   /// Cost in diamonds for single gacha pull
   static const int singlePullCostDiamond = 150;

@@ -133,7 +133,7 @@ class WorldBossService {
   static WorldBossReward calculateReward(double totalDamage) {
     final gold = (totalDamage * 0.05).round().clamp(100, 99999);
     final exp = (totalDamage * 0.02).round().clamp(50, 50000);
-    final diamond = (totalDamage / 5000).round().clamp(1, 50);
+    final diamond = (totalDamage / 4000).round().clamp(1, 50);
     final shard = (totalDamage / 10000).round().clamp(0, 20);
 
     return WorldBossReward(

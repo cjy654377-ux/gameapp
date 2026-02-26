@@ -25,7 +25,7 @@ class DungeonService {
   /// * Templates are randomly selected from the full monster pool.
   static List<BattleMonster> createEnemiesForFloor(int floor) {
     final int enemyCount = floor <= 5 ? 2 : 3;
-    final int enemyLevel = 5 + floor * 2;
+    final int enemyLevel = (5 + floor * 1.8).round();
     final double levelMult = 1.0 + (enemyLevel - 1) * 0.05;
 
     // Pick random templates (allow repeats).
@@ -102,11 +102,11 @@ class DungeonService {
   // Between-floor healing
   // ---------------------------------------------------------------------------
 
-  /// Applies 20% HP recovery to all alive monsters between floors.
+  /// Applies 25% HP recovery to all alive monsters between floors.
   static void applyFloorHeal(List<BattleMonster> team) {
     for (final m in team) {
       if (m.isAlive) {
-        m.currentHp = math.min(m.maxHp, m.currentHp + m.maxHp * 0.20);
+        m.currentHp = math.min(m.maxHp, m.currentHp + m.maxHp * 0.25);
         // Reset status effects between floors.
         m.burnTurns = 0;
         m.burnDamagePerTurn = 0;
