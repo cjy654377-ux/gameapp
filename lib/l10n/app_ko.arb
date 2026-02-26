@@ -556,5 +556,13 @@
   "trainingRemaining": "남음",
   "trainingCollect": "수집",
   "trainingCancel": "취소",
-  "trainingNoMonsters": "배치 가능한 몬스터가 없습니다"
+  "trainingNoMonsters": "배치 가능한 몬스터가 없습니다",
+
+  "leaderboardTitle": "랭킹",
+  "leaderboardArena": "아레나",
+  "leaderboardDungeon": "던전",
+  "leaderboardTower": "탑",
+  "leaderboardBoss": "월드보스",
+  "leaderboardMyRank": "내 순위",
+  "leaderboardPlayers": "명 참여"
 }

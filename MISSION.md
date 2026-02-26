@@ -229,6 +229,11 @@
   - TrainingScreen: 활성/빈 슬롯 카드, 몬스터 선택 시트, 시간 선택
   - 시간 기반 XP → 몬스터 직접 적용 (multi-level-up 지원)
   - /training 라우트, battle_screen 빠른이동, ko/en l10n
+- [x] K7: 랭킹 리더보드
+  - LeaderboardProvider: 4카테고리 (아레나/던전/탑/월드보스)
+  - AI 30명 시뮬레이션 + 플레이어 실제 기록 순위
+  - LeaderboardScreen: 4탭, 순위요약 헤더, 1~3위 메달
+  - /leaderboard 라우트, battle_screen 빠른이동, ko/en l10n
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

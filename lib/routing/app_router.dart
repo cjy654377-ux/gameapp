@@ -25,6 +25,7 @@ import '../presentation/screens/expedition/expedition_screen.dart';
 import '../presentation/screens/monster_detail/monster_detail_screen.dart';
 import '../presentation/screens/statistics/statistics_screen.dart';
 import '../presentation/screens/season_pass/season_pass_screen.dart';
+import '../presentation/screens/leaderboard/leaderboard_screen.dart';
 import '../presentation/screens/training/training_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
@@ -57,6 +58,7 @@ class AppRoutes {
   static const tower = '/tower';
   static const seasonPass = '/season-pass';
   static const training = '/training';
+  static const leaderboard = '/leaderboard';
 }
 
 // ---------------------------------------------------------------------------
@@ -138,6 +140,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.training,
         builder: (context, state) => const TrainingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.leaderboard,
+        builder: (context, state) => const LeaderboardScreen(),
       ),
       GoRoute(
         path: AppRoutes.monsterDetail,

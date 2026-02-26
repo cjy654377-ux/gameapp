@@ -480,5 +480,13 @@
   "trainingRemaining": "remaining",
   "trainingCollect": "Collect",
   "trainingCancel": "Cancel",
-  "trainingNoMonsters": "No available monsters"
+  "trainingNoMonsters": "No available monsters",
+
+  "leaderboardTitle": "Ranking",
+  "leaderboardArena": "Arena",
+  "leaderboardDungeon": "Dungeon",
+  "leaderboardTower": "Tower",
+  "leaderboardBoss": "World Boss",
+  "leaderboardMyRank": "My Rank",
+  "leaderboardPlayers": "players"
 }
