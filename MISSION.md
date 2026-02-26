@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 고도화 작업 진행 중 (Feature 8 다음)
+## 현재 Phase: 고도화 작업 진행 중 (Feature 9 다음)
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -41,7 +41,13 @@
   - canFuse() 검증 (같은등급, 5성이하, 팀미배치)
   - fusionGoldCost (300*rarity), _FusionPanel UI, _FusionSlot 위젯
   - 융합 실행 시 재료 삭제 + 신규 생성 + 도감/퀘스트 연동
-- [ ] Feature 8: 전생/프레스티지
+- [x] Feature 8: 전생/프레스티지
+  - PlayerModel: prestigeLevel, prestigeBonusPercent (HiveField 12,13)
+  - PrestigeService: 조건검증(Lv30+ 또는 3지역+), 보상계산, 보너스배율
+  - PrestigeProvider: 전생 실행 (리셋 + 다이아/소환권 보상 + 영구배율)
+  - PrestigeScreen: 배지, 조건/보상/손실 표시, 확인 다이얼로그
+  - 전투/던전/오프라인 보상에 프레스티지 배율 적용 (+10%/전생)
+  - 설정화면 전생진입 버튼, /prestige 라우트
 - [ ] Feature 9: 월드 보스
 - [ ] Feature 10: 유물/장비
 
@@ -77,3 +83,6 @@
 - lib/presentation/providers/player_provider.dart (updateMaxDungeonFloor)
 - lib/presentation/providers/upgrade_provider.dart (융합 상태+메서드 추가)
 - lib/presentation/screens/upgrade/upgrade_screen.dart (융합 탭+_FusionPanel)
+- lib/domain/services/prestige_service.dart
+- lib/presentation/providers/prestige_provider.dart
+- lib/presentation/screens/prestige/prestige_screen.dart
