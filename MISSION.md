@@ -173,7 +173,13 @@
   - _initProviders() try/catch로 Hive 초기화 크래시 방지
   - _completeOnboarding() try/catch + 에러 SnackBar
   - firstWhere orElse 폴백 추가
-- [ ] I10: 추가 유닛 테스트 (provider/service 계층 커버리지 확대)
+- [x] I10: 추가 유닛 테스트 (provider/service 계층 커버리지 확대)
+  - battle_service: 속성상성/데미지/턴순서/전투종료/화상/기절/쿨다운 (47개)
+  - prestige_service: 전생자격/보상/적용효과 (19개)
+  - dungeon_service: 적생성/층보상/누적보상/층간회복 (23개)
+  - tower_service: 적생성/보스/보상/주간리셋 (18개)
+  - battle_statistics: MVP/몬스터별통계/데미지비율 (12개)
+  - 총 246개 테스트 (기존 119 + 신규 127)
 - [ ] I11: 접근성 개선 (Semantics, 텍스트 크기 대응)
 - [ ] I12: 성능 프로파일링 (빌드 최적화, 이미지 캐싱)
 
@@ -193,6 +199,8 @@
 - [x] _ControlBar .select() 적용 (불필요한 리빌드 방지)
 - [x] 린트 이슈 7개 수정 (unnecessary_brace_in_string_interps)
 - [x] 출석 다이얼로그 isClaimed 삼항 로직 단순화
+- [x] _IdleBanner .select() 적용 (arena/worldBoss/guild/quest 4개 provider)
+- [x] TutorialOverlay .select() 적용 (tutorialStep만 구독)
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

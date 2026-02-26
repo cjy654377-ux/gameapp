@@ -285,11 +285,12 @@ class _IdleBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final player = ref.watch(playerProvider).player;
-    final arenaState = ref.watch(arenaProvider);
-    final wbState = ref.watch(worldBossProvider);
-    final guildState = ref.watch(guildProvider);
-    final questState = ref.watch(questProvider);
+    final player = ref.watch(playerProvider.select((s) => s.player));
+    final arenaRemaining = ref.watch(arenaProvider.select((s) => s.remainingAttempts));
+    final wbRemaining = ref.watch(worldBossProvider.select((s) => s.remainingAttempts));
+    final guildBossAttempts = ref.watch(guildProvider.select((s) => s.guild?.dailyBossAttempts ?? 0));
+    final claimable = ref.watch(questProvider.select((s) => s.claimableCount));
+    final incompleteQuestCount = ref.watch(questProvider.select((s) => s.quests.where((q) => !q.isCompleted).length));
     final collection = ref.watch(collectionStatsProvider);
 
     // Team power
@@ -297,13 +298,7 @@ class _IdleBanner extends ConsumerWidget {
     final teamPower = team.fold<double>(0, (s, m) => s + m.finalAtk + m.finalDef + m.finalHp + m.finalSpd);
 
     // Guild remaining
-    final guildRemaining = guildState.guild != null
-        ? (GuildService.maxDailyAttempts - guildState.guild!.dailyBossAttempts).clamp(0, GuildService.maxDailyAttempts)
-        : 0;
-
-    // Daily quest progress
-    final dailyQuests = questState.quests.where((q) => q.isCompleted == false).toList();
-    final claimable = questState.claimableCount;
+    final guildRemaining = (GuildService.maxDailyAttempts - guildBossAttempts).clamp(0, GuildService.maxDailyAttempts);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -369,12 +364,12 @@ class _IdleBanner extends ConsumerWidget {
             children: [
               Expanded(child: _AttemptCard(
                 icon: Icons.emoji_events, color: Colors.amber,
-                label: l.arenaShort, remaining: arenaState.remainingAttempts, max: 5,
+                label: l.arenaShort, remaining: arenaRemaining, max: 5,
               )),
               const SizedBox(width: 8),
               Expanded(child: _AttemptCard(
                 icon: Icons.whatshot, color: Colors.red,
-                label: l.worldBoss, remaining: wbState.remainingAttempts, max: 3,
+                label: l.worldBoss, remaining: wbRemaining, max: 3,
               )),
               const SizedBox(width: 8),
               Expanded(child: _AttemptCard(
@@ -408,7 +403,7 @@ class _IdleBanner extends ConsumerWidget {
             )
           else
             Text(
-              l.questInProgress(dailyQuests.length),
+              l.questInProgress(incompleteQuestCount),
               style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
             ),
           const SizedBox(height: 14),

@@ -106,11 +106,10 @@ class TutorialOverlay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final playerState = ref.watch(playerProvider);
-    final player = playerState.player;
+    final tutorialStep = ref.watch(playerProvider.select((s) => s.player?.tutorialStep));
 
     // Don't show overlay if no player or tutorial already past this step.
-    if (player == null || player.tutorialStep != forStep) {
+    if (tutorialStep == null || tutorialStep != forStep) {
       return child;
     }
 
