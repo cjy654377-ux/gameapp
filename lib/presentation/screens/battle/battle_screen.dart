@@ -17,6 +17,7 @@ import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/presentation/providers/world_boss_provider.dart';
+import 'package:gameapp/presentation/widgets/battle/damage_number.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
@@ -165,22 +166,53 @@ class _StageHeader extends ConsumerWidget {
 // _BattleArena
 // =============================================================================
 
-class _BattleArena extends ConsumerWidget {
+class _BattleArena extends ConsumerStatefulWidget {
   const _BattleArena();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BattleArena> createState() => _BattleArenaState();
+}
+
+class _BattleArenaState extends ConsumerState<_BattleArena> {
+  final _overlayKey = GlobalKey<DamageNumberOverlayState>();
+  int _lastLogLength = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final state = ref.watch(battleProvider);
 
-    // Show idle banner when no battle is active
+    // Trigger damage numbers when new log entries appear
+    if (state.battleLog.length > _lastLogLength && state.phase == BattlePhase.fighting) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final overlay = _overlayKey.currentState;
+        if (overlay == null) return;
+        for (int i = _lastLogLength; i < state.battleLog.length; i++) {
+          final entry = state.battleLog[i];
+          final isEnemy = state.enemyTeam.any((m) => m.name == entry.attackerName);
+          overlay.addDamage(
+            damage: entry.damage.round(),
+            isCritical: entry.isCritical,
+            isSkill: entry.isSkillActivation,
+            isElementAdvantage: entry.isElementAdvantage,
+            isEnemy: !isEnemy,
+          );
+        }
+      });
+    }
+    _lastLogLength = state.battleLog.length;
+
+    // Reset on idle
     if (state.phase == BattlePhase.idle) {
+      _lastLogLength = 0;
       return const _IdleBanner();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      child: Row(
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Player team (left) ──────────────────────────────────────────
@@ -231,6 +263,12 @@ class _BattleArena extends ConsumerWidget {
           ),
         ],
       ),
+        ),
+        // Floating damage numbers overlay
+        Positioned.fill(
+          child: DamageNumberOverlay(key: _overlayKey),
+        ),
+      ],
     );
   }
 }
