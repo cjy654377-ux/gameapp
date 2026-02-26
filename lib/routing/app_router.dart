@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/datasources/local_storage.dart';
 import '../presentation/screens/home_screen.dart';
+import '../presentation/screens/battle/battle_screen.dart';
 import '../presentation/screens/gacha/gacha_screen.dart';
 import '../presentation/screens/collection/collection_screen.dart';
 import '../presentation/screens/collection/team_edit_screen.dart';
 import '../presentation/screens/upgrade/upgrade_screen.dart';
+import '../presentation/screens/onboarding/onboarding_screen.dart';
+import '../presentation/screens/settings/settings_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -15,6 +19,7 @@ import '../presentation/screens/upgrade/upgrade_screen.dart';
 class AppRoutes {
   const AppRoutes._();
 
+  static const onboarding = '/onboarding';
   static const battle = '/battle';
   static const gacha = '/gacha';
   static const collection = '/collection';
@@ -31,8 +36,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.battle,
     debugLogDiagnostics: false,
+    redirect: (context, state) {
+      final isOnboarding = state.uri.toString() == AppRoutes.onboarding;
+      final hasPlayer = LocalStorage.instance.getPlayer() != null;
+
+      // No player yet → force onboarding
+      if (!hasPlayer && !isOnboarding) return AppRoutes.onboarding;
+      // Has player but on onboarding → go to battle
+      if (hasPlayer && isOnboarding) return AppRoutes.battle;
+      return null;
+    },
     routes: [
       // Full-screen routes (no bottom nav)
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       GoRoute(
         path: AppRoutes.teamEdit,
         builder: (context, state) => const TeamEditScreen(),
@@ -45,7 +64,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.battle,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _BattlePlaceholder(),
+              child: BattleScreen(),
             ),
           ),
           GoRoute(
@@ -69,7 +88,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.settings,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: _SettingsPlaceholder(),
+              child: SettingsScreen(),
             ),
           ),
         ],
@@ -77,54 +96,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-// ---------------------------------------------------------------------------
-// Placeholder widgets (replaced by real screens as they are implemented)
-// ---------------------------------------------------------------------------
-
-class _BattlePlaceholder extends StatelessWidget {
-  const _BattlePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _TabPlaceholder(label: '전투', icon: Icons.shield);
-  }
-}
-
-class _SettingsPlaceholder extends StatelessWidget {
-  const _SettingsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const _TabPlaceholder(label: '설정', icon: Icons.settings);
-  }
-}
-
-class _TabPlaceholder extends StatelessWidget {
-  const _TabPlaceholder({required this.label, required this.icon});
-
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 64, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 16),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '준비 중입니다.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
-}

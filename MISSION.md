@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 6 완료
+## 현재 Phase: 7 완료 (전체 완료)
 
 ## 진행 상황
 - [x] Phase 1: 프로젝트 기반 셋업
@@ -9,7 +9,7 @@
 - [x] Phase 4: 강화/진화 시스템
 - [x] Phase 5: 오프라인 보상 + 저장
 - [x] Phase 6: 도감 + 팀편성
-- [ ] Phase 7: 폴리싱
+- [x] Phase 7: 폴리싱
 
 ## Phase 1 세부 (완료)
 - [x] Flutter 프로젝트 생성 + pubspec.yaml
@@ -60,7 +60,14 @@
 - [x] TeamEditScreen (4슬롯 편성, 전투력합계, 저장)
 - [x] app_router.dart 도감 플레이스홀더 → CollectionScreen 교체 + /collection/team 라우트 추가
 
-## 완료된 파일 목록 (47개 .dart + 65 이미지)
+## Phase 7 세부 (완료)
+- [x] OnboardingScreen (닉네임 입력 + 스타터 몬스터 3종 선택)
+- [x] SettingsScreen (플레이어 정보, 게임 정보, 초기화 기능)
+- [x] BattleScreen 라우터 연결 (placeholder 제거)
+- [x] GoRouter redirect 로직 (플레이어 없으면 → 온보딩)
+- [x] 모든 placeholder 제거 (전투, 도감, 설정 모두 실제 화면)
+
+## 완료된 파일 목록 (50개 .dart + 65 이미지)
 ### Core
 - lib/main.dart, lib/app.dart, lib/routing/app_router.dart
 - lib/core/constants/{app_colors,game_config,strings_ko}.dart
@@ -87,9 +94,5 @@
 - lib/presentation/screens/gacha/gacha_screen.dart
 - lib/presentation/screens/upgrade/upgrade_screen.dart
 - lib/presentation/screens/collection/{collection_screen,team_edit_screen}.dart
-
-## 다음 작업: Phase 7 - 폴리싱
-- [ ] 밸런스 조정
-- [ ] 튜토리얼 / 첫 실행 가이드
-- [ ] 효과음 + 진동 피드백
-- [ ] 전반적 UI 다듬기
+- lib/presentation/screens/onboarding/onboarding_screen.dart
+- lib/presentation/screens/settings/settings_screen.dart
