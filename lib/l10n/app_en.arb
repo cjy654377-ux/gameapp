@@ -458,5 +458,16 @@
   "recipeUnlocked": "Unlocked",
   "recipeLocked": "???",
   "recipeHint": "Combine specific monsters to unlock hidden ones!",
-  "recipeMatch": "Recipe found!"
+  "recipeMatch": "Recipe found!",
+
+  "seasonPassTitle": "Season Pass",
+  "seasonPassLevel": "Lv.{level}",
+  "@seasonPassLevel": {"placeholders": {"level": {"type": "int"}}},
+  "seasonPassDaysLeft": "{days} days left",
+  "@seasonPassDaysLeft": {"placeholders": {"days": {"type": "int"}}},
+  "seasonPassFree": "Claim",
+  "seasonPassPremium": "Claim",
+  "seasonPassPremiumActive": "Premium",
+  "seasonPassPremiumBuy": "Premium Locked",
+  "seasonPassPremiumBadge": "PREMIUM"
 }

@@ -209,6 +209,15 @@
 - [x] _IdleBanner .select() 적용 (arena/worldBoss/guild/quest 4개 provider)
 - [x] TutorialOverlay .select() 적용 (tutorialStep만 구독)
 
+## 5차 고도화 (J1~)
+### 콘텐츠 확장
+- [x] J3: 시즌 패스/배틀패스 (30레벨 보상 트랙)
+  - SeasonPassDatabase: 30레벨 무료/프리미엄 보상 테이블
+  - SeasonPassProvider: XP 획득, 자동레벨업, 보상수령, 시즌리셋(30일)
+  - SeasonPassScreen: 레벨/XP바, 30단계 보상목록, 프리미엄토글
+  - 전투 승리 XP 트리거 (+20/승리, +50/첫클리어)
+  - /season-pass 라우트, battle_screen 빠른이동, ko/en l10n
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart

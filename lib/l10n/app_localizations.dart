@@ -2491,6 +2491,210 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전생 {level}'**
   String prestigeN(int level);
+
+  /// No description provided for @attendanceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 출석 보상'**
+  String get attendanceTitle;
+
+  /// No description provided for @attendanceDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 출석 {days}일째'**
+  String attendanceDesc(int days);
+
+  /// No description provided for @attendanceCheckIn.
+  ///
+  /// In ko, this message translates to:
+  /// **'출석 체크!'**
+  String get attendanceCheckIn;
+
+  /// No description provided for @attendanceDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'Day {day}'**
+  String attendanceDay(int day);
+
+  /// No description provided for @attendanceRewardGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 {amount}'**
+  String attendanceRewardGold(int amount);
+
+  /// No description provided for @attendanceRewardDiamond.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 {amount}'**
+  String attendanceRewardDiamond(int amount);
+
+  /// No description provided for @attendanceRewardTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권 {amount}'**
+  String attendanceRewardTicket(int amount);
+
+  /// No description provided for @attendanceRewardPotion.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 물약 {amount}'**
+  String attendanceRewardPotion(int amount);
+
+  /// No description provided for @attendanceClaimed.
+  ///
+  /// In ko, this message translates to:
+  /// **'출석 보상을 받았습니다!'**
+  String get attendanceClaimed;
+
+  /// No description provided for @attendanceAlreadyClaimed.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 이미 출석했습니다'**
+  String get attendanceAlreadyClaimed;
+
+  /// No description provided for @towerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전의 탑'**
+  String get towerTitle;
+
+  /// No description provided for @towerStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전 시작'**
+  String get towerStart;
+
+  /// No description provided for @towerReady.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전 준비 완료!'**
+  String get towerReady;
+
+  /// No description provided for @towerNoAttempts.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 주 도전 횟수 소진'**
+  String get towerNoAttempts;
+
+  /// No description provided for @towerAttempts.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 도전: {remaining}/{max}'**
+  String towerAttempts(int remaining, int max);
+
+  /// No description provided for @towerBest.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 {floor}층'**
+  String towerBest(int floor);
+
+  /// No description provided for @towerNextFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 층'**
+  String get towerNextFloor;
+
+  /// No description provided for @towerCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수집'**
+  String get towerCollect;
+
+  /// No description provided for @towerComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'탑 정복 완료!'**
+  String get towerComplete;
+
+  /// No description provided for @towerNoHeal.
+  ///
+  /// In ko, this message translates to:
+  /// **'층 사이 회복 없음!'**
+  String get towerNoHeal;
+
+  /// No description provided for @recipeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'조합 레시피'**
+  String get recipeTitle;
+
+  /// No description provided for @recipeHidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'히든 몬스터'**
+  String get recipeHidden;
+
+  /// No description provided for @recipeUnlocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'해금됨'**
+  String get recipeUnlocked;
+
+  /// No description provided for @recipeLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'???'**
+  String get recipeLocked;
+
+  /// No description provided for @recipeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'특정 몬스터 조합으로 히든 몬스터를 해금하세요!'**
+  String get recipeHint;
+
+  /// No description provided for @recipeMatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'레시피 발견!'**
+  String get recipeMatch;
+
+  /// No description provided for @seasonPassTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'시즌 패스'**
+  String get seasonPassTitle;
+
+  /// No description provided for @seasonPassLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level}'**
+  String seasonPassLevel(int level);
+
+  /// No description provided for @seasonPassDaysLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 기간: {days}일'**
+  String seasonPassDaysLeft(int days);
+
+  /// No description provided for @seasonPassFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령'**
+  String get seasonPassFree;
+
+  /// No description provided for @seasonPassPremium.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령'**
+  String get seasonPassPremium;
+
+  /// No description provided for @seasonPassPremiumActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리미엄'**
+  String get seasonPassPremiumActive;
+
+  /// No description provided for @seasonPassPremiumBuy.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리미엄 잠금'**
+  String get seasonPassPremiumBuy;
+
+  /// No description provided for @seasonPassPremiumBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'PREMIUM'**
+  String get seasonPassPremiumBadge;
 }
 
 class _AppLocalizationsDelegate

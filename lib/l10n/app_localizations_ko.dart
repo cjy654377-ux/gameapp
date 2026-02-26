@@ -1362,4 +1362,126 @@ class AppLocalizationsKo extends AppLocalizations {
   String prestigeN(int level) {
     return '전생 $level';
   }
+
+  @override
+  String get attendanceTitle => '일일 출석 보상';
+
+  @override
+  String attendanceDesc(int days) {
+    return '누적 출석 $days일째';
+  }
+
+  @override
+  String get attendanceCheckIn => '출석 체크!';
+
+  @override
+  String attendanceDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String attendanceRewardGold(int amount) {
+    return '골드 $amount';
+  }
+
+  @override
+  String attendanceRewardDiamond(int amount) {
+    return '다이아 $amount';
+  }
+
+  @override
+  String attendanceRewardTicket(int amount) {
+    return '소환권 $amount';
+  }
+
+  @override
+  String attendanceRewardPotion(int amount) {
+    return '경험치 물약 $amount';
+  }
+
+  @override
+  String get attendanceClaimed => '출석 보상을 받았습니다!';
+
+  @override
+  String get attendanceAlreadyClaimed => '오늘은 이미 출석했습니다';
+
+  @override
+  String get towerTitle => '도전의 탑';
+
+  @override
+  String get towerStart => '도전 시작';
+
+  @override
+  String get towerReady => '도전 준비 완료!';
+
+  @override
+  String get towerNoAttempts => '이번 주 도전 횟수 소진';
+
+  @override
+  String towerAttempts(int remaining, int max) {
+    return '남은 도전: $remaining/$max';
+  }
+
+  @override
+  String towerBest(int floor) {
+    return '최고 $floor층';
+  }
+
+  @override
+  String get towerNextFloor => '다음 층';
+
+  @override
+  String get towerCollect => '보상 수집';
+
+  @override
+  String get towerComplete => '탑 정복 완료!';
+
+  @override
+  String get towerNoHeal => '층 사이 회복 없음!';
+
+  @override
+  String get recipeTitle => '조합 레시피';
+
+  @override
+  String get recipeHidden => '히든 몬스터';
+
+  @override
+  String get recipeUnlocked => '해금됨';
+
+  @override
+  String get recipeLocked => '???';
+
+  @override
+  String get recipeHint => '특정 몬스터 조합으로 히든 몬스터를 해금하세요!';
+
+  @override
+  String get recipeMatch => '레시피 발견!';
+
+  @override
+  String get seasonPassTitle => '시즌 패스';
+
+  @override
+  String seasonPassLevel(int level) {
+    return 'Lv.$level';
+  }
+
+  @override
+  String seasonPassDaysLeft(int days) {
+    return '남은 기간: $days일';
+  }
+
+  @override
+  String get seasonPassFree => '수령';
+
+  @override
+  String get seasonPassPremium => '수령';
+
+  @override
+  String get seasonPassPremiumActive => '프리미엄';
+
+  @override
+  String get seasonPassPremiumBuy => '프리미엄 잠금';
+
+  @override
+  String get seasonPassPremiumBadge => 'PREMIUM';
 }

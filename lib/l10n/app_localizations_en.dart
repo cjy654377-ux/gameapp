@@ -1366,4 +1366,126 @@ class AppLocalizationsEn extends AppLocalizations {
   String prestigeN(int level) {
     return 'Prestige $level';
   }
+
+  @override
+  String get attendanceTitle => 'Daily Check-in';
+
+  @override
+  String attendanceDesc(int days) {
+    return 'Total $days days checked in';
+  }
+
+  @override
+  String get attendanceCheckIn => 'Check In!';
+
+  @override
+  String attendanceDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String attendanceRewardGold(int amount) {
+    return 'Gold $amount';
+  }
+
+  @override
+  String attendanceRewardDiamond(int amount) {
+    return 'Diamond $amount';
+  }
+
+  @override
+  String attendanceRewardTicket(int amount) {
+    return 'Ticket $amount';
+  }
+
+  @override
+  String attendanceRewardPotion(int amount) {
+    return 'EXP Potion $amount';
+  }
+
+  @override
+  String get attendanceClaimed => 'Check-in reward claimed!';
+
+  @override
+  String get attendanceAlreadyClaimed => 'Already checked in today';
+
+  @override
+  String get towerTitle => 'Tower of Challenge';
+
+  @override
+  String get towerStart => 'Start Challenge';
+
+  @override
+  String get towerReady => 'Ready to challenge!';
+
+  @override
+  String get towerNoAttempts => 'No attempts left this week';
+
+  @override
+  String towerAttempts(int remaining, int max) {
+    return 'Remaining: $remaining/$max';
+  }
+
+  @override
+  String towerBest(int floor) {
+    return 'Best: ${floor}F';
+  }
+
+  @override
+  String get towerNextFloor => 'Next Floor';
+
+  @override
+  String get towerCollect => 'Collect Rewards';
+
+  @override
+  String get towerComplete => 'Tower Conquered!';
+
+  @override
+  String get towerNoHeal => 'No healing between floors!';
+
+  @override
+  String get recipeTitle => 'Recipes';
+
+  @override
+  String get recipeHidden => 'Hidden Monster';
+
+  @override
+  String get recipeUnlocked => 'Unlocked';
+
+  @override
+  String get recipeLocked => '???';
+
+  @override
+  String get recipeHint => 'Combine specific monsters to unlock hidden ones!';
+
+  @override
+  String get recipeMatch => 'Recipe found!';
+
+  @override
+  String get seasonPassTitle => 'Season Pass';
+
+  @override
+  String seasonPassLevel(int level) {
+    return 'Lv.$level';
+  }
+
+  @override
+  String seasonPassDaysLeft(int days) {
+    return '$days days left';
+  }
+
+  @override
+  String get seasonPassFree => 'Claim';
+
+  @override
+  String get seasonPassPremium => 'Claim';
+
+  @override
+  String get seasonPassPremiumActive => 'Premium';
+
+  @override
+  String get seasonPassPremiumBuy => 'Premium Locked';
+
+  @override
+  String get seasonPassPremiumBadge => 'PREMIUM';
 }

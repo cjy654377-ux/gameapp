@@ -11,6 +11,7 @@ import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
+import 'package:gameapp/presentation/providers/season_pass_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helpers — delegate to StageDatabase shared utilities.
@@ -454,6 +455,9 @@ class BattleNotifier extends StateNotifier<BattleState> {
     if (wasNewClear) {
       await questNotifier.onTrigger(QuestTrigger.stageFirstClear);
     }
+
+    // Season pass XP: +20 per battle win, +50 for first clear.
+    ref.read(seasonPassProvider.notifier).addXp(wasNewClear ? 50 : 20);
 
     AudioService.instance.playRewardCollect();
 

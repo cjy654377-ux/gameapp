@@ -534,5 +534,16 @@
   "recipeUnlocked": "해금됨",
   "recipeLocked": "???",
   "recipeHint": "특정 몬스터 조합으로 히든 몬스터를 해금하세요!",
-  "recipeMatch": "레시피 발견!"
+  "recipeMatch": "레시피 발견!",
+
+  "seasonPassTitle": "시즌 패스",
+  "seasonPassLevel": "Lv.{level}",
+  "@seasonPassLevel": {"placeholders": {"level": {"type": "int"}}},
+  "seasonPassDaysLeft": "남은 기간: {days}일",
+  "@seasonPassDaysLeft": {"placeholders": {"days": {"type": "int"}}},
+  "seasonPassFree": "수령",
+  "seasonPassPremium": "수령",
+  "seasonPassPremiumActive": "프리미엄",
+  "seasonPassPremiumBuy": "프리미엄 잠금",
+  "seasonPassPremiumBadge": "PREMIUM"
 }

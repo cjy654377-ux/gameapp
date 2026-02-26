@@ -24,6 +24,7 @@ import '../presentation/screens/guild/guild_screen.dart';
 import '../presentation/screens/expedition/expedition_screen.dart';
 import '../presentation/screens/monster_detail/monster_detail_screen.dart';
 import '../presentation/screens/statistics/statistics_screen.dart';
+import '../presentation/screens/season_pass/season_pass_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -53,6 +54,7 @@ class AppRoutes {
   static const expedition = '/expedition';
   static const statistics = '/statistics';
   static const tower = '/tower';
+  static const seasonPass = '/season-pass';
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +96,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.tower,
         builder: (context, state) => const TowerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.seasonPass,
+        builder: (context, state) => const SeasonPassScreen(),
       ),
       GoRoute(
         path: AppRoutes.prestige,
