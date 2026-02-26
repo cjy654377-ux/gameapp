@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/battle_statistics_service.dart';
@@ -94,6 +95,7 @@ class _StageHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final stageName =
         ref.watch(battleProvider.select((s) => s.currentStageName));
     final stageId =
@@ -102,7 +104,7 @@ class _StageHeader extends ConsumerWidget {
 
     final displayName = stageName.isNotEmpty
         ? stageName
-        : (stageId > 0 ? '스테이지 $stageId' : '전투 대기중');
+        : (stageId > 0 ? l.battleStageId(stageId.toString()) : l.battleStandby);
 
     final synergies =
         ref.watch(battleProvider.select((s) => s.activeSynergies));
@@ -168,6 +170,7 @@ class _BattleArena extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final state = ref.watch(battleProvider);
 
     // Show idle banner when no battle is active
@@ -184,7 +187,7 @@ class _BattleArena extends ConsumerWidget {
           Expanded(
             child: _MonsterGrid(
               monsters: state.playerTeam,
-              label: '우리 팀',
+              label: l.ourTeam,
               labelColor: AppColors.primary,
             ),
           ),
@@ -208,7 +211,7 @@ class _BattleArena extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '턴 ${state.currentTurn}',
+                  l.turnN(state.currentTurn),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 10,
@@ -222,7 +225,7 @@ class _BattleArena extends ConsumerWidget {
           Expanded(
             child: _MonsterGrid(
               monsters: state.enemyTeam,
-              label: '적 팀',
+              label: l.enemyTeam,
               labelColor: AppColors.error,
             ),
           ),
@@ -239,6 +242,7 @@ class _IdleBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final player = ref.watch(playerProvider).player;
     final arenaState = ref.watch(arenaProvider);
     final wbState = ref.watch(worldBossProvider);
@@ -282,7 +286,7 @@ class _IdleBanner extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Lv.${player.playerLevel}  |  스테이지 ${player.currentStageId}',
+                          l.playerLevelStage(player.playerLevel, player.currentStageId),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -304,7 +308,7 @@ class _IdleBanner extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        '전생 ${player.prestigeLevel}',
+                        l.prestigeN(player.prestigeLevel),
                         style: TextStyle(fontSize: 10, color: Colors.purple[300], fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -314,26 +318,26 @@ class _IdleBanner extends ConsumerWidget {
           const SizedBox(height: 10),
 
           // ── Daily attempts ───────────────────────────────────────────
-          const Text(
-            '일일 현황',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+          Text(
+            l.dailyStatus,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
               Expanded(child: _AttemptCard(
                 icon: Icons.emoji_events, color: Colors.amber,
-                label: '아레나', remaining: arenaState.remainingAttempts, max: 5,
+                label: l.arenaShort, remaining: arenaState.remainingAttempts, max: 5,
               )),
               const SizedBox(width: 8),
               Expanded(child: _AttemptCard(
                 icon: Icons.whatshot, color: Colors.red,
-                label: '월드보스', remaining: wbState.remainingAttempts, max: 3,
+                label: l.worldBoss, remaining: wbState.remainingAttempts, max: 3,
               )),
               const SizedBox(width: 8),
               Expanded(child: _AttemptCard(
                 icon: Icons.groups, color: Colors.indigo,
-                label: '길드', remaining: guildRemaining, max: GuildService.maxDailyAttempts,
+                label: l.guild, remaining: guildRemaining, max: GuildService.maxDailyAttempts,
               )),
             ],
           ),
@@ -354,7 +358,7 @@ class _IdleBanner extends ConsumerWidget {
                   const Icon(Icons.card_giftcard, color: Colors.amber, size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    '퀘스트 보상 $claimable개 수령 가능!',
+                    l.questRewardAvailable(claimable),
                     style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -362,15 +366,15 @@ class _IdleBanner extends ConsumerWidget {
             )
           else
             Text(
-              '진행중 퀘스트 ${dailyQuests.length}개',
+              l.questInProgress(dailyQuests.length),
               style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
             ),
           const SizedBox(height: 14),
 
           // ── Quick navigation ─────────────────────────────────────────
-          const Text(
-            '바로가기',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+          Text(
+            l.shortcut,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 6),
           Wrap(
@@ -378,14 +382,14 @@ class _IdleBanner extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _QuickNavBtn(icon: Icons.layers, label: '무한 던전', color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
-              _QuickNavBtn(icon: Icons.whatshot, label: '월드 보스', color: Colors.red, route: AppRoutes.worldBoss),
-              _QuickNavBtn(icon: Icons.emoji_events, label: '아레나', color: Colors.amber, route: AppRoutes.arena),
-              _QuickNavBtn(icon: Icons.event, label: '이벤트', color: Colors.teal, route: AppRoutes.eventDungeon),
-              _QuickNavBtn(icon: Icons.groups, label: '길드', color: Colors.indigo, route: AppRoutes.guild),
-              _QuickNavBtn(icon: Icons.inventory_2, label: '유물', color: Colors.orange, route: AppRoutes.relic),
-              _QuickNavBtn(icon: Icons.explore, label: '원정', color: Colors.lightBlue, route: AppRoutes.expedition),
-              _QuickNavBtn(icon: Icons.bar_chart, label: '통계', color: Colors.blueGrey, route: AppRoutes.statistics),
+              _QuickNavBtn(icon: Icons.layers, label: l.infiniteDungeon, color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
+              _QuickNavBtn(icon: Icons.whatshot, label: l.worldBoss, color: Colors.red, route: AppRoutes.worldBoss),
+              _QuickNavBtn(icon: Icons.emoji_events, label: l.arenaShort, color: Colors.amber, route: AppRoutes.arena),
+              _QuickNavBtn(icon: Icons.event, label: l.eventDungeonShort, color: Colors.teal, route: AppRoutes.eventDungeon),
+              _QuickNavBtn(icon: Icons.groups, label: l.guild, color: Colors.indigo, route: AppRoutes.guild),
+              _QuickNavBtn(icon: Icons.inventory_2, label: l.relic, color: Colors.orange, route: AppRoutes.relic),
+              _QuickNavBtn(icon: Icons.explore, label: l.expedition, color: Colors.lightBlue, route: AppRoutes.expedition),
+              _QuickNavBtn(icon: Icons.bar_chart, label: l.statistics, color: Colors.blueGrey, route: AppRoutes.statistics),
             ],
           ),
         ],
@@ -545,12 +549,13 @@ class _PhaseBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final (label, color) = switch (phase) {
-      BattlePhase.idle      => ('대기', AppColors.textTertiary),
-      BattlePhase.preparing => ('준비중', AppColors.warning),
-      BattlePhase.fighting  => ('전투중', AppColors.success),
-      BattlePhase.victory   => ('승리!', AppColors.gold),
-      BattlePhase.defeat    => ('패배', AppColors.error),
+      BattlePhase.idle      => (l.standby, AppColors.textTertiary),
+      BattlePhase.preparing => (l.preparing, AppColors.warning),
+      BattlePhase.fighting  => (l.fighting, AppColors.success),
+      BattlePhase.victory   => (l.battleVictory, AppColors.gold),
+      BattlePhase.defeat    => (l.battleDefeat, AppColors.error),
     };
 
     return Container(
@@ -603,6 +608,7 @@ class _BattleLogState extends ConsumerState<_BattleLog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final log = ref.watch(battleProvider.select((s) => s.battleLog));
 
     // Auto-scroll to bottom after each new entry renders
@@ -628,9 +634,9 @@ class _BattleLogState extends ConsumerState<_BattleLog> {
                   color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: 5),
-                const Text(
-                  '전투 로그',
-                  style: TextStyle(
+                Text(
+                  l.battleLog,
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -638,7 +644,7 @@ class _BattleLogState extends ConsumerState<_BattleLog> {
                 ),
                 const Spacer(),
                 Text(
-                  '${entries.length}건',
+                  l.battleLogCount(entries.length),
                   style: const TextStyle(
                     color: AppColors.textTertiary,
                     fontSize: 10,
@@ -651,10 +657,10 @@ class _BattleLogState extends ConsumerState<_BattleLog> {
           // ── Log entries list ────────────────────────────────────────────
           Expanded(
             child: entries.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
-                      '전투 기록이 없습니다',
-                      style: TextStyle(
+                      l.noBattleLog,
+                      style: const TextStyle(
                         color: AppColors.textTertiary,
                         fontSize: 12,
                       ),
@@ -688,15 +694,20 @@ class _LogEntryRow extends StatelessWidget {
     return AppColors.textSecondary;
   }
 
-  String get _prefix {
-    if (entry.isSkillActivation) return '';
-    if (entry.isCritical) return '[치명타] ';
-    if (entry.isElementAdvantage) return '[속성유리] ';
-    return '';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final String prefix;
+    if (entry.isSkillActivation) {
+      prefix = '';
+    } else if (entry.isCritical) {
+      prefix = l.criticalHit;
+    } else if (entry.isElementAdvantage) {
+      prefix = l.elementAdvantage;
+    } else {
+      prefix = '';
+    }
+
     final h = entry.timestamp.hour.toString().padLeft(2, '0');
     final m = entry.timestamp.minute.toString().padLeft(2, '0');
     final s = entry.timestamp.second.toString().padLeft(2, '0');
@@ -719,7 +730,7 @@ class _LogEntryRow extends StatelessWidget {
           // Entry text
           Expanded(
             child: Text(
-              '$_prefix${entry.description}',
+              '$prefix${entry.description}',
               style: TextStyle(
                 color: _textColor,
                 fontSize: 11,
@@ -881,6 +892,7 @@ class _AutoBattleToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onToggle,
       child: AnimatedContainer(
@@ -908,7 +920,7 @@ class _AutoBattleToggle extends StatelessWidget {
             ),
             const SizedBox(width: 5),
             Text(
-              isAuto ? '자동전투 ON' : '자동전투 OFF',
+              isAuto ? l.autoOn : l.autoOff,
               style: TextStyle(
                 color: isAuto ? AppColors.success : AppColors.textSecondary,
                 fontSize: 12,
@@ -937,33 +949,34 @@ class _PrimaryActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return switch (phase) {
       BattlePhase.idle => _ActionButton(
-          label: '전투 시작',
+          label: l.battleStart,
           icon: Icons.play_arrow_rounded,
           color: AppColors.success,
           onPressed: () => notifier.startBattle(stageId),
         ),
-      BattlePhase.preparing => const _ActionButton(
-          label: '준비 중...',
+      BattlePhase.preparing => _ActionButton(
+          label: l.preparingBattle,
           icon: Icons.hourglass_top_rounded,
           color: AppColors.warning,
           onPressed: null,
         ),
-      BattlePhase.fighting => const _ActionButton(
-          label: '전투 중...',
+      BattlePhase.fighting => _ActionButton(
+          label: l.battleFighting,
           icon: Icons.bolt_rounded,
           color: AppColors.textTertiary,
           onPressed: null,
         ),
       BattlePhase.victory => _ActionButton(
-          label: '보상 받기',
+          label: l.reward,
           icon: Icons.emoji_events_rounded,
           color: AppColors.gold,
           onPressed: () => notifier.collectReward(),
         ),
       BattlePhase.defeat => _ActionButton(
-          label: '재도전',
+          label: l.retry,
           icon: Icons.refresh_rounded,
           color: AppColors.error,
           onPressed: () => notifier.startBattle(stageId),
@@ -1037,6 +1050,7 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final state    = ref.watch(battleProvider);
     final reward   = state.lastReward;
     final notifier = ref.read(battleProvider.notifier);
@@ -1081,9 +1095,9 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
                   size: 48,
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  '승리!',
-                  style: TextStyle(
+                Text(
+                  l.battleVictory,
+                  style: const TextStyle(
                     color: AppColors.gold,
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
@@ -1097,9 +1111,9 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
 
                 // ── Reward section ─────────────────────────────────────────
                 if (reward != null) ...[
-                  const Text(
-                    '획득 보상',
-                    style: TextStyle(
+                  Text(
+                    l.earnedReward,
+                    style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -1113,30 +1127,30 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
                         icon: Icons.monetization_on_rounded,
                         iconColor: AppColors.gold,
                         label: FormatUtils.formatNumber(reward.gold),
-                        sublabel: '골드',
+                        sublabel: l.gold,
                       ),
                       _RewardChip(
                         icon: Icons.auto_awesome_rounded,
                         iconColor: AppColors.experience,
                         label: FormatUtils.formatNumber(reward.exp),
-                        sublabel: '경험치',
+                        sublabel: l.experience,
                       ),
                       if (reward.bonusShard != null)
                         _RewardChip(
                           icon: Icons.diamond_rounded,
                           iconColor: AppColors.primaryLight,
                           label: '×${reward.bonusShard}',
-                          sublabel: '파편',
+                          sublabel: l.monsterShard,
                         ),
                     ],
                   ),
                   const SizedBox(height: 12),
                 ] else
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
                     child: Text(
-                      '보상을 집계 중입니다...',
-                      style: TextStyle(
+                      l.collectingReward,
+                      style: const TextStyle(
                         color: AppColors.textTertiary,
                         fontSize: 13,
                       ),
@@ -1156,8 +1170,8 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _showStats ? '통계 접기' : '전투 통계 보기',
-                        style: TextStyle(
+                        _showStats ? l.hideStats : l.showStats,
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -1181,9 +1195,9 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
                   child: ElevatedButton.icon(
                     onPressed: () => notifier.collectReward(),
                     icon: const Icon(Icons.emoji_events_rounded, size: 18),
-                    label: const Text(
-                      '보상 받기',
-                      style: TextStyle(
+                    label: Text(
+                      l.reward,
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1219,6 +1233,7 @@ class _BattleStatsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1233,10 +1248,10 @@ class _BattleStatsPanel extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _StatMini(label: '총 데미지', value: FormatUtils.formatCompact(stats.totalDamage.round())),
+              _StatMini(label: l.totalDamage, value: FormatUtils.formatCompact(stats.totalDamage.round())),
               _StatMini(label: '턴', value: '${stats.totalTurns}'),
-              _StatMini(label: '치명타', value: '${stats.totalCriticals}'),
-              _StatMini(label: '스킬', value: '${stats.totalSkillUses}'),
+              _StatMini(label: l.critCount, value: '${stats.totalCriticals}'),
+              _StatMini(label: l.skillCount, value: '${stats.totalSkillUses}'),
             ],
           ),
           const SizedBox(height: 10),

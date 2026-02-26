@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../domain/services/guild_service.dart';
@@ -25,10 +26,11 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   @override
   Widget build(BuildContext context, ) {
     final guildState = ref.watch(guildProvider);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('길드'),
+        title: Text(l.guild),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
@@ -49,6 +51,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildCreateGuild(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -56,13 +59,13 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
         children: [
           const Icon(Icons.groups, size: 64, color: Colors.amber),
           const SizedBox(height: 16),
-          const Text(
-            '길드 생성',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            l.guildCreate,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            '길드를 만들고 동료들과 함께\n강력한 보스를 처치하세요!',
+            l.guildCreateDesc,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
@@ -70,7 +73,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
           TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              hintText: '길드 이름 입력',
+              hintText: l.guildNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -97,9 +100,9 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '길드 생성',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              child: Text(
+                l.guildCreate,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -113,6 +116,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildLobby(BuildContext context, GuildState guildState) {
+    final l = AppLocalizations.of(context)!;
     final guild = guildState.guild!;
     final bossMaxHp = GuildService.bossMaxHp(guildLevel: guild.level);
     final bossHpPercent =
@@ -151,7 +155,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                           ),
                         ),
                         Text(
-                          'Lv.${guild.level} | 코인: ${guild.guildCoin}',
+                          l.guildLevelCoin(guild.level, guild.guildCoin),
                           style: TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
@@ -196,7 +200,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '길드원 (${guild.memberNames.length + 1}명)',
+                l.guildMembers(guild.memberNames.length + 1),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -207,7 +211,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  _MemberChip(name: '나 (길드장)', isLeader: true),
+                  _MemberChip(name: l.guildLeader, isLeader: true),
                   ...guild.memberNames.map(
                     (n) => _MemberChip(name: n, isLeader: false),
                   ),
@@ -242,14 +246,14 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '주간 보스: ${GuildService.weeklyBossName()}',
+                          l.guildWeeklyBoss(GuildService.weeklyBossName()),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          '남은 HP: ${guild.bossHpRemaining.round()} / ${bossMaxHp.round()}',
+                          l.guildBossHp(guild.bossHpRemaining.round().toString(), bossMaxHp.round().toString()),
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -274,12 +278,12 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
               Row(
                 children: [
                   Text(
-                    '내 기여: ${guild.playerContribution.round()}',
+                    l.guildMyContrib(guild.playerContribution.round().toString()),
                     style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                   const Spacer(),
                   Text(
-                    '길드원 기여: ${guild.aiContribution.round()}',
+                    l.guildAiContrib(guild.aiContribution.round().toString()),
                     style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
@@ -295,8 +299,8 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                   icon: const Icon(Icons.flash_on, size: 20),
                   label: Text(
                     guild.bossHpRemaining <= 0
-                        ? '보스 처치 완료!'
-                        : '보스 도전 ($attemptsLeft/${GuildService.maxDailyAttempts})',
+                        ? l.guildBossDefeated
+                        : l.guildBossChallenge(attemptsLeft, GuildService.maxDailyAttempts),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[700],
@@ -319,7 +323,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
           child: ElevatedButton.icon(
             onPressed: () => ref.read(guildProvider.notifier).openShop(),
             icon: const Icon(Icons.store, size: 20),
-            label: const Text('길드 상점'),
+            label: Text(l.guildShop),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
@@ -339,6 +343,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildFight(BuildContext context, GuildState guildState) {
+    final l = AppLocalizations.of(context)!;
     final boss = guildState.boss;
     if (boss == null) return const SizedBox();
     final bossHpPercent =
@@ -352,7 +357,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
           child: Column(
             children: [
               Text(
-                '${boss.name} (턴 ${guildState.currentTurn}/${GuildService.maxTurns})',
+                l.guildBossTurn(boss.name, guildState.currentTurn, GuildService.maxTurns),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
@@ -372,7 +377,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                '이번 전투 데미지: ${guildState.damageThisFight.round()}',
+                l.guildFightDamage(guildState.damageThisFight.round().toString()),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -421,7 +426,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
               ElevatedButton(
                 onPressed: () =>
                     ref.read(guildProvider.notifier).processTurn(),
-                child: const Text('공격'),
+                child: Text(l.attack),
               ),
               OutlinedButton(
                 onPressed: () =>
@@ -436,7 +441,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                         side: const BorderSide(color: Colors.amber))
                     : null,
                 child: Text(
-                  guildState.isAutoMode ? '자동 ON' : '자동 OFF',
+                  guildState.isAutoMode ? l.autoShortOn : l.autoShortOff,
                 ),
               ),
             ],
@@ -451,6 +456,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildResult(BuildContext context, GuildState guildState) {
+    final l = AppLocalizations.of(context)!;
     final isVictory = guildState.phase == GuildPhase.victory;
     return Center(
       child: Padding(
@@ -465,7 +471,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              isVictory ? '전투 종료!' : '패배...',
+              isVictory ? l.guildBattleEnd : l.guildDefeat,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -474,12 +480,12 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              '총 데미지: ${guildState.damageThisFight.round()}',
+              l.guildTotalDamage(guildState.damageThisFight.round().toString()),
               style: const TextStyle(fontSize: 16),
             ),
             if (guildState.lastRewardCoins > 0)
               Text(
-                '획득 길드 코인: +${guildState.lastRewardCoins}',
+                l.guildEarnedCoin(guildState.lastRewardCoins),
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.amber,
@@ -496,7 +502,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              child: const Text('로비로 돌아가기'),
+              child: Text(l.guildReturnLobby),
             ),
           ],
         ),
@@ -509,6 +515,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
   // ---------------------------------------------------------------------------
 
   Widget _buildShop(BuildContext context, GuildState guildState) {
+    final l = AppLocalizations.of(context)!;
     final guild = guildState.guild;
     if (guild == null) return const SizedBox();
 
@@ -520,9 +527,9 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
             children: [
               const Icon(Icons.store, color: Colors.teal, size: 24),
               const SizedBox(width: 8),
-              const Text(
-                '길드 상점',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                l.guildShop,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Container(
@@ -533,7 +540,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '코인: ${guild.guildCoin}',
+                  l.guildCoinLabel(guild.guildCoin),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -587,7 +594,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                             ),
                           ),
                           Text(
-                            '${item.cost} 코인',
+                            l.guildItemCost(item.cost),
                             style: TextStyle(
                               fontSize: 12,
                               color: canAfford ? Colors.amber : AppColors.textTertiary,
@@ -603,9 +610,10 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                                   .read(guildProvider.notifier)
                                   .purchaseItem(i);
                               if (context.mounted) {
+                                final l2 = AppLocalizations.of(context)!;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${item.name} 구매 완료!'),
+                                    content: Text(l2.guildPurchaseDone(item.name)),
                                     backgroundColor: Colors.teal,
                                     behavior: SnackBarBehavior.floating,
                                   ),
@@ -617,7 +625,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
                         backgroundColor: Colors.teal,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('구매'),
+                      child: Text(l.purchase),
                     ),
                   ],
                 ),
@@ -632,7 +640,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
             child: OutlinedButton(
               onPressed: () =>
                   ref.read(guildProvider.notifier).returnToLobby(),
-              child: const Text('돌아가기'),
+              child: Text(l.goBack),
             ),
           ),
         ),

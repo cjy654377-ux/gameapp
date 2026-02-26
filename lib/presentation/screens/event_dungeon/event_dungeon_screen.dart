@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/domain/services/event_dungeon_service.dart';
 import 'package:gameapp/presentation/providers/event_dungeon_provider.dart';
@@ -77,7 +78,7 @@ class _EventDungeonScreenState extends ConsumerState<EventDungeonScreen> {
             context.pop();
           },
         ),
-        title: const Text('이벤트 던전'),
+        title: Text(AppLocalizations.of(context)!.eventDungeon),
         centerTitle: true,
       ),
       body: switch (phase) {
@@ -102,18 +103,19 @@ class _LobbyView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final events = ref.watch(eventDungeonProvider.select((s) => s.events));
     final ed = ref.watch(eventDungeonProvider);
 
     if (events.isEmpty) {
-      return const Center(child: Text('이벤트 로딩 중...'));
+      return Center(child: Text(l.eventLoading));
     }
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          '기간 한정 이벤트',
+          l.eventLimited,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -122,7 +124,7 @@ class _LobbyView extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '매주 새로운 이벤트가 열립니다!',
+          l.eventWeeklyDesc,
           style: TextStyle(fontSize: 13, color: AppColors.textTertiary),
         ),
         const SizedBox(height: 16),
@@ -158,6 +160,7 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final element =
         MonsterElement.fromName(event.element) ?? MonsterElement.fire;
     final remaining = event.remainingTime;
@@ -220,17 +223,17 @@ class _EventCard extends StatelessWidget {
             children: [
               _InfoChip(
                 icon: Icons.flash_on,
-                label: '추천 Lv.${event.recommendedLevel}',
+                label: l.eventRecommendLevel(event.recommendedLevel),
               ),
               const SizedBox(width: 8),
               _InfoChip(
                 icon: Icons.layers,
-                label: '${event.stages}웨이브',
+                label: l.eventWaves(event.stages),
               ),
               const SizedBox(width: 8),
               _InfoChip(
                 icon: Icons.timer,
-                label: '$hours시간 $mins분 남음',
+                label: l.eventTimeRemain(hours, mins),
               ),
             ],
           ),
@@ -268,7 +271,7 @@ class _EventCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  canAttempt ? '도전' : '클리어 완료',
+                  canAttempt ? l.eventChallenge : l.eventCleared,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -336,6 +339,7 @@ class _FightViewState extends ConsumerState<_FightView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final ed = ref.watch(eventDungeonProvider);
     final event = ed.selectedEvent;
 
@@ -403,7 +407,7 @@ class _FightViewState extends ConsumerState<_FightView> {
           flex: 3,
           child: ed.battleLog.isEmpty
               ? Center(
-                  child: Text('전투 대기 중...',
+                  child: Text(l.battleWaiting,
                       style: TextStyle(color: AppColors.textTertiary)))
               : ListView.builder(
                   reverse: true,
@@ -454,7 +458,7 @@ class _FightViewState extends ConsumerState<_FightView> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text('턴 ${ed.currentTurn}',
+                Text(l.turnN(ed.currentTurn),
                     style: TextStyle(
                         fontSize: 13, color: AppColors.textTertiary)),
               ],
@@ -476,6 +480,7 @@ class _WaveClearedView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final ed = ref.watch(eventDungeonProvider);
 
     return Center(
@@ -487,7 +492,7 @@ class _WaveClearedView extends ConsumerWidget {
             Icon(Icons.check_circle, size: 56, color: Colors.green),
             const SizedBox(height: 16),
             Text(
-              '웨이브 ${ed.currentWave} 클리어!',
+              l.waveCleared(ed.currentWave),
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -496,7 +501,7 @@ class _WaveClearedView extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '다음 웨이브: ${ed.currentWave + 1}/${ed.selectedEvent?.stages ?? 0}',
+              l.nextWave(ed.currentWave + 1, ed.selectedEvent?.stages ?? 0),
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
@@ -518,9 +523,9 @@ class _WaveClearedView extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  '다음 웨이브',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  l.nextWaveBtn,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -541,6 +546,7 @@ class _ResultView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final event = ref.watch(
         eventDungeonProvider.select((s) => s.selectedEvent));
 
@@ -557,7 +563,7 @@ class _ResultView extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isVictory ? '이벤트 클리어!' : '패배',
+              isVictory ? l.eventClear : l.battleDefeat,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -576,14 +582,14 @@ class _ResultView extends ConsumerWidget {
                   children: [
                     _RewardLine(
                       icon: Icons.monetization_on,
-                      label: '골드',
+                      label: l.gold,
                       value: '+${event.rewardGold}',
                       color: Colors.amber,
                     ),
                     const SizedBox(height: 6),
                     _RewardLine(
                       icon: Icons.diamond,
-                      label: '다이아',
+                      label: l.diamond,
                       value: '+${event.rewardDiamond}',
                       color: Colors.cyan,
                     ),
@@ -591,7 +597,7 @@ class _ResultView extends ConsumerWidget {
                       const SizedBox(height: 6),
                       _RewardLine(
                         icon: Icons.science,
-                        label: '경험치 물약',
+                        label: l.expPotion,
                         value: '+${event.rewardExpPotions}',
                         color: Colors.green,
                       ),
@@ -600,7 +606,7 @@ class _ResultView extends ConsumerWidget {
                       const SizedBox(height: 6),
                       _RewardLine(
                         icon: Icons.confirmation_number,
-                        label: '소환권',
+                        label: l.gachaTicket,
                         value: '+${event.rewardGachaTickets}',
                         color: Colors.purple,
                       ),
@@ -630,7 +636,7 @@ class _ResultView extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  isVictory ? '보상 받기' : '돌아가기',
+                  isVictory ? l.reward : l.goBack,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

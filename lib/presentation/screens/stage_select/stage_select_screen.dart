@@ -3,21 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 
-/// Area display metadata.
-const _areaNames = [
-  '시작의 숲',
-  '불꽃 화산',
-  '암흑 던전',
-  '심해 신전',
-  '천공 성역',
-];
-
 const _areaEmojis = ['🌲', '🌋', '🏚️', '🌊', '☁️'];
+
+List<String> _areaNames(AppLocalizations l) => [
+  l.areaForest,
+  l.areaVolcano,
+  l.areaDungeon,
+  l.areaTemple,
+  l.areaSky,
+];
 
 // =============================================================================
 // StageSelectScreen
@@ -56,13 +56,15 @@ class _StageSelectScreenState extends ConsumerState<StageSelectScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final areaNames = _areaNames(l);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
-        title: const Text(
-          '스테이지 선택',
-          style: TextStyle(
+        title: Text(
+          l.stageSelect,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -78,7 +80,7 @@ class _StageSelectScreenState extends ConsumerState<StageSelectScreen>
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           tabAlignment: TabAlignment.start,
           tabs: List.generate(StageDatabase.areaCount, (i) {
-            return Tab(text: '${_areaEmojis[i]} ${_areaNames[i]}');
+            return Tab(text: '${_areaEmojis[i]} ${areaNames[i]}');
           }),
         ),
       ),

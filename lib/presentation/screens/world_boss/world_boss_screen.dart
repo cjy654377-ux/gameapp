@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/domain/services/world_boss_service.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/world_boss_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/hp_bar.dart';
 
@@ -54,7 +55,7 @@ class _WorldBossScreenState extends ConsumerState<WorldBossScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('월드 보스 - ${WorldBossService.todayBossName()}'),
+        title: Text(AppLocalizations.of(context)!.worldBossName(WorldBossService.todayBossName())),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -89,6 +90,7 @@ class _IdleView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final bossName = WorldBossService.todayBossName();
     final bossElement = WorldBossService.todayBossElement();
 
@@ -125,7 +127,7 @@ class _IdleView extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '속성: ${_elementName(bossElement)}',
+              l.worldBossElement(_elementName(context, bossElement)),
               style: TextStyle(fontSize: 14, color: Colors.grey[400]),
             ),
             const SizedBox(height: 24),
@@ -140,17 +142,17 @@ class _IdleView extends ConsumerWidget {
               child: Column(
                 children: [
                   _InfoRow(
-                    label: '남은 도전 횟수',
+                    label: l.remainingAttempts,
                     value: '${wbState.remainingAttempts}/${WorldBossService.maxAttempts}',
                   ),
                   const SizedBox(height: 8),
                   _InfoRow(
-                    label: '턴 제한',
-                    value: '${WorldBossService.maxTurns}턴',
+                    label: l.turnLimit,
+                    value: l.turnCount(WorldBossService.maxTurns),
                   ),
                   const SizedBox(height: 8),
                   _InfoRow(
-                    label: '최고 데미지',
+                    label: l.bestDamage,
                     value: _formatDamage(wbState.bestDamage),
                   ),
                 ],
@@ -168,7 +170,7 @@ class _IdleView extends ConsumerWidget {
                     : null,
                 icon: const Icon(Icons.sports_mma, size: 28),
                 label: Text(
-                  wbState.canAttempt ? '도전하기' : '오늘 도전 완료',
+                  wbState.canAttempt ? l.challenge : l.challengeDone,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -200,6 +202,7 @@ class _FightingView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final boss = wbState.boss;
     if (boss == null) return const SizedBox.shrink();
 
@@ -226,7 +229,7 @@ class _FightingView extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '턴 ${wbState.currentTurn}/${WorldBossService.maxTurns}',
+                    l.turnProgress(wbState.currentTurn, WorldBossService.maxTurns),
                     style: TextStyle(color: Colors.grey[400], fontSize: 13),
                   ),
                 ],
@@ -258,7 +261,7 @@ class _FightingView extends ConsumerWidget {
                   color: Colors.amber, size: 20),
               const SizedBox(width: 8),
               Text(
-                '총 데미지: ${_formatDamage(wbState.totalDamageDealt)}',
+                l.totalDamageAmount(_formatDamage(wbState.totalDamageDealt)),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -378,7 +381,7 @@ class _FightingView extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () =>
                       ref.read(worldBossProvider.notifier).processTurn(),
-                  child: const Text('다음 턴'),
+                  child: Text(l.nextTurn),
                 ),
             ],
           ),
@@ -398,6 +401,7 @@ class _FinishedView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final reward = wbState.lastReward;
     final boss = wbState.boss;
     final bossKilled = boss != null && !boss.isAlive;
@@ -414,7 +418,7 @@ class _FinishedView extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              bossKilled ? '보스 처치!' : '전투 종료!',
+              bossKilled ? l.bossKilled : l.battleEnd,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -433,9 +437,9 @@ class _FinishedView extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    '총 데미지',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  Text(
+                    l.totalDamage,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -475,9 +479,9 @@ class _FinishedView extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '보상',
-                      style: TextStyle(
+                    Text(
+                      l.rewardSection,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white70,
@@ -486,26 +490,26 @@ class _FinishedView extends ConsumerWidget {
                     const SizedBox(height: 8),
                     _RewardRow(
                       icon: Icons.monetization_on,
-                      label: '골드',
+                      label: l.gold,
                       value: '+${reward.gold}',
                       color: Colors.amber,
                     ),
                     _RewardRow(
                       icon: Icons.auto_awesome,
-                      label: '경험치',
+                      label: l.experience,
                       value: '+${reward.exp}',
                       color: Colors.green,
                     ),
                     _RewardRow(
                       icon: Icons.diamond,
-                      label: '다이아몬드',
+                      label: l.diamondFull,
                       value: '+${reward.diamond}',
                       color: Colors.cyanAccent,
                     ),
                     if (reward.shard > 0)
                       _RewardRow(
                         icon: Icons.auto_fix_high,
-                        label: '파편',
+                        label: l.monsterShard,
                         value: '+${reward.shard}',
                         color: Colors.purple,
                       ),
@@ -527,9 +531,9 @@ class _FinishedView extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  '보상 수령',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  l.collectReward,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -637,24 +641,25 @@ Color _elementColor(String element) {
   }
 }
 
-String _elementName(String element) {
+String _elementName(BuildContext context, String element) {
+  final l = AppLocalizations.of(context)!;
   switch (element) {
     case 'fire':
-      return '화염';
+      return l.elementFire;
     case 'water':
-      return '물';
+      return l.elementWater;
     case 'electric':
-      return '전기';
+      return l.elementElectric;
     case 'stone':
-      return '바위';
+      return l.elementRock;
     case 'grass':
-      return '풀';
+      return l.elementGrass;
     case 'ghost':
-      return '유령';
+      return l.elementGhost;
     case 'light':
-      return '빛';
+      return l.elementLight;
     case 'dark':
-      return '어둠';
+      return l.elementDark;
     default:
       return element;
   }

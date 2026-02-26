@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/providers/dungeon_provider.dart';
@@ -103,6 +104,7 @@ class _DungeonHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 8,
@@ -127,7 +129,9 @@ class _DungeonHeader extends StatelessWidget {
               const Icon(Icons.layers, color: Color(0xFFCE93D8), size: 20),
               const SizedBox(width: 6),
               Text(
-                '무한 던전 ${state.currentFloor > 0 ? "- ${state.currentFloor}층" : ""}',
+                state.currentFloor > 0
+                    ? '${l.infiniteDungeon} - ${l.dungeonFloor(state.currentFloor)}'
+                    : l.infiniteDungeon,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -137,7 +141,7 @@ class _DungeonHeader extends StatelessWidget {
               const Spacer(),
               if (state.bestFloor > 0)
                 Text(
-                  '최고 ${state.bestFloor}층',
+                  l.dungeonBest(state.bestFloor),
                   style: const TextStyle(
                     color: AppColors.textTertiary,
                     fontSize: 11,
@@ -218,11 +222,12 @@ class _DungeonArena extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     if (state.phase == DungeonPhase.idle) {
-      return const Center(
+      return Center(
         child: Text(
-          '던전을 준비 중...',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          l.dungeonPreparing,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
         ),
       );
     }
@@ -236,7 +241,7 @@ class _DungeonArena extends StatelessWidget {
           Expanded(
             child: _TeamColumn(
               monsters: state.playerTeam,
-              label: '우리 팀',
+              label: l.ourTeam,
               labelColor: AppColors.primary,
             ),
           ),
@@ -261,7 +266,7 @@ class _DungeonArena extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '턴 ${state.currentTurn}',
+                  l.turnN(state.currentTurn),
                   style: const TextStyle(
                     color: AppColors.textTertiary,
                     fontSize: 10,
@@ -274,7 +279,7 @@ class _DungeonArena extends StatelessWidget {
           Expanded(
             child: _TeamColumn(
               monsters: state.enemyTeam,
-              label: '적 팀',
+              label: l.enemyTeam,
               labelColor: AppColors.error,
             ),
           ),
@@ -331,11 +336,12 @@ class _FloorBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final (label, color) = switch (phase) {
-      DungeonPhase.idle         => ('대기', AppColors.textTertiary),
-      DungeonPhase.fighting     => ('$floor층', const Color(0xFFCE93D8)),
-      DungeonPhase.floorCleared => ('클리어!', AppColors.gold),
-      DungeonPhase.defeated     => ('패배', AppColors.error),
+      DungeonPhase.idle         => (l.standby, AppColors.textTertiary),
+      DungeonPhase.fighting     => (l.dungeonFloor(floor), const Color(0xFFCE93D8)),
+      DungeonPhase.floorCleared => (l.floorCleared, AppColors.gold),
+      DungeonPhase.defeated     => (l.battleDefeat, AppColors.error),
     };
 
     return Container(
@@ -390,6 +396,7 @@ class _DungeonLogState extends State<_DungeonLog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     final entries = widget.log.length > 20
         ? widget.log.sublist(widget.log.length - 20)
@@ -408,9 +415,9 @@ class _DungeonLogState extends State<_DungeonLog> {
                 const Icon(Icons.list_alt_rounded,
                     size: 13, color: AppColors.textSecondary),
                 const SizedBox(width: 5),
-                const Text(
-                  '던전 로그',
-                  style: TextStyle(
+                Text(
+                  l.dungeonLog,
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -418,7 +425,7 @@ class _DungeonLogState extends State<_DungeonLog> {
                 ),
                 const Spacer(),
                 Text(
-                  '${entries.length}건',
+                  l.battleLogCount(entries.length),
                   style: const TextStyle(
                     color: AppColors.textTertiary,
                     fontSize: 10,
@@ -429,10 +436,10 @@ class _DungeonLogState extends State<_DungeonLog> {
           ),
           Expanded(
             child: entries.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
-                      '전투 기록이 없습니다',
-                      style: TextStyle(
+                      l.noBattleLog,
+                      style: const TextStyle(
                           color: AppColors.textTertiary, fontSize: 12),
                     ),
                   )
@@ -517,17 +524,18 @@ class _DungeonControls extends ConsumerWidget {
   }
 
   Widget _buildActionButton(BuildContext context, DungeonNotifier notifier) {
+    final l = AppLocalizations.of(context)!;
     switch (state.phase) {
       case DungeonPhase.idle:
         return _DungeonButton(
-          label: '던전 시작',
+          label: l.dungeonStart,
           icon: Icons.play_arrow_rounded,
           color: const Color(0xFFCE93D8),
           onPressed: notifier.startRun,
         );
       case DungeonPhase.fighting:
         return _DungeonButton(
-          label: '전투 중...',
+          label: l.battleFighting,
           icon: Icons.bolt_rounded,
           color: AppColors.textTertiary,
           onPressed: state.isAutoMode ? null : notifier.processTurn,
@@ -537,7 +545,7 @@ class _DungeonControls extends ConsumerWidget {
           children: [
             Expanded(
               child: _DungeonButton(
-                label: '다음 층',
+                label: l.dungeonNextFloor,
                 icon: Icons.arrow_upward_rounded,
                 color: AppColors.success,
                 onPressed: notifier.advanceFloor,
@@ -546,7 +554,7 @@ class _DungeonControls extends ConsumerWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _DungeonButton(
-                label: '보상 수령',
+                label: l.dungeonCollect,
                 icon: Icons.emoji_events_rounded,
                 color: AppColors.gold,
                 onPressed: () async {
@@ -559,7 +567,7 @@ class _DungeonControls extends ConsumerWidget {
         );
       case DungeonPhase.defeated:
         return _DungeonButton(
-          label: '보상 수령 (${state.currentFloor}층 도달)',
+          label: l.dungeonCollectFloor(state.currentFloor),
           icon: Icons.emoji_events_rounded,
           color: AppColors.gold,
           onPressed: () async {
@@ -608,6 +616,7 @@ class _AutoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -622,7 +631,7 @@ class _AutoChip extends StatelessWidget {
           ),
         ),
         child: Text(
-          isAuto ? '자동 ON' : '자동 OFF',
+          isAuto ? l.autoShortOn : l.autoShortOff,
           style: TextStyle(
             color: isAuto ? AppColors.success : AppColors.textSecondary,
             fontSize: 12,

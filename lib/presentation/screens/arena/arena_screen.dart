@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/services/arena_service.dart';
 import 'package:gameapp/presentation/providers/arena_provider.dart';
@@ -74,7 +75,7 @@ class _ArenaScreenState extends ConsumerState<ArenaScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('PvP 아레나'),
+        title: Text(AppLocalizations.of(context)!.arena),
         centerTitle: true,
       ),
       body: switch (phase) {
@@ -96,6 +97,7 @@ class _LobbyView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final arena = ref.watch(arenaProvider);
     final opponents = arena.opponents;
 
@@ -114,7 +116,7 @@ class _LobbyView extends ConsumerWidget {
         // Opponent cards.
         ...List.generate(opponents.length, (i) {
           final op = opponents[i];
-          final diffLabel = ['쉬움', '보통', '어려움'][i];
+          final diffLabel = [l.arenaEasy, l.arenaNormal, l.arenaHard][i];
           final diffColor = [Colors.green, Colors.orange, Colors.red][i];
 
           return Padding(
@@ -137,7 +139,7 @@ class _LobbyView extends ConsumerWidget {
             onPressed: () =>
                 ref.read(arenaProvider.notifier).refreshOpponents(),
             icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('상대 갱신'),
+            label: Text(l.arenaRefresh),
           ),
         ),
       ],
@@ -162,12 +164,12 @@ class _RatingBar extends StatelessWidget {
   final int losses;
   final int remaining;
 
-  String get _rankTitle {
-    if (rating >= 2000) return '챔피언';
-    if (rating >= 1500) return '다이아몬드';
-    if (rating >= 1200) return '골드';
-    if (rating >= 900) return '실버';
-    return '브론즈';
+  String _rankTitle(AppLocalizations l) {
+    if (rating >= 2000) return l.arenaChampion;
+    if (rating >= 1500) return l.arenaDiamond;
+    if (rating >= 1200) return l.arenaGold;
+    if (rating >= 900) return l.arenaSilver;
+    return l.arenaBronze;
   }
 
   Color get _rankColor {
@@ -180,6 +182,7 @@ class _RatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -206,7 +209,7 @@ class _RatingBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$_rankTitle · $rating점',
+                  l.arenaRankScore(_rankTitle(l), rating),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -215,7 +218,7 @@ class _RatingBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$wins승 $losses패',
+                  l.arenaRecord(wins, losses),
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -234,7 +237,7 @@ class _RatingBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              '남은 도전: $remaining/${ArenaService.maxDailyAttempts}',
+              l.arenaRemaining(remaining, ArenaService.maxDailyAttempts),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -269,6 +272,7 @@ class _OpponentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -340,7 +344,7 @@ class _OpponentCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '레이팅 ${opponent.rating}',
+                l.arenaRating(opponent.rating),
                 style: TextStyle(
                   fontSize: 12,
                   color: AppColors.textTertiary,
@@ -376,9 +380,9 @@ class _OpponentCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
-                  '도전',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  l.arenaChallenge,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -417,6 +421,7 @@ class _FightViewState extends ConsumerState<_FightView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final arena = ref.watch(arenaProvider);
     final opponent = arena.opponents.isNotEmpty &&
             arena.selectedOpponentIndex >= 0
@@ -450,7 +455,7 @@ class _FightViewState extends ConsumerState<_FightView> {
                 Expanded(
                   child: _TeamGrid(
                     team: arena.playerTeam,
-                    label: '나',
+                    label: l.me,
                     color: Colors.blue,
                   ),
                 ),
@@ -470,7 +475,7 @@ class _FightViewState extends ConsumerState<_FightView> {
                 Expanded(
                   child: _TeamGrid(
                     team: arena.enemyTeam,
-                    label: '상대',
+                    label: l.opponent,
                     color: Colors.red,
                   ),
                 ),
@@ -502,7 +507,7 @@ class _FightViewState extends ConsumerState<_FightView> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '턴 ${arena.currentTurn}',
+                  l.turnN(arena.currentTurn),
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textTertiary,
@@ -572,10 +577,11 @@ class _BattleLogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     if (log.isEmpty) {
       return Center(
         child: Text(
-          '전투 대기 중...',
+          l.battleWaiting,
           style: TextStyle(color: AppColors.textTertiary),
         ),
       );
@@ -649,6 +655,7 @@ class _ResultView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final arena = ref.watch(arenaProvider);
     final reward = arena.lastReward;
 
@@ -666,7 +673,7 @@ class _ResultView extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isVictory ? '승리!' : '패배',
+              isVictory ? l.battleVictory : l.battleDefeat,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -687,7 +694,7 @@ class _ResultView extends ConsumerWidget {
                   children: [
                     _RewardRow(
                       icon: Icons.trending_up,
-                      label: '레이팅',
+                      label: l.ratingLabel,
                       value: '${reward.ratingChange > 0 ? '+' : ''}${reward.ratingChange}',
                       color: reward.ratingChange > 0
                           ? Colors.green
@@ -697,7 +704,7 @@ class _ResultView extends ConsumerWidget {
                       const SizedBox(height: 8),
                       _RewardRow(
                         icon: Icons.monetization_on,
-                        label: '골드',
+                        label: l.gold,
                         value: '+${FormatUtils.formatNumber(reward.gold)}',
                         color: Colors.amber,
                       ),
@@ -706,7 +713,7 @@ class _ResultView extends ConsumerWidget {
                       const SizedBox(height: 8),
                       _RewardRow(
                         icon: Icons.diamond,
-                        label: '다이아',
+                        label: l.diamond,
                         value: '+${reward.diamond}',
                         color: Colors.cyan,
                       ),
@@ -737,7 +744,7 @@ class _ResultView extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  isVictory ? '보상 받기' : '돌아가기',
+                  isVictory ? l.reward : l.goBack,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

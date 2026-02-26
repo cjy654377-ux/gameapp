@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/data/models/relic_model.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
@@ -47,9 +48,10 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
       return cmp != 0 ? cmp : a.name.compareTo(b.name);
     });
 
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('유물 (${relics.length}개)'),
+        title: Text(l.relicCount(relics.length)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
@@ -64,11 +66,11 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               children: [
-                _FilterChip(label: '전체', value: 'all', selected: _filter, onTap: _setFilter),
-                _FilterChip(label: '무기', value: 'weapon', selected: _filter, onTap: _setFilter),
-                _FilterChip(label: '방어구', value: 'armor', selected: _filter, onTap: _setFilter),
-                _FilterChip(label: '악세서리', value: 'accessory', selected: _filter, onTap: _setFilter),
-                _FilterChip(label: '장착됨', value: 'equipped', selected: _filter, onTap: _setFilter),
+                _FilterChip(label: l.relicAll, value: 'all', selected: _filter, onTap: _setFilter),
+                _FilterChip(label: l.relicWeapon, value: 'weapon', selected: _filter, onTap: _setFilter),
+                _FilterChip(label: l.relicArmor, value: 'armor', selected: _filter, onTap: _setFilter),
+                _FilterChip(label: l.relicAccessory, value: 'accessory', selected: _filter, onTap: _setFilter),
+                _FilterChip(label: l.relicEquipped, value: 'equipped', selected: _filter, onTap: _setFilter),
               ],
             ),
           ),
@@ -84,12 +86,12 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
                             size: 48, color: Colors.grey[700]),
                         const SizedBox(height: 12),
                         Text(
-                          '유물이 없습니다',
+                          l.noRelic,
                           style: TextStyle(color: Colors.grey[500], fontSize: 16),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '전투와 던전에서 유물을 획득하세요',
+                          l.getRelicFromBattle,
                           style: TextStyle(color: Colors.grey[700], fontSize: 13),
                         ),
                       ],
@@ -198,6 +200,7 @@ class _RelicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -245,7 +248,7 @@ class _RelicCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${relic.rarity}성',
+                        l.relicStarRarity(relic.rarity),
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey[500],
@@ -255,7 +258,7 @@ class _RelicCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${_statLabel(relic.statType)} +${relic.statValue.toInt()}',
+                    '${_statLabel(l, relic.statType)} +${relic.statValue.toInt()}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[400],
@@ -299,6 +302,7 @@ class _RelicDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final monsters = ref.watch(monsterListProvider);
     final relics = ref.watch(relicProvider);
 
@@ -336,7 +340,7 @@ class _RelicDetailSheet extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '${_typeName(relic.type)} / ${relic.rarity}성',
+                      '${_typeName(l, relic.type)} / ${l.relicStarRarity(relic.rarity)}',
                       style: TextStyle(fontSize: 13, color: Colors.grey[400]),
                     ),
                   ],
@@ -357,7 +361,7 @@ class _RelicDetailSheet extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '${_statLabel(relic.statType)} +${relic.statValue.toInt()}',
+                  '${_statLabel(l, relic.statType)} +${relic.statValue.toInt()}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -372,7 +376,7 @@ class _RelicDetailSheet extends ConsumerWidget {
           // Current equip status
           if (equippedMonster != null) ...[
             Text(
-              '장착: ${equippedMonster.name}',
+              l.relicEquippedTo(equippedMonster.name),
               style: const TextStyle(fontSize: 14, color: Colors.greenAccent),
             ),
             const SizedBox(height: 12),
@@ -383,13 +387,13 @@ class _RelicDetailSheet extends ConsumerWidget {
                   ref.read(relicProvider.notifier).unequipRelic(relic.id);
                   Navigator.of(context).pop();
                 },
-                child: const Text('해제'),
+                child: Text(l.unequip),
               ),
             ),
           ] else ...[
-            const Text(
-              '장착할 몬스터 선택:',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
+            Text(
+              l.selectMonsterToEquip,
+              style: const TextStyle(fontSize: 14, color: Colors.white70),
             ),
             const SizedBox(height: 8),
             SizedBox(
@@ -447,7 +451,7 @@ class _RelicDetailSheet extends ConsumerWidget {
                           ),
                           if (hasType)
                             Text(
-                              '교체',
+                              l.replace,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.orange[300],
@@ -471,9 +475,9 @@ class _RelicDetailSheet extends ConsumerWidget {
                 ref.read(relicProvider.notifier).removeRelic(relic.id);
                 Navigator.of(context).pop();
               },
-              child: const Text(
-                '유물 분해',
-                style: TextStyle(color: Colors.redAccent),
+              child: Text(
+                l.relicDisassemble,
+                style: const TextStyle(color: Colors.redAccent),
               ),
             ),
           ),
@@ -517,29 +521,29 @@ IconData _typeIcon(String type) {
   }
 }
 
-String _typeName(String type) {
+String _typeName(AppLocalizations l, String type) {
   switch (type) {
     case 'weapon':
-      return '무기';
+      return l.relicWeapon;
     case 'armor':
-      return '방어구';
+      return l.relicArmor;
     case 'accessory':
-      return '악세서리';
+      return l.relicAccessory;
     default:
       return type;
   }
 }
 
-String _statLabel(String stat) {
+String _statLabel(AppLocalizations l, String stat) {
   switch (stat) {
     case 'atk':
-      return '공격력';
+      return l.statAttack;
     case 'def':
-      return '방어력';
+      return l.statDefense;
     case 'hp':
-      return '체력';
+      return l.statHp;
     case 'spd':
-      return '속도';
+      return l.statSpeed;
     default:
       return stat;
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../domain/services/expedition_service.dart';
@@ -52,17 +53,18 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
       }
     });
 
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('원정대'),
+        title: Text(l.expedition),
         backgroundColor: Colors.transparent,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Text(
-                '슬롯 ${state.activeCount}/${ExpeditionService.maxSlots}',
+                l.expeditionSlots(state.activeCount, ExpeditionService.maxSlots),
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
             ),
@@ -74,9 +76,9 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
         children: [
           // Active expeditions
           if (state.expeditions.where((e) => !e.isCollected).isNotEmpty) ...[
-            const Text(
-              '진행중 원정',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            Text(
+              l.expeditionActive,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             ...state.expeditions
@@ -87,9 +89,9 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
 
           // Start new expedition
           if (state.canStartNew) ...[
-            const Text(
-              '새 원정 시작',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            Text(
+              l.expeditionNew,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             ...ExpeditionService.options.map((opt) => _StartOption(option: opt)),
@@ -102,7 +104,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                 border: Border.all(color: AppColors.border),
               ),
               child: Text(
-                '모든 원정 슬롯 사용 중 (${ExpeditionService.maxSlots}/${ExpeditionService.maxSlots})',
+                l.expeditionAllUsed(ExpeditionService.maxSlots, ExpeditionService.maxSlots),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
               ),
@@ -166,9 +168,9 @@ class _ExpeditionCard extends ConsumerWidget {
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      '보상 수령',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    child: Text(
+                      AppLocalizations.of(context)!.expeditionCollect,
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 )
@@ -303,7 +305,7 @@ class _StartOptionState extends ConsumerState<_StartOption> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: Text(
-                    '출발 (${_selectedIds.length}마리)',
+                    AppLocalizations.of(context)!.expeditionDepart(_selectedIds.length),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -330,7 +332,7 @@ class _StartOptionState extends ConsumerState<_StartOption> {
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Text(
-          '파견 가능한 몬스터가 없습니다\n(팀 배치 중이거나 이미 원정 중)',
+          AppLocalizations.of(context)!.expeditionNoMonster,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
         ),
