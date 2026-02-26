@@ -1,0 +1,192 @@
+import 'package:hive/hive.dart';
+
+@HiveType(typeId: 1)
+class PlayerModel extends HiveObject {
+  @HiveField(0)
+  String id;
+
+  @HiveField(1)
+  String nickname;
+
+  @HiveField(2)
+  int playerLevel;
+
+  @HiveField(3)
+  int playerExp;
+
+  /// The stage the player is currently attempting / last played.
+  @HiveField(4)
+  String currentStageId;
+
+  /// The highest stage the player has cleared successfully.
+  @HiveField(5)
+  String maxClearedStageId;
+
+  /// Ordered list of monster IDs currently placed in the battle team (max 4).
+  @HiveField(6)
+  List<String> teamMonsterIds;
+
+  @HiveField(7)
+  DateTime lastOnlineAt;
+
+  @HiveField(8)
+  DateTime createdAt;
+
+  @HiveField(9)
+  int totalBattleCount;
+
+  @HiveField(10)
+  int totalGachaPullCount;
+
+  PlayerModel({
+    required this.id,
+    required this.nickname,
+    required this.playerLevel,
+    required this.playerExp,
+    required this.currentStageId,
+    required this.maxClearedStageId,
+    required this.teamMonsterIds,
+    required this.lastOnlineAt,
+    required this.createdAt,
+    required this.totalBattleCount,
+    required this.totalGachaPullCount,
+  });
+
+  // -------------------------------------------------------------------------
+  // Experience system
+  // -------------------------------------------------------------------------
+
+  /// Experience required to advance from current playerLevel to the next.
+  int get expToNextLevel => (200 * (1.15 * playerLevel)).round();
+
+  // -------------------------------------------------------------------------
+  // Convenience factory for new players
+  // -------------------------------------------------------------------------
+
+  factory PlayerModel.newPlayer({
+    required String id,
+    required String nickname,
+  }) {
+    final now = DateTime.now();
+    return PlayerModel(
+      id: id,
+      nickname: nickname,
+      playerLevel: 1,
+      playerExp: 0,
+      currentStageId: '1-1',
+      maxClearedStageId: '',
+      teamMonsterIds: [],
+      lastOnlineAt: now,
+      createdAt: now,
+      totalBattleCount: 0,
+      totalGachaPullCount: 0,
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // copyWith
+  // -------------------------------------------------------------------------
+
+  PlayerModel copyWith({
+    String? id,
+    String? nickname,
+    int? playerLevel,
+    int? playerExp,
+    String? currentStageId,
+    String? maxClearedStageId,
+    List<String>? teamMonsterIds,
+    DateTime? lastOnlineAt,
+    DateTime? createdAt,
+    int? totalBattleCount,
+    int? totalGachaPullCount,
+  }) {
+    return PlayerModel(
+      id: id ?? this.id,
+      nickname: nickname ?? this.nickname,
+      playerLevel: playerLevel ?? this.playerLevel,
+      playerExp: playerExp ?? this.playerExp,
+      currentStageId: currentStageId ?? this.currentStageId,
+      maxClearedStageId: maxClearedStageId ?? this.maxClearedStageId,
+      teamMonsterIds: teamMonsterIds ?? List<String>.from(this.teamMonsterIds),
+      lastOnlineAt: lastOnlineAt ?? this.lastOnlineAt,
+      createdAt: createdAt ?? this.createdAt,
+      totalBattleCount: totalBattleCount ?? this.totalBattleCount,
+      totalGachaPullCount: totalGachaPullCount ?? this.totalGachaPullCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'PlayerModel(id: $id, nickname: $nickname, '
+        'playerLevel: $playerLevel, currentStageId: $currentStageId)';
+  }
+}
+
+// =============================================================================
+// Manual TypeAdapter — replaces code-generated player_model.g.dart
+// =============================================================================
+
+class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
+  @override
+  final int typeId = 1;
+
+  @override
+  PlayerModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+
+    return PlayerModel(
+      id:                 fields[0]  as String,
+      nickname:           fields[1]  as String,
+      playerLevel:        fields[2]  as int,
+      playerExp:          fields[3]  as int,
+      currentStageId:     fields[4]  as String,
+      maxClearedStageId:  fields[5]  as String,
+      teamMonsterIds:     (fields[6] as List).cast<String>(),
+      lastOnlineAt:       fields[7]  as DateTime,
+      createdAt:          fields[8]  as DateTime,
+      totalBattleCount:   fields[9]  as int,
+      totalGachaPullCount: fields[10] as int,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PlayerModel obj) {
+    writer
+      ..writeByte(11) // number of fields
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.nickname)
+      ..writeByte(2)
+      ..write(obj.playerLevel)
+      ..writeByte(3)
+      ..write(obj.playerExp)
+      ..writeByte(4)
+      ..write(obj.currentStageId)
+      ..writeByte(5)
+      ..write(obj.maxClearedStageId)
+      ..writeByte(6)
+      ..write(obj.teamMonsterIds)
+      ..writeByte(7)
+      ..write(obj.lastOnlineAt)
+      ..writeByte(8)
+      ..write(obj.createdAt)
+      ..writeByte(9)
+      ..write(obj.totalBattleCount)
+      ..writeByte(10)
+      ..write(obj.totalGachaPullCount);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlayerModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
