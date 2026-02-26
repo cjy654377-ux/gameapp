@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 고도화 작업 진행 중 (Feature 5 다음)
+## 현재 Phase: 고도화 작업 진행 중 (Feature 7 다음)
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -30,7 +30,12 @@
   - battle_provider processTurn 턴플로우: 화상→기절→스킬/일반공격
   - MonsterBattleCard: 스킬준비표시, 상태이상아이콘, CD카운터
   - HpBar 쉴드오버레이, 로그 스킬발동 보라색 강조
-- [ ] Feature 6: 무한 던전
+- [x] Feature 6: 무한 던전
+  - DungeonService: 층별 적 스케일링 (레벨=5+floor*2), 랜덤 구성, 층간 20% 회복
+  - DungeonProvider: fighting/floorCleared/defeated 상태, 누적 보상
+  - DungeonScreen: 전용 전투UI, 누적보상 바, 자동전투/속도
+  - PlayerModel maxDungeonFloor (HiveField 11), 최고기록 추적
+  - battle_screen 대기화면 무한던전 진입버튼, /dungeon 라우트
 - [ ] Feature 7: 몬스터 융합
 - [ ] Feature 8: 전생/프레스티지
 - [ ] Feature 9: 월드 보스
@@ -45,6 +50,9 @@
 - lib/presentation/providers/quest_provider.dart
 - lib/presentation/screens/quest/quest_screen.dart
 - lib/data/static/skill_database.dart
+- lib/domain/services/dungeon_service.dart
+- lib/presentation/providers/dungeon_provider.dart
+- lib/presentation/screens/dungeon/dungeon_screen.dart
 
 ### 수정
 - lib/core/enums/monster_element.dart (fromName 추가)
@@ -61,3 +69,5 @@
 - lib/domain/services/battle_service.dart (스킬처리/화상/기절/쉴드)
 - lib/presentation/widgets/battle/monster_battle_card.dart (스킬UI)
 - lib/presentation/widgets/battle/hp_bar.dart (쉴드 오버레이)
+- lib/data/models/player_model.dart (maxDungeonFloor 추가)
+- lib/presentation/providers/player_provider.dart (updateMaxDungeonFloor)
