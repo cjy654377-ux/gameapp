@@ -307,21 +307,24 @@ class _MonsterCard extends StatelessWidget {
     final element =
         MonsterElement.fromName(entry.template.element) ?? MonsterElement.fire;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: entry.isOwned
-              ? AppColors.surfaceVariant
-              : AppColors.surfaceVariant.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
+    return Semantics(
+      label: entry.isOwned ? entry.template.name : '미발견 몬스터',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
             color: entry.isOwned
-                ? rarity.color.withValues(alpha: 0.5)
-                : AppColors.border,
-            width: entry.isOwned ? 1.5 : 1,
+                ? AppColors.surfaceVariant
+                : AppColors.surfaceVariant.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: entry.isOwned
+                  ? rarity.color.withValues(alpha: 0.5)
+                  : AppColors.border,
+              width: entry.isOwned ? 1.5 : 1,
+            ),
           ),
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -360,6 +363,7 @@ class _MonsterCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -369,6 +373,7 @@ class _MonsterCard extends StatelessWidget {
         Icons.help_outline,
         size: 36,
         color: AppColors.disabled,
+        semanticLabel: '미발견 몬스터',
       );
     }
     return Container(

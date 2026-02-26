@@ -180,7 +180,10 @@
   - tower_service: 적생성/보스/보상/주간리셋 (18개)
   - battle_statistics: MVP/몬스터별통계/데미지비율 (12개)
   - 총 246개 테스트 (기존 119 + 신규 127)
-- [ ] I11: 접근성 개선 (Semantics, 텍스트 크기 대응)
+- [x] I11: 접근성 개선 (Semantics, 텍스트 크기 대응)
+  - GestureDetector → Semantics 래퍼 (gacha _PullButton/_OverlayButton, collection _MonsterCard)
+  - Icon semanticLabel 추가 (battle_screen 플레이어, collection 미발견몬스터)
+  - _IdleBanner/.select() + TutorialOverlay/.select() (I10에서 동시 적용)
 - [ ] I12: 성능 프로파일링 (빌드 최적화, 이미지 캐싱)
 
 ## 코드 최적화 (3차)

@@ -316,7 +316,7 @@ class _IdleBanner extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.person, color: AppColors.primary, size: 28),
+                  Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: '플레이어'),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

@@ -492,7 +492,11 @@ class _PullButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      label: label,
+      button: true,
+      enabled: enabled,
+      child: GestureDetector(
       onTap: enabled ? onTap : null,
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -569,6 +573,7 @@ class _PullButton extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -863,26 +868,30 @@ class _OverlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: primary ? AppColors.primary : AppColors.surface,
-          border: Border.all(
-            color: primary
-                ? AppColors.primaryLight.withValues(alpha:0.4)
-                : AppColors.border,
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: primary ? AppColors.primary : AppColors.surface,
+            border: Border.all(
+              color: primary
+                  ? AppColors.primaryLight.withValues(alpha:0.4)
+                  : AppColors.border,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: primary ? Colors.white : AppColors.textSecondary,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: primary ? Colors.white : AppColors.textSecondary,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
