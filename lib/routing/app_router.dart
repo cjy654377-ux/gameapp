@@ -11,6 +11,7 @@ import '../presentation/screens/collection/team_edit_screen.dart';
 import '../presentation/screens/upgrade/upgrade_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
+import '../presentation/screens/stage_select/stage_select_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -26,6 +27,7 @@ class AppRoutes {
   static const teamEdit = '/collection/team';
   static const upgrade = '/upgrade';
   static const settings = '/settings';
+  static const stageSelect = '/stage-select';
 }
 
 // ---------------------------------------------------------------------------
@@ -55,6 +57,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.teamEdit,
         builder: (context, state) => const TeamEditScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.stageSelect,
+        builder: (context, state) => const StageSelectScreen(),
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
@@ -8,6 +10,7 @@ import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/routing/app_router.dart';
 
 // =============================================================================
 // BattleScreen — root entry point
@@ -79,6 +82,7 @@ class _StageHeader extends ConsumerWidget {
         ref.watch(battleProvider.select((s) => s.currentStageName));
     final stageId =
         ref.watch(battleProvider.select((s) => s.currentStageId));
+    final phase = ref.watch(battleProvider.select((s) => s.phase));
 
     final displayName = stageName.isNotEmpty
         ? stageName
@@ -87,33 +91,53 @@ class _StageHeader extends ConsumerWidget {
     final synergies =
         ref.watch(battleProvider.select((s) => s.activeSynergies));
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      color: AppColors.surfaceVariant,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            displayName,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+    return GestureDetector(
+      onTap: phase == BattlePhase.idle
+          ? () => context.push(AppRoutes.stageSelect)
+          : null,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        color: AppColors.surfaceVariant,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    displayName,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                if (phase == BattlePhase.idle) ...[
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.map_outlined,
+                    color: AppColors.textSecondary,
+                    size: 16,
+                  ),
+                ],
+              ],
             ),
-          ),
-          if (synergies.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              alignment: WrapAlignment.center,
-              children: synergies.map((s) => _SynergyBadge(synergy: s)).toList(),
-            ),
+            if (synergies.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                alignment: WrapAlignment.center,
+                children: synergies.map((s) => _SynergyBadge(synergy: s)).toList(),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
