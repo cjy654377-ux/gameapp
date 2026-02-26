@@ -180,6 +180,7 @@ class EventDungeonNotifier extends StateNotifier<EventDungeonState> {
         playerTeam.any((m) => m.monsterId == attacker.monsterId);
 
     final log = List<BattleLogEntry>.from(state.battleLog);
+    if (log.length > 50) log.removeRange(0, log.length - 50);
 
     // Burn.
     final burnEntry = BattleService.processBurn(attacker);
@@ -340,7 +341,9 @@ class EventDungeonNotifier extends StateNotifier<EventDungeonState> {
     if (event.rewardGachaTickets > 0) {
       await currency.addGachaTicket(event.rewardGachaTickets);
     }
-    await player.addPlayerExp(event.rewardGold ~/ 2);
+    // Player exp based on event difficulty (gold reward as proxy, scaled down).
+    final playerExp = (event.rewardGold * 0.3).round();
+    if (playerExp > 0) await player.addPlayerExp(playerExp);
 
     AudioService.instance.playRewardCollect();
 

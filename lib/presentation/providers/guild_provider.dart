@@ -82,9 +82,8 @@ class GuildState {
 // =============================================================================
 
 class GuildNotifier extends StateNotifier<GuildState> {
-  GuildNotifier(this._ref) : super(const GuildState()) {
-    _loadGuild();
-  }
+  GuildNotifier(this._ref) : super(const GuildState());
+
 
   final Ref _ref;
   Timer? _autoTimer;
@@ -93,7 +92,8 @@ class GuildNotifier extends StateNotifier<GuildState> {
   // Load
   // ---------------------------------------------------------------------------
 
-  void _loadGuild() {
+  /// Must be called after LocalStorage.init() completes.
+  void loadGuild() {
     final guild = LocalStorage.instance.getGuild();
     if (guild == null) {
       state = const GuildState(phase: GuildPhase.noGuild);
@@ -401,6 +401,8 @@ class GuildNotifier extends StateNotifier<GuildState> {
     final current = state.battleSpeed;
     final next = current == 1.0 ? 2.0 : (current == 2.0 ? 3.0 : 1.0);
     state = state.copyWith(battleSpeed: next);
+    // Restart auto timer with updated speed if running.
+    if (state.isAutoMode) _startAutoTimer();
   }
 
   void toggleAuto() {

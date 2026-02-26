@@ -148,7 +148,9 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     int newLevel = current.playerLevel;
 
     // Level-up loop: handles multiple level gains from a large exp award.
-    while (true) {
+    // Cap at 999 to prevent infinite loops with huge exp awards.
+    const maxPlayerLevel = 999;
+    while (newLevel < maxPlayerLevel) {
       final threshold = PlayerModel.expForLevel(newLevel);
       if (newExp >= threshold) {
         newExp -= threshold;

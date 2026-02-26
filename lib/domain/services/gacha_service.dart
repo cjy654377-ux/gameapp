@@ -39,6 +39,10 @@ class GachaService {
     // Pity guarantee: force a legendary after threshold.
     if (updatedPity >= GameConfig.pityThreshold) {
       final legendaries = MonsterDatabase.byRarity(5);
+      if (legendaries.isEmpty) {
+        // Fallback: treat as normal pull if no legendaries exist.
+        return performSinglePull(0);
+      }
       final template = legendaries[_random.nextInt(legendaries.length)];
       return (
         result: GachaPullResult(template: template, wasPity: true),
@@ -89,9 +93,12 @@ class GachaService {
       final rareOrAbove = MonsterDatabase.all
           .where((t) => t.rarity >= 3)
           .toList();
-      final replacement = rareOrAbove[_random.nextInt(rareOrAbove.length)];
-      results[9] = GachaPullResult(template: replacement);
-      // Pity not affected since rare ≠ legendary.
+      if (rareOrAbove.isNotEmpty) {
+        final replacement = rareOrAbove[_random.nextInt(rareOrAbove.length)];
+        results[9] = GachaPullResult(template: replacement);
+        // Reset pity if the guarantee replacement happens to be legendary.
+        if (replacement.rarity == 5) currentPity = 0;
+      }
     }
 
     return (results: results, newPityCount: currentPity);

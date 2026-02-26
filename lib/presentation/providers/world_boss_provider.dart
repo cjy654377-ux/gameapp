@@ -213,6 +213,7 @@ class WorldBossNotifier extends StateNotifier<WorldBossState> {
 
     final attacker = allUnits[slot];
     final log = List<BattleLogEntry>.from(state.battleLog);
+    if (log.length > 50) log.removeRange(0, log.length - 50);
     double damageThisTurn = 0;
 
     // Check if attacker is the boss or a player monster.

@@ -237,6 +237,7 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
         playerTeam.any((m) => m.monsterId == attacker.monsterId);
 
     final log = List<BattleLogEntry>.from(state.battleLog);
+    if (log.length > 50) log.removeRange(0, log.length - 50);
 
     // Burn.
     final burnEntry = BattleService.processBurn(attacker);

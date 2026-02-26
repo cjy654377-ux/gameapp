@@ -7,6 +7,8 @@ import '../../domain/services/notification_service.dart';
 import '../../routing/app_router.dart';
 import '../dialogs/offline_reward_dialog.dart';
 import '../providers/currency_provider.dart';
+import '../providers/expedition_provider.dart';
+import '../providers/guild_provider.dart';
 import '../providers/monster_provider.dart';
 import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
@@ -100,6 +102,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     await ref.read(monsterListProvider.notifier).loadMonsters();
     await ref.read(questProvider.notifier).load();
     await ref.read(relicProvider.notifier).loadRelics();
+    ref.read(expeditionProvider.notifier).load();
+    ref.read(guildProvider.notifier).loadGuild();
     _loaded = true;
     _checkOfflineReward();
   }

@@ -182,6 +182,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
         playerTeam.any((m) => m.monsterId == attacker.monsterId);
 
     final log = List<BattleLogEntry>.from(state.battleLog);
+    if (log.length > 50) log.removeRange(0, log.length - 50);
 
     // 1. Burn
     final burnEntry = BattleService.processBurn(attacker);
@@ -334,8 +335,9 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
       await currency.addShard(state.accumulatedShard);
     }
 
-    // Drop a random relic every 5 floors.
-    if (state.currentFloor >= 5 && state.currentFloor % 5 == 0) {
+    // Drop a random relic every 5 floors (only on successful clears, not defeats).
+    if (state.phase == DungeonPhase.floorCleared &&
+        state.currentFloor >= 5 && state.currentFloor % 5 == 0) {
       final relicNotifier = ref.read(relicProvider.notifier);
       final maxRarity = (state.currentFloor / 10).ceil().clamp(1, 5);
       final relic = await relicNotifier.generateRandomRelic(maxRarity: maxRarity);

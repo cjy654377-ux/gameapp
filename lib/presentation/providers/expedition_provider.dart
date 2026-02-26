@@ -42,13 +42,12 @@ class ExpeditionState {
 // =============================================================================
 
 class ExpeditionNotifier extends StateNotifier<ExpeditionState> {
-  ExpeditionNotifier(this._ref) : super(const ExpeditionState()) {
-    _load();
-  }
+  ExpeditionNotifier(this._ref) : super(const ExpeditionState());
 
   final Ref _ref;
 
-  void _load() {
+  /// Must be called after LocalStorage.init() completes.
+  void load() {
     final expeditions = LocalStorage.instance.getAllExpeditions();
     // Clean up collected expeditions older than 24h
     final now = DateTime.now();

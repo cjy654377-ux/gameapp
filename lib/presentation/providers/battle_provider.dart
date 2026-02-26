@@ -251,6 +251,8 @@ class BattleNotifier extends StateNotifier<BattleState> {
         playerTeam.any((m) => m.monsterId == attacker.monsterId);
 
     final log = List<BattleLogEntry>.from(state.battleLog);
+    // Trim log to prevent unbounded memory growth.
+    if (log.length > 50) log.removeRange(0, log.length - 50);
 
     // -- 1. Burn damage (DoT) at turn start -----------------------------------
     final burnEntry = BattleService.processBurn(attacker);
