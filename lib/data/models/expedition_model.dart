@@ -57,7 +57,7 @@ class ExpeditionModel extends HiveObject {
 
   String get durationLabel {
     final hours = durationSeconds ~/ 3600;
-    return '${hours}시간';
+    return '$hours시간';
   }
 
   ExpeditionModel copyWith({

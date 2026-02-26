@@ -59,7 +59,9 @@ class _DamageNumberState extends State<DamageNumber>
             ),
           );
 
-    _controller.forward().then((_) => widget.onComplete?.call());
+    _controller.forward().then((_) {
+      if (mounted) widget.onComplete?.call();
+    });
   }
 
   @override

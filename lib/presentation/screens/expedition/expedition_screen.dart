@@ -215,9 +215,9 @@ class _ExpeditionCard extends ConsumerWidget {
     final h = d.inHours;
     final m = d.inMinutes % 60;
     final s = d.inSeconds % 60;
-    if (h > 0) return '${h}시간 ${m}분 ${s}초';
-    if (m > 0) return '${m}분 ${s}초';
-    return '${s}초';
+    if (h > 0) return '$h시간 $m분 $s초';
+    if (m > 0) return '$m분 $s초';
+    return '$s초';
   }
 }
 

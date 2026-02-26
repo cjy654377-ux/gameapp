@@ -184,10 +184,13 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
 
     // Trigger damage numbers when new log entries appear
     if (state.battleLog.length > _lastLogLength && state.phase == BattlePhase.fighting) {
+      final oldLen = _lastLogLength;
+      _lastLogLength = state.battleLog.length;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         final overlay = _overlayKey.currentState;
         if (overlay == null) return;
-        for (int i = _lastLogLength; i < state.battleLog.length; i++) {
+        for (int i = oldLen; i < state.battleLog.length; i++) {
           final entry = state.battleLog[i];
           final isEnemy = state.enemyTeam.any((m) => m.name == entry.attackerName);
           overlay.addDamage(
@@ -199,8 +202,9 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
           );
         }
       });
+    } else {
+      _lastLogLength = state.battleLog.length;
     }
-    _lastLogLength = state.battleLog.length;
 
     // Reset on idle
     if (state.phase == BattlePhase.idle) {
@@ -793,7 +797,10 @@ class _ControlBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state    = ref.watch(battleProvider);
+    final speed = ref.watch(battleProvider.select((s) => s.battleSpeed));
+    final isAuto = ref.watch(battleProvider.select((s) => s.isAutoMode));
+    final phase = ref.watch(battleProvider.select((s) => s.phase));
+    final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
     final notifier = ref.read(battleProvider.notifier);
 
     return Container(
@@ -818,28 +825,28 @@ class _ControlBar extends ConsumerWidget {
               _SpeedButton(
                 label: '1x',
                 speed: 1.0,
-                currentSpeed: state.battleSpeed,
+                currentSpeed: speed,
                 onTap: notifier.toggleSpeed,
               ),
               const SizedBox(width: 6),
               _SpeedButton(
                 label: '2x',
                 speed: 2.0,
-                currentSpeed: state.battleSpeed,
+                currentSpeed: speed,
                 onTap: notifier.toggleSpeed,
               ),
               const SizedBox(width: 6),
               _SpeedButton(
                 label: '3x',
                 speed: 3.0,
-                currentSpeed: state.battleSpeed,
+                currentSpeed: speed,
                 onTap: notifier.toggleSpeed,
               ),
 
               const Spacer(),
 
               _AutoBattleToggle(
-                isAuto: state.isAutoMode,
+                isAuto: isAuto,
                 onToggle: notifier.toggleAuto,
               ),
             ],
@@ -849,8 +856,8 @@ class _ControlBar extends ConsumerWidget {
 
           // ── Row 2: primary action button ───────────────────────────────
           _PrimaryActionButton(
-            phase: state.phase,
-            stageId: state.currentStageId,
+            phase: phase,
+            stageId: stageId,
             notifier: notifier,
           ),
         ],
