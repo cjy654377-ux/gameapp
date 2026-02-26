@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/data/datasources/local_storage.dart';
 import 'package:gameapp/data/models/player_model.dart';
+import 'package:gameapp/data/static/stage_database.dart';
 
 // =============================================================================
 // PlayerState
@@ -148,8 +149,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
     // Level-up loop: handles multiple level gains from a large exp award.
     while (true) {
-      // expToNextLevel is a getter on PlayerModel: (200 * 1.15 * level).round()
-      final threshold = current.copyWith(playerLevel: newLevel).expToNextLevel;
+      final threshold = PlayerModel.expForLevel(newLevel);
       if (newExp >= threshold) {
         newExp -= threshold;
         newLevel++;
@@ -250,16 +250,8 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /// Converts a stage string ID (e.g. `'3-4'`) to a 1-based linear index.
-  /// Returns 0 for empty / malformed strings so comparisons still work.
-  static int _linearIndex(String stageId) {
-    if (stageId.isEmpty) return 0;
-    final parts = stageId.split('-');
-    if (parts.length != 2) return 0;
-    final area  = int.tryParse(parts[0]) ?? 0;
-    final stage = int.tryParse(parts[1]) ?? 0;
-    return (area - 1) * 6 + stage;
-  }
+  static int _linearIndex(String stageId) =>
+      StageDatabase.linearIndex(stageId);
 }
 
 // =============================================================================

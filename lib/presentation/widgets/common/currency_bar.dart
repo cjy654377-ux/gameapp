@@ -17,7 +17,9 @@ class CurrencyBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(currencyProvider);
+    final gold = ref.watch(currencyProvider.select((c) => c.gold));
+    final diamond = ref.watch(currencyProvider.select((c) => c.diamond));
+    final gachaTicket = ref.watch(currencyProvider.select((c) => c.gachaTicket));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -35,7 +37,7 @@ class CurrencyBar extends ConsumerWidget {
             _CurrencyChip(
               icon: Icons.monetization_on_rounded,
               iconColor: AppColors.gold,
-              amount: FormatUtils.formatNumber(currency.gold),
+              amount: FormatUtils.formatNumber(gold),
             ),
 
             const SizedBox(width: 12),
@@ -44,7 +46,7 @@ class CurrencyBar extends ConsumerWidget {
             _CurrencyChip(
               icon: Icons.diamond_rounded,
               iconColor: AppColors.diamond,
-              amount: currency.diamond.toString(),
+              amount: diamond.toString(),
             ),
 
             const Spacer(),
@@ -53,7 +55,7 @@ class CurrencyBar extends ConsumerWidget {
             _CurrencyChip(
               icon: Icons.confirmation_number_rounded,
               iconColor: AppColors.primaryLight,
-              amount: currency.gachaTicket.toString(),
+              amount: gachaTicket.toString(),
               iconSize: 14,
               fontSize: 11,
             ),

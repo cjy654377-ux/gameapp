@@ -13,10 +13,21 @@ class QuestState {
   final List<QuestModel> quests;
   final bool isLoaded;
 
-  const QuestState({
+  /// Pre-computed quest lists by type — avoids repeated O(n) DB lookups.
+  late final List<QuestModel> dailyQuests;
+  late final List<QuestModel> weeklyQuests;
+  late final List<QuestModel> achievements;
+  late final int claimableCount;
+
+  QuestState({
     this.quests = const [],
     this.isLoaded = false,
-  });
+  }) {
+    dailyQuests = _filterByType(QuestType.daily);
+    weeklyQuests = _filterByType(QuestType.weekly);
+    achievements = _filterByType(QuestType.achievement);
+    claimableCount = _computeClaimable();
+  }
 
   QuestState copyWith({
     List<QuestModel>? quests,
@@ -28,24 +39,11 @@ class QuestState {
     );
   }
 
-  /// Daily quests that are active (not yet completed or not yet claimed).
-  List<QuestModel> get dailyQuests => quests
-      .where((q) => QuestDatabase.findById(q.questId)?.type == QuestType.daily)
+  List<QuestModel> _filterByType(QuestType type) => quests
+      .where((q) => QuestDatabase.findById(q.questId)?.type == type)
       .toList();
 
-  /// Weekly quests.
-  List<QuestModel> get weeklyQuests => quests
-      .where((q) => QuestDatabase.findById(q.questId)?.type == QuestType.weekly)
-      .toList();
-
-  /// Achievement quests.
-  List<QuestModel> get achievements => quests
-      .where((q) =>
-          QuestDatabase.findById(q.questId)?.type == QuestType.achievement)
-      .toList();
-
-  /// Number of quests ready to claim rewards.
-  int get claimableCount => quests.where((q) {
+  int _computeClaimable() => quests.where((q) {
         if (q.isCompleted) return false;
         final def = QuestDatabase.findById(q.questId);
         if (def == null) return false;
@@ -58,7 +56,7 @@ class QuestState {
 // =============================================================================
 
 class QuestNotifier extends StateNotifier<QuestState> {
-  QuestNotifier(this.ref) : super(const QuestState());
+  QuestNotifier(this.ref) : super(QuestState());
 
   final Ref ref;
   final LocalStorage _storage = LocalStorage.instance;
@@ -67,12 +65,11 @@ class QuestNotifier extends StateNotifier<QuestState> {
   Future<void> load() async {
     var quests = _storage.getAllQuests();
 
-    // Check daily quest resets.
+    // Check daily/weekly quest resets.
     final now = DateTime.now().toUtc();
     bool needsSave = false;
     quests = quests.map((q) {
       if (q.resetAt != null && now.isAfter(q.resetAt!)) {
-        // Daily quest needs reset.
         needsSave = true;
         final def = QuestDatabase.findById(q.questId);
         if (def != null) {
@@ -109,7 +106,7 @@ class QuestNotifier extends StateNotifier<QuestState> {
     int? absoluteValue,
   }) async {
     final updated = <QuestModel>[];
-    bool changed = false;
+    final changedQuests = <QuestModel>[];
 
     for (final quest in state.quests) {
       if (quest.isCompleted) {
@@ -125,17 +122,21 @@ class QuestNotifier extends StateNotifier<QuestState> {
 
       final newProgress = absoluteValue ?? (quest.currentProgress + count);
       if (newProgress != quest.currentProgress) {
-        updated.add(quest.copyWith(
+        final changed = quest.copyWith(
           currentProgress: newProgress.clamp(0, def.targetCount),
-        ));
-        changed = true;
+        );
+        updated.add(changed);
+        changedQuests.add(changed);
       } else {
         updated.add(quest);
       }
     }
 
-    if (changed) {
-      await _storage.saveQuests(updated);
+    if (changedQuests.isNotEmpty) {
+      // Save only the changed quests instead of the entire list.
+      for (final q in changedQuests) {
+        await _storage.saveQuest(q);
+      }
       state = state.copyWith(quests: updated);
     }
   }
@@ -157,13 +158,13 @@ class QuestNotifier extends StateNotifier<QuestState> {
     final updated = [...state.quests];
     updated[idx] = completed;
 
-    // Award rewards.
+    // Award rewards (single Hive write).
     final currency = ref.read(currencyProvider.notifier);
-    if (def.rewardGold > 0) await currency.addGold(def.rewardGold);
-    if (def.rewardDiamond > 0) await currency.addDiamond(def.rewardDiamond);
-    if (def.rewardGachaTicket > 0) {
-      await currency.addGachaTicket(def.rewardGachaTicket);
-    }
+    await currency.addReward(
+      gold: def.rewardGold,
+      diamond: def.rewardDiamond,
+      gachaTicket: def.rewardGachaTicket,
+    );
 
     await _storage.saveQuest(completed);
     state = state.copyWith(quests: updated);

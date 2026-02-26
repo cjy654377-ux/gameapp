@@ -13,28 +13,12 @@ import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
 // ---------------------------------------------------------------------------
-// Internal helper — mirrors BattleService._linearIdToKey without exposing it.
+// Internal helpers — delegate to StageDatabase shared utilities.
 // ---------------------------------------------------------------------------
 
-/// Converts a 1-based linear stage index to the `'${area}-${num}'` key used
-/// by [StageDatabase].  Stage layout: 5 areas × 6 stages.
-String _stageIndexToKey(int stageId) {
-  final int idx  = (stageId - 1).clamp(0, 29);
-  final int area = idx ~/ 6 + 1;
-  final int num  = idx % 6 + 1;
-  return '$area-$num';
-}
-
-/// Converts a stage string ID (e.g. `'2-3'`) to a 1-based linear index.
-/// Returns 1 for empty / malformed inputs.
-int _stageStringToIndex(String stageId) {
-  if (stageId.isEmpty) return 1;
-  final parts = stageId.split('-');
-  if (parts.length != 2) return 1;
-  final area  = int.tryParse(parts[0]) ?? 1;
-  final stage = int.tryParse(parts[1]) ?? 1;
-  return (area - 1) * 6 + stage;
-}
+String _stageIndexToKey(int stageId) => StageDatabase.linearIdToKey(stageId);
+int _stageStringToIndex(String stageId) =>
+    StageDatabase.linearIndex(stageId, defaultValue: 1);
 
 // =============================================================================
 // BattleState

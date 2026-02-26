@@ -577,12 +577,8 @@ class BattleService {
   ///   stageId 6  → '1-6'
   ///   stageId 7  → '2-1'
   ///   stageId 30 → '5-6'
-  static String _linearIdToKey(int stageId) {
-    final int idx  = (stageId - 1).clamp(0, 29); // 0-based
-    final int area = idx ~/ 6 + 1;               // 1–5
-    final int num  = idx % 6 + 1;                // 1–6
-    return '$area-$num';
-  }
+  static String _linearIdToKey(int stageId) =>
+      StageDatabase.linearIdToKey(stageId);
 
   /// Returns `true` when the last character of [str] ends with a Korean
   /// consonant (받침 있음), used to select the correct subject particle.

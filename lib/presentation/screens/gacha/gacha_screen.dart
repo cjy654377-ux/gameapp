@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/constants/game_config.dart';
+import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/domain/services/gacha_service.dart';
@@ -834,26 +835,7 @@ class _ResultCard extends StatelessWidget {
   }
 
   IconData _getElementIcon(String element) {
-    switch (element) {
-      case 'fire':
-        return Icons.local_fire_department_rounded;
-      case 'water':
-        return Icons.water_drop_rounded;
-      case 'electric':
-        return Icons.flash_on_rounded;
-      case 'stone':
-        return Icons.terrain_rounded;
-      case 'grass':
-        return Icons.eco_rounded;
-      case 'ghost':
-        return Icons.visibility_off_rounded;
-      case 'light':
-        return Icons.wb_sunny_rounded;
-      case 'dark':
-        return Icons.dark_mode_rounded;
-      default:
-        return Icons.pets_rounded;
-    }
+    return MonsterElement.fromName(element)?.icon ?? Icons.pets_rounded;
   }
 }
 

@@ -208,13 +208,13 @@ Future<void> claimCollectionMilestone(WidgetRef ref, int milestoneIndex) async {
   // Check not already claimed.
   if ((player.collectionRewardsClaimed & (1 << milestone.index)) != 0) return;
 
-  // Grant rewards.
+  // Grant rewards (single Hive write via addReward).
   final currency = ref.read(currencyProvider.notifier);
-  if (milestone.gold > 0) await currency.addGold(milestone.gold);
-  if (milestone.diamond > 0) await currency.addDiamond(milestone.diamond);
-  if (milestone.gachaTickets > 0) {
-    await currency.addGachaTicket(milestone.gachaTickets);
-  }
+  await currency.addReward(
+    gold: milestone.gold,
+    diamond: milestone.diamond,
+    gachaTicket: milestone.gachaTickets,
+  );
 
   // Mark as claimed.
   final newBitmask = player.collectionRewardsClaimed | (1 << milestone.index);

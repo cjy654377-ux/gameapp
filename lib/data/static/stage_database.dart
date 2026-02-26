@@ -390,4 +390,24 @@ class StageDatabase {
 
   /// Number of stages per area.
   static int get stagesPerArea => 6;
+
+  /// Converts a 1-based linear stage index to the `'area-num'` key.
+  /// Stage layout: 5 areas × 6 stages (index 1 → '1-1', index 30 → '5-6').
+  static String linearIdToKey(int stageId) {
+    final int idx  = (stageId - 1).clamp(0, 29);
+    final int area = idx ~/ 6 + 1;
+    final int num  = idx % 6 + 1;
+    return '$area-$num';
+  }
+
+  /// Converts a stage string ID (e.g. '2-3') to a 1-based linear index.
+  /// Returns [defaultValue] for empty / malformed inputs.
+  static int linearIndex(String stageId, {int defaultValue = 0}) {
+    if (stageId.isEmpty) return defaultValue;
+    final parts = stageId.split('-');
+    if (parts.length != 2) return defaultValue;
+    final area  = int.tryParse(parts[0]) ?? 0;
+    final stage = int.tryParse(parts[1]) ?? 0;
+    return (area - 1) * 6 + stage;
+  }
 }

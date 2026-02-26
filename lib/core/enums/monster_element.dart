@@ -134,6 +134,28 @@ enum MonsterElement {
     for (final e in values) e.name: e,
   };
 
+  /// Get Material icon for this element.
+  IconData get icon {
+    switch (this) {
+      case MonsterElement.fire:
+        return Icons.local_fire_department_rounded;
+      case MonsterElement.water:
+        return Icons.water_drop_rounded;
+      case MonsterElement.electric:
+        return Icons.flash_on_rounded;
+      case MonsterElement.stone:
+        return Icons.terrain_rounded;
+      case MonsterElement.grass:
+        return Icons.eco_rounded;
+      case MonsterElement.ghost:
+        return Icons.visibility_off_rounded;
+      case MonsterElement.light:
+        return Icons.wb_sunny_rounded;
+      case MonsterElement.dark:
+        return Icons.dark_mode_rounded;
+    }
+  }
+
   /// Get element emoji representation
   String get emoji {
     switch (this) {

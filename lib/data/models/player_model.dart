@@ -82,7 +82,10 @@ class PlayerModel extends HiveObject {
   // -------------------------------------------------------------------------
 
   /// Experience required to advance from current playerLevel to the next.
-  int get expToNextLevel => (200 * (1.15 * playerLevel)).round();
+  int get expToNextLevel => expForLevel(playerLevel);
+
+  /// Pure formula: experience required to advance from [level] to level+1.
+  static int expForLevel(int level) => (200 * (1.15 * level)).round();
 
   // -------------------------------------------------------------------------
   // Convenience factory for new players

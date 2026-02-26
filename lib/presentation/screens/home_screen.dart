@@ -224,13 +224,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             context.go(_tabs[index].route);
           }
         },
-        items: _tabs.map((tab) {
-          final isSelected = _tabs.indexOf(tab) == currentIndex;
-          return BottomNavigationBarItem(
-            icon: Icon(isSelected ? tab.activeIcon : tab.icon),
-            label: tab.label,
-          );
-        }).toList(),
+        items: [
+          for (int i = 0; i < _tabs.length; i++)
+            BottomNavigationBarItem(
+              icon: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
+              label: _tabs[i].label,
+            ),
+        ],
       ),
     );
   }

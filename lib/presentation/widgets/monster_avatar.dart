@@ -165,26 +165,7 @@ class MonsterAvatar extends StatelessWidget {
   }
 
   static IconData _elementIcon(String element) {
-    switch (element) {
-      case 'fire':
-        return Icons.local_fire_department_rounded;
-      case 'water':
-        return Icons.water_drop_rounded;
-      case 'electric':
-        return Icons.flash_on_rounded;
-      case 'stone':
-        return Icons.terrain_rounded;
-      case 'grass':
-        return Icons.eco_rounded;
-      case 'ghost':
-        return Icons.visibility_off_rounded;
-      case 'light':
-        return Icons.wb_sunny_rounded;
-      case 'dark':
-        return Icons.dark_mode_rounded;
-      default:
-        return Icons.pets_rounded;
-    }
+    return MonsterElement.fromName(element)?.icon ?? Icons.pets_rounded;
   }
 }
 

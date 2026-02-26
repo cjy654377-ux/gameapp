@@ -115,14 +115,18 @@ class MonsterModel extends HiveObject {
   /// Per-awakening-star multiplier. Each star adds 10% of the base stat.
   double get _awakeningMultiplier => 1.0 + awakeningStars * 0.10;
 
+  /// Composite multiplier (cached per access chain, avoids 3× recompute per stat).
+  double get _compositeMultiplier =>
+      _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+
   // -------------------------------------------------------------------------
   // Computed final stats
   // -------------------------------------------------------------------------
 
-  double get finalAtk => baseAtk * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
-  double get finalDef => baseDef * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
-  double get finalHp  => baseHp  * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
-  double get finalSpd => baseSpd * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+  double get finalAtk => baseAtk * _compositeMultiplier;
+  double get finalDef => baseDef * _compositeMultiplier;
+  double get finalHp  => baseHp  * _compositeMultiplier;
+  double get finalSpd => baseSpd * _compositeMultiplier;
 
   // -------------------------------------------------------------------------
   // Experience system
