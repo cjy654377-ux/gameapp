@@ -18,7 +18,7 @@ import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 // UpgradeTab enum
 // =============================================================================
 
-enum UpgradeTab { levelUp, evolution, fusion }
+enum UpgradeTab { levelUp, evolution, fusion, awakening }
 
 // =============================================================================
 // UpgradeState
@@ -327,6 +327,61 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
       clearFusion: true,
       successMessage: '${template.name} 획득! ($nextRarity성)',
       fusionResultName: template.name,
+    );
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Awakening
+  // ---------------------------------------------------------------------------
+
+  static const int maxAwakeningStars = 5;
+
+  /// Gold cost: 500 * rarity * (currentStars + 1)
+  static int awakeningGoldCost(MonsterModel m) => 500 * m.rarity * (m.awakeningStars + 1);
+
+  /// Shard cost: 3 * rarity * (currentStars + 1)
+  static int awakeningShardCost(MonsterModel m) => 3 * m.rarity * (m.awakeningStars + 1);
+
+  static bool canAwaken(MonsterModel m) {
+    return m.evolutionStage >= 2 && m.awakeningStars < maxAwakeningStars;
+  }
+
+  Future<bool> awaken() async {
+    final monster = _selectedMonster;
+    if (monster == null || state.isProcessing) return false;
+    if (!canAwaken(monster)) return false;
+
+    final goldCost = awakeningGoldCost(monster);
+    final shardCost = awakeningShardCost(monster);
+
+    state = state.copyWith(isProcessing: true, clearMessage: true);
+
+    final currency = ref.read(currencyProvider);
+    if (!currency.canAfford(gold: goldCost, monsterShard: shardCost)) {
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    final goldOk = await ref.read(currencyProvider.notifier).spendGold(goldCost);
+    if (!goldOk) {
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+    final shardOk = await ref.read(currencyProvider.notifier).spendShard(shardCost);
+    if (!shardOk) {
+      await ref.read(currencyProvider.notifier).addGold(goldCost);
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    final awakened = monster.copyWith(awakeningStars: monster.awakeningStars + 1);
+    await ref.read(monsterListProvider.notifier).updateMonster(awakened);
+    AudioService.instance.playEvolution();
+
+    state = state.copyWith(
+      isProcessing: false,
+      successMessage: '각성 ${awakened.awakeningStars}성 달성! (+10% 스탯)',
     );
     return true;
   }

@@ -246,8 +246,10 @@ class _UpgradePanel extends ConsumerWidget {
             _LevelUpPanel(monster: monster)
           else if (activeTab == UpgradeTab.evolution)
             _EvolutionPanel(monster: monster)
+          else if (activeTab == UpgradeTab.fusion)
+            _FusionPanel(monster: monster)
           else
-            _FusionPanel(monster: monster),
+            _AwakeningPanel(monster: monster),
           const SizedBox(height: 24),
         ],
       ),
@@ -388,6 +390,14 @@ class _TabSelector extends ConsumerWidget {
           isActive: activeTab == UpgradeTab.fusion,
           onTap: () =>
               ref.read(upgradeProvider.notifier).setTab(UpgradeTab.fusion),
+        ),
+        const SizedBox(width: 6),
+        _TabButton(
+          label: '각성',
+          icon: Icons.brightness_7_rounded,
+          isActive: activeTab == UpgradeTab.awakening,
+          onTap: () =>
+              ref.read(upgradeProvider.notifier).setTab(UpgradeTab.awakening),
         ),
       ],
     );
@@ -1637,5 +1647,244 @@ IconData _elementIcon(String element) {
       return Icons.dark_mode_rounded;
     default:
       return Icons.pets_rounded;
+  }
+}
+
+// =============================================================================
+// _AwakeningPanel — awakening (post-evolution enhancement)
+// =============================================================================
+
+class _AwakeningPanel extends ConsumerWidget {
+  const _AwakeningPanel({required this.monster});
+  final MonsterModel monster;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isMaxEvo = monster.evolutionStage >= GameConfig.maxEvolutionStage;
+    final canAwaken = UpgradeNotifier.canAwaken(monster);
+    final isMaxAwakening = monster.awakeningStars >= UpgradeNotifier.maxAwakeningStars;
+
+    if (!isMaxEvo) {
+      return _buildInfoBanner(
+        icon: Icons.lock_outline,
+        text: '최종 진화 후 각성할 수 있습니다',
+        color: AppColors.textTertiary,
+      );
+    }
+
+    if (isMaxAwakening) {
+      return Column(
+        children: [
+          _buildStarsDisplay(),
+          const SizedBox(height: 12),
+          _buildInfoBanner(
+            icon: Icons.brightness_7_rounded,
+            text: '최대 각성 완료!',
+            color: Colors.amber,
+          ),
+          const SizedBox(height: 8),
+          _buildStatPreview(),
+        ],
+      );
+    }
+
+    final goldCost = UpgradeNotifier.awakeningGoldCost(monster);
+    final shardCost = UpgradeNotifier.awakeningShardCost(monster);
+    final currency = ref.watch(currencyProvider);
+    final canAfford = currency.canAfford(gold: goldCost, monsterShard: shardCost);
+    final processing = ref.watch(upgradeProvider.select((s) => s.isProcessing));
+
+    return Column(
+      children: [
+        _buildStarsDisplay(),
+        const SizedBox(height: 12),
+        _buildStatPreview(),
+        const SizedBox(height: 16),
+
+        // Cost display
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              Text(
+                '각성 ${monster.awakeningStars + 1}성 비용',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _CostChip(
+                    icon: Icons.monetization_on_rounded,
+                    label: FormatUtils.formatNumber(goldCost),
+                    available: currency.gold >= goldCost,
+                  ),
+                  _CostChip(
+                    icon: Icons.diamond_rounded,
+                    label: '$shardCost 진화석',
+                    available: currency.monsterShard >= shardCost,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Awaken button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: canAwaken && canAfford && !processing
+                ? () => ref.read(upgradeProvider.notifier).awaken()
+                : null,
+            icon: const Icon(Icons.brightness_7_rounded, size: 18),
+            label: Text(
+              processing ? '각성 중...' : '각성하기',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber.withValues(alpha: 0.9),
+              foregroundColor: Colors.black87,
+              disabledBackgroundColor: AppColors.surfaceVariant,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStarsDisplay() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(UpgradeNotifier.maxAwakeningStars, (i) {
+        final active = i < monster.awakeningStars;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: Icon(
+            active ? Icons.brightness_7_rounded : Icons.brightness_7_outlined,
+            size: 28,
+            color: active ? Colors.amber : AppColors.textTertiary,
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildStatPreview() {
+    final bonus = monster.awakeningStars * 10;
+    final nextBonus = (monster.awakeningStars + 1) * 10;
+    final isMax = monster.awakeningStars >= UpgradeNotifier.maxAwakeningStars;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '현재 각성 보너스: +$bonus%',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: bonus > 0 ? Colors.amber : AppColors.textTertiary,
+            ),
+          ),
+          if (!isMax) ...[
+            const SizedBox(height: 4),
+            Text(
+              '다음 각성 보너스: +$nextBonus%',
+              style: TextStyle(fontSize: 12, color: Colors.green[300]),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _StatMiniPreview(label: 'HP', value: monster.finalHp),
+              _StatMiniPreview(label: 'ATK', value: monster.finalAtk),
+              _StatMiniPreview(label: 'DEF', value: monster.finalDef),
+              _StatMiniPreview(label: 'SPD', value: monster.finalSpd),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoBanner({required IconData icon, required String text, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CostChip extends StatelessWidget {
+  const _CostChip({required this.icon, required this.label, required this.available});
+  final IconData icon;
+  final String label;
+  final bool available;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: available ? AppColors.gold : AppColors.error),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: available ? AppColors.textPrimary : AppColors.error,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatMiniPreview extends StatelessWidget {
+  const _StatMiniPreview({required this.label, required this.value});
+  final String label;
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+        Text(
+          '${value.round()}',
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
   }
 }

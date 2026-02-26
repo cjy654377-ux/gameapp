@@ -68,6 +68,10 @@ class MonsterModel extends HiveObject {
   @HiveField(15)
   String? skillName;
 
+  /// Awakening stars (0~5). Available after max evolution (stage 2).
+  @HiveField(16)
+  int awakeningStars;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -85,6 +89,7 @@ class MonsterModel extends HiveObject {
     required this.isInTeam,
     required this.size,
     this.skillName,
+    this.awakeningStars = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -107,14 +112,17 @@ class MonsterModel extends HiveObject {
     }
   }
 
+  /// Per-awakening-star multiplier. Each star adds 10% of the base stat.
+  double get _awakeningMultiplier => 1.0 + awakeningStars * 0.10;
+
   // -------------------------------------------------------------------------
   // Computed final stats
   // -------------------------------------------------------------------------
 
-  double get finalAtk => baseAtk * _levelMultiplier * _evolutionMultiplier;
-  double get finalDef => baseDef * _levelMultiplier * _evolutionMultiplier;
-  double get finalHp  => baseHp  * _levelMultiplier * _evolutionMultiplier;
-  double get finalSpd => baseSpd * _levelMultiplier * _evolutionMultiplier;
+  double get finalAtk => baseAtk * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+  double get finalDef => baseDef * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+  double get finalHp  => baseHp  * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
+  double get finalSpd => baseSpd * _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier;
 
   // -------------------------------------------------------------------------
   // Experience system
@@ -182,6 +190,7 @@ class MonsterModel extends HiveObject {
     bool? isInTeam,
     String? size,
     Object? skillName = _sentinel,
+    int? awakeningStars,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -202,6 +211,7 @@ class MonsterModel extends HiveObject {
       skillName: skillName == _sentinel
           ? this.skillName
           : skillName as String?,
+      awakeningStars: awakeningStars ?? this.awakeningStars,
     );
   }
 
@@ -249,13 +259,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       isInTeam:       fields[13] as bool,
       size:           fields[14] as String? ?? 'small',
       skillName:      fields[15] as String?,
+      awakeningStars: fields[16] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(16) // total number of fields
+      ..writeByte(17) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -287,7 +298,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(14)
       ..write(obj.size)
       ..writeByte(15)
-      ..write(obj.skillName);
+      ..write(obj.skillName)
+      ..writeByte(16)
+      ..write(obj.awakeningStars);
   }
 
   @override

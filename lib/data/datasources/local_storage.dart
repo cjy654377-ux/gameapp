@@ -366,6 +366,7 @@ class LocalStorage {
                 'isInTeam': m.isInTeam,
                 'size': m.size,
                 'skillName': m.skillName,
+                'awakeningStars': m.awakeningStars,
               })
           .toList(),
       'quests': quests
@@ -464,6 +465,7 @@ class LocalStorage {
             isInTeam: map['isInTeam'] as bool? ?? false,
             size: map['size'] as String? ?? 'medium',
             skillName: map['skillName'] as String?,
+            awakeningStars: map['awakeningStars'] as int? ?? 0,
           );
         }).toList();
         await saveMonsters(monsters);
