@@ -172,12 +172,12 @@ class GachaNotifier extends StateNotifier<GachaState> {
 
     final pull = GachaService.performTenPull(state.pityCount);
 
-    // Add all monsters to roster.
+    // Create all monsters first, then batch-add to roster (single Hive write).
     final monsterNotifier = ref.read(monsterListProvider.notifier);
-    for (final result in pull.results) {
-      final monster = _createMonsterFromTemplate(result.template);
-      await monsterNotifier.addMonster(monster);
-    }
+    final newMonsters = pull.results
+        .map((r) => _createMonsterFromTemplate(r.template))
+        .toList();
+    await monsterNotifier.addMonsters(newMonsters);
     _incrementPlayerPullCount(10);
 
     state = state.copyWith(

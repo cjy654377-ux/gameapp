@@ -219,10 +219,8 @@ class _MonsterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rarity = MonsterRarity.fromRarity(entry.template.rarity);
-    final element = MonsterElement.values.firstWhere(
-      (e) => e.name == entry.template.element,
-      orElse: () => MonsterElement.fire,
-    );
+    final element =
+        MonsterElement.fromName(entry.template.element) ?? MonsterElement.fire;
 
     return GestureDetector(
       onTap: onTap,
@@ -318,10 +316,8 @@ class _MonsterDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = entry.template;
     final rarity = MonsterRarity.fromRarity(t.rarity);
-    final element = MonsterElement.values.firstWhere(
-      (e) => e.name == t.element,
-      orElse: () => MonsterElement.fire,
-    );
+    final element =
+        MonsterElement.fromName(t.element) ?? MonsterElement.fire;
     final best = entry.best;
 
     return Padding(

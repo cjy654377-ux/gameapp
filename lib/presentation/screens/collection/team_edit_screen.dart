@@ -215,10 +215,8 @@ class _TeamSlot extends StatelessWidget {
     }
 
     final rarity = MonsterRarity.fromRarity(monster!.rarity);
-    final element = MonsterElement.values.firstWhere(
-      (e) => e.name == monster!.element,
-      orElse: () => MonsterElement.fire,
-    );
+    final element =
+        MonsterElement.fromName(monster!.element) ?? MonsterElement.fire;
 
     return GestureDetector(
       onTap: onRemove,
@@ -269,10 +267,8 @@ class _RosterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rarity = MonsterRarity.fromRarity(monster.rarity);
-    final element = MonsterElement.values.firstWhere(
-      (e) => e.name == monster.element,
-      orElse: () => MonsterElement.fire,
-    );
+    final element =
+        MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
 
     return GestureDetector(
       onTap: onTap,

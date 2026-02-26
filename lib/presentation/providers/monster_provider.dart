@@ -34,13 +34,29 @@ class MonsterListNotifier extends StateNotifier<List<MonsterModel>> {
   /// (acts as upsert).
   Future<void> addMonster(MonsterModel monster) async {
     final idx = state.indexWhere((m) => m.id == monster.id);
-    final updated = List<MonsterModel>.from(state);
     if (idx >= 0) {
+      final updated = [...state];
       updated[idx] = monster;
+      await _storage.saveMonster(monster);
+      state = updated;
     } else {
-      updated.add(monster);
+      await _storage.saveMonster(monster);
+      state = [...state, monster];
     }
-    await _storage.saveMonster(monster);
+  }
+
+  /// Adds multiple [monsters] to the roster in a single batch Hive write.
+  Future<void> addMonsters(List<MonsterModel> monsters) async {
+    final updated = [...state];
+    for (final monster in monsters) {
+      final idx = updated.indexWhere((m) => m.id == monster.id);
+      if (idx >= 0) {
+        updated[idx] = monster;
+      } else {
+        updated.add(monster);
+      }
+    }
+    await _storage.saveMonsters(monsters);
     state = updated;
   }
 
@@ -61,9 +77,8 @@ class MonsterListNotifier extends StateNotifier<List<MonsterModel>> {
     final idx = state.indexWhere((m) => m.id == monster.id);
     if (idx < 0) return;
 
-    final updated = List<MonsterModel>.from(state);
+    final updated = [...state];
     updated[idx] = monster;
-
     await _storage.saveMonster(monster);
     state = updated;
   }

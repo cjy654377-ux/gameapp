@@ -105,28 +105,28 @@ final collectionEntriesProvider = Provider<List<CollectionEntry>>((ref) {
     ownedByTemplate.putIfAbsent(m.templateId, () => []).add(m);
   }
 
-  var templates = MonsterDatabase.all;
+  Iterable<MonsterTemplate> templates = MonsterDatabase.all;
 
-  // Apply filters.
+  // Apply filters lazily (single pass).
   if (filter.rarity != null) {
-    templates = templates.where((t) => t.rarity == filter.rarity).toList();
+    templates = templates.where((t) => t.rarity == filter.rarity);
   }
   if (filter.element != null) {
-    templates = templates.where((t) => t.element == filter.element).toList();
+    templates = templates.where((t) => t.element == filter.element);
   }
 
-  var entries = templates.map((t) {
+  Iterable<CollectionEntry> entries = templates.map((t) {
     return CollectionEntry(
       template: t,
       ownedInstances: ownedByTemplate[t.id] ?? const [],
     );
-  }).toList();
+  });
 
   if (filter.showOnlyOwned) {
-    entries = entries.where((e) => e.isOwned).toList();
+    entries = entries.where((e) => e.isOwned);
   }
 
-  return entries;
+  return entries.toList();
 });
 
 /// Collection progress stats.

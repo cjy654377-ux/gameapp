@@ -105,26 +105,12 @@ class BattleService {
   // Damage calculation
   // ---------------------------------------------------------------------------
 
-  /// Calculates the raw damage dealt by [attacker] hitting [defender].
-  ///
-  /// Formula:
-  /// ```
-  /// damage = atk * (1 − def / (def + 100)) * elementMult * critMult * variance
-  /// ```
-  ///
-  /// Where:
-  /// * `elementMult` — from [getElementMultiplier] (1.3, 1.0, or 0.7)
-  /// * `critMult`    — 1.5 on a 10 % crit, 1.0 otherwise
-  /// * `variance`    — uniform random in [0.9, 1.1]
-  ///
-  /// The returned value is always at least 1.0 (floor damage).
-  static double calculateDamage({
+  /// Internal damage roll returning damage, crit flag, and element multiplier.
+  static ({double damage, bool isCrit, double elementMult}) _rollDamage({
     required BattleMonster attacker,
     required BattleMonster defender,
   }) {
-    final double defReduction = attacker.def == 0
-        ? 0.0
-        : defender.def / (defender.def + 100.0);
+    final double defReduction = defender.def / (defender.def + 100.0);
     final double baseDamage = attacker.atk * (1.0 - defReduction);
 
     final double elementMult =
@@ -137,7 +123,22 @@ class BattleService {
         _varianceMin + _random.nextDouble() * (_varianceMax - _varianceMin);
 
     final double raw = baseDamage * elementMult * critMult * variance;
-    return math.max(1.0, raw);
+    return (damage: math.max(1.0, raw), isCrit: isCrit, elementMult: elementMult);
+  }
+
+  /// Calculates the raw damage dealt by [attacker] hitting [defender].
+  ///
+  /// Formula:
+  /// ```
+  /// damage = atk * (1 − def / (def + 100)) * elementMult * critMult * variance
+  /// ```
+  ///
+  /// The returned value is always at least 1.0 (floor damage).
+  static double calculateDamage({
+    required BattleMonster attacker,
+    required BattleMonster defender,
+  }) {
+    return _rollDamage(attacker: attacker, defender: defender).damage;
   }
 
   // ---------------------------------------------------------------------------
@@ -153,23 +154,10 @@ class BattleService {
     required BattleMonster attacker,
     required BattleMonster target,
   }) {
-    // --- Determine element relationship -----------------------------------------
-    final double elementMult =
-        getElementMultiplier(attacker.element, target.element);
-    final bool isAdvantage = elementMult > 1.0;
-
-    // --- Damage calculation (mirrors calculateDamage but captures crit flag) ---
-    final double defReduction = target.def / (target.def + 100.0);
-    final double baseDamage = attacker.atk * (1.0 - defReduction);
-
-    final bool isCrit = _random.nextDouble() < _critRate;
-    final double critMult = isCrit ? _critMultiplier : 1.0;
-
-    final double variance =
-        _varianceMin + _random.nextDouble() * (_varianceMax - _varianceMin);
-
-    final double damage =
-        math.max(1.0, baseDamage * elementMult * critMult * variance);
+    final roll = _rollDamage(attacker: attacker, defender: target);
+    final double damage = roll.damage;
+    final bool isCrit = roll.isCrit;
+    final bool isAdvantage = roll.elementMult > 1.0;
 
     // --- Apply damage -----------------------------------------------------------
     target.currentHp = math.max(0.0, target.currentHp - damage);

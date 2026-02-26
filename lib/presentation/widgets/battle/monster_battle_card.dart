@@ -31,15 +31,8 @@ class MonsterBattleCard extends StatelessWidget {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  MonsterElement get _element {
-    try {
-      return MonsterElement.values.firstWhere(
-        (e) => e.name == monster.element,
-      );
-    } catch (_) {
-      return MonsterElement.fire;
-    }
-  }
+  MonsterElement get _element =>
+      MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
 
   MonsterRarity get _rarity => MonsterRarity.fromRarity(monster.rarity);
 

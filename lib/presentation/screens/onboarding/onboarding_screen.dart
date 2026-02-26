@@ -189,10 +189,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: starters.map((t) {
             final selected = _selectedTemplateId == t.id;
-            final element = MonsterElement.values.firstWhere(
-              (e) => e.name == t.element,
-              orElse: () => MonsterElement.fire,
-            );
+            final element =
+                MonsterElement.fromName(t.element) ?? MonsterElement.fire;
             return GestureDetector(
               onTap: () => setState(() => _selectedTemplateId = t.id),
               child: AnimatedContainer(

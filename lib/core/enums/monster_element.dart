@@ -125,6 +125,15 @@ enum MonsterElement {
     }
   }
 
+  /// Look up a [MonsterElement] by its [name] string (e.g. `'fire'`).
+  ///
+  /// Returns `null` when no match is found.
+  static MonsterElement? fromName(String name) => _byName[name];
+
+  static final Map<String, MonsterElement> _byName = {
+    for (final e in values) e.name: e,
+  };
+
   /// Get element emoji representation
   String get emoji {
     switch (this) {
