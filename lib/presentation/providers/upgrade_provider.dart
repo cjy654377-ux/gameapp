@@ -335,11 +335,10 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     final id = state.fusionMonsterId;
     if (id == null) return null;
     final roster = ref.read(monsterListProvider);
-    try {
-      return roster.firstWhere((m) => m.id == id);
-    } catch (_) {
-      return null;
+    for (final m in roster) {
+      if (m.id == id) return m;
     }
+    return null;
   }
 
   // ---------------------------------------------------------------------------
@@ -350,11 +349,10 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     final id = state.selectedMonsterId;
     if (id == null) return null;
     final roster = ref.read(monsterListProvider);
-    try {
-      return roster.firstWhere((m) => m.id == id);
-    } catch (_) {
-      return null;
+    for (final m in roster) {
+      if (m.id == id) return m;
     }
+    return null;
   }
 }
 

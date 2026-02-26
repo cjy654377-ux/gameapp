@@ -55,7 +55,9 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
   /// If the relic is already equipped to another monster, unequips first.
   /// If the monster already has a relic of the same type, swaps.
   Future<void> equipRelic(String relicId, String monsterId) async {
-    final relic = state.firstWhere((r) => r.id == relicId);
+    final idx = state.indexWhere((r) => r.id == relicId);
+    if (idx < 0) return;
+    final relic = state[idx];
 
     // Unequip any existing relic of the same type from the monster.
     final sameTypeEquipped = state.where(

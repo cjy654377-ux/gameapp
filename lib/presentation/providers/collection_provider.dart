@@ -200,6 +200,7 @@ final collectionMilestoneProvider =
 
 /// Claims a collection milestone reward.
 Future<void> claimCollectionMilestone(WidgetRef ref, int milestoneIndex) async {
+  if (milestoneIndex < 0 || milestoneIndex >= collectionMilestones.length) return;
   final milestone = collectionMilestones[milestoneIndex];
   final player = ref.read(playerProvider).player;
   if (player == null) return;

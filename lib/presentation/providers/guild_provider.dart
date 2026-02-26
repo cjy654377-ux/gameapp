@@ -364,6 +364,7 @@ class GuildNotifier extends StateNotifier<GuildState> {
     final guild = state.guild;
     if (guild == null) return;
 
+    if (itemIndex < 0 || itemIndex >= GuildService.shopItems.length) return;
     final item = GuildService.shopItems[itemIndex];
     if (guild.guildCoin < item.cost) return;
 
