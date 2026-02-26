@@ -70,8 +70,38 @@ class BattleMonster {
   /// Final speed stat (determines turn order).
   final double spd;
 
+  // -- Skill system fields ---------------------------------------------------
+
+  /// The skill definition ID for this monster (null = no skill).
+  final String? skillId;
+
+  /// Korean display name of the skill (null = no skill).
+  final String? skillName;
+
+  /// Turns remaining before the skill can activate. 0 = ready to fire.
+  /// Decremented each turn; resets to the skill's base cooldown after use.
+  int skillCooldown;
+
+  /// The skill's base cooldown value (for resetting after activation).
+  final int skillMaxCooldown;
+
+  /// Current shield points. Absorbs damage before HP.
+  double shieldHp;
+
+  /// Remaining burn turns (damage-over-time). 0 = not burning.
+  int burnTurns;
+
+  /// Damage dealt per burn tick (absolute value).
+  double burnDamagePerTurn;
+
+  /// Remaining stun turns. When > 0, the monster skips its action.
+  int stunTurns;
+
   /// Whether this monster can still act (HP > 0).
   bool get isAlive => currentHp > 0;
+
+  /// Whether the skill is ready to activate.
+  bool get isSkillReady => skillId != null && skillCooldown <= 0;
 
   BattleMonster({
     required this.monsterId,
@@ -85,6 +115,14 @@ class BattleMonster {
     required this.atk,
     required this.def,
     required this.spd,
+    this.skillId,
+    this.skillName,
+    this.skillCooldown = 0,
+    this.skillMaxCooldown = 0,
+    this.shieldHp = 0.0,
+    this.burnTurns = 0,
+    this.burnDamagePerTurn = 0.0,
+    this.stunTurns = 0,
   });
 
   /// Returns a new [BattleMonster] with the specified fields overridden.
@@ -100,26 +138,43 @@ class BattleMonster {
     double? atk,
     double? def,
     double? spd,
+    String? skillId,
+    String? skillName,
+    int? skillCooldown,
+    int? skillMaxCooldown,
+    double? shieldHp,
+    int? burnTurns,
+    double? burnDamagePerTurn,
+    int? stunTurns,
   }) {
     return BattleMonster(
-      monsterId:  monsterId  ?? this.monsterId,
-      templateId: templateId ?? this.templateId,
-      name:       name       ?? this.name,
-      element:    element    ?? this.element,
-      size:       size       ?? this.size,
-      rarity:     rarity     ?? this.rarity,
-      maxHp:      maxHp      ?? this.maxHp,
-      currentHp:  currentHp  ?? this.currentHp,
-      atk:        atk        ?? this.atk,
-      def:        def        ?? this.def,
-      spd:        spd        ?? this.spd,
+      monsterId:        monsterId        ?? this.monsterId,
+      templateId:       templateId       ?? this.templateId,
+      name:             name             ?? this.name,
+      element:          element          ?? this.element,
+      size:             size             ?? this.size,
+      rarity:           rarity           ?? this.rarity,
+      maxHp:            maxHp            ?? this.maxHp,
+      currentHp:        currentHp        ?? this.currentHp,
+      atk:              atk              ?? this.atk,
+      def:              def              ?? this.def,
+      spd:              spd              ?? this.spd,
+      skillId:          skillId          ?? this.skillId,
+      skillName:        skillName        ?? this.skillName,
+      skillCooldown:    skillCooldown    ?? this.skillCooldown,
+      skillMaxCooldown: skillMaxCooldown ?? this.skillMaxCooldown,
+      shieldHp:         shieldHp         ?? this.shieldHp,
+      burnTurns:        burnTurns        ?? this.burnTurns,
+      burnDamagePerTurn: burnDamagePerTurn ?? this.burnDamagePerTurn,
+      stunTurns:        stunTurns        ?? this.stunTurns,
     );
   }
 
   @override
   String toString() =>
       'BattleMonster($name, hp: $currentHp/$maxHp, '
-      'atk: $atk, def: $def, spd: $spd, element: $element)';
+      'atk: $atk, def: $def, spd: $spd, element: $element, '
+      'skill: $skillName, cd: $skillCooldown)';
 }
 
 // =============================================================================
@@ -144,6 +199,9 @@ class BattleLogEntry {
   /// (multiplier > 1.0).
   final bool isElementAdvantage;
 
+  /// Whether this log entry represents a skill activation (not a normal attack).
+  final bool isSkillActivation;
+
   /// Human-readable Korean battle log text, e.g.:
   /// `"슬라임이(가) 고블린에게 42 데미지! (치명타!)"`
   final String description;
@@ -157,6 +215,7 @@ class BattleLogEntry {
     required this.damage,
     required this.isCritical,
     required this.isElementAdvantage,
+    this.isSkillActivation = false,
     required this.description,
     required this.timestamp,
   });

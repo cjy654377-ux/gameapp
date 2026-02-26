@@ -15,6 +15,7 @@ class HpBar extends StatelessWidget {
     super.key,
     required this.currentHp,
     required this.maxHp,
+    this.shieldHp = 0.0,
     this.height = 14.0,
     this.showText = true,
     this.textStyle,
@@ -22,6 +23,9 @@ class HpBar extends StatelessWidget {
 
   final double currentHp;
   final double maxHp;
+
+  /// Current shield points (displayed as a blue overlay on the HP bar).
+  final double shieldHp;
 
   /// Height of the bar track in logical pixels.
   final double height;
@@ -103,6 +107,18 @@ class HpBar extends StatelessWidget {
               ),
             ),
           ),
+
+          // ── Shield overlay (blue, on top of HP bar) ─────────────────
+          if (shieldHp > 0)
+            FractionallySizedBox(
+              widthFactor: (shieldHp / maxHp).clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF42A5F5).withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(height / 2),
+                ),
+              ),
+            ),
 
           // ── Text overlay ──────────────────────────────────────────────
           if (showText)

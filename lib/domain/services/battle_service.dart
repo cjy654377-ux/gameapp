@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
+import 'package:gameapp/data/static/skill_database.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/entities/synergy.dart';
@@ -161,11 +162,10 @@ class BattleService {
     final bool isCrit = roll.isCrit;
     final bool isAdvantage = roll.elementMult > 1.0;
 
-    // --- Apply damage -----------------------------------------------------------
-    target.currentHp = math.max(0.0, target.currentHp - damage);
+    // --- Apply damage (shield absorbs first) ------------------------------------
+    _applyDamage(target, damage);
 
     // --- Build Korean description -----------------------------------------------
-    // Use subject marker 이(가): ends with consonant → '이(가)', else '가'.
     final String subjectMarker = _endsWithConsonant(attacker.name) ? '이' : '가';
     final int displayDamage = damage.round();
     final StringBuffer sb = StringBuffer();
@@ -183,6 +183,202 @@ class BattleService {
       description:       sb.toString(),
       timestamp:         DateTime.now(),
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Skill processing
+  // ---------------------------------------------------------------------------
+
+  /// Processes the skill for [caster] if it is ready. Returns a list of
+  /// [BattleLogEntry] describing all effects (may be empty if skill is not
+  /// ready or the monster has no skill).
+  ///
+  /// Mutates monsters in [playerTeam] and [enemyTeam] in place.
+  static List<BattleLogEntry> processSkill({
+    required BattleMonster caster,
+    required List<BattleMonster> playerTeam,
+    required List<BattleMonster> enemyTeam,
+    required bool isCasterPlayer,
+  }) {
+    if (!caster.isSkillReady) return const [];
+
+    final skill = SkillDatabase.findByTemplateId(caster.templateId);
+    if (skill == null) return const [];
+
+    final logs = <BattleLogEntry>[];
+    final allies = isCasterPlayer ? playerTeam : enemyTeam;
+    final enemies = isCasterPlayer ? enemyTeam : playerTeam;
+    final now = DateTime.now();
+    final sm = _endsWithConsonant(caster.name) ? '이' : '가';
+
+    // -- Damage component -------------------------------------------------------
+    if (skill.damageMultiplier > 0) {
+      final targets = skill.damageTarget == SkillTargetType.allEnemies
+          ? enemies.where((m) => m.isAlive).toList()
+          : [BattleService.selectTarget(enemies)].whereType<BattleMonster>().toList();
+
+      for (final target in targets) {
+        final double rawDmg = caster.atk * skill.damageMultiplier;
+        final double defReduction = target.def / (target.def + 100.0);
+        final double damage = math.max(1.0, rawDmg * (1.0 - defReduction));
+
+        _applyDamage(target, damage);
+
+        final sb = StringBuffer();
+        sb.write('[${skill.name}] ${caster.name}$sm(가) ${target.name}에게 '
+            '${damage.round()} 데미지!');
+
+        // Apply burn
+        if (skill.burnTurns > 0) {
+          target.burnTurns = skill.burnTurns;
+          target.burnDamagePerTurn = target.maxHp * skill.burnDamagePercent;
+          sb.write(' (화상 ${skill.burnTurns}턴!)');
+        }
+
+        // Apply stun
+        if (skill.stunChance > 0 && _random.nextDouble() < skill.stunChance) {
+          target.stunTurns = 1;
+          sb.write(' (기절!)');
+        }
+
+        logs.add(BattleLogEntry(
+          attackerName: caster.name,
+          targetName: target.name,
+          damage: damage,
+          isCritical: false,
+          isElementAdvantage: false,
+          isSkillActivation: true,
+          description: sb.toString(),
+          timestamp: now,
+        ));
+      }
+
+      // Drain — heal caster based on total damage dealt
+      if (skill.drainPercent > 0 && logs.isNotEmpty) {
+        final totalDamage = logs.fold<double>(0, (s, e) => s + e.damage);
+        final healAmount = totalDamage * skill.drainPercent;
+        caster.currentHp = math.min(caster.maxHp, caster.currentHp + healAmount);
+      }
+    }
+
+    // -- Shield component -------------------------------------------------------
+    if (skill.shieldPercent > 0) {
+      final shieldAmount = caster.maxHp * skill.shieldPercent;
+      final shieldTargets = skill.isTeamShield
+          ? allies.where((m) => m.isAlive).toList()
+          : [caster];
+
+      for (final target in shieldTargets) {
+        target.shieldHp += shieldAmount;
+      }
+
+      final targetDesc = skill.isTeamShield ? '아군 전체' : caster.name;
+      logs.add(BattleLogEntry(
+        attackerName: caster.name,
+        targetName: targetDesc,
+        damage: 0,
+        isCritical: false,
+        isElementAdvantage: false,
+        isSkillActivation: true,
+        description: '[${skill.name}] ${caster.name}$sm(가) $targetDesc에게 '
+            '보호막 ${shieldAmount.round()} 부여!',
+        timestamp: now,
+      ));
+    }
+
+    // -- Heal component ---------------------------------------------------------
+    if (skill.healPercent > 0) {
+      final healAmount = caster.maxHp * skill.healPercent;
+      final healTargets = skill.isTeamHeal
+          ? allies.where((m) => m.isAlive).toList()
+          : [caster];
+
+      for (final target in healTargets) {
+        target.currentHp = math.min(target.maxHp, target.currentHp + healAmount);
+      }
+
+      final targetDesc = skill.isTeamHeal ? '아군 전체' : caster.name;
+      logs.add(BattleLogEntry(
+        attackerName: caster.name,
+        targetName: targetDesc,
+        damage: 0,
+        isCritical: false,
+        isElementAdvantage: false,
+        isSkillActivation: true,
+        description: '[${skill.name}] ${caster.name}$sm(가) $targetDesc '
+            '체력 ${healAmount.round()} 회복!',
+        timestamp: now,
+      ));
+    }
+
+    // Reset cooldown after activation.
+    caster.skillCooldown = skill.cooldown;
+
+    return logs;
+  }
+
+  /// Applies burn damage at the start of a monster's turn.
+  /// Returns a [BattleLogEntry] if burn damage was applied, null otherwise.
+  static BattleLogEntry? processBurn(BattleMonster monster) {
+    if (monster.burnTurns <= 0 || !monster.isAlive) return null;
+
+    final damage = monster.burnDamagePerTurn;
+    monster.currentHp = math.max(0.0, monster.currentHp - damage);
+    monster.burnTurns--;
+
+    return BattleLogEntry(
+      attackerName: '화상',
+      targetName: monster.name,
+      damage: damage,
+      isCritical: false,
+      isElementAdvantage: false,
+      isSkillActivation: true,
+      description: '${monster.name} 화상 피해 ${damage.round()}! '
+          '(남은 ${monster.burnTurns}턴)',
+      timestamp: DateTime.now(),
+    );
+  }
+
+  /// Checks and consumes stun at the start of a monster's turn.
+  /// Returns a [BattleLogEntry] if the monster is stunned, null otherwise.
+  static BattleLogEntry? processStun(BattleMonster monster) {
+    if (monster.stunTurns <= 0 || !monster.isAlive) return null;
+
+    monster.stunTurns--;
+
+    return BattleLogEntry(
+      attackerName: '기절',
+      targetName: monster.name,
+      damage: 0,
+      isCritical: false,
+      isElementAdvantage: false,
+      isSkillActivation: true,
+      description: '${monster.name} 기절 상태! (행동 불가)',
+      timestamp: DateTime.now(),
+    );
+  }
+
+  /// Decrements the skill cooldown for a monster. Call once per turn.
+  static void tickSkillCooldown(BattleMonster monster) {
+    if (monster.skillCooldown > 0) {
+      monster.skillCooldown--;
+    }
+  }
+
+  /// Applies damage to a monster, with shield absorbing first.
+  static void _applyDamage(BattleMonster target, double damage) {
+    if (target.shieldHp > 0) {
+      if (target.shieldHp >= damage) {
+        target.shieldHp -= damage;
+        return;
+      } else {
+        final remaining = damage - target.shieldHp;
+        target.shieldHp = 0;
+        target.currentHp = math.max(0.0, target.currentHp - remaining);
+        return;
+      }
+    }
+    target.currentHp = math.max(0.0, target.currentHp - damage);
   }
 
   // ---------------------------------------------------------------------------
@@ -268,6 +464,7 @@ class BattleService {
       final double def = template.baseDef * levelMult;
       final double spd = template.baseSpd * levelMult;
 
+      final skill = SkillDatabase.findByTemplateId(templateId);
       enemies.add(BattleMonster(
         monsterId:  'enemy_${templateId}_$i',
         templateId: templateId,
@@ -280,6 +477,10 @@ class BattleService {
         atk:        atk,
         def:        def,
         spd:        spd,
+        skillId:          skill?.id,
+        skillName:        skill?.name,
+        skillCooldown:    skill?.cooldown ?? 0,
+        skillMaxCooldown: skill?.cooldown ?? 0,
       ));
     }
     return enemies;
@@ -318,6 +519,7 @@ class BattleService {
 
     final team = models.map((m) {
       final double hp = m.finalHp * hpMult;
+      final skill = SkillDatabase.findByTemplateId(m.templateId);
       return BattleMonster(
         monsterId:  m.id,
         templateId: m.templateId,
@@ -330,6 +532,10 @@ class BattleService {
         atk:        m.finalAtk * atkMult,
         def:        m.finalDef * defMult,
         spd:        m.finalSpd * spdMult,
+        skillId:          skill?.id,
+        skillName:        skill?.name,
+        skillCooldown:    skill?.cooldown ?? 0,
+        skillMaxCooldown: skill?.cooldown ?? 0,
       );
     }).toList();
 

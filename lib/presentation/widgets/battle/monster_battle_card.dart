@@ -117,6 +117,26 @@ class MonsterBattleCard extends StatelessWidget {
                     size: avatarSize * 0.45,
                   ),
                 ),
+              // Skill ready indicator (top-right)
+              if (!isDead && monster.isSkillReady)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD740),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.black54, width: 0.8),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      size: 9,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
             ],
           ),
 
@@ -141,19 +161,43 @@ class MonsterBattleCard extends StatelessWidget {
           // ── Element badge ──────────────────────────────────────────────
           _ElementBadge(element: _element, isDead: isDead),
 
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
+
+          // ── Status icons (burn / stun / shield) ────────────────────────
+          if (!isDead) _StatusIcons(monster: monster),
+
+          const SizedBox(height: 2),
 
           // ── Rarity stars ───────────────────────────────────────────────
           _RarityStars(rarity: _rarity, isDead: isDead),
 
           const SizedBox(height: 4),
 
-          // ── HP bar ─────────────────────────────────────────────────────
+          // ── HP bar (with shield) ────────────────────────────────────────
           HpBar(
             currentHp: monster.currentHp.clamp(0, monster.maxHp),
             maxHp: monster.maxHp,
+            shieldHp: monster.shieldHp,
             height: 12,
           ),
+
+          // ── Skill cooldown indicator ───────────────────────────────────
+          if (!isDead && monster.skillId != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                monster.skillCooldown > 0
+                    ? 'CD ${monster.skillCooldown}'
+                    : 'READY',
+                style: TextStyle(
+                  fontSize: 7,
+                  fontWeight: FontWeight.w700,
+                  color: monster.skillCooldown > 0
+                      ? AppColors.textTertiary
+                      : const Color(0xFFFFD740),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -235,6 +279,82 @@ class _RarityStars extends StatelessWidget {
               : rarity.color,
         );
       }),
+    );
+  }
+}
+
+// =============================================================================
+// _StatusIcons — burn / stun / shield indicators
+// =============================================================================
+
+class _StatusIcons extends StatelessWidget {
+  const _StatusIcons({required this.monster});
+
+  final BattleMonster monster;
+
+  @override
+  Widget build(BuildContext context) {
+    final icons = <Widget>[];
+
+    if (monster.burnTurns > 0) {
+      icons.add(_StatusChip(
+        icon: Icons.local_fire_department,
+        color: const Color(0xFFFF7043),
+        label: '${monster.burnTurns}',
+      ));
+    }
+
+    if (monster.stunTurns > 0) {
+      icons.add(_StatusChip(
+        icon: Icons.flash_on,
+        color: const Color(0xFFFFEE58),
+        label: '${monster.stunTurns}',
+      ));
+    }
+
+    if (monster.shieldHp > 0) {
+      icons.add(_StatusChip(
+        icon: Icons.shield,
+        color: const Color(0xFF42A5F5),
+        label: '${monster.shieldHp.round()}',
+      ));
+    }
+
+    if (icons.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: icons,
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 8, color: color),
+          Text(
+            label,
+            style: TextStyle(fontSize: 7, color: color, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }

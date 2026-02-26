@@ -215,23 +215,24 @@ class BattleNotifier extends StateNotifier<BattleState> {
   // Turn processing
   // ---------------------------------------------------------------------------
 
-  /// Processes exactly one attack for the current acting monster.
+  /// Processes exactly one action for the current acting monster.
   ///
-  /// The acting monster is determined by the speed-sorted turn order for this
-  /// round.  After the attack, win conditions are checked.  If both teams are
-  /// still alive the state advances to the next monster in the round (or wraps
-  /// to the next round).
+  /// Turn flow:
+  /// 1. Apply burn damage (DoT) at the start of the monster's turn.
+  /// 2. Check stun — if stunned, skip the action.
+  /// 3. Tick skill cooldown, then either activate skill or do a normal attack.
+  /// 4. Check win conditions.
   ///
   /// Call this method from a periodic timer (e.g. every [1 / battleSpeed]
   /// seconds in auto mode, or on a manual "Next" button press).
   void processTurn() {
     if (state.phase != BattlePhase.fighting) return;
 
-    // Deep-copy team lists so we can mutate currentHp without aliasing issues.
+    // Deep-copy team lists so we can mutate without aliasing issues.
     final playerTeam = _copyTeam(state.playerTeam);
     final enemyTeam  = _copyTeam(state.enemyTeam);
 
-    // Build (or rebuild) the full speed-sorted turn order for this round.
+    // Build the full speed-sorted turn order for this round.
     final allAlive = BattleService.getTurnOrder([...playerTeam, ...enemyTeam]);
     if (allAlive.isEmpty) return;
 
@@ -245,45 +246,78 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final bool isPlayerMonster =
         playerTeam.any((m) => m.monsterId == attacker.monsterId);
 
-    // Select a target from the opposing team.
-    final opposingTeam = isPlayerMonster ? enemyTeam : playerTeam;
-    final target = BattleService.selectTarget(opposingTeam);
-
-    // Append log entry.
     final log = List<BattleLogEntry>.from(state.battleLog);
 
-    if (target != null) {
-      // Find the actual mutable instance in our copied list.
-      final targetInList = opposingTeam.firstWhere(
-        (m) => m.monsterId == target.monsterId,
-      );
+    // -- 1. Burn damage (DoT) at turn start -----------------------------------
+    final burnEntry = BattleService.processBurn(attacker);
+    if (burnEntry != null) log.add(burnEntry);
 
-      final entry = BattleService.processSingleAttack(
-        attacker: attacker,
-        target:   targetInList,
-      );
-      log.add(entry);
+    // Check if burn killed the monster before it can act.
+    if (!attacker.isAlive) {
+      _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+      return;
     }
 
-    // Sync updated targets back into canonical team lists (BattleMonster
-    // mutation is in-place but we need the list reference to be new for
-    // StateNotifier equality checks).
-    final newPlayerTeam = isPlayerMonster
-        ? playerTeam
-        : _syncTeam(state.playerTeam, opposingTeam);
-    final newEnemyTeam = isPlayerMonster
-        ? _syncTeam(state.enemyTeam, opposingTeam)
-        : enemyTeam;
+    // -- 2. Stun check --------------------------------------------------------
+    final stunEntry = BattleService.processStun(attacker);
+    if (stunEntry != null) {
+      log.add(stunEntry);
+      // Tick cooldown even when stunned.
+      BattleService.tickSkillCooldown(attacker);
+      _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+      return;
+    }
 
+    // -- 3. Tick cooldown, then act -------------------------------------------
+    BattleService.tickSkillCooldown(attacker);
+
+    if (attacker.isSkillReady) {
+      // Skill activation.
+      final skillLogs = BattleService.processSkill(
+        caster: attacker,
+        playerTeam: playerTeam,
+        enemyTeam: enemyTeam,
+        isCasterPlayer: isPlayerMonster,
+      );
+      log.addAll(skillLogs);
+    } else {
+      // Normal attack.
+      final opposingTeam = isPlayerMonster ? enemyTeam : playerTeam;
+      final target = BattleService.selectTarget(opposingTeam);
+      if (target != null) {
+        final targetInList = opposingTeam.firstWhere(
+          (m) => m.monsterId == target.monsterId,
+        );
+        final entry = BattleService.processSingleAttack(
+          attacker: attacker,
+          target: targetInList,
+        );
+        log.add(entry);
+      }
+    }
+
+    // -- 4. Emit new state & check end conditions -----------------------------
+    _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+  }
+
+  /// Shared helper to emit a new state after a turn action, checking end
+  /// conditions and advancing the slot/round counter.
+  void _emitState(
+    List<BattleMonster> playerTeam,
+    List<BattleMonster> enemyTeam,
+    List<BattleLogEntry> log,
+    int slot,
+    int roundSize,
+  ) {
     // Check end conditions.
-    final endPhase = BattleService.checkBattleEnd(newPlayerTeam, newEnemyTeam);
+    final endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
 
     if (endPhase == BattlePhase.victory) {
       final reward = BattleService.calculateReward(state.currentStageId);
       state = state.copyWith(
         phase:      BattlePhase.victory,
-        playerTeam: newPlayerTeam,
-        enemyTeam:  newEnemyTeam,
+        playerTeam: playerTeam,
+        enemyTeam:  enemyTeam,
         battleLog:  log,
         lastReward: reward,
       );
@@ -293,8 +327,8 @@ class BattleNotifier extends StateNotifier<BattleState> {
     if (endPhase == BattlePhase.defeat) {
       state = state.copyWith(
         phase:      BattlePhase.defeat,
-        playerTeam: newPlayerTeam,
-        enemyTeam:  newEnemyTeam,
+        playerTeam: playerTeam,
+        enemyTeam:  enemyTeam,
         battleLog:  log,
       );
       return;
@@ -302,15 +336,15 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
     // Advance slot / round.
     final nextSlot = slot + 1;
-    final bool roundComplete = nextSlot >= allAlive.length;
-    final int  newTurn       = roundComplete
+    final bool roundComplete = nextSlot >= roundSize;
+    final int  newTurn = roundComplete
         ? state.currentTurn + 1
         : state.currentTurn;
-    final int  newSlot       = roundComplete ? 0 : nextSlot;
+    final int  newSlot = roundComplete ? 0 : nextSlot;
 
     state = state.copyWith(
-      playerTeam:      newPlayerTeam,
-      enemyTeam:       newEnemyTeam,
+      playerTeam:      playerTeam,
+      enemyTeam:       enemyTeam,
       battleLog:       log,
       currentTurn:     newTurn,
       turnWithinRound: newSlot,
@@ -444,19 +478,6 @@ class BattleNotifier extends StateNotifier<BattleState> {
     return team.map((m) => m.copyWith()).toList();
   }
 
-  /// Syncs the [currentHp] from the (mutated) [source] list back into a new
-  /// list derived from [original] so that [StateNotifier] detects the change.
-  List<BattleMonster> _syncTeam(
-    List<BattleMonster> original,
-    List<BattleMonster> source,
-  ) {
-    return original.map((orig) {
-      final updated =
-          source.where((s) => s.monsterId == orig.monsterId).firstOrNull;
-      if (updated == null) return orig;
-      return orig.copyWith(currentHp: updated.currentHp);
-    }).toList();
-  }
 }
 
 // =============================================================================

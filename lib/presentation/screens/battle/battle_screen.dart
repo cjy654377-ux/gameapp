@@ -456,12 +456,14 @@ class _LogEntryRow extends StatelessWidget {
   final BattleLogEntry entry;
 
   Color get _textColor {
+    if (entry.isSkillActivation) return const Color(0xFFCE93D8); // purple
     if (entry.isCritical) return AppColors.error;
     if (entry.isElementAdvantage) return AppColors.warning;
     return AppColors.textSecondary;
   }
 
   String get _prefix {
+    if (entry.isSkillActivation) return '';
     if (entry.isCritical) return '[치명타] ';
     if (entry.isElementAdvantage) return '[속성유리] ';
     return '';
@@ -495,7 +497,7 @@ class _LogEntryRow extends StatelessWidget {
               style: TextStyle(
                 color: _textColor,
                 fontSize: 11,
-                fontWeight: entry.isCritical
+                fontWeight: entry.isCritical || entry.isSkillActivation
                     ? FontWeight.w700
                     : FontWeight.w400,
               ),
