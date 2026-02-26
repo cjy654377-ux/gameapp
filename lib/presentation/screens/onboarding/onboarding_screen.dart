@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../data/static/monster_database.dart';
@@ -71,12 +72,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: _step == 0 ? _buildNicknameStep() : _buildStarterStep(),
+          child: _step == 0 ? _buildNicknameStep(l) : _buildStarterStep(l),
         ),
       ),
     );
@@ -86,14 +88,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // Step 1: Nickname
   // ---------------------------------------------------------------------------
 
-  Widget _buildNicknameStep() {
+  Widget _buildNicknameStep(AppLocalizations l) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.catching_pokemon, size: 80, color: AppColors.primary),
         const SizedBox(height: 24),
         Text(
-          '몬스터 컬렉터에 오신 걸 환영합니다!',
+          l.onboardingWelcome,
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -103,7 +105,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '모험가의 이름을 입력해주세요',
+          l.onboardingEnterName,
           style: TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
@@ -115,7 +117,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           maxLength: 12,
           style: TextStyle(color: AppColors.textPrimary),
           decoration: InputDecoration(
-            hintText: '닉네임 (2-12자)',
+            hintText: l.onboardingNameHint,
             hintStyle: TextStyle(color: AppColors.textTertiary),
             filled: true,
             fillColor: AppColors.surface,
@@ -149,9 +151,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
-              '다음',
-              style: TextStyle(
+            child: Text(
+              l.next,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -167,7 +169,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // Step 2: Starter monster
   // ---------------------------------------------------------------------------
 
-  Widget _buildStarterStep() {
+  Widget _buildStarterStep(AppLocalizations l) {
     final starters = MonsterDatabase.all
         .where((t) => _starterTemplateIds.contains(t.id))
         .toList();
@@ -176,7 +178,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '${_nicknameController.text.trim()}님,\n첫 번째 동료를 선택하세요!',
+          l.onboardingChooseMonster(_nicknameController.text.trim()),
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -259,9 +261,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
-              '모험 시작!',
-              style: TextStyle(
+            child: Text(
+              l.onboardingStart,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -273,7 +275,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         TextButton(
           onPressed: () => setState(() => _step = 0),
           child: Text(
-            '뒤로',
+            l.back,
             style: TextStyle(color: AppColors.textTertiary),
           ),
         ),

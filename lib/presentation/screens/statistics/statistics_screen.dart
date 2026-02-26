@@ -65,12 +65,12 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.person,
             color: AppColors.primary,
             children: [
-              _StatItem(label: '닉네임', value: player.nickname),
-              _StatItem(label: '레벨', value: 'Lv.${player.playerLevel}'),
-              _StatItem(label: '전생 횟수', value: '${player.prestigeLevel}회'),
-              _StatItem(label: '전생 보너스', value: '+${player.prestigeBonusPercent.toInt()}%'),
-              _StatItem(label: '가입일', value: _formatDate(player.createdAt)),
-              _StatItem(label: '플레이 일수', value: '${daysSinceCreation + 1}일'),
+              _StatItem(label: l.statNickname, value: player.nickname),
+              _StatItem(label: l.statLevel, value: 'Lv.${player.playerLevel}'),
+              _StatItem(label: l.statPrestigeCount, value: l.countUnit(player.prestigeLevel.toString())),
+              _StatItem(label: l.statPrestigeBonus, value: '+${player.prestigeBonusPercent.toInt()}%'),
+              _StatItem(label: l.statJoinDate, value: _formatDate(player.createdAt)),
+              _StatItem(label: l.statPlayDays, value: l.countUnit((daysSinceCreation + 1).toString())),
             ],
           ),
 
@@ -82,14 +82,14 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.sports_mma,
             color: Colors.red,
             children: [
-              _StatItem(label: '총 스테이지 전투', value: '${player.totalBattleCount}회'),
-              _StatItem(label: '팀 누적 전투', value: '${FormatUtils.formatNumber(totalBattleCount)}회'),
+              _StatItem(label: l.statTotalBattle, value: l.countUnit(player.totalBattleCount.toString())),
+              _StatItem(label: l.statTeamBattle, value: l.countUnit(FormatUtils.formatNumber(totalBattleCount))),
               _StatItem(
-                label: '스테이지 진행',
+                label: l.statStageProgress,
                 value: '$stageProgress / ${StageDatabase.count}',
               ),
-              _StatItem(label: '최고 클리어', value: player.maxClearedStageId.isEmpty ? '-' : player.maxClearedStageId),
-              _StatItem(label: '무한던전 최고층', value: player.maxDungeonFloor > 0 ? '${player.maxDungeonFloor}층' : '-'),
+              _StatItem(label: l.statBestClear, value: player.maxClearedStageId.isEmpty ? '-' : player.maxClearedStageId),
+              _StatItem(label: l.statDungeonBest, value: player.maxDungeonFloor > 0 ? l.countUnit(player.maxDungeonFloor.toString()) : '-'),
             ],
           ),
 
@@ -101,17 +101,17 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.catching_pokemon,
             color: Colors.orange,
             children: [
-              _StatItem(label: '보유 몬스터', value: '${monsters.length}마리'),
-              _StatItem(label: '도감 수집', value: '${stats.owned} / ${stats.total}종'),
+              _StatItem(label: l.statOwnedMonster, value: l.countUnit(monsters.length.toString())),
+              _StatItem(label: l.statCollection, value: '${stats.owned} / ${stats.total}'),
               _StatItem(
-                label: '최고 레벨',
+                label: l.statBestLevel,
                 value: maxLevelMonster != null
                     ? '${maxLevelMonster.name} Lv.${maxLevelMonster.level}'
                     : '-',
               ),
-              _StatItem(label: '팀 편성', value: '${teamMonsters.length} / 4'),
+              _StatItem(label: l.statTeamComp, value: '${teamMonsters.length} / 4'),
               _StatItem(
-                label: '평균 레벨',
+                label: l.statAvgLevel,
                 value: monsters.isEmpty
                     ? '-'
                     : 'Lv.${(monsters.fold<int>(0, (s, m) => s + m.level) / monsters.length).round()}',
@@ -127,15 +127,16 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.auto_awesome,
             color: Colors.purple,
             children: [
-              _StatItem(label: '총 소환 횟수', value: '${player.totalGachaPullCount}회'),
+              _StatItem(label: l.statTotalGacha, value: l.countUnit(player.totalGachaPullCount.toString())),
               Builder(builder: (context) {
                 final pity = ref.watch(gachaProvider.select((s) => s.pityCount));
+                final lInner = AppLocalizations.of(context)!;
                 return Column(
                   children: [
-                    _StatItem(label: '현재 천장', value: '$pity / 80'),
+                    _StatItem(label: lInner.statCurrentPity, value: '$pity / 80'),
                     _StatItem(
-                      label: '5성 보장',
-                      value: pity >= 70 ? '보장 임박!' : '${80 - pity}회 남음',
+                      label: lInner.statFiveStarGuarantee,
+                      value: pity >= 70 ? lInner.statGuaranteeImminent : lInner.statGuaranteeRemain(80 - pity),
                     ),
                   ],
                 );
@@ -151,11 +152,11 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.account_balance_wallet,
             color: AppColors.gold,
             children: [
-              _StatItem(label: '골드', value: FormatUtils.formatNumber(currency.gold)),
-              _StatItem(label: '다이아', value: FormatUtils.formatNumber(currency.diamond)),
-              _StatItem(label: '소환권', value: '${currency.gachaTicket}장'),
-              _StatItem(label: '경험치 물약', value: '${currency.expPotion}개'),
-              _StatItem(label: '몬스터 파편', value: '${currency.monsterShard}개'),
+              _StatItem(label: l.gold, value: FormatUtils.formatNumber(currency.gold)),
+              _StatItem(label: l.diamond, value: FormatUtils.formatNumber(currency.diamond)),
+              _StatItem(label: l.gachaTicket, value: l.countUnit(currency.gachaTicket.toString())),
+              _StatItem(label: l.expPotion, value: l.countUnit(currency.expPotion.toString())),
+              _StatItem(label: l.monsterShard, value: l.countUnit(currency.monsterShard.toString())),
             ],
           ),
 
@@ -167,15 +168,15 @@ class StatisticsScreen extends ConsumerWidget {
             icon: Icons.shield,
             color: Colors.teal,
             children: [
-              _StatItem(label: '보유 유물', value: '${relics.length}개'),
+              _StatItem(label: l.statOwnedRelic, value: l.countUnit(relics.length.toString())),
               _StatItem(
-                label: '장착 유물',
-                value: '${relics.where((r) => r.equippedMonsterId != null).length}개',
+                label: l.statEquippedRelic,
+                value: l.countUnit(relics.where((r) => r.equippedMonsterId != null).length.toString()),
               ),
-              _StatItem(label: '완료 퀘스트', value: '${completedQuests}개'),
+              _StatItem(label: l.statCompletedQuest, value: l.countUnit(completedQuests.toString())),
               _StatItem(
-                label: '수령 가능',
-                value: '${questState.claimableCount}개',
+                label: l.statClaimable,
+                value: l.countUnit(questState.claimableCount.toString()),
               ),
             ],
           ),

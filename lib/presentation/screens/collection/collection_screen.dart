@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../core/enums/monster_rarity.dart';
@@ -15,6 +17,7 @@ class CollectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final entries = ref.watch(collectionEntriesProvider);
     final stats = ref.watch(collectionStatsProvider);
     final filter = ref.watch(collectionFilterProvider);
@@ -27,7 +30,7 @@ class CollectionScreen extends ConsumerWidget {
           onPressed: () => context.push(AppRoutes.teamEdit),
           backgroundColor: AppColors.primary,
           icon: const Icon(Icons.groups, color: Colors.white),
-          label: const Text('팀 편성', style: TextStyle(color: Colors.white)),
+          label: Text(l.teamEdit, style: const TextStyle(color: Colors.white)),
         ),
         body: SafeArea(
           child: Column(
@@ -50,13 +53,14 @@ class CollectionScreen extends ConsumerWidget {
 
   Widget _buildHeader(
       BuildContext context, ({int total, int owned}) stats) {
+    final l = AppLocalizations.of(context)!;
     final progress = stats.total > 0 ? stats.owned / stats.total : 0.0;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
           Text(
-            '몬스터 도감',
+            l.monsterCollection,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -135,10 +139,11 @@ class CollectionScreen extends ConsumerWidget {
                   ? () async {
                       await claimCollectionMilestone(ref, m.milestone.index);
                       if (context.mounted) {
+                        final l = AppLocalizations.of(context)!;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                '${m.milestone.label} 보상 수령! 골드 +${m.milestone.gold}, 다이아 +${m.milestone.diamond}'),
+                                l.milestoneReward(m.milestone.label, m.milestone.gold, m.milestone.diamond)),
                             backgroundColor: Colors.green,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -155,6 +160,7 @@ class CollectionScreen extends ConsumerWidget {
 
   Widget _buildFilterBar(
       BuildContext context, WidgetRef ref, CollectionFilter filter) {
+    final l = AppLocalizations.of(context)!;
     return SizedBox(
       height: 44,
       child: ListView(
@@ -165,7 +171,7 @@ class CollectionScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: FilterChip(
-              label: const Text('보유만'),
+              label: Text(l.ownedOnly),
               selected: filter.showOnlyOwned,
               onSelected: (_) {
                 ref.read(collectionFilterProvider.notifier).toggleShowOnlyOwned();
@@ -223,8 +229,8 @@ class CollectionScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ActionChip(
                 label: Text(
-                  '초기화',
-                  style: TextStyle(fontSize: 12, color: AppColors.error),
+                  l.reset,
+                  style: const TextStyle(fontSize: 12, color: AppColors.error),
                 ),
                 onPressed: () {
                   ref.read(collectionFilterProvider.notifier).clearAll();
@@ -237,10 +243,11 @@ class CollectionScreen extends ConsumerWidget {
   }
 
   Widget _buildEmpty(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Center(
       child: Text(
-        '조건에 맞는 몬스터가 없습니다',
-        style: TextStyle(color: AppColors.textTertiary),
+        l.noMatchingMonster,
+        style: const TextStyle(color: AppColors.textTertiary),
       ),
     );
   }
@@ -392,6 +399,7 @@ class _MonsterDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final t = entry.template;
     final rarity = MonsterRarity.fromRarity(t.rarity);
     final element =
@@ -449,8 +457,8 @@ class _MonsterDetailSheet extends StatelessWidget {
                     ),
                     if (entry.isOwned)
                       Text(
-                        '보유: ${entry.count}마리',
-                        style: TextStyle(
+                        l.ownedCount(entry.count),
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textTertiary,
                         ),
@@ -478,7 +486,7 @@ class _MonsterDetailSheet extends StatelessWidget {
           // Stats
           if (best != null) ...[
             Text(
-              '최고 개체 (Lv.${best.level})',
+              l.bestUnit(best.level),
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -492,8 +500,8 @@ class _MonsterDetailSheet extends StatelessWidget {
           ] else ...[
             Center(
               child: Text(
-                '미획득 몬스터',
-                style: TextStyle(
+                l.unownedMonster,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textTertiary,
                 ),

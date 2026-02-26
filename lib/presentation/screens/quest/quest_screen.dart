@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/data/models/quest_model.dart';
 import 'package:gameapp/data/static/quest_database.dart';
@@ -44,6 +45,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -56,10 +58,10 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
               indicatorColor: AppColors.primary,
               labelColor: AppColors.textPrimary,
               unselectedLabelColor: AppColors.textTertiary,
-              tabs: const [
-                Tab(text: '일일'),
-                Tab(text: '주간'),
-                Tab(text: '업적'),
+              tabs: [
+                Tab(text: l.questDaily),
+                Tab(text: l.questWeekly),
+                Tab(text: l.questAchievement),
               ],
             ),
           ),
@@ -90,6 +92,7 @@ class _QuestList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final questState = ref.watch(questProvider);
 
     if (!questState.isLoaded) {
@@ -105,10 +108,10 @@ class _QuestList extends ConsumerWidget {
     };
 
     if (quests.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          '퀘스트가 없습니다',
-          style: TextStyle(color: AppColors.textTertiary, fontSize: 14),
+          l.questNoQuests,
+          style: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
         ),
       );
     }
@@ -134,6 +137,7 @@ class _QuestCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final def = QuestDatabase.findById(quest.questId);
     if (def == null) return const SizedBox.shrink();
 
@@ -193,9 +197,9 @@ class _QuestCard extends ConsumerWidget {
                       color: AppColors.warning,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '수령',
-                      style: TextStyle(
+                    child: Text(
+                      l.questClaim,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

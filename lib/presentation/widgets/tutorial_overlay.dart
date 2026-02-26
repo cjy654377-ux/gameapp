@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../providers/player_provider.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 
 // =============================================================================
 // Tutorial step definitions
@@ -44,34 +45,34 @@ class _StepData {
   });
 }
 
-const Map<int, _StepData> _stepDataMap = {
+Map<int, _StepData> _buildStepDataMap(AppLocalizations l) => {
   TutorialSteps.battleIntro: _StepData(
-    title: '첫 전투를 시작하세요!',
-    message: '아래 "전투 시작" 버튼을 눌러\n첫 번째 전투를 시작해보세요.\n자동전투와 배속 기능도 있어요!',
+    title: l.tutorialStep1Title,
+    message: l.tutorialStep1Msg,
     icon: Icons.sports_mma,
     color: Colors.red,
   ),
   TutorialSteps.afterFirstVictory: _StepData(
-    title: '승리를 축하합니다!',
-    message: '보상을 받은 후\n하단의 "소환" 탭에서\n새로운 몬스터를 소환해보세요!',
+    title: l.tutorialStep2Title,
+    message: l.tutorialStep2Msg,
     icon: Icons.auto_awesome,
     color: Colors.amber,
   ),
   TutorialSteps.gachaIntro: _StepData(
-    title: '몬스터를 소환하세요!',
-    message: '다이아몬드나 소환권으로\n몬스터를 소환할 수 있어요.\n높은 등급 몬스터를 노려보세요!',
+    title: l.tutorialStep3Title,
+    message: l.tutorialStep3Msg,
     icon: Icons.catching_pokemon,
     color: Colors.purple,
   ),
   TutorialSteps.upgradeIntro: _StepData(
-    title: '몬스터를 강화하세요!',
-    message: '"강화" 탭에서 몬스터를 선택하고\n골드로 레벨업하거나\n진화시킬 수 있어요!',
+    title: l.tutorialStep4Title,
+    message: l.tutorialStep4Msg,
     icon: Icons.upgrade,
     color: Colors.green,
   ),
   TutorialSteps.teamIntro: _StepData(
-    title: '팀을 편성하세요!',
-    message: '"도감" 탭에서 팀 편성 버튼을 눌러\n최대 4마리 몬스터로\n최강 팀을 구성해보세요!',
+    title: l.tutorialStep5Title,
+    message: l.tutorialStep5Msg,
     icon: Icons.groups,
     color: Colors.blue,
   ),
@@ -104,6 +105,7 @@ class TutorialOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final playerState = ref.watch(playerProvider);
     final player = playerState.player;
 
@@ -112,7 +114,7 @@ class TutorialOverlay extends ConsumerWidget {
       return child;
     }
 
-    final stepData = _stepDataMap[forStep];
+    final stepData = _buildStepDataMap(l)[forStep];
     if (stepData == null) return child;
 
     return Stack(
@@ -198,9 +200,9 @@ class TutorialOverlay extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          '확인',
-                          style: TextStyle(
+                        child: Text(
+                          l.confirm,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

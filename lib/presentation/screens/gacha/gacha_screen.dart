@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/constants/game_config.dart';
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
@@ -67,6 +68,7 @@ class _GachaBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       height: 180,
@@ -120,7 +122,7 @@ class _GachaBanner extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '몬스터 소환',
+                      l.gachaTitle,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -137,7 +139,7 @@ class _GachaBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '강력한 몬스터를 소환하여 팀을 강화하세요!',
+                  l.gachaDesc,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha:0.7),
                     fontSize: 13,
@@ -156,9 +158,9 @@ class _GachaBanner extends StatelessWidget {
                       color: AppColors.rarityLegendary.withValues(alpha:0.4),
                     ),
                   ),
-                  child: const Text(
-                    '★ 전설 등급 확률 UP ★',
-                    style: TextStyle(
+                  child: Text(
+                    l.gachaLegendaryUp,
+                    style: const TextStyle(
                       color: AppColors.rarityLegendary,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -183,6 +185,7 @@ class _PityBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final pityCount = ref.watch(gachaProvider.select((s) => s.pityCount));
     final remaining = GameConfig.pityThreshold - pityCount;
     final progress = pityCount / GameConfig.pityThreshold;
@@ -210,9 +213,9 @@ class _PityBar extends ConsumerWidget {
                     size: 18,
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    '전설 확정까지',
-                    style: TextStyle(
+                  Text(
+                    l.gachaUntilLegend,
+                    style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -250,7 +253,7 @@ class _PityBar extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            remaining > 0 ? '남은 횟수: $remaining회' : '다음 소환 시 전설 확정!',
+            remaining > 0 ? l.gachaRemainingCount(remaining) : l.gachaNextGuaranteed,
             style: TextStyle(
               color: remaining <= 0
                   ? AppColors.rarityLegendary
@@ -273,6 +276,7 @@ class _RateTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final probs = MonsterDatabase.gachaProbabilities;
 
     return Container(
@@ -285,13 +289,13 @@ class _RateTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.info_outline, color: AppColors.textSecondary, size: 16),
-              SizedBox(width: 6),
+              const Icon(Icons.info_outline, color: AppColors.textSecondary, size: 16),
+              const SizedBox(width: 6),
               Text(
-                '소환 확률',
-                style: TextStyle(
+                l.gachaRates,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -364,6 +368,7 @@ class _PullButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final currency = ref.watch(currencyProvider);
     final isAnimating = ref.watch(gachaProvider.select((s) => s.isAnimating));
 
@@ -375,7 +380,7 @@ class _PullButtons extends ConsumerWidget {
       children: [
         // 10x Pull button (featured)
         _PullButton(
-          label: '10연 소환',
+          label: l.gachaTenPull,
           sublabel: '${GameConfig.tenPullCostDiamond}',
           icon: Icons.diamond_rounded,
           iconColor: AppColors.diamond,
@@ -383,12 +388,12 @@ class _PullButtons extends ConsumerWidget {
               ? const [Color(0xFF6B3FA0), Color(0xFF3B1F7E)]
               : const [Color(0xFF2A2A40), Color(0xFF1F1F35)],
           enabled: canTen && !isAnimating,
-          badge: '3★ 이상 1회 보장',
+          badge: l.gachaThreeStarGuarantee,
           onTap: () async {
             final notifier = ref.read(gachaProvider.notifier);
             final success = await notifier.pullTenWithDiamond();
             if (!success && context.mounted) {
-              _showInsufficientDialog(context, '다이아가 부족합니다');
+              _showInsufficientDialog(context, l.gachaDiamondShort);
             }
           },
         ),
@@ -399,7 +404,7 @@ class _PullButtons extends ConsumerWidget {
             // Single with diamond
             Expanded(
               child: _PullButton(
-                label: '1회 소환',
+                label: l.gachaSinglePull,
                 sublabel: '${GameConfig.singlePullCostDiamond}',
                 icon: Icons.diamond_rounded,
                 iconColor: AppColors.diamond,
@@ -412,7 +417,7 @@ class _PullButtons extends ConsumerWidget {
                   final notifier = ref.read(gachaProvider.notifier);
                   final success = await notifier.pullSingleWithDiamond();
                   if (!success && context.mounted) {
-                    _showInsufficientDialog(context, '다이아가 부족합니다');
+                    _showInsufficientDialog(context, l.gachaDiamondShort);
                   }
                 },
               ),
@@ -421,8 +426,8 @@ class _PullButtons extends ConsumerWidget {
             // Single with ticket
             Expanded(
               child: _PullButton(
-                label: '소환권 사용',
-                sublabel: '${currency.gachaTicket}장',
+                label: l.gachaUseTicket,
+                sublabel: l.gachaTicketCount(currency.gachaTicket),
                 icon: Icons.confirmation_number_rounded,
                 iconColor: AppColors.primaryLight,
                 gradient: canSingleTicket && !isAnimating
@@ -434,7 +439,7 @@ class _PullButtons extends ConsumerWidget {
                   final notifier = ref.read(gachaProvider.notifier);
                   final success = await notifier.pullSingleWithTicket();
                   if (!success && context.mounted) {
-                    _showInsufficientDialog(context, '소환권이 부족합니다');
+                    _showInsufficientDialog(context, l.gachaTicketShort);
                   }
                 },
               ),
@@ -625,6 +630,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final results = ref.watch(gachaProvider.select((s) => s.lastResults));
     final revealIndex = ref.watch(gachaProvider.select((s) => s.revealIndex));
 
@@ -638,7 +644,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
               const SizedBox(height: 20),
               // Title
               Text(
-                results.length == 1 ? '소환 결과' : '10연 소환 결과',
+                results.length == 1 ? l.gachaResultSingle : l.gachaResultTen,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
@@ -689,7 +695,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
                     if (revealIndex < results.length - 1)
                       Expanded(
                         child: _OverlayButton(
-                          label: '전체 공개',
+                          label: l.gachaRevealAll,
                           onTap: () =>
                               ref.read(gachaProvider.notifier).revealAll(),
                         ),
@@ -698,7 +704,7 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
                       const SizedBox(width: 10),
                     Expanded(
                       child: _OverlayButton(
-                        label: '확인',
+                        label: l.confirm,
                         primary: true,
                         onTap: () =>
                             ref.read(gachaProvider.notifier).dismissResults(),
@@ -727,6 +733,7 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final template = result.template;
     final rarityEnum = MonsterRarity.fromRarity(template.rarity);
 
@@ -804,9 +811,9 @@ class _ResultCard extends StatelessWidget {
                     ),
                   ),
                   if (result.wasPity)
-                    const Text(
-                      '확정!',
-                      style: TextStyle(
+                    Text(
+                      l.gachaGuaranteed,
+                      style: const TextStyle(
                         color: AppColors.rarityLegendary,
                         fontSize: 8,
                         fontWeight: FontWeight.w800,

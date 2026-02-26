@@ -9,6 +9,7 @@ import '../../../domain/services/audio_service.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
 import '../../providers/locale_provider.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
 
@@ -19,6 +20,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playerState = ref.watch(playerProvider);
     final player = playerState.player;
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -27,7 +29,7 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             // Header
             Text(
-              '설정',
+              l.settingsTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -36,55 +38,55 @@ class SettingsScreen extends ConsumerWidget {
 
             // Player info
             if (player != null) ...[
-              _SectionHeader(title: '플레이어 정보'),
-              _InfoTile(label: '닉네임', value: player.nickname),
-              _InfoTile(label: '레벨', value: 'Lv.${player.playerLevel}'),
-              _InfoTile(label: '현재 스테이지', value: player.currentStageId),
+              _SectionHeader(title: l.settingsPlayerInfo),
+              _InfoTile(label: l.settingsNickname, value: player.nickname),
+              _InfoTile(label: l.settingsLevel, value: 'Lv.${player.playerLevel}'),
+              _InfoTile(label: l.settingsCurrentStage, value: player.currentStageId),
               _InfoTile(
-                label: '전투 횟수',
-                value: '${player.totalBattleCount}회',
+                label: l.settingsBattleCount,
+                value: '${player.totalBattleCount}',
               ),
               _InfoTile(
-                label: '소환 횟수',
-                value: '${player.totalGachaPullCount}회',
+                label: l.settingsGachaCount,
+                value: '${player.totalGachaPullCount}',
               ),
               _InfoTile(
-                label: '전생 레벨',
-                value: '${player.prestigeLevel}회 (+${player.prestigeBonusPercent.toInt()}%)',
+                label: l.settingsPrestigeLevel,
+                value: '${player.prestigeLevel} (+${player.prestigeBonusPercent.toInt()}%)',
               ),
               const SizedBox(height: 24),
             ],
 
             // Language toggle
-            _SectionHeader(title: '언어 / Language'),
+            _SectionHeader(title: l.settingsLanguage),
             _LanguageToggleTile(),
             const SizedBox(height: 24),
 
             // Sound / Haptic toggle
-            _SectionHeader(title: '효과'),
+            _SectionHeader(title: l.settingsEffects),
             _SoundToggleTile(),
             const SizedBox(height: 24),
 
             // Game info
-            _SectionHeader(title: '게임 정보'),
-            _InfoTile(label: '버전', value: '1.0.0'),
+            _SectionHeader(title: l.settingsGameInfo),
+            _InfoTile(label: l.settingsVersion, value: '1.0.0'),
             _InfoTile(
-              label: '보유 몬스터',
-              value: '${ref.watch(monsterListProvider.select((l) => l.length))}마리',
+              label: l.settingsOwnedMonster,
+              value: '${ref.watch(monsterListProvider.select((list) => list.length))}',
             ),
             const SizedBox(height: 24),
 
             // Relic
-            _SectionHeader(title: '유물/장비'),
+            _SectionHeader(title: l.settingsRelicEquip),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => context.push(AppRoutes.relic),
                 icon: const Icon(Icons.inventory, size: 22),
-                label: const Text(
-                  '유물 관리',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                label: Text(
+                  l.settingsRelicManage,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber[800],
@@ -99,16 +101,16 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Prestige
-            _SectionHeader(title: '전생 (프레스티지)'),
+            _SectionHeader(title: l.settingsPrestige),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => context.push(AppRoutes.prestige),
                 icon: const Icon(Icons.autorenew, size: 22),
-                label: const Text(
-                  '전생 화면으로',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                label: Text(
+                  l.settingsPrestigeGo,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
@@ -123,7 +125,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Backup / Restore
-            _SectionHeader(title: '백업 / 복원'),
+            _SectionHeader(title: l.settingsBackupRestore),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -131,7 +133,7 @@ class SettingsScreen extends ConsumerWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => _exportData(context),
                     icon: const Icon(Icons.upload, size: 20),
-                    label: const Text('백업 (복사)'),
+                    label: Text(l.settingsBackupCopy),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
                       foregroundColor: Colors.white,
@@ -147,7 +149,7 @@ class SettingsScreen extends ConsumerWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => _importData(context, ref),
                     icon: const Icon(Icons.download, size: 20),
-                    label: const Text('복원 (붙여넣기)'),
+                    label: Text(l.settingsRestorePaste),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigo,
                       foregroundColor: Colors.white,
@@ -163,7 +165,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Actions
-            _SectionHeader(title: '데이터'),
+            _SectionHeader(title: l.settingsData),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
@@ -171,7 +173,7 @@ class SettingsScreen extends ConsumerWidget {
                 onPressed: () => _confirmReset(context, ref),
                 icon: Icon(Icons.delete_forever, color: AppColors.error),
                 label: Text(
-                  '게임 초기화',
+                  l.settingsGameReset,
                   style: TextStyle(color: AppColors.error),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -193,9 +195,10 @@ class SettingsScreen extends ConsumerWidget {
     final json = LocalStorage.instance.exportToJson();
     Clipboard.setData(ClipboardData(text: json));
     if (context.mounted) {
+      final l = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('게임 데이터가 클립보드에 복사되었습니다'),
+        SnackBar(
+          content: Text(l.settingsBackupDone),
           backgroundColor: Colors.teal,
           behavior: SnackBarBehavior.floating,
         ),
@@ -204,22 +207,23 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _importData(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(
-          '데이터 복원',
+          l.settingsRestoreTitle,
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
-          '클립보드의 백업 데이터로 복원합니다.\n현재 데이터는 모두 덮어씌워집니다.\n계속하시겠습니까?',
+          l.settingsRestoreDesc,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('취소', style: TextStyle(color: AppColors.textTertiary)),
+            child: Text(l.cancel, style: TextStyle(color: AppColors.textTertiary)),
           ),
           TextButton(
             onPressed: () async {
@@ -227,9 +231,10 @@ class SettingsScreen extends ConsumerWidget {
               final data = await Clipboard.getData(Clipboard.kTextPlain);
               if (data?.text == null || data!.text!.isEmpty) {
                 if (context.mounted) {
+                  final lInner = AppLocalizations.of(context)!;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('클립보드에 데이터가 없습니다'),
+                    SnackBar(
+                      content: Text(lInner.settingsNoClipboard),
                       backgroundColor: Colors.red,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -240,21 +245,22 @@ class SettingsScreen extends ConsumerWidget {
               final success =
                   await LocalStorage.instance.importFromJson(data.text!);
               if (context.mounted) {
+                final lInner = AppLocalizations.of(context)!;
                 if (success) {
                   ref.invalidate(playerProvider);
                   ref.invalidate(currencyProvider);
                   ref.invalidate(monsterListProvider);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('데이터 복원 완료!'),
+                    SnackBar(
+                      content: Text(lInner.settingsRestoreDone),
                       backgroundColor: Colors.green,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('복원 실패: 올바른 백업 데이터가 아닙니다'),
+                    SnackBar(
+                      content: Text(lInner.settingsRestoreFail),
                       backgroundColor: Colors.red,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -262,7 +268,7 @@ class SettingsScreen extends ConsumerWidget {
                 }
               }
             },
-            child: const Text('복원', style: TextStyle(color: Colors.indigo)),
+            child: Text(l.restore, style: const TextStyle(color: Colors.indigo)),
           ),
         ],
       ),
@@ -270,22 +276,23 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _confirmReset(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(
-          '게임 초기화',
+          l.settingsResetTitle,
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
-          '모든 데이터가 삭제됩니다.\n정말로 초기화하시겠습니까?',
+          l.settingsResetDesc,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('취소', style: TextStyle(color: AppColors.textTertiary)),
+            child: Text(l.cancel, style: TextStyle(color: AppColors.textTertiary)),
           ),
           TextButton(
             onPressed: () async {
@@ -299,7 +306,7 @@ class SettingsScreen extends ConsumerWidget {
                 context.go(AppRoutes.onboarding);
               }
             },
-            child: Text('초기화', style: TextStyle(color: AppColors.error)),
+            child: Text(l.settingsResetConfirm, style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -337,6 +344,7 @@ class _SoundToggleTileState extends State<_SoundToggleTile> {
   @override
   Widget build(BuildContext context) {
     final enabled = AudioService.instance.isEnabled;
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: AppColors.surface,
@@ -349,7 +357,7 @@ class _SoundToggleTileState extends State<_SoundToggleTile> {
           ),
           const SizedBox(width: 12),
           Text(
-            '진동 효과',
+            l.settingsSound,
             style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const Spacer(),

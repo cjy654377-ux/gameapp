@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
+
 import '../../data/datasources/local_storage.dart';
 import '../../domain/services/notification_service.dart';
 import '../../routing/app_router.dart';
@@ -20,13 +22,11 @@ import '../providers/relic_provider.dart';
 class _TabItem {
   const _TabItem({
     required this.route,
-    required this.label,
     required this.icon,
     required this.activeIcon,
   });
 
   final String route;
-  final String label;
   final IconData icon;
   final IconData activeIcon;
 }
@@ -34,37 +34,31 @@ class _TabItem {
 const List<_TabItem> _tabs = [
   _TabItem(
     route: AppRoutes.battle,
-    label: '전투',
     icon: Icons.shield_outlined,
     activeIcon: Icons.shield,
   ),
   _TabItem(
     route: AppRoutes.gacha,
-    label: '소환',
     icon: Icons.card_giftcard_outlined,
     activeIcon: Icons.card_giftcard,
   ),
   _TabItem(
     route: AppRoutes.collection,
-    label: '도감',
     icon: Icons.collections_bookmark_outlined,
     activeIcon: Icons.collections_bookmark,
   ),
   _TabItem(
     route: AppRoutes.upgrade,
-    label: '강화',
     icon: Icons.upgrade_outlined,
     activeIcon: Icons.upgrade,
   ),
   _TabItem(
     route: AppRoutes.quest,
-    label: '퀘스트',
     icon: Icons.assignment_outlined,
     activeIcon: Icons.assignment,
   ),
   _TabItem(
     route: AppRoutes.settings,
-    label: '설정',
     icon: Icons.settings_outlined,
     activeIcon: Icons.settings,
   ),
@@ -217,7 +211,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final currentIndex = _resolveIndex(context);
+    final tabLabels = [
+      l.tabBattle,
+      l.tabGacha,
+      l.tabCollection,
+      l.tabUpgrade,
+      l.tabQuest,
+      l.tabSettings,
+    ];
 
     return Scaffold(
       body: widget.child,
@@ -232,7 +235,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           for (int i = 0; i < _tabs.length; i++)
             BottomNavigationBarItem(
               icon: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
-              label: _tabs[i].label,
+              label: tabLabels[i],
             ),
         ],
       ),

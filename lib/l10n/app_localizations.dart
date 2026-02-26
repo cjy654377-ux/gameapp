@@ -188,11 +188,203 @@ abstract class AppLocalizations {
   /// **'후퇴'**
   String get battleRetreat;
 
+  /// No description provided for @battleStageId.
+  ///
+  /// In ko, this message translates to:
+  /// **'스테이지 {id}'**
+  String battleStageId(String id);
+
+  /// No description provided for @battleStandby.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 대기중'**
+  String get battleStandby;
+
+  /// No description provided for @ourTeam.
+  ///
+  /// In ko, this message translates to:
+  /// **'우리 팀'**
+  String get ourTeam;
+
+  /// No description provided for @enemyTeam.
+  ///
+  /// In ko, this message translates to:
+  /// **'적 팀'**
+  String get enemyTeam;
+
+  /// No description provided for @turnN.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 {n}'**
+  String turnN(int n);
+
+  /// No description provided for @battleLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 로그'**
+  String get battleLog;
+
+  /// No description provided for @battleLogCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String battleLogCount(int count);
+
+  /// No description provided for @noBattleLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 기록이 없습니다'**
+  String get noBattleLog;
+
+  /// No description provided for @criticalHit.
+  ///
+  /// In ko, this message translates to:
+  /// **'[치명타] '**
+  String get criticalHit;
+
+  /// No description provided for @elementAdvantage.
+  ///
+  /// In ko, this message translates to:
+  /// **'[속성유리] '**
+  String get elementAdvantage;
+
+  /// No description provided for @autoOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동전투 ON'**
+  String get autoOn;
+
+  /// No description provided for @autoOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동전투 OFF'**
+  String get autoOff;
+
+  /// No description provided for @autoShortOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 ON'**
+  String get autoShortOn;
+
+  /// No description provided for @autoShortOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 OFF'**
+  String get autoShortOff;
+
+  /// No description provided for @preparing.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비중'**
+  String get preparing;
+
+  /// No description provided for @fighting.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투중'**
+  String get fighting;
+
+  /// No description provided for @reward.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 받기'**
+  String get reward;
+
+  /// No description provided for @retry.
+  ///
+  /// In ko, this message translates to:
+  /// **'재도전'**
+  String get retry;
+
+  /// No description provided for @preparingBattle.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비 중...'**
+  String get preparingBattle;
+
+  /// No description provided for @collectingReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상을 집계 중입니다...'**
+  String get collectingReward;
+
+  /// No description provided for @showStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 통계 보기'**
+  String get showStats;
+
+  /// No description provided for @hideStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계 접기'**
+  String get hideStats;
+
+  /// No description provided for @earnedReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'획득 보상'**
+  String get earnedReward;
+
+  /// No description provided for @totalDamage.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 데미지'**
+  String get totalDamage;
+
+  /// No description provided for @critCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'치명타'**
+  String get critCount;
+
+  /// No description provided for @skillCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬'**
+  String get skillCount;
+
+  /// No description provided for @standby.
+  ///
+  /// In ko, this message translates to:
+  /// **'대기'**
+  String get standby;
+
   /// No description provided for @stageSelect.
   ///
   /// In ko, this message translates to:
   /// **'스테이지 선택'**
   String get stageSelect;
+
+  /// No description provided for @areaForest.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작의 숲'**
+  String get areaForest;
+
+  /// No description provided for @areaVolcano.
+  ///
+  /// In ko, this message translates to:
+  /// **'불꽃 화산'**
+  String get areaVolcano;
+
+  /// No description provided for @areaDungeon.
+  ///
+  /// In ko, this message translates to:
+  /// **'암흑 던전'**
+  String get areaDungeon;
+
+  /// No description provided for @areaTemple.
+  ///
+  /// In ko, this message translates to:
+  /// **'심해 신전'**
+  String get areaTemple;
+
+  /// No description provided for @areaSky.
+  ///
+  /// In ko, this message translates to:
+  /// **'천공 성역'**
+  String get areaSky;
 
   /// No description provided for @gachaSinglePull.
   ///
@@ -203,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @gachaTenPull.
   ///
   /// In ko, this message translates to:
-  /// **'10회 소환'**
+  /// **'10연 소환'**
   String get gachaTenPull;
 
   /// No description provided for @gachaPity.
@@ -212,11 +404,185 @@ abstract class AppLocalizations {
   /// **'천장: {count}/80'**
   String gachaPity(int count);
 
+  /// No description provided for @gachaTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 소환'**
+  String get gachaTitle;
+
+  /// No description provided for @gachaDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'강력한 몬스터를 소환하여 팀을 강화하세요!'**
+  String get gachaDesc;
+
+  /// No description provided for @gachaLegendaryUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'★ 전설 등급 확률 UP ★'**
+  String get gachaLegendaryUp;
+
+  /// No description provided for @gachaUntilLegend.
+  ///
+  /// In ko, this message translates to:
+  /// **'전설 확정까지'**
+  String get gachaUntilLegend;
+
+  /// No description provided for @gachaRemainingCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 횟수: {count}회'**
+  String gachaRemainingCount(int count);
+
+  /// No description provided for @gachaNextGuaranteed.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 소환 시 전설 확정!'**
+  String get gachaNextGuaranteed;
+
+  /// No description provided for @gachaRates.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환 확률'**
+  String get gachaRates;
+
+  /// No description provided for @gachaThreeStarGuarantee.
+  ///
+  /// In ko, this message translates to:
+  /// **'3★ 이상 1회 보장'**
+  String get gachaThreeStarGuarantee;
+
+  /// No description provided for @gachaDiamondShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아가 부족합니다'**
+  String get gachaDiamondShort;
+
+  /// No description provided for @gachaTicketShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권이 부족합니다'**
+  String get gachaTicketShort;
+
+  /// No description provided for @gachaUseTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권 사용'**
+  String get gachaUseTicket;
+
+  /// No description provided for @gachaTicketCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}장'**
+  String gachaTicketCount(int count);
+
+  /// No description provided for @gachaResultSingle.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환 결과'**
+  String get gachaResultSingle;
+
+  /// No description provided for @gachaResultTen.
+  ///
+  /// In ko, this message translates to:
+  /// **'10연 소환 결과'**
+  String get gachaResultTen;
+
+  /// No description provided for @gachaRevealAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 공개'**
+  String get gachaRevealAll;
+
+  /// No description provided for @gachaGuaranteed.
+  ///
+  /// In ko, this message translates to:
+  /// **'확정!'**
+  String get gachaGuaranteed;
+
   /// No description provided for @monsterLevel.
   ///
   /// In ko, this message translates to:
   /// **'Lv.{level}'**
   String monsterLevel(int level);
+
+  /// No description provided for @monsterCollection.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 도감'**
+  String get monsterCollection;
+
+  /// No description provided for @ownedOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유만'**
+  String get ownedOnly;
+
+  /// No description provided for @reset.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화'**
+  String get reset;
+
+  /// No description provided for @noMatchingMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건에 맞는 몬스터가 없습니다'**
+  String get noMatchingMonster;
+
+  /// No description provided for @ownedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유: {count}마리'**
+  String ownedCount(int count);
+
+  /// No description provided for @bestUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 개체 (Lv.{level})'**
+  String bestUnit(int level);
+
+  /// No description provided for @unownedMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'미획득 몬스터'**
+  String get unownedMonster;
+
+  /// No description provided for @teamEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀 편성'**
+  String get teamEdit;
+
+  /// No description provided for @save.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get save;
+
+  /// No description provided for @totalPower.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 전투력: {power}'**
+  String totalPower(String power);
+
+  /// No description provided for @noMonsterOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유한 몬스터가 없습니다'**
+  String get noMonsterOwned;
+
+  /// No description provided for @getMonsterFromGacha.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환에서 몬스터를 획득하세요'**
+  String get getMonsterFromGacha;
+
+  /// No description provided for @milestoneReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} 보상 수령! 골드 +{gold}, 다이아 +{diamond}'**
+  String milestoneReward(String label, int gold, int diamond);
 
   /// No description provided for @upgradeLevelUp.
   ///
@@ -241,6 +607,264 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'각성'**
   String get upgradeAwakening;
+
+  /// No description provided for @selectMonsterToUpgrade.
+  ///
+  /// In ko, this message translates to:
+  /// **'강화할 몬스터 선택'**
+  String get selectMonsterToUpgrade;
+
+  /// No description provided for @maxLevelReached.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 레벨 도달! (Lv.{level})'**
+  String maxLevelReached(int level);
+
+  /// No description provided for @levelUpPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'레벨 업 시'**
+  String get levelUpPreview;
+
+  /// No description provided for @levelUpWithGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드로 레벨 업'**
+  String get levelUpWithGold;
+
+  /// No description provided for @goldShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드가 부족합니다'**
+  String get goldShort;
+
+  /// No description provided for @expPotion.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 물약'**
+  String get expPotion;
+
+  /// No description provided for @expPotionOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유: {count}개  (개당 {exp} EXP)'**
+  String expPotionOwned(int count, int exp);
+
+  /// No description provided for @potionUse1.
+  ///
+  /// In ko, this message translates to:
+  /// **'1개'**
+  String get potionUse1;
+
+  /// No description provided for @potionUse5.
+  ///
+  /// In ko, this message translates to:
+  /// **'5개'**
+  String get potionUse5;
+
+  /// No description provided for @potionUse10.
+  ///
+  /// In ko, this message translates to:
+  /// **'10개'**
+  String get potionUse10;
+
+  /// No description provided for @potionUseAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전부'**
+  String get potionUseAll;
+
+  /// No description provided for @expPotionShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 물약이 부족합니다'**
+  String get expPotionShort;
+
+  /// No description provided for @finalEvolutionDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화 완료!'**
+  String get finalEvolutionDone;
+
+  /// No description provided for @evolutionPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화 시'**
+  String get evolutionPreview;
+
+  /// No description provided for @firstEvolution.
+  ///
+  /// In ko, this message translates to:
+  /// **'1차 진화'**
+  String get firstEvolution;
+
+  /// No description provided for @finalEvolution.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화'**
+  String get finalEvolution;
+
+  /// No description provided for @evolve.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화하기'**
+  String get evolve;
+
+  /// No description provided for @materialShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'재료가 부족합니다'**
+  String get materialShort;
+
+  /// No description provided for @fusionLegendaryLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'전설 등급은 융합할 수 없습니다'**
+  String get fusionLegendaryLimit;
+
+  /// No description provided for @fusionTeamLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀에 배치된 몬스터는 융합할 수 없습니다'**
+  String get fusionTeamLimit;
+
+  /// No description provided for @fusionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 등급 몬스터 2마리를 융합하여\n{stars} {rarity} 등급 몬스터를 획득합니다'**
+  String fusionDesc(String stars, String rarity);
+
+  /// No description provided for @material1.
+  ///
+  /// In ko, this message translates to:
+  /// **'소재 1'**
+  String get material1;
+
+  /// No description provided for @material2.
+  ///
+  /// In ko, this message translates to:
+  /// **'소재 2'**
+  String get material2;
+
+  /// No description provided for @selectMaterial2.
+  ///
+  /// In ko, this message translates to:
+  /// **'소재 2 선택'**
+  String get selectMaterial2;
+
+  /// No description provided for @fusionCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합 비용'**
+  String get fusionCost;
+
+  /// No description provided for @fusionExecute.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합하기'**
+  String get fusionExecute;
+
+  /// No description provided for @fusionFormula.
+  ///
+  /// In ko, this message translates to:
+  /// **'{from}성 + {from}성 → {to}성'**
+  String fusionFormula(int from, int to);
+
+  /// No description provided for @fusionCheckCondition.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합 조건을 확인하세요'**
+  String get fusionCheckCondition;
+
+  /// No description provided for @noFusionMaterial.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 등급의 융합 가능한 몬스터가 없습니다'**
+  String get noFusionMaterial;
+
+  /// No description provided for @selectFusionMaterial.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합 소재 선택'**
+  String get selectFusionMaterial;
+
+  /// No description provided for @basic.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get basic;
+
+  /// No description provided for @firstEvo.
+  ///
+  /// In ko, this message translates to:
+  /// **'1차 진화'**
+  String get firstEvo;
+
+  /// No description provided for @finalEvo.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화'**
+  String get finalEvo;
+
+  /// No description provided for @evolutionMaterial.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화 재료'**
+  String get evolutionMaterial;
+
+  /// No description provided for @evolutionStone.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화석'**
+  String get evolutionStone;
+
+  /// No description provided for @awakeningRequireEvo.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화 후 각성할 수 있습니다'**
+  String get awakeningRequireEvo;
+
+  /// No description provided for @awakeningMaxDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 각성 완료!'**
+  String get awakeningMaxDone;
+
+  /// No description provided for @awakeningCostTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'각성 {star}성 비용'**
+  String awakeningCostTitle(int star);
+
+  /// No description provided for @shardCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count} 진화석'**
+  String shardCost(int count);
+
+  /// No description provided for @awakening.
+  ///
+  /// In ko, this message translates to:
+  /// **'각성하기'**
+  String get awakening;
+
+  /// No description provided for @awakeningInProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'각성 중...'**
+  String get awakeningInProgress;
+
+  /// No description provided for @currentAwakeningBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 각성 보너스: +{bonus}%'**
+  String currentAwakeningBonus(int bonus);
+
+  /// No description provided for @nextAwakeningBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 각성 보너스: +{bonus}%'**
+  String nextAwakeningBonus(int bonus);
 
   /// No description provided for @questDaily.
   ///
@@ -281,7 +905,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsLanguage.
   ///
   /// In ko, this message translates to:
-  /// **'언어'**
+  /// **'언어 / Language'**
   String get settingsLanguage;
 
   /// No description provided for @settingsSound.
@@ -289,6 +913,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'진동 효과'**
   String get settingsSound;
+
+  /// No description provided for @settingsEffects.
+  ///
+  /// In ko, this message translates to:
+  /// **'효과'**
+  String get settingsEffects;
 
   /// No description provided for @settingsBackup.
   ///
@@ -305,8 +935,176 @@ abstract class AppLocalizations {
   /// No description provided for @settingsPrestige.
   ///
   /// In ko, this message translates to:
-  /// **'전생'**
+  /// **'전생 (프레스티지)'**
   String get settingsPrestige;
+
+  /// No description provided for @settingsPlayerInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어 정보'**
+  String get settingsPlayerInfo;
+
+  /// No description provided for @settingsNickname.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임'**
+  String get settingsNickname;
+
+  /// No description provided for @settingsLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'레벨'**
+  String get settingsLevel;
+
+  /// No description provided for @settingsCurrentStage.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 스테이지'**
+  String get settingsCurrentStage;
+
+  /// No description provided for @settingsBattleCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 횟수'**
+  String get settingsBattleCount;
+
+  /// No description provided for @settingsGachaCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환 횟수'**
+  String get settingsGachaCount;
+
+  /// No description provided for @settingsPrestigeLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 레벨'**
+  String get settingsPrestigeLevel;
+
+  /// No description provided for @settingsGameInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 정보'**
+  String get settingsGameInfo;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In ko, this message translates to:
+  /// **'버전'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsOwnedMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 몬스터'**
+  String get settingsOwnedMonster;
+
+  /// No description provided for @settingsRelicEquip.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물/장비'**
+  String get settingsRelicEquip;
+
+  /// No description provided for @settingsRelicManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물 관리'**
+  String get settingsRelicManage;
+
+  /// No description provided for @settingsPrestigeGo.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 화면으로'**
+  String get settingsPrestigeGo;
+
+  /// No description provided for @settingsBackupRestore.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 / 복원'**
+  String get settingsBackupRestore;
+
+  /// No description provided for @settingsBackupCopy.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 (복사)'**
+  String get settingsBackupCopy;
+
+  /// No description provided for @settingsRestorePaste.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원 (붙여넣기)'**
+  String get settingsRestorePaste;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터'**
+  String get settingsData;
+
+  /// No description provided for @settingsGameReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 초기화'**
+  String get settingsGameReset;
+
+  /// No description provided for @settingsBackupDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 데이터가 클립보드에 복사되었습니다'**
+  String get settingsBackupDone;
+
+  /// No description provided for @settingsRestoreTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 복원'**
+  String get settingsRestoreTitle;
+
+  /// No description provided for @settingsRestoreDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'클립보드의 백업 데이터로 복원합니다.\n현재 데이터는 모두 덮어씌워집니다.\n계속하시겠습니까?'**
+  String get settingsRestoreDesc;
+
+  /// No description provided for @settingsNoClipboard.
+  ///
+  /// In ko, this message translates to:
+  /// **'클립보드에 데이터가 없습니다'**
+  String get settingsNoClipboard;
+
+  /// No description provided for @settingsRestoreDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 복원 완료!'**
+  String get settingsRestoreDone;
+
+  /// No description provided for @settingsRestoreFail.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원 실패: 올바른 백업 데이터가 아닙니다'**
+  String get settingsRestoreFail;
+
+  /// No description provided for @settingsResetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 초기화'**
+  String get settingsResetTitle;
+
+  /// No description provided for @settingsResetDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 데이터가 삭제됩니다.\n정말로 초기화하시겠습니까?'**
+  String get settingsResetDesc;
+
+  /// No description provided for @settingsResetConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화'**
+  String get settingsResetConfirm;
+
+  /// No description provided for @restore.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원'**
+  String get restore;
 
   /// No description provided for @gold.
   ///
@@ -320,11 +1118,23 @@ abstract class AppLocalizations {
   /// **'다이아'**
   String get diamond;
 
+  /// No description provided for @diamondFull.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아몬드'**
+  String get diamondFull;
+
   /// No description provided for @gachaTicket.
   ///
   /// In ko, this message translates to:
   /// **'소환권'**
   String get gachaTicket;
+
+  /// No description provided for @monsterShard.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 파편'**
+  String get monsterShard;
 
   /// No description provided for @confirm.
   ///
@@ -344,11 +1154,77 @@ abstract class AppLocalizations {
   /// **'닫기'**
   String get close;
 
+  /// No description provided for @back.
+  ///
+  /// In ko, this message translates to:
+  /// **'뒤로'**
+  String get back;
+
+  /// No description provided for @next.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get next;
+
   /// No description provided for @infiniteDungeon.
   ///
   /// In ko, this message translates to:
   /// **'무한 던전'**
   String get infiniteDungeon;
+
+  /// No description provided for @dungeonFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'{floor}층'**
+  String dungeonFloor(int floor);
+
+  /// No description provided for @dungeonBest.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 {floor}층'**
+  String dungeonBest(int floor);
+
+  /// No description provided for @dungeonPreparing.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전을 준비 중...'**
+  String get dungeonPreparing;
+
+  /// No description provided for @dungeonLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전 로그'**
+  String get dungeonLog;
+
+  /// No description provided for @dungeonStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전 시작'**
+  String get dungeonStart;
+
+  /// No description provided for @dungeonNextFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 층'**
+  String get dungeonNextFloor;
+
+  /// No description provided for @dungeonCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령'**
+  String get dungeonCollect;
+
+  /// No description provided for @dungeonCollectFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령 ({floor}층 도달)'**
+  String dungeonCollectFloor(int floor);
+
+  /// No description provided for @floorCleared.
+  ///
+  /// In ko, this message translates to:
+  /// **'클리어!'**
+  String get floorCleared;
 
   /// No description provided for @worldBoss.
   ///
@@ -356,17 +1232,311 @@ abstract class AppLocalizations {
   /// **'월드 보스'**
   String get worldBoss;
 
+  /// No description provided for @worldBossName.
+  ///
+  /// In ko, this message translates to:
+  /// **'월드 보스 - {name}'**
+  String worldBossName(String name);
+
+  /// No description provided for @worldBossElement.
+  ///
+  /// In ko, this message translates to:
+  /// **'속성: {element}'**
+  String worldBossElement(String element);
+
+  /// No description provided for @remainingAttempts.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 도전 횟수'**
+  String get remainingAttempts;
+
+  /// No description provided for @turnLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 제한'**
+  String get turnLimit;
+
+  /// No description provided for @turnCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}턴'**
+  String turnCount(int n);
+
+  /// No description provided for @bestDamage.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 데미지'**
+  String get bestDamage;
+
+  /// No description provided for @challenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전하기'**
+  String get challenge;
+
+  /// No description provided for @challengeDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 도전 완료'**
+  String get challengeDone;
+
+  /// No description provided for @turnProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 {current}/{max}'**
+  String turnProgress(int current, int max);
+
+  /// No description provided for @totalDamageAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 데미지: {damage}'**
+  String totalDamageAmount(String damage);
+
+  /// No description provided for @nextTurn.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 턴'**
+  String get nextTurn;
+
+  /// No description provided for @bossKilled.
+  ///
+  /// In ko, this message translates to:
+  /// **'보스 처치!'**
+  String get bossKilled;
+
+  /// No description provided for @battleEnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 종료!'**
+  String get battleEnd;
+
+  /// No description provided for @rewardSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상'**
+  String get rewardSection;
+
+  /// No description provided for @collectReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령'**
+  String get collectReward;
+
+  /// No description provided for @goBack.
+  ///
+  /// In ko, this message translates to:
+  /// **'돌아가기'**
+  String get goBack;
+
   /// No description provided for @arena.
   ///
   /// In ko, this message translates to:
-  /// **'아레나'**
+  /// **'PvP 아레나'**
   String get arena;
+
+  /// No description provided for @arenaShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나'**
+  String get arenaShort;
+
+  /// No description provided for @arenaEasy.
+  ///
+  /// In ko, this message translates to:
+  /// **'쉬움'**
+  String get arenaEasy;
+
+  /// No description provided for @arenaNormal.
+  ///
+  /// In ko, this message translates to:
+  /// **'보통'**
+  String get arenaNormal;
+
+  /// No description provided for @arenaHard.
+  ///
+  /// In ko, this message translates to:
+  /// **'어려움'**
+  String get arenaHard;
+
+  /// No description provided for @arenaRefresh.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대 갱신'**
+  String get arenaRefresh;
+
+  /// No description provided for @arenaChampion.
+  ///
+  /// In ko, this message translates to:
+  /// **'챔피언'**
+  String get arenaChampion;
+
+  /// No description provided for @arenaDiamond.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아몬드'**
+  String get arenaDiamond;
+
+  /// No description provided for @arenaGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드'**
+  String get arenaGold;
+
+  /// No description provided for @arenaSilver.
+  ///
+  /// In ko, this message translates to:
+  /// **'실버'**
+  String get arenaSilver;
+
+  /// No description provided for @arenaBronze.
+  ///
+  /// In ko, this message translates to:
+  /// **'브론즈'**
+  String get arenaBronze;
+
+  /// No description provided for @arenaRankScore.
+  ///
+  /// In ko, this message translates to:
+  /// **'{rank} · {score}점'**
+  String arenaRankScore(String rank, int score);
+
+  /// No description provided for @arenaRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'{wins}승 {losses}패'**
+  String arenaRecord(int wins, int losses);
+
+  /// No description provided for @arenaRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 도전: {remaining}/{max}'**
+  String arenaRemaining(int remaining, int max);
+
+  /// No description provided for @arenaRating.
+  ///
+  /// In ko, this message translates to:
+  /// **'레이팅 {rating}'**
+  String arenaRating(int rating);
+
+  /// No description provided for @arenaChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전'**
+  String get arenaChallenge;
+
+  /// No description provided for @me.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get me;
+
+  /// No description provided for @opponent.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대'**
+  String get opponent;
+
+  /// No description provided for @battleWaiting.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 대기 중...'**
+  String get battleWaiting;
+
+  /// No description provided for @ratingLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'레이팅'**
+  String get ratingLabel;
 
   /// No description provided for @eventDungeon.
   ///
   /// In ko, this message translates to:
-  /// **'이벤트'**
+  /// **'이벤트 던전'**
   String get eventDungeon;
+
+  /// No description provided for @eventDungeonShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트'**
+  String get eventDungeonShort;
+
+  /// No description provided for @eventLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 로딩 중...'**
+  String get eventLoading;
+
+  /// No description provided for @eventLimited.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 한정 이벤트'**
+  String get eventLimited;
+
+  /// No description provided for @eventWeeklyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'매주 새로운 이벤트가 열립니다!'**
+  String get eventWeeklyDesc;
+
+  /// No description provided for @eventRecommendLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 Lv.{level}'**
+  String eventRecommendLevel(int level);
+
+  /// No description provided for @eventWaves.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}웨이브'**
+  String eventWaves(int count);
+
+  /// No description provided for @eventTimeRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {mins}분 남음'**
+  String eventTimeRemain(int hours, int mins);
+
+  /// No description provided for @eventChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전'**
+  String get eventChallenge;
+
+  /// No description provided for @eventCleared.
+  ///
+  /// In ko, this message translates to:
+  /// **'클리어 완료'**
+  String get eventCleared;
+
+  /// No description provided for @eventWaveProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} - 웨이브 {current}/{total}'**
+  String eventWaveProgress(String name, int current, int total);
+
+  /// No description provided for @waveCleared.
+  ///
+  /// In ko, this message translates to:
+  /// **'웨이브 {wave} 클리어!'**
+  String waveCleared(int wave);
+
+  /// No description provided for @nextWave.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 웨이브: {current}/{total}'**
+  String nextWave(int current, int total);
+
+  /// No description provided for @nextWaveBtn.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 웨이브'**
+  String get nextWaveBtn;
+
+  /// No description provided for @eventClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 클리어!'**
+  String get eventClear;
 
   /// No description provided for @guild.
   ///
@@ -374,35 +1544,479 @@ abstract class AppLocalizations {
   /// **'길드'**
   String get guild;
 
+  /// No description provided for @guildCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드 생성'**
+  String get guildCreate;
+
+  /// No description provided for @guildCreateDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드를 만들고 동료들과 함께\n강력한 보스를 처치하세요!'**
+  String get guildCreateDesc;
+
+  /// No description provided for @guildNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드 이름 입력'**
+  String get guildNameHint;
+
+  /// No description provided for @guildLevelCoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level} | 코인: {coin}'**
+  String guildLevelCoin(int level, int coin);
+
+  /// No description provided for @guildMembers.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드원 ({count}명)'**
+  String guildMembers(int count);
+
+  /// No description provided for @guildLeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'나 (길드장)'**
+  String get guildLeader;
+
+  /// No description provided for @guildWeeklyBoss.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간 보스: {name}'**
+  String guildWeeklyBoss(String name);
+
+  /// No description provided for @guildBossHp.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 HP: {current} / {max}'**
+  String guildBossHp(String current, String max);
+
+  /// No description provided for @guildMyContrib.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 기여: {damage}'**
+  String guildMyContrib(String damage);
+
+  /// No description provided for @guildAiContrib.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드원 기여: {damage}'**
+  String guildAiContrib(String damage);
+
+  /// No description provided for @guildBossDefeated.
+  ///
+  /// In ko, this message translates to:
+  /// **'보스 처치 완료!'**
+  String get guildBossDefeated;
+
+  /// No description provided for @guildBossChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'보스 도전 ({remaining}/{max})'**
+  String guildBossChallenge(int remaining, int max);
+
+  /// No description provided for @guildShop.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드 상점'**
+  String get guildShop;
+
+  /// No description provided for @guildBossTurn.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} (턴 {current}/{max})'**
+  String guildBossTurn(String name, int current, int max);
+
+  /// No description provided for @guildFightDamage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 전투 데미지: {damage}'**
+  String guildFightDamage(String damage);
+
+  /// No description provided for @attack.
+  ///
+  /// In ko, this message translates to:
+  /// **'공격'**
+  String get attack;
+
+  /// No description provided for @guildBattleEnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 종료!'**
+  String get guildBattleEnd;
+
+  /// No description provided for @guildDefeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'패배...'**
+  String get guildDefeat;
+
+  /// No description provided for @guildTotalDamage.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 데미지: {damage}'**
+  String guildTotalDamage(String damage);
+
+  /// No description provided for @guildEarnedCoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'획득 길드 코인: +{coin}'**
+  String guildEarnedCoin(int coin);
+
+  /// No description provided for @guildReturnLobby.
+  ///
+  /// In ko, this message translates to:
+  /// **'로비로 돌아가기'**
+  String get guildReturnLobby;
+
+  /// No description provided for @guildCoinLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'코인: {coin}'**
+  String guildCoinLabel(int coin);
+
+  /// No description provided for @guildItemCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'{cost} 코인'**
+  String guildItemCost(int cost);
+
+  /// No description provided for @guildPurchaseDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 구매 완료!'**
+  String guildPurchaseDone(String name);
+
+  /// No description provided for @purchase.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매'**
+  String get purchase;
+
+  /// No description provided for @expedition.
+  ///
+  /// In ko, this message translates to:
+  /// **'원정대'**
+  String get expedition;
+
+  /// No description provided for @expeditionSlots.
+  ///
+  /// In ko, this message translates to:
+  /// **'슬롯 {active}/{max}'**
+  String expeditionSlots(int active, int max);
+
+  /// No description provided for @expeditionActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'진행중 원정'**
+  String get expeditionActive;
+
+  /// No description provided for @expeditionNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 원정 시작'**
+  String get expeditionNew;
+
+  /// No description provided for @expeditionAllUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 원정 슬롯 사용 중 ({count}/{max})'**
+  String expeditionAllUsed(int count, int max);
+
+  /// No description provided for @expeditionCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령'**
+  String get expeditionCollect;
+
+  /// No description provided for @expeditionDepart.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발 ({count}마리)'**
+  String expeditionDepart(int count);
+
+  /// No description provided for @expeditionNoMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'파견 가능한 몬스터가 없습니다\n(팀 배치 중이거나 이미 원정 중)'**
+  String get expeditionNoMonster;
+
   /// No description provided for @relic.
   ///
   /// In ko, this message translates to:
   /// **'유물'**
   String get relic;
 
-  /// No description provided for @expedition.
+  /// No description provided for @relicCount.
   ///
   /// In ko, this message translates to:
-  /// **'원정'**
-  String get expedition;
+  /// **'유물 ({count}개)'**
+  String relicCount(int count);
+
+  /// No description provided for @relicAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get relicAll;
+
+  /// No description provided for @relicWeapon.
+  ///
+  /// In ko, this message translates to:
+  /// **'무기'**
+  String get relicWeapon;
+
+  /// No description provided for @relicArmor.
+  ///
+  /// In ko, this message translates to:
+  /// **'방어구'**
+  String get relicArmor;
+
+  /// No description provided for @relicAccessory.
+  ///
+  /// In ko, this message translates to:
+  /// **'악세서리'**
+  String get relicAccessory;
+
+  /// No description provided for @relicEquipped.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착됨'**
+  String get relicEquipped;
+
+  /// No description provided for @noRelic.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물이 없습니다'**
+  String get noRelic;
+
+  /// No description provided for @getRelicFromBattle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투와 던전에서 유물을 획득하세요'**
+  String get getRelicFromBattle;
+
+  /// No description provided for @relicStarRarity.
+  ///
+  /// In ko, this message translates to:
+  /// **'{rarity}성'**
+  String relicStarRarity(int rarity);
+
+  /// No description provided for @relicEquippedTo.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착: {name}'**
+  String relicEquippedTo(String name);
+
+  /// No description provided for @unequip.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제'**
+  String get unequip;
+
+  /// No description provided for @selectMonsterToEquip.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착할 몬스터 선택:'**
+  String get selectMonsterToEquip;
+
+  /// No description provided for @replace.
+  ///
+  /// In ko, this message translates to:
+  /// **'교체'**
+  String get replace;
+
+  /// No description provided for @relicDisassemble.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물 분해'**
+  String get relicDisassemble;
+
+  /// No description provided for @statAttack.
+  ///
+  /// In ko, this message translates to:
+  /// **'공격력'**
+  String get statAttack;
+
+  /// No description provided for @statDefense.
+  ///
+  /// In ko, this message translates to:
+  /// **'방어력'**
+  String get statDefense;
+
+  /// No description provided for @statHp.
+  ///
+  /// In ko, this message translates to:
+  /// **'체력'**
+  String get statHp;
+
+  /// No description provided for @statSpeed.
+  ///
+  /// In ko, this message translates to:
+  /// **'속도'**
+  String get statSpeed;
+
+  /// No description provided for @prestige.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생'**
+  String get prestige;
+
+  /// No description provided for @prestigeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 (프레스티지)'**
+  String get prestigeTitle;
+
+  /// No description provided for @prestigeCurrentBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 전생 보너스'**
+  String get prestigeCurrentBonus;
+
+  /// No description provided for @goldGain.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 획득량'**
+  String get goldGain;
+
+  /// No description provided for @expGain.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 획득량'**
+  String get expGain;
+
+  /// No description provided for @prestigeCondition.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 조건'**
+  String get prestigeCondition;
+
+  /// No description provided for @prestigeMinLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어 레벨 {level}+'**
+  String prestigeMinLevel(int level);
+
+  /// No description provided for @or.
+  ///
+  /// In ko, this message translates to:
+  /// **'또는'**
+  String get or;
+
+  /// No description provided for @prestigeMinArea.
+  ///
+  /// In ko, this message translates to:
+  /// **'{area}지역 이상 클리어'**
+  String prestigeMinArea(int area);
+
+  /// No description provided for @none.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get none;
+
+  /// No description provided for @prestigeGains.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 시 얻는 것'**
+  String get prestigeGains;
+
+  /// No description provided for @prestigeLosses.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 시 초기화되는 것'**
+  String get prestigeLosses;
+
+  /// No description provided for @prestigeLossLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어 레벨 → Lv.1'**
+  String get prestigeLossLevel;
+
+  /// No description provided for @prestigeLossStage.
+  ///
+  /// In ko, this message translates to:
+  /// **'스테이지 진행 → 1-1'**
+  String get prestigeLossStage;
+
+  /// No description provided for @prestigeLossDungeon.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전 기록 초기화'**
+  String get prestigeLossDungeon;
+
+  /// No description provided for @prestigeLossMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 몬스터 전체 삭제'**
+  String get prestigeLossMonster;
+
+  /// No description provided for @prestigeLossGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드/파편/포션 초기화'**
+  String get prestigeLossGold;
+
+  /// No description provided for @prestigeLossQuest.
+  ///
+  /// In ko, this message translates to:
+  /// **'퀘스트 진행 초기화'**
+  String get prestigeLossQuest;
+
+  /// No description provided for @prestigeMaxTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 전생 달성!'**
+  String get prestigeMaxTitle;
+
+  /// No description provided for @prestigeMaxDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 전생 레벨 {level}에 도달했습니다!'**
+  String prestigeMaxDesc(int level);
+
+  /// No description provided for @prestigeExecute.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생하기'**
+  String get prestigeExecute;
+
+  /// No description provided for @prestigeNotMet.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건 미달'**
+  String get prestigeNotMet;
+
+  /// No description provided for @prestigeConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 확인'**
+  String get prestigeConfirmTitle;
+
+  /// No description provided for @prestigeConfirmDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생하면 레벨, 스테이지, 몬스터, 재화가 모두 초기화됩니다.\n\n대신 다이아몬드와 소환권, 영구 전투 보너스를 받습니다.\n\n정말 전생하시겠습니까?'**
+  String get prestigeConfirmDesc;
+
+  /// No description provided for @prestigeLevelN.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 Lv.{level}'**
+  String prestigeLevelN(int level);
+
+  /// No description provided for @permanentBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'영구 보너스'**
+  String get permanentBonus;
 
   /// No description provided for @statistics.
   ///
   /// In ko, this message translates to:
   /// **'통계'**
   String get statistics;
-
-  /// No description provided for @affinity.
-  ///
-  /// In ko, this message translates to:
-  /// **'친밀도'**
-  String get affinity;
-
-  /// No description provided for @skill.
-  ///
-  /// In ko, this message translates to:
-  /// **'스킬'**
-  String get skill;
 
   /// No description provided for @equippedRelics.
   ///
@@ -433,6 +2047,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'경험치'**
   String get experience;
+
+  /// No description provided for @affinity.
+  ///
+  /// In ko, this message translates to:
+  /// **'친밀도'**
+  String get affinity;
+
+  /// No description provided for @skill.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬'**
+  String get skill;
 
   /// No description provided for @teamAssigned.
   ///
@@ -493,6 +2119,378 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'장비/퀘스트'**
   String get equipmentQuests;
+
+  /// No description provided for @statNickname.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임'**
+  String get statNickname;
+
+  /// No description provided for @statLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'레벨'**
+  String get statLevel;
+
+  /// No description provided for @statPrestigeCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 횟수'**
+  String get statPrestigeCount;
+
+  /// No description provided for @statPrestigeBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 보너스'**
+  String get statPrestigeBonus;
+
+  /// No description provided for @statJoinDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'가입일'**
+  String get statJoinDate;
+
+  /// No description provided for @statPlayDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이 일수'**
+  String get statPlayDays;
+
+  /// No description provided for @statTotalBattle.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 스테이지 전투'**
+  String get statTotalBattle;
+
+  /// No description provided for @statTeamBattle.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀 누적 전투'**
+  String get statTeamBattle;
+
+  /// No description provided for @statStageProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'스테이지 진행'**
+  String get statStageProgress;
+
+  /// No description provided for @statBestClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 클리어'**
+  String get statBestClear;
+
+  /// No description provided for @statDungeonBest.
+  ///
+  /// In ko, this message translates to:
+  /// **'무한던전 최고층'**
+  String get statDungeonBest;
+
+  /// No description provided for @statOwnedMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 몬스터'**
+  String get statOwnedMonster;
+
+  /// No description provided for @statCollection.
+  ///
+  /// In ko, this message translates to:
+  /// **'도감 수집'**
+  String get statCollection;
+
+  /// No description provided for @statBestLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 레벨'**
+  String get statBestLevel;
+
+  /// No description provided for @statTeamComp.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀 편성'**
+  String get statTeamComp;
+
+  /// No description provided for @statAvgLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균 레벨'**
+  String get statAvgLevel;
+
+  /// No description provided for @statTotalGacha.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 소환 횟수'**
+  String get statTotalGacha;
+
+  /// No description provided for @statCurrentPity.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 천장'**
+  String get statCurrentPity;
+
+  /// No description provided for @statFiveStarGuarantee.
+  ///
+  /// In ko, this message translates to:
+  /// **'5성 보장'**
+  String get statFiveStarGuarantee;
+
+  /// No description provided for @statGuaranteeImminent.
+  ///
+  /// In ko, this message translates to:
+  /// **'보장 임박!'**
+  String get statGuaranteeImminent;
+
+  /// No description provided for @statGuaranteeRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회 남음'**
+  String statGuaranteeRemain(int count);
+
+  /// No description provided for @statOwnedRelic.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 유물'**
+  String get statOwnedRelic;
+
+  /// No description provided for @statEquippedRelic.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착 유물'**
+  String get statEquippedRelic;
+
+  /// No description provided for @statCompletedQuest.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료 퀘스트'**
+  String get statCompletedQuest;
+
+  /// No description provided for @statClaimable.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령 가능'**
+  String get statClaimable;
+
+  /// No description provided for @countUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회'**
+  String countUnit(String count);
+
+  /// No description provided for @countMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}마리'**
+  String countMonster(int count);
+
+  /// No description provided for @countItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String countItem(int count);
+
+  /// No description provided for @countDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}일'**
+  String countDay(int count);
+
+  /// No description provided for @countFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'{floor}층'**
+  String countFloor(int floor);
+
+  /// No description provided for @onboardingWelcome.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 컬렉터에 오신 걸 환영합니다!'**
+  String get onboardingWelcome;
+
+  /// No description provided for @onboardingEnterName.
+  ///
+  /// In ko, this message translates to:
+  /// **'모험가의 이름을 입력해주세요'**
+  String get onboardingEnterName;
+
+  /// No description provided for @onboardingNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임 (2-12자)'**
+  String get onboardingNameHint;
+
+  /// No description provided for @onboardingChooseMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님,\n첫 번째 동료를 선택하세요!'**
+  String onboardingChooseMonster(String name);
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'모험 시작!'**
+  String get onboardingStart;
+
+  /// No description provided for @tutorialStep1Title.
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 전투를 시작하세요!'**
+  String get tutorialStep1Title;
+
+  /// No description provided for @tutorialStep1Msg.
+  ///
+  /// In ko, this message translates to:
+  /// **'아래 \"전투 시작\" 버튼을 눌러\n첫 번째 전투를 시작해보세요.\n자동전투와 배속 기능도 있어요!'**
+  String get tutorialStep1Msg;
+
+  /// No description provided for @tutorialStep2Title.
+  ///
+  /// In ko, this message translates to:
+  /// **'승리를 축하합니다!'**
+  String get tutorialStep2Title;
+
+  /// No description provided for @tutorialStep2Msg.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상을 받은 후\n하단의 \"소환\" 탭에서\n새로운 몬스터를 소환해보세요!'**
+  String get tutorialStep2Msg;
+
+  /// No description provided for @tutorialStep3Title.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터를 소환하세요!'**
+  String get tutorialStep3Title;
+
+  /// No description provided for @tutorialStep3Msg.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아몬드나 소환권으로\n몬스터를 소환할 수 있어요.\n높은 등급 몬스터를 노려보세요!'**
+  String get tutorialStep3Msg;
+
+  /// No description provided for @tutorialStep4Title.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터를 강화하세요!'**
+  String get tutorialStep4Title;
+
+  /// No description provided for @tutorialStep4Msg.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"강화\" 탭에서 몬스터를 선택하고\n골드로 레벨업하거나\n진화시킬 수 있어요!'**
+  String get tutorialStep4Msg;
+
+  /// No description provided for @tutorialStep5Title.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀을 편성하세요!'**
+  String get tutorialStep5Title;
+
+  /// No description provided for @tutorialStep5Msg.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"도감\" 탭에서 팀 편성 버튼을 눌러\n최대 4마리 몬스터로\n최강 팀을 구성해보세요!'**
+  String get tutorialStep5Msg;
+
+  /// No description provided for @affinityNames.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음,Lv.1 관심,Lv.2 신뢰,Lv.3 우정,Lv.4 유대,Lv.5 최대'**
+  String get affinityNames;
+
+  /// No description provided for @affinityBattleCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 {count}회'**
+  String affinityBattleCount(int count);
+
+  /// No description provided for @affinityBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'보너스: 전 스탯 +{percent}%'**
+  String affinityBonus(int percent);
+
+  /// No description provided for @elementFire.
+  ///
+  /// In ko, this message translates to:
+  /// **'화염'**
+  String get elementFire;
+
+  /// No description provided for @elementWater.
+  ///
+  /// In ko, this message translates to:
+  /// **'물'**
+  String get elementWater;
+
+  /// No description provided for @elementElectric.
+  ///
+  /// In ko, this message translates to:
+  /// **'전기'**
+  String get elementElectric;
+
+  /// No description provided for @elementRock.
+  ///
+  /// In ko, this message translates to:
+  /// **'바위'**
+  String get elementRock;
+
+  /// No description provided for @elementGrass.
+  ///
+  /// In ko, this message translates to:
+  /// **'풀'**
+  String get elementGrass;
+
+  /// No description provided for @elementGhost.
+  ///
+  /// In ko, this message translates to:
+  /// **'유령'**
+  String get elementGhost;
+
+  /// No description provided for @elementLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'빛'**
+  String get elementLight;
+
+  /// No description provided for @elementDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'어둠'**
+  String get elementDark;
+
+  /// No description provided for @playerLevelStage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level}  |  스테이지 {stage}'**
+  String playerLevelStage(int level, String stage);
+
+  /// No description provided for @dailyStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 현황'**
+  String get dailyStatus;
+
+  /// No description provided for @questRewardAvailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'퀘스트 보상 {count}개 수령 가능!'**
+  String questRewardAvailable(int count);
+
+  /// No description provided for @questInProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'진행중 퀘스트 {count}개'**
+  String questInProgress(int count);
+
+  /// No description provided for @shortcut.
+  ///
+  /// In ko, this message translates to:
+  /// **'바로가기'**
+  String get shortcut;
+
+  /// No description provided for @prestigeN.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 {level}'**
+  String prestigeN(int level);
 }
 
 class _AppLocalizationsDelegate
