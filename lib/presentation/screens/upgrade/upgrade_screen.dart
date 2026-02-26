@@ -143,7 +143,7 @@ class _MonsterGridTile extends ConsumerWidget {
           borderRadius: BorderRadius.circular(10),
           color: AppColors.surface,
           border: Border.all(
-            color: rarityEnum.color.withOpacity(0.4),
+            color: rarityEnum.color.withValues(alpha:0.4),
           ),
         ),
         child: Column(
@@ -155,7 +155,7 @@ class _MonsterGridTile extends ConsumerWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: rarityEnum.color.withOpacity(0.15),
+                color: rarityEnum.color.withValues(alpha:0.15),
               ),
               child: Icon(
                 _elementIcon(monster.element),
@@ -269,11 +269,11 @@ class _MonsterHeader extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            rarityEnum.color.withOpacity(0.15),
+            rarityEnum.color.withValues(alpha:0.15),
             AppColors.surface,
           ],
         ),
-        border: Border.all(color: rarityEnum.color.withOpacity(0.3)),
+        border: Border.all(color: rarityEnum.color.withValues(alpha:0.3)),
       ),
       child: Row(
         children: [
@@ -284,7 +284,7 @@ class _MonsterHeader extends ConsumerWidget {
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.card.withOpacity(0.6),
+                color: AppColors.card.withValues(alpha:0.6),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -300,7 +300,7 @@ class _MonsterHeader extends ConsumerWidget {
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: rarityEnum.color.withOpacity(0.2),
+              color: rarityEnum.color.withValues(alpha:0.2),
             ),
             child: Icon(
               _elementIcon(monster.element),
@@ -405,7 +405,7 @@ class _TabButton extends StatelessWidget {
             color: isActive ? AppColors.primary : AppColors.surface,
             border: Border.all(
               color: isActive
-                  ? AppColors.primaryLight.withOpacity(0.4)
+                  ? AppColors.primaryLight.withValues(alpha:0.4)
                   : AppColors.border,
             ),
           ),
@@ -694,7 +694,7 @@ class _StageNode extends StatelessWidget {
             color: isCurrent
                 ? AppColors.primary
                 : isActive
-                    ? AppColors.success.withOpacity(0.3)
+                    ? AppColors.success.withValues(alpha:0.3)
                     : AppColors.card,
             border: Border.all(
               color: isCurrent
@@ -921,7 +921,7 @@ class _StatRow extends StatelessWidget {
               value: (value / 2000).clamp(0.0, 1.0),
               minHeight: 6,
               backgroundColor: AppColors.card,
-              valueColor: AlwaysStoppedAnimation<Color>(color.withOpacity(0.7)),
+              valueColor: AlwaysStoppedAnimation<Color>(color.withValues(alpha:0.7)),
             ),
           ),
         ),
@@ -1070,7 +1070,7 @@ class _ActionButton extends StatelessWidget {
           ),
           border: Border.all(
             color: enabled
-                ? AppColors.primary.withOpacity(0.4)
+                ? AppColors.primary.withValues(alpha:0.4)
                 : AppColors.border,
           ),
         ),
@@ -1136,10 +1136,10 @@ class _SmallActionButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: enabled ? AppColors.experience.withOpacity(0.15) : AppColors.card,
+            color: enabled ? AppColors.experience.withValues(alpha:0.15) : AppColors.card,
             border: Border.all(
               color: enabled
-                  ? AppColors.experience.withOpacity(0.4)
+                  ? AppColors.experience.withValues(alpha:0.4)
                   : AppColors.border,
             ),
           ),
@@ -1179,8 +1179,8 @@ class _InfoBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withValues(alpha:0.1),
+        border: Border.all(color: color.withValues(alpha:0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

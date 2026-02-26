@@ -77,10 +77,10 @@ class HpBar extends StatelessWidget {
           // ── Track (background) ────────────────────────────────────────
           Container(
             decoration: BoxDecoration(
-              color: AppColors.background.withOpacity(0.6),
+              color: AppColors.background.withValues(alpha:0.6),
               borderRadius: BorderRadius.circular(height / 2),
               border: Border.all(
-                color: AppColors.border.withOpacity(0.5),
+                color: AppColors.border.withValues(alpha:0.5),
                 width: 0.5,
               ),
             ),
@@ -95,7 +95,7 @@ class HpBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(height / 2),
                 boxShadow: [
                   BoxShadow(
-                    color: _barColor.withOpacity(0.4),
+                    color: _barColor.withValues(alpha:0.4),
                     blurRadius: 4,
                     spreadRadius: 0,
                   ),

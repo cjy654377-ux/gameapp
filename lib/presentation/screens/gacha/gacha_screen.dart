@@ -78,7 +78,7 @@ class _GachaBanner extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha:0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -94,7 +94,7 @@ class _GachaBanner extends StatelessWidget {
               top: rng.nextDouble() * 160,
               child: Icon(
                 Icons.star_rounded,
-                color: Colors.white.withOpacity(0.1 + rng.nextDouble() * 0.15),
+                color: Colors.white.withValues(alpha:0.1 + rng.nextDouble() * 0.15),
                 size: 12 + rng.nextDouble() * 18,
               ),
             );
@@ -122,7 +122,7 @@ class _GachaBanner extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         shadows: [
                           Shadow(
-                            color: AppColors.primary.withOpacity(0.5),
+                            color: AppColors.primary.withValues(alpha:0.5),
                             blurRadius: 12,
                           ),
                         ],
@@ -134,7 +134,7 @@ class _GachaBanner extends StatelessWidget {
                 Text(
                   '강력한 몬스터를 소환하여 팀을 강화하세요!',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha:0.7),
                     fontSize: 13,
                   ),
                 ),
@@ -145,10 +145,10 @@ class _GachaBanner extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.rarityLegendary.withOpacity(0.2),
+                    color: AppColors.rarityLegendary.withValues(alpha:0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.rarityLegendary.withOpacity(0.4),
+                      color: AppColors.rarityLegendary.withValues(alpha:0.4),
                     ),
                   ),
                   child: const Text(
@@ -494,13 +494,13 @@ class _PullButton extends StatelessWidget {
           gradient: LinearGradient(colors: gradient),
           border: Border.all(
             color: enabled
-                ? AppColors.primary.withOpacity(0.4)
+                ? AppColors.primary.withValues(alpha:0.4)
                 : AppColors.border,
           ),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.2),
+                    color: AppColors.primary.withValues(alpha:0.2),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -513,7 +513,7 @@ class _PullButton extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.rarityRare.withOpacity(0.2),
+                  color: AppColors.rarityRare.withValues(alpha:0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -739,18 +739,18 @@ class _ResultCard extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    rarityEnum.color.withOpacity(0.3),
+                    rarityEnum.color.withValues(alpha:0.3),
                     AppColors.surface,
                   ],
                 ),
                 border: Border.all(
-                  color: rarityEnum.color.withOpacity(0.6),
+                  color: rarityEnum.color.withValues(alpha:0.6),
                   width: template.rarity >= 4 ? 2 : 1,
                 ),
                 boxShadow: template.rarity >= 4
                     ? [
                         BoxShadow(
-                          color: rarityEnum.color.withOpacity(0.3),
+                          color: rarityEnum.color.withValues(alpha:0.3),
                           blurRadius: 12,
                         ),
                       ]
@@ -774,7 +774,7 @@ class _ResultCard extends StatelessWidget {
                     height: 36,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: rarityEnum.color.withOpacity(0.2),
+                      color: rarityEnum.color.withValues(alpha:0.2),
                     ),
                     child: Icon(
                       _getElementIcon(template.element),
@@ -879,7 +879,7 @@ class _OverlayButton extends StatelessWidget {
           color: primary ? AppColors.primary : AppColors.surface,
           border: Border.all(
             color: primary
-                ? AppColors.primaryLight.withOpacity(0.4)
+                ? AppColors.primaryLight.withValues(alpha:0.4)
                 : AppColors.border,
           ),
         ),

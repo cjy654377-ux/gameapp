@@ -64,15 +64,15 @@ class MonsterBattleCard extends StatelessWidget {
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.card.withOpacity(0.85),
+        color: AppColors.card.withValues(alpha:0.85),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: _rarityColor.withOpacity(isDead ? 0.2 : 0.55),
+          color: _rarityColor.withValues(alpha:isDead ? 0.2 : 0.55),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: _elementColor.withOpacity(isDead ? 0.0 : 0.18),
+            color: _elementColor.withValues(alpha:isDead ? 0.0 : 0.18),
             blurRadius: 8,
             spreadRadius: 0,
           ),
@@ -92,7 +92,7 @@ class MonsterBattleCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _elementColor.withOpacity(isDead ? 0.2 : 0.8),
+                    color: _elementColor.withValues(alpha:isDead ? 0.2 : 0.8),
                     width: 2,
                   ),
                 ),
@@ -101,7 +101,7 @@ class MonsterBattleCard extends StatelessWidget {
               CircleAvatar(
                 radius: avatarSize / 2,
                 backgroundColor:
-                    _elementColor.withOpacity(isDead ? 0.15 : 0.28),
+                    _elementColor.withValues(alpha:isDead ? 0.15 : 0.28),
                 child: Text(
                   _avatarChar,
                   style: TextStyle(
@@ -117,10 +117,10 @@ class MonsterBattleCard extends StatelessWidget {
               if (isDead)
                 CircleAvatar(
                   radius: avatarSize / 2,
-                  backgroundColor: Colors.black.withOpacity(0.55),
+                  backgroundColor: Colors.black.withValues(alpha:0.55),
                   child: Icon(
                     Icons.close_rounded,
-                    color: AppColors.error.withOpacity(0.7),
+                    color: AppColors.error.withValues(alpha:0.7),
                     size: avatarSize * 0.45,
                   ),
                 ),
@@ -197,10 +197,10 @@ class _ElementBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       decoration: BoxDecoration(
-        color: element.color.withOpacity(isDead ? 0.1 : 0.22),
+        color: element.color.withValues(alpha:isDead ? 0.1 : 0.22),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: element.color.withOpacity(isDead ? 0.15 : 0.5),
+          color: element.color.withValues(alpha:isDead ? 0.15 : 0.5),
           width: 0.7,
         ),
       ),

@@ -188,7 +188,7 @@ class _IdleBanner extends StatelessWidget {
           Icon(
             Icons.shield_outlined,
             size: 52,
-            color: AppColors.primary.withOpacity(0.45),
+            color: AppColors.primary.withValues(alpha:0.45),
           ),
           const SizedBox(height: 14),
           const Text(
@@ -288,9 +288,9 @@ class _PhaseBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.18),
+        color: color.withValues(alpha:0.18),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.6), width: 1),
+        border: Border.all(color: color.withValues(alpha:0.6), width: 1),
       ),
       child: Text(
         label,
@@ -570,7 +570,7 @@ class _SpeedButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: _isActive
               ? AppColors.primary
-              : AppColors.card.withOpacity(0.8),
+              : AppColors.card.withValues(alpha:0.8),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: _isActive ? AppColors.primaryLight : AppColors.border,
@@ -579,7 +579,7 @@ class _SpeedButton extends StatelessWidget {
           boxShadow: _isActive
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
+                    color: AppColors.primary.withValues(alpha:0.35),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   )
@@ -618,8 +618,8 @@ class _AutoBattleToggle extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isAuto
-              ? AppColors.success.withOpacity(0.2)
-              : AppColors.card.withOpacity(0.8),
+              ? AppColors.success.withValues(alpha:0.2)
+              : AppColors.card.withValues(alpha:0.8),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isAuto ? AppColors.success : AppColors.border,
@@ -735,7 +735,7 @@ class _ActionButton extends StatelessWidget {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor:
-              isDisabled ? AppColors.disabled : color.withOpacity(0.85),
+              isDisabled ? AppColors.disabled : color.withValues(alpha:0.85),
           foregroundColor:
               isDisabled ? AppColors.disabledText : AppColors.textPrimary,
           padding: const EdgeInsets.symmetric(vertical: 13),
@@ -744,7 +744,7 @@ class _ActionButton extends StatelessWidget {
           ),
           elevation: isDisabled ? 0 : 4,
           shadowColor:
-              isDisabled ? Colors.transparent : color.withOpacity(0.4),
+              isDisabled ? Colors.transparent : color.withValues(alpha:0.4),
         ),
       ),
     );
@@ -764,7 +764,7 @@ class _VictoryDialog extends ConsumerWidget {
     final notifier = ref.read(battleProvider.notifier);
 
     return Material(
-      color: Colors.black.withOpacity(0.72),
+      color: Colors.black.withValues(alpha:0.72),
       child: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),
@@ -773,12 +773,12 @@ class _VictoryDialog extends ConsumerWidget {
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppColors.gold.withOpacity(0.6),
+              color: AppColors.gold.withValues(alpha:0.6),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.gold.withOpacity(0.25),
+                color: AppColors.gold.withValues(alpha:0.25),
                 blurRadius: 30,
                 spreadRadius: 2,
               ),
@@ -870,14 +870,14 @@ class _VictoryDialog extends ConsumerWidget {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.gold.withOpacity(0.9),
+                    backgroundColor: AppColors.gold.withValues(alpha:0.9),
                     foregroundColor: Colors.black87,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 4,
-                    shadowColor: AppColors.gold.withOpacity(0.4),
+                    shadowColor: AppColors.gold.withValues(alpha:0.4),
                   ),
                 ),
               ),
