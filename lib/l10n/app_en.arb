@@ -488,5 +488,12 @@
   "leaderboardTower": "Tower",
   "leaderboardBoss": "World Boss",
   "leaderboardMyRank": "My Rank",
-  "leaderboardPlayers": "players"
+  "leaderboardPlayers": "players",
+
+  "titleScreenTitle": "Titles",
+  "titleCurrent": "Current Title",
+  "titleNone": "No Title",
+  "titleHidden": "Complete hidden achievements to unlock",
+  "titleEquip": "Equip",
+  "titleUnequip": "Unequip"
 }

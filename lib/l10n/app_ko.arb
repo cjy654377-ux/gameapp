@@ -564,5 +564,12 @@
   "leaderboardTower": "탑",
   "leaderboardBoss": "월드보스",
   "leaderboardMyRank": "내 순위",
-  "leaderboardPlayers": "명 참여"
+  "leaderboardPlayers": "명 참여",
+
+  "titleScreenTitle": "칭호",
+  "titleCurrent": "현재 칭호",
+  "titleNone": "칭호 없음",
+  "titleHidden": "숨겨진 업적을 달성하면 해금됩니다",
+  "titleEquip": "장착",
+  "titleUnequip": "해제"
 }

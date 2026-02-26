@@ -253,6 +253,15 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     await advanceTutorial(99);
   }
 
+  /// Generic update: apply [transform] to the current player and persist.
+  Future<void> updatePlayer(PlayerModel Function(PlayerModel) transform) async {
+    final current = state.player;
+    if (current == null) return;
+    final updated = transform(current);
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------

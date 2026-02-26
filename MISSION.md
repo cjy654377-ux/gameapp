@@ -234,6 +234,12 @@
   - AI 30명 시뮬레이션 + 플레이어 실제 기록 순위
   - LeaderboardScreen: 4탭, 순위요약 헤더, 1~3위 메달
   - /leaderboard 라우트, battle_screen 빠른이동, ko/en l10n
+- [x] K8: 도전 과제 확장 (숨은 업적, 칭호)
+  - TitleDatabase: 12종 칭호 (전투/수집/소환/던전/전생/출석)
+  - TitleProvider: 칭호 해금/장착/해제, 조건 자동 체크
+  - TitleScreen: 현재 칭호, 해금/미해금 카드 목록, 장착 토글
+  - PlayerModel.currentTitle (HiveField 19), updatePlayer() 범용 메서드
+  - /title 라우트, battle_screen 빠른이동, ko/en l10n
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

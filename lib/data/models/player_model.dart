@@ -70,6 +70,10 @@ class PlayerModel extends HiveObject {
   @HiveField(18)
   int totalCheckInDays;
 
+  /// Currently equipped title ID (null = none).
+  @HiveField(19)
+  String? currentTitle;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -90,6 +94,7 @@ class PlayerModel extends HiveObject {
     this.lastCheckInDate,
     this.checkInStreak = 0,
     this.totalCheckInDays = 0,
+    this.currentTitle,
   });
 
   // -------------------------------------------------------------------------
@@ -131,6 +136,7 @@ class PlayerModel extends HiveObject {
       lastCheckInDate: null,
       checkInStreak: 0,
       totalCheckInDays: 0,
+      currentTitle: null,
     );
   }
 
@@ -158,6 +164,8 @@ class PlayerModel extends HiveObject {
     DateTime? lastCheckInDate,
     int? checkInStreak,
     int? totalCheckInDays,
+    String? currentTitle,
+    bool clearTitle = false,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -180,6 +188,7 @@ class PlayerModel extends HiveObject {
       lastCheckInDate: lastCheckInDate ?? this.lastCheckInDate,
       checkInStreak: checkInStreak ?? this.checkInStreak,
       totalCheckInDays: totalCheckInDays ?? this.totalCheckInDays,
+      currentTitle: clearTitle ? null : (currentTitle ?? this.currentTitle),
     );
   }
 
@@ -225,13 +234,14 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       lastCheckInDate: fields[16] as DateTime?,
       checkInStreak: fields[17] as int? ?? 0,
       totalCheckInDays: fields[18] as int? ?? 0,
+      currentTitle: fields[19] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(19) // number of fields
+      ..writeByte(20) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -269,7 +279,9 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(17)
       ..write(obj.checkInStreak)
       ..writeByte(18)
-      ..write(obj.totalCheckInDays);
+      ..write(obj.totalCheckInDays)
+      ..writeByte(19)
+      ..write(obj.currentTitle);
   }
 
   @override
