@@ -257,9 +257,11 @@ class _IdleBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // Dungeon & World Boss entry buttons
-          Row(
-            mainAxisSize: MainAxisSize.min,
+          // Dungeon & World Boss & Arena entry buttons
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 10,
+            runSpacing: 8,
             children: [
               GestureDetector(
                 onTap: () => context.push(AppRoutes.dungeon),
@@ -290,7 +292,6 @@ class _IdleBanner extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
               GestureDetector(
                 onTap: () => context.push(AppRoutes.worldBoss),
                 child: Container(
@@ -312,6 +313,35 @@ class _IdleBanner extends StatelessWidget {
                         '월드 보스',
                         style: TextStyle(
                           color: Colors.red,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.push(AppRoutes.arena),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.amber.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.emoji_events, color: Colors.amber, size: 18),
+                      SizedBox(width: 6),
+                      Text(
+                        'PvP 아레나',
+                        style: TextStyle(
+                          color: Colors.amber,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),

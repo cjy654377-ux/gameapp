@@ -76,7 +76,11 @@
   - 5단계 흐름: 전투소개→승리→소환→강화→팀편성→완료
   - battle/gacha/upgrade/collection_screen 통합
 ### 콘텐츠 확장
-- [ ] B5: PvP 아레나 (AI 대전, 랭킹)
+- [x] B5: PvP 아레나 (AI 대전, 랭킹)
+  - ArenaService: AI 상대 생성 (3난이도), 레이팅 시스템
+  - ArenaProvider: 로비/전투/결과 상태, 일일 5회 도전
+  - ArenaScreen: 상대선택/전투/결과 UI, 랭크 배지
+  - battle_screen 아레나 진입 버튼, /arena 라우트
 - [ ] B6: 이벤트 던전 (기간한정 스테이지)
 - [ ] B7: 길드/클랜 시스템 (공동보스, 길드상점)
 - [ ] B8: 몬스터 도감 보상 (완성도 보너스)

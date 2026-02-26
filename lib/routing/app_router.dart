@@ -16,6 +16,7 @@ import '../presentation/screens/dungeon/dungeon_screen.dart';
 import '../presentation/screens/prestige/prestige_screen.dart';
 import '../presentation/screens/relic/relic_screen.dart';
 import '../presentation/screens/stage_select/stage_select_screen.dart';
+import '../presentation/screens/arena/arena_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -38,6 +39,7 @@ class AppRoutes {
   static const prestige = '/prestige';
   static const worldBoss = '/world-boss';
   static const relic = '/relic';
+  static const arena = '/arena';
 }
 
 // ---------------------------------------------------------------------------
@@ -87,6 +89,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.relic,
         builder: (context, state) => const RelicScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.arena,
+        builder: (context, state) => const ArenaScreen(),
       ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) {
