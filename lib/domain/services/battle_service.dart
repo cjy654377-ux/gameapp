@@ -4,6 +4,8 @@ import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
+import 'package:gameapp/domain/entities/synergy.dart';
+import 'package:gameapp/domain/services/synergy_service.dart';
 
 /// Core battle logic service.
 ///
@@ -288,33 +290,50 @@ class BattleService {
   // ---------------------------------------------------------------------------
 
   /// Creates player [BattleMonster] instances from a list of [MonsterModel]
-  /// objects.
+  /// objects, applying active synergy bonuses.
   ///
-  /// The parameter type is [dynamic] to allow callers outside the data layer
-  /// to pass models without triggering circular-import issues; the list items
-  /// are cast to [MonsterModel] internally.
-  ///
-  /// Uses the pre-computed `final*` getters already present on [MonsterModel].
-  static List<BattleMonster> createPlayerTeam(List<dynamic> monsters) {
-    return monsters
-        .whereType<MonsterModel>()
-        .map((m) {
-          final double hp = m.finalHp;
-          return BattleMonster(
-            monsterId:  m.id,
-            templateId: m.templateId,
-            name:       m.name,
-            element:    m.element,
-            size:       m.size,
-            rarity:     m.rarity,
-            maxHp:      hp,
-            currentHp:  hp,
-            atk:        m.finalAtk,
-            def:        m.finalDef,
-            spd:        m.finalSpd,
-          );
-        })
+  /// Returns a record containing the built team and the list of active
+  /// synergies so the caller can expose them in the UI.
+  static ({List<BattleMonster> team, List<SynergyEffect> synergies})
+      createPlayerTeam(List<dynamic> monsters) {
+    final models = monsters.whereType<MonsterModel>().toList();
+
+    // Build MonsterInfo list for synergy evaluation.
+    final infos = models
+        .map((m) => MonsterInfo(
+              templateId: m.templateId,
+              element: m.element,
+              size: m.size,
+              rarity: m.rarity,
+            ))
         .toList();
+
+    final synergies = SynergyService.getActiveSynergies(infos);
+    final bonuses = SynergyService.getTotalBonuses(infos);
+
+    final atkMult = 1.0 + (bonuses['atk'] ?? 0.0);
+    final defMult = 1.0 + (bonuses['def'] ?? 0.0);
+    final hpMult  = 1.0 + (bonuses['hp']  ?? 0.0);
+    final spdMult = 1.0 + (bonuses['spd'] ?? 0.0);
+
+    final team = models.map((m) {
+      final double hp = m.finalHp * hpMult;
+      return BattleMonster(
+        monsterId:  m.id,
+        templateId: m.templateId,
+        name:       m.name,
+        element:    m.element,
+        size:       m.size,
+        rarity:     m.rarity,
+        maxHp:      hp,
+        currentHp:  hp,
+        atk:        m.finalAtk * atkMult,
+        def:        m.finalDef * defMult,
+        spd:        m.finalSpd * spdMult,
+      );
+    }).toList();
+
+    return (team: team, synergies: synergies);
   }
 
   // ---------------------------------------------------------------------------

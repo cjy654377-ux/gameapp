@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
+import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/domain/services/battle_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
@@ -77,6 +78,9 @@ class BattleState {
   /// Cleared (reset to `null`) after [BattleNotifier.collectReward] is called.
   final BattleReward? lastReward;
 
+  /// Synergies active for the current player team.
+  final List<SynergyEffect> activeSynergies;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -89,6 +93,7 @@ class BattleState {
     this.currentStageId   = 1,
     this.currentStageName = '',
     this.lastReward,
+    this.activeSynergies  = const [],
   });
 
   BattleState copyWith({
@@ -104,6 +109,7 @@ class BattleState {
     String?             currentStageName,
     BattleReward?       lastReward,
     bool                clearReward = false,
+    List<SynergyEffect>? activeSynergies,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -117,6 +123,7 @@ class BattleState {
       currentStageId:   currentStageId   ?? this.currentStageId,
       currentStageName: currentStageName ?? this.currentStageName,
       lastReward:       clearReward ? null : (lastReward ?? this.lastReward),
+      activeSynergies:  activeSynergies  ?? this.activeSynergies,
     );
   }
 
@@ -177,19 +184,20 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final stageData = StageDatabase.findById(stageKey);
     if (stageData == null) return;
 
-    // Build player team from the current roster.
-    final roster     = ref.read(monsterListProvider);
-    final playerTeam = BattleService.createPlayerTeam(
+    // Build player team from the current roster (with synergy bonuses applied).
+    final roster = ref.read(monsterListProvider);
+    final result = BattleService.createPlayerTeam(
         roster.where((m) => m.isInTeam).toList());
-    if (playerTeam.isEmpty) return;
+    if (result.team.isEmpty) return;
 
     // Build enemy team.
     final enemyTeam = BattleService.createEnemiesForStage(resolvedId);
 
     state = BattleState(
       phase:            BattlePhase.fighting,
-      playerTeam:       playerTeam,
+      playerTeam:       result.team,
       enemyTeam:        enemyTeam,
+      activeSynergies:  result.synergies,
       battleLog:        const [],
       currentTurn:      1,
       turnWithinRound:  0,

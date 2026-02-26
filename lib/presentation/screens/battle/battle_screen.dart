@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
+import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
@@ -83,19 +84,36 @@ class _StageHeader extends ConsumerWidget {
         ? stageName
         : (stageId > 0 ? '스테이지 $stageId' : '전투 대기중');
 
+    final synergies =
+        ref.watch(battleProvider.select((s) => s.activeSynergies));
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       color: AppColors.surfaceVariant,
-      child: Text(
-        displayName,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            displayName,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          if (synergies.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              alignment: WrapAlignment.center,
+              children: synergies.map((s) => _SynergyBadge(synergy: s)).toList(),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -927,6 +945,68 @@ class _RewardChip extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// _SynergyBadge
+// =============================================================================
+
+class _SynergyBadge extends StatelessWidget {
+  const _SynergyBadge({required this.synergy});
+
+  final SynergyEffect synergy;
+
+  Color get _badgeColor {
+    switch (synergy.type) {
+      case SynergyType.element:
+        return const Color(0xFF42A5F5);
+      case SynergyType.size:
+        return const Color(0xFF66BB6A);
+      case SynergyType.rarity:
+        return const Color(0xFFFFB74D);
+      case SynergyType.special:
+        return const Color(0xFFCE93D8);
+    }
+  }
+
+  String get _icon {
+    switch (synergy.type) {
+      case SynergyType.element:
+        return '🔮';
+      case SynergyType.size:
+        return '📐';
+      case SynergyType.rarity:
+        return '⭐';
+      case SynergyType.special:
+        return '💎';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: synergy.description,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: _badgeColor.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: _badgeColor.withValues(alpha: 0.5),
+            width: 0.8,
+          ),
+        ),
+        child: Text(
+          '$_icon ${synergy.name}',
+          style: TextStyle(
+            color: _badgeColor,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 }
