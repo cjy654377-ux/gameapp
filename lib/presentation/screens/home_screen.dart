@@ -96,7 +96,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
         _onPaused();
         break;
       case AppLifecycleState.resumed:
@@ -108,12 +107,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Future<void> _onPaused() async {
-    // Update lastOnlineAt and save all data immediately.
+    // Update lastOnlineAt (saves player internally), then save currency.
     await ref.read(playerProvider.notifier).updateLastOnline();
-    await LocalStorage.instance.saveAll(
-      player: ref.read(playerProvider).player,
-      currency: ref.read(currencyProvider),
-    );
+    await LocalStorage.instance.saveCurrency(ref.read(currencyProvider));
   }
 
   Future<void> _onResumed() async {
@@ -141,7 +137,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     _showingDialog = true;
 
-    if (!mounted) return;
+    if (!mounted) {
+      _showingDialog = false;
+      return;
+    }
 
     final claimed = await showOfflineRewardDialog(
       context,
