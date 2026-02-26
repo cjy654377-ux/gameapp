@@ -183,21 +183,42 @@ class MonsterBattleCard extends StatelessWidget {
             height: 12,
           ),
 
-          // ── Skill cooldown indicator ───────────────────────────────────
-          if (!isDead && monster.skillId != null)
+          // ── Skill cooldown / ultimate charge indicator ──────────────────
+          if (!isDead && (monster.skillId != null || monster.ultimateId != null))
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                monster.skillCooldown > 0
-                    ? 'CD ${monster.skillCooldown}'
-                    : 'READY',
-                style: TextStyle(
-                  fontSize: 7,
-                  fontWeight: FontWeight.w700,
-                  color: monster.skillCooldown > 0
-                      ? AppColors.textTertiary
-                      : const Color(0xFFFFD740),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (monster.skillId != null)
+                    Text(
+                      monster.skillCooldown > 0
+                          ? 'CD ${monster.skillCooldown}'
+                          : 'READY',
+                      style: TextStyle(
+                        fontSize: 7,
+                        fontWeight: FontWeight.w700,
+                        color: monster.skillCooldown > 0
+                            ? AppColors.textTertiary
+                            : const Color(0xFFFFD740),
+                      ),
+                    ),
+                  if (monster.ultimateId != null) ...[
+                    if (monster.skillId != null) const SizedBox(width: 3),
+                    Text(
+                      monster.isUltimateReady
+                          ? '★ULT'
+                          : '★${monster.ultimateCharge.round()}%',
+                      style: TextStyle(
+                        fontSize: 7,
+                        fontWeight: FontWeight.w700,
+                        color: monster.isUltimateReady
+                            ? Colors.amber
+                            : Colors.amber.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
         ],

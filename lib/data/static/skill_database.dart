@@ -5,6 +5,109 @@
 // attack for that turn.
 
 // =============================================================================
+// PassiveTrigger
+// =============================================================================
+
+/// When the passive effect activates.
+enum PassiveTrigger {
+  /// At the start of the monster's turn.
+  onTurnStart,
+
+  /// When the monster deals damage.
+  onAttack,
+
+  /// When the monster takes damage.
+  onDamaged,
+
+  /// Applied once at battle start (permanent stat buff).
+  battleStart,
+}
+
+// =============================================================================
+// PassiveDefinition
+// =============================================================================
+
+/// A passive ability that triggers automatically.
+class PassiveDefinition {
+  final String id;
+  final String name;
+  final String description;
+  final PassiveTrigger trigger;
+
+  /// ATK boost multiplier (e.g. 0.1 = +10% ATK).
+  final double atkBoost;
+
+  /// DEF boost multiplier.
+  final double defBoost;
+
+  /// HP regen as fraction of maxHp per trigger.
+  final double hpRegenPercent;
+
+  /// Chance to counter-attack when damaged (0.0-1.0).
+  final double counterChance;
+
+  /// Counter damage multiplier (of ATK).
+  final double counterMultiplier;
+
+  /// Critical hit rate boost (added to base 5%).
+  final double critBoost;
+
+  const PassiveDefinition({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.trigger,
+    this.atkBoost = 0.0,
+    this.defBoost = 0.0,
+    this.hpRegenPercent = 0.0,
+    this.counterChance = 0.0,
+    this.counterMultiplier = 0.0,
+    this.critBoost = 0.0,
+  });
+}
+
+// =============================================================================
+// UltimateDefinition
+// =============================================================================
+
+/// A powerful skill that charges through combat and fires when full.
+class UltimateDefinition {
+  final String id;
+  final String name;
+  final String description;
+
+  /// Charge needed to activate (typically 100).
+  final int maxCharge;
+
+  /// Charge gained per point of damage dealt (charge += damage * chargeRate).
+  final double chargeRate;
+
+  /// Damage multiplier (0 = no damage).
+  final double damageMultiplier;
+  final SkillTargetType damageTarget;
+
+  /// Heal as fraction of caster maxHp (0 = no heal).
+  final double healPercent;
+  final bool isTeamHeal;
+
+  /// Stun chance on targets.
+  final double stunChance;
+
+  const UltimateDefinition({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.maxCharge = 100,
+    this.chargeRate = 0.01,
+    this.damageMultiplier = 0.0,
+    this.damageTarget = SkillTargetType.allEnemies,
+    this.healPercent = 0.0,
+    this.isTeamHeal = false,
+    this.stunChance = 0.0,
+  });
+}
+
+// =============================================================================
 // SkillTargetType
 // =============================================================================
 
@@ -343,4 +446,139 @@ class SkillDatabase {
   /// or `null` if the monster has no skill.
   static SkillDefinition? findByTemplateId(String templateId) =>
       _byTemplateId[templateId];
+
+  // ---------------------------------------------------------------------------
+  // Passive skills
+  // ---------------------------------------------------------------------------
+
+  static const Map<String, PassiveDefinition> _passives = {
+    // 1★ passives
+    'slime': PassiveDefinition(
+      id: 'slime_p', name: '점액 재생', description: '매 턴 HP 2% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.02,
+    ),
+    'goblin': PassiveDefinition(
+      id: 'goblin_p', name: '교활함', description: '공격 시 크리 확률 +10%',
+      trigger: PassiveTrigger.onAttack, critBoost: 0.10,
+    ),
+    'spark_bug': PassiveDefinition(
+      id: 'spark_bug_p', name: '정전기', description: '피격 시 15% 확률로 반격',
+      trigger: PassiveTrigger.onDamaged, counterChance: 0.15, counterMultiplier: 0.5,
+    ),
+    'pebble': PassiveDefinition(
+      id: 'pebble_p', name: '단단한 표피', description: '방어력 +8%',
+      trigger: PassiveTrigger.battleStart, defBoost: 0.08,
+    ),
+    'wisp': PassiveDefinition(
+      id: 'wisp_p', name: '흡수체질', description: '매 턴 HP 3% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.03,
+    ),
+    'flame_spirit': PassiveDefinition(
+      id: 'flame_spirit_p', name: '불꽃의 기운', description: '공격력 +8%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.08,
+    ),
+    // 2★ passives
+    'bat': PassiveDefinition(
+      id: 'bat_p', name: '흡혈 본능', description: '공격 시 크리 확률 +12%',
+      trigger: PassiveTrigger.onAttack, critBoost: 0.12,
+    ),
+    'stone_golem': PassiveDefinition(
+      id: 'stone_golem_p', name: '바위 갑옷', description: '방어력 +12%',
+      trigger: PassiveTrigger.battleStart, defBoost: 0.12,
+    ),
+    'thunder_wolf': PassiveDefinition(
+      id: 'thunder_wolf_p', name: '야생의 직감', description: '공격력 +10%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.10,
+    ),
+    'vine_snake': PassiveDefinition(
+      id: 'vine_snake_p', name: '덩굴 재생', description: '매 턴 HP 3% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.03,
+    ),
+    'mermaid': PassiveDefinition(
+      id: 'mermaid_p', name: '수호의 노래', description: '피격 시 20% 확률로 반격',
+      trigger: PassiveTrigger.onDamaged, counterChance: 0.20, counterMultiplier: 0.6,
+    ),
+    // 3★ passives
+    'silver_wolf': PassiveDefinition(
+      id: 'silver_wolf_p', name: '달빛 축복', description: '공격력 +12%, 크리 +5%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.12, critBoost: 0.05,
+    ),
+    'shadow_cat': PassiveDefinition(
+      id: 'shadow_cat_p', name: '그림자 은신', description: '크리 확률 +15%',
+      trigger: PassiveTrigger.onAttack, critBoost: 0.15,
+    ),
+    'crystal_turtle': PassiveDefinition(
+      id: 'crystal_turtle_p', name: '수정 흡수', description: '방어력 +15%',
+      trigger: PassiveTrigger.battleStart, defBoost: 0.15,
+    ),
+    'storm_eagle': PassiveDefinition(
+      id: 'storm_eagle_p', name: '질풍', description: '공격력 +10%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.10,
+    ),
+    // 4★ passives
+    'phoenix': PassiveDefinition(
+      id: 'phoenix_p', name: '불사', description: '매 턴 HP 4% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.04,
+    ),
+    'ice_queen': PassiveDefinition(
+      id: 'ice_queen_p', name: '얼음 갑옷', description: '방어력 +15%, 반격 20%',
+      trigger: PassiveTrigger.onDamaged, defBoost: 0.15, counterChance: 0.20, counterMultiplier: 0.7,
+    ),
+    'dark_knight': PassiveDefinition(
+      id: 'dark_knight_p', name: '암흑 집중', description: '공격력 +15%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.15,
+    ),
+    // 5★ passives
+    'flame_dragon': PassiveDefinition(
+      id: 'flame_dragon_p', name: '용의 위엄', description: '공격력 +15%, 방어력 +10%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.15, defBoost: 0.10,
+    ),
+    'archangel': PassiveDefinition(
+      id: 'archangel_p', name: '신의 가호', description: '매 턴 HP 5% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.05,
+    ),
+  };
+
+  static PassiveDefinition? findPassive(String templateId) =>
+      _passives[templateId];
+
+  // ---------------------------------------------------------------------------
+  // Ultimate skills (4★+, 5★ only)
+  // ---------------------------------------------------------------------------
+
+  static const Map<String, UltimateDefinition> _ultimates = {
+    'phoenix': UltimateDefinition(
+      id: 'phoenix_ult', name: '불사조의 부활',
+      description: '아군 전체 HP 30% 회복 + 적 전체에 큰 데미지',
+      maxCharge: 100, chargeRate: 0.012,
+      damageMultiplier: 2.5, healPercent: 0.30, isTeamHeal: true,
+    ),
+    'ice_queen': UltimateDefinition(
+      id: 'ice_queen_ult', name: '빙하 시대',
+      description: '적 전체에 큰 데미지 + 기절',
+      maxCharge: 100, chargeRate: 0.010,
+      damageMultiplier: 3.0, stunChance: 0.8,
+    ),
+    'dark_knight': UltimateDefinition(
+      id: 'dark_knight_ult', name: '절멸의 일격',
+      description: '단일 적에게 초강력 데미지',
+      maxCharge: 100, chargeRate: 0.015,
+      damageMultiplier: 5.0, damageTarget: SkillTargetType.singleEnemy,
+    ),
+    'flame_dragon': UltimateDefinition(
+      id: 'flame_dragon_ult', name: '종말의 불꽃',
+      description: '적 전체를 불태우는 궁극의 브레스',
+      maxCharge: 100, chargeRate: 0.010,
+      damageMultiplier: 3.5,
+    ),
+    'archangel': UltimateDefinition(
+      id: 'archangel_ult', name: '천상의 심판',
+      description: '적 전체에 큰 데미지 + 아군 전체 회복',
+      maxCharge: 100, chargeRate: 0.010,
+      damageMultiplier: 2.8, healPercent: 0.25, isTeamHeal: true,
+    ),
+  };
+
+  static UltimateDefinition? findUltimate(String templateId) =>
+      _ultimates[templateId];
 }

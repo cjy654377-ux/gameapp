@@ -97,11 +97,38 @@ class BattleMonster {
   /// Remaining stun turns. When > 0, the monster skips its action.
   int stunTurns;
 
+  // -- Passive / Ultimate fields --------------------------------------------
+
+  /// Passive skill ID (null = no passive).
+  final String? passiveId;
+
+  /// Passive skill display name.
+  final String? passiveName;
+
+  /// Extra critical hit chance from passive (added to base 5%).
+  double passiveCritBoost;
+
+  /// Ultimate skill ID (null = no ultimate).
+  final String? ultimateId;
+
+  /// Ultimate skill display name.
+  final String? ultimateName;
+
+  /// Current ultimate charge (0-maxCharge).
+  double ultimateCharge;
+
+  /// Max charge needed to fire ultimate.
+  final int ultimateMaxCharge;
+
   /// Whether this monster can still act (HP > 0).
   bool get isAlive => currentHp > 0;
 
   /// Whether the skill is ready to activate.
   bool get isSkillReady => skillId != null && skillCooldown <= 0;
+
+  /// Whether the ultimate is fully charged and ready.
+  bool get isUltimateReady =>
+      ultimateId != null && ultimateCharge >= ultimateMaxCharge;
 
   BattleMonster({
     required this.monsterId,
@@ -123,6 +150,13 @@ class BattleMonster {
     this.burnTurns = 0,
     this.burnDamagePerTurn = 0.0,
     this.stunTurns = 0,
+    this.passiveId,
+    this.passiveName,
+    this.passiveCritBoost = 0.0,
+    this.ultimateId,
+    this.ultimateName,
+    this.ultimateCharge = 0.0,
+    this.ultimateMaxCharge = 100,
   });
 
   /// Returns a new [BattleMonster] with the specified fields overridden.
@@ -146,6 +180,13 @@ class BattleMonster {
     int? burnTurns,
     double? burnDamagePerTurn,
     int? stunTurns,
+    String? passiveId,
+    String? passiveName,
+    double? passiveCritBoost,
+    String? ultimateId,
+    String? ultimateName,
+    double? ultimateCharge,
+    int? ultimateMaxCharge,
   }) {
     return BattleMonster(
       monsterId:        monsterId        ?? this.monsterId,
@@ -167,6 +208,13 @@ class BattleMonster {
       burnTurns:        burnTurns        ?? this.burnTurns,
       burnDamagePerTurn: burnDamagePerTurn ?? this.burnDamagePerTurn,
       stunTurns:        stunTurns        ?? this.stunTurns,
+      passiveId:        passiveId        ?? this.passiveId,
+      passiveName:      passiveName      ?? this.passiveName,
+      passiveCritBoost: passiveCritBoost ?? this.passiveCritBoost,
+      ultimateId:       ultimateId       ?? this.ultimateId,
+      ultimateName:     ultimateName     ?? this.ultimateName,
+      ultimateCharge:   ultimateCharge   ?? this.ultimateCharge,
+      ultimateMaxCharge: ultimateMaxCharge ?? this.ultimateMaxCharge,
     );
   }
 

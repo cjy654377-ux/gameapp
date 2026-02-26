@@ -240,6 +240,13 @@
   - TitleScreen: 현재 칭호, 해금/미해금 카드 목록, 장착 토글
   - PlayerModel.currentTitle (HiveField 19), updatePlayer() 범용 메서드
   - /title 라우트, battle_screen 빠른이동, ko/en l10n
+- [x] K6: 추가 스킬 (패시브 스킬, 궁극기)
+  - PassiveDefinition: 20종 패시브 (턴시작HP회복/공격크리/피격반격/전투시작버프)
+  - UltimateDefinition: 5종 궁극기 (4-5성 전용, 데미지충전→대규모 효과)
+  - BattleMonster: passiveId/ultimateId/ultimateCharge 필드 추가
+  - BattleService: processPassiveTurnStart/processPassiveCounter/chargeUltimate/processUltimate
+  - battle_provider processTurn 통합: 패시브→화상→기절→궁극기→스킬→일반공격
+  - monster_battle_card: 궁극기 차지% / ULT READY 표시
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가

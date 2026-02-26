@@ -365,6 +365,168 @@ class BattleService {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Passive processing
+  // ---------------------------------------------------------------------------
+
+  /// Processes turn-start passive effects (HP regen).
+  static BattleLogEntry? processPassiveTurnStart(BattleMonster monster) {
+    if (!monster.isAlive || monster.passiveId == null) return null;
+
+    final passive = SkillDatabase.findPassive(monster.templateId);
+    if (passive == null || passive.trigger != PassiveTrigger.onTurnStart) {
+      return null;
+    }
+
+    if (passive.hpRegenPercent > 0) {
+      final heal = monster.maxHp * passive.hpRegenPercent;
+      final before = monster.currentHp;
+      monster.currentHp = math.min(monster.maxHp, monster.currentHp + heal);
+      final actual = monster.currentHp - before;
+      if (actual > 0.5) {
+        return BattleLogEntry(
+          attackerName: monster.name,
+          targetName: monster.name,
+          damage: 0,
+          isCritical: false,
+          isElementAdvantage: false,
+          isSkillActivation: true,
+          description: '[${passive.name}] ${monster.name} HP +${actual.round()} 회복',
+          timestamp: DateTime.now(),
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Processes counter-attack passive when [defender] is attacked.
+  static BattleLogEntry? processPassiveCounter(
+      BattleMonster defender, BattleMonster attacker) {
+    if (!defender.isAlive || defender.passiveId == null) return null;
+
+    final passive = SkillDatabase.findPassive(defender.templateId);
+    if (passive == null || passive.trigger != PassiveTrigger.onDamaged) {
+      return null;
+    }
+
+    if (passive.counterChance > 0 &&
+        _random.nextDouble() < passive.counterChance) {
+      final damage = defender.atk * passive.counterMultiplier;
+      final defReduction = attacker.def / (attacker.def + 100.0);
+      final actual = math.max(1.0, damage * (1.0 - defReduction));
+      _applyDamage(attacker, actual);
+
+      return BattleLogEntry(
+        attackerName: defender.name,
+        targetName: attacker.name,
+        damage: actual,
+        isCritical: false,
+        isElementAdvantage: false,
+        isSkillActivation: true,
+        description: '[${passive.name}] ${defender.name} 반격! '
+            '${attacker.name}에게 ${actual.round()} 데미지!',
+        timestamp: DateTime.now(),
+      );
+    }
+    return null;
+  }
+
+  /// Adds ultimate charge to [monster] based on damage dealt.
+  static void chargeUltimate(BattleMonster monster, double damage) {
+    if (monster.ultimateId == null) return;
+    final ult = SkillDatabase.findUltimate(monster.templateId);
+    if (ult == null) return;
+    monster.ultimateCharge = math.min(
+      ult.maxCharge.toDouble(),
+      monster.ultimateCharge + damage * ult.chargeRate,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Ultimate processing
+  // ---------------------------------------------------------------------------
+
+  /// Processes the ultimate skill for [caster] if fully charged.
+  static List<BattleLogEntry> processUltimate({
+    required BattleMonster caster,
+    required List<BattleMonster> playerTeam,
+    required List<BattleMonster> enemyTeam,
+    required bool isCasterPlayer,
+  }) {
+    if (!caster.isUltimateReady) return const [];
+
+    final ult = SkillDatabase.findUltimate(caster.templateId);
+    if (ult == null) return const [];
+
+    final logs = <BattleLogEntry>[];
+    final allies = isCasterPlayer ? playerTeam : enemyTeam;
+    final enemies = isCasterPlayer ? enemyTeam : playerTeam;
+    final now = DateTime.now();
+    final sm = _endsWithConsonant(caster.name) ? '이' : '가';
+
+    // Damage
+    if (ult.damageMultiplier > 0) {
+      final targets = ult.damageTarget == SkillTargetType.allEnemies
+          ? enemies.where((m) => m.isAlive).toList()
+          : [selectTarget(enemies)].whereType<BattleMonster>().toList();
+
+      for (final target in targets) {
+        final rawDmg = caster.atk * ult.damageMultiplier;
+        final defReduction = target.def / (target.def + 100.0);
+        final damage = math.max(1.0, rawDmg * (1.0 - defReduction));
+        _applyDamage(target, damage);
+
+        final sb = StringBuffer();
+        sb.write('★[${ult.name}] ${caster.name}$sm(가) ${target.name}에게 '
+            '${damage.round()} 데미지!');
+
+        if (ult.stunChance > 0 && _random.nextDouble() < ult.stunChance) {
+          target.stunTurns = 1;
+          sb.write(' (기절!)');
+        }
+
+        logs.add(BattleLogEntry(
+          attackerName: caster.name,
+          targetName: target.name,
+          damage: damage,
+          isCritical: false,
+          isElementAdvantage: false,
+          isSkillActivation: true,
+          description: sb.toString(),
+          timestamp: now,
+        ));
+      }
+    }
+
+    // Heal
+    if (ult.healPercent > 0) {
+      final healAmount = caster.maxHp * ult.healPercent;
+      final healTargets = ult.isTeamHeal
+          ? allies.where((m) => m.isAlive).toList()
+          : [caster];
+      for (final target in healTargets) {
+        target.currentHp = math.min(target.maxHp, target.currentHp + healAmount);
+      }
+      final targetDesc = ult.isTeamHeal ? '아군 전체' : caster.name;
+      logs.add(BattleLogEntry(
+        attackerName: caster.name,
+        targetName: targetDesc,
+        damage: 0,
+        isCritical: false,
+        isElementAdvantage: false,
+        isSkillActivation: true,
+        description: '★[${ult.name}] ${caster.name}$sm(가) $targetDesc '
+            '체력 ${healAmount.round()} 회복!',
+        timestamp: now,
+      ));
+    }
+
+    // Reset charge
+    caster.ultimateCharge = 0;
+
+    return logs;
+  }
+
   /// Applies damage to a monster, with shield absorbing first.
   static void _applyDamage(BattleMonster target, double damage) {
     if (target.shieldHp > 0) {
@@ -520,6 +682,17 @@ class BattleService {
     final team = models.map((m) {
       final double hp = m.finalHp * hpMult;
       final skill = SkillDatabase.findByTemplateId(m.templateId);
+      final passive = SkillDatabase.findPassive(m.templateId);
+      final ultimate = SkillDatabase.findUltimate(m.templateId);
+
+      // Apply battleStart passive stat buffs
+      double atkFinal = m.finalAtk * atkMult;
+      double defFinal = m.finalDef * defMult;
+      if (passive != null && passive.trigger == PassiveTrigger.battleStart) {
+        atkFinal *= (1.0 + passive.atkBoost);
+        defFinal *= (1.0 + passive.defBoost);
+      }
+
       return BattleMonster(
         monsterId:  m.id,
         templateId: m.templateId,
@@ -529,13 +702,20 @@ class BattleService {
         rarity:     m.rarity,
         maxHp:      hp,
         currentHp:  hp,
-        atk:        m.finalAtk * atkMult,
-        def:        m.finalDef * defMult,
+        atk:        atkFinal,
+        def:        defFinal,
         spd:        m.finalSpd * spdMult,
         skillId:          skill?.id,
         skillName:        skill?.name,
         skillCooldown:    skill?.cooldown ?? 0,
         skillMaxCooldown: skill?.cooldown ?? 0,
+        passiveId:        passive?.id,
+        passiveName:      passive?.name,
+        passiveCritBoost: passive?.critBoost ?? 0.0,
+        ultimateId:       ultimate?.id,
+        ultimateName:     ultimate?.name,
+        ultimateCharge:   0.0,
+        ultimateMaxCharge: ultimate?.maxCharge ?? 100,
       );
     }).toList();
 

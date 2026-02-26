@@ -255,7 +255,11 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Trim log to prevent unbounded memory growth.
     if (log.length > 50) log.removeRange(0, log.length - 50);
 
-    // -- 1. Burn damage (DoT) at turn start -----------------------------------
+    // -- 1. Passive: turn-start (HP regen) ------------------------------------
+    final passiveEntry = BattleService.processPassiveTurnStart(attacker);
+    if (passiveEntry != null) log.add(passiveEntry);
+
+    // -- 2. Burn damage (DoT) at turn start -----------------------------------
     final burnEntry = BattleService.processBurn(attacker);
     if (burnEntry != null) log.add(burnEntry);
 
@@ -265,7 +269,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
       return;
     }
 
-    // -- 2. Stun check --------------------------------------------------------
+    // -- 3. Stun check --------------------------------------------------------
     final stunEntry = BattleService.processStun(attacker);
     if (stunEntry != null) {
       log.add(stunEntry);
@@ -275,10 +279,20 @@ class BattleNotifier extends StateNotifier<BattleState> {
       return;
     }
 
-    // -- 3. Tick cooldown, then act -------------------------------------------
+    // -- 4. Tick cooldown, then act -------------------------------------------
     BattleService.tickSkillCooldown(attacker);
 
-    if (attacker.isSkillReady) {
+    // Check ultimate first (highest priority)
+    if (attacker.isUltimateReady) {
+      AudioService.instance.playSkillActivation();
+      final ultLogs = BattleService.processUltimate(
+        caster: attacker,
+        playerTeam: playerTeam,
+        enemyTeam: enemyTeam,
+        isCasterPlayer: isPlayerMonster,
+      );
+      log.addAll(ultLogs);
+    } else if (attacker.isSkillReady) {
       // Skill activation.
       AudioService.instance.playSkillActivation();
       final skillLogs = BattleService.processSkill(
@@ -288,6 +302,9 @@ class BattleNotifier extends StateNotifier<BattleState> {
         isCasterPlayer: isPlayerMonster,
       );
       log.addAll(skillLogs);
+      // Charge ultimate from skill damage
+      final totalDmg = skillLogs.fold<double>(0, (s, e) => s + e.damage);
+      BattleService.chargeUltimate(attacker, totalDmg);
     } else {
       // Normal attack.
       final opposingTeam = isPlayerMonster ? enemyTeam : playerTeam;
@@ -302,6 +319,11 @@ class BattleNotifier extends StateNotifier<BattleState> {
         );
         log.add(entry);
         AudioService.instance.playHit();
+        // Charge ultimate from normal attack damage
+        BattleService.chargeUltimate(attacker, entry.damage);
+        // Passive counter-attack
+        final counterEntry = BattleService.processPassiveCounter(targetInList, attacker);
+        if (counterEntry != null) log.add(counterEntry);
       }
     }
 
