@@ -281,10 +281,10 @@ class _StatRadarChart extends StatelessWidget {
         size: const Size(double.infinity, 180),
         painter: _RadarPainter(
           values: [
-            (monster.finalHp + relicBonus.hp) / 2000,
-            (monster.finalAtk + relicBonus.atk) / 500,
-            (monster.finalDef + relicBonus.def) / 500,
-            (monster.finalSpd + relicBonus.spd) / 50,
+            ((monster.finalHp + relicBonus.hp) / 2000).clamp(0.0, 1.0),
+            ((monster.finalAtk + relicBonus.atk) / 500).clamp(0.0, 1.0),
+            ((monster.finalDef + relicBonus.def) / 500).clamp(0.0, 1.0),
+            ((monster.finalSpd + relicBonus.spd) / 50).clamp(0.0, 1.0),
           ],
           labels: ['HP', 'ATK', 'DEF', 'SPD'],
         ),
