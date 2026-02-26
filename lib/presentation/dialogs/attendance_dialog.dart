@@ -136,9 +136,9 @@ class _AttendanceDialog extends StatelessWidget {
   Widget _buildDayCell(
       BuildContext context, AppLocalizations l, int day, int currentDay) {
     final reward = AttendanceReward.cycle[day - 1];
-    final isClaimed = day <= attendance.currentStreak && !attendance.canCheckIn
-        ? day <= attendance.currentStreak
-        : day < currentDay;
+    final isClaimed = attendance.canCheckIn
+        ? day < currentDay
+        : day <= attendance.currentStreak;
     final isToday = attendance.canCheckIn && day == currentDay;
     final isGrandPrize = day == 7;
 
