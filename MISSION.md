@@ -247,6 +247,9 @@
   - BattleService: processPassiveTurnStart/processPassiveCounter/chargeUltimate/processUltimate
   - battle_provider processTurn 통합: 패시브→화상→기절→궁극기→스킬→일반공격
   - monster_battle_card: 궁극기 차지% / ULT READY 표시
+- [x] L9: 추가 유닛 테스트 (트레이닝 서비스)
+  - training_service: 상수/XP계산/레벨업적용/시간라벨 (16개)
+  - 총 262개 테스트 (기존 246 + 신규 16)
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
