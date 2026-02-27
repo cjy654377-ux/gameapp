@@ -23,6 +23,7 @@ import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
 import 'package:gameapp/domain/services/guild_service.dart';
+import 'package:gameapp/data/static/event_database.dart';
 
 // =============================================================================
 // BattleScreen — root entry point
@@ -327,6 +328,10 @@ class _IdleBanner extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Event banners ──────────────────────────────────────────
+          const _EventBannerCarousel(),
+          const SizedBox(height: 10),
+
           // ── Player info row ──────────────────────────────────────────
           if (player != null)
             Container(
@@ -1578,6 +1583,87 @@ class _RewardChip extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// _SynergyBadge
+// =============================================================================
+
+class _EventBannerCarousel extends StatelessWidget {
+  const _EventBannerCarousel();
+
+  @override
+  Widget build(BuildContext context) {
+    final isKo = Localizations.localeOf(context).languageCode == 'ko';
+    final events = EventDatabase.activeEvents();
+    if (events.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 72,
+      child: PageView.builder(
+        controller: PageController(viewportFraction: 0.92),
+        itemCount: events.length,
+        itemBuilder: (_, i) {
+          final e = events[i];
+          final color = Color(e.colorValue);
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.1)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color.withValues(alpha: 0.4)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  IconData(e.iconCodePoint, fontFamily: 'MaterialIcons'),
+                  color: color,
+                  size: 28,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isKo ? e.titleKo : e.titleEn,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
+                      Text(
+                        isKo ? e.descKo : e.descEn,
+                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isKo ? e.rewardKo : e.rewardEn,
+                    style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
