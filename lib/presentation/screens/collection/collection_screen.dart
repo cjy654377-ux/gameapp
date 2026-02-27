@@ -132,7 +132,7 @@ class CollectionScreen extends ConsumerWidget {
                 color: color,
               ),
               label: Text(
-                m.milestone.label,
+                m.milestone.localizedLabel(AppLocalizations.of(context)!),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: canClaim ? FontWeight.bold : FontWeight.normal,
@@ -155,7 +155,7 @@ class CollectionScreen extends ConsumerWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                l.milestoneReward(m.milestone.label, m.milestone.gold, m.milestone.diamond)),
+                                l.milestoneReward(m.milestone.localizedLabel(l), m.milestone.gold, m.milestone.diamond)),
                             backgroundColor: Colors.green,
                             behavior: SnackBarBehavior.floating,
                           ),

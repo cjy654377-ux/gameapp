@@ -123,7 +123,7 @@ class _MailCard extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  mail.title,
+                  _localizedTitle(mail, l),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: mail.isRead ? FontWeight.w500 : FontWeight.bold,
@@ -141,7 +141,7 @@ class _MailCard extends ConsumerWidget {
 
           // Body
           Text(
-            mail.body,
+            _localizedBody(mail, l),
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -220,6 +220,20 @@ class _MailCard extends ConsumerWidget {
   }
 
   String _formatDate(DateTime dt) => FormatUtils.formatDateTime(dt);
+
+  String _localizedTitle(MailItem m, AppLocalizations l) {
+    if (m.id == 'welcome') return l.mailWelcomeTitle;
+    if (m.id.startsWith('daily_')) return l.mailDailyTitle;
+    if (m.id.startsWith('weekly_')) return l.mailWeeklyTitle;
+    return m.title;
+  }
+
+  String _localizedBody(MailItem m, AppLocalizations l) {
+    if (m.id == 'welcome') return l.mailWelcomeBody;
+    if (m.id.startsWith('daily_')) return l.mailDailyBody;
+    if (m.id.startsWith('weekly_')) return l.mailWeeklyBody;
+    return m.body;
+  }
 }
 
 // =============================================================================

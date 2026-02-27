@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../data/models/monster_model.dart';
 import '../../data/static/monster_database.dart';
 import '../../domain/services/audio_service.dart';
@@ -213,7 +214,6 @@ class CollectionMilestone {
   final int gold;
   final int diamond;
   final int gachaTickets;
-  final String label;
 
   const CollectionMilestone({
     required this.index,
@@ -221,26 +221,28 @@ class CollectionMilestone {
     required this.gold,
     required this.diamond,
     required this.gachaTickets,
-    required this.label,
   });
+
+  String localizedLabel(AppLocalizations l) {
+    if (requiredCount >= MonsterDatabase.all.length) {
+      return l.milestoneComplete;
+    }
+    return l.milestoneCollect(requiredCount);
+  }
 }
 
 const collectionMilestones = [
   CollectionMilestone(
     index: 0, requiredCount: 5, gold: 200, diamond: 20, gachaTickets: 1,
-    label: '5종 수집',
   ),
   CollectionMilestone(
     index: 1, requiredCount: 10, gold: 500, diamond: 50, gachaTickets: 2,
-    label: '10종 수집',
   ),
   CollectionMilestone(
     index: 2, requiredCount: 15, gold: 1000, diamond: 100, gachaTickets: 3,
-    label: '15종 수집',
   ),
   CollectionMilestone(
     index: 3, requiredCount: 20, gold: 2000, diamond: 300, gachaTickets: 5,
-    label: '도감 완성!',
   ),
 ];
 
