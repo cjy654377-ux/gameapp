@@ -68,6 +68,14 @@ class CollectionScreen extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
           ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.compare_arrows, size: 22),
+            tooltip: l.compareTitle,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () => context.push(AppRoutes.monsterCompare),
+          ),
           const Spacer(),
           Text(
             '${stats.owned}/${stats.total}',

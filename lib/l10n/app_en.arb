@@ -580,5 +580,9 @@
   "presetLoaded": "Preset loaded",
   "presetDeleted": "Preset deleted",
   "presetDeleteConfirm": "Delete this preset?",
-  "presetMissing": "Some monsters are missing"
+  "presetMissing": "Some monsters are missing",
+
+  "compareTitle": "Compare Monsters",
+  "compareSelectTwo": "Select 2 monsters to compare",
+  "compareSelectMonster": "Select Monster"
 }

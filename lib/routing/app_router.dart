@@ -33,6 +33,7 @@ import '../presentation/screens/world_boss/world_boss_screen.dart';
 import '../presentation/screens/shop/shop_screen.dart';
 import '../presentation/screens/daily_dungeon/daily_dungeon_screen.dart';
 import '../presentation/screens/battle_replay/battle_replay_screen.dart';
+import '../presentation/screens/monster_compare/monster_compare_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -69,6 +70,7 @@ class AppRoutes {
   static const shop = '/shop';
   static const dailyDungeon = '/daily-dungeon';
   static const battleReplay = '/battle-replay';
+  static const monsterCompare = '/monster-compare';
 }
 
 // ---------------------------------------------------------------------------
@@ -174,6 +176,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.battleReplay,
         builder: (context, state) => const BattleReplayScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.monsterCompare,
+        builder: (context, state) => const MonsterCompareScreen(),
       ),
       GoRoute(
         path: AppRoutes.monsterDetail,
