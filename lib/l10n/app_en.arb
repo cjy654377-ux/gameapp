@@ -565,5 +565,20 @@
   "replayActions": "actions",
   "replayMyTeam": "Allies",
   "replayEnemyTeam": "Enemies",
-  "relicEnhance": "Enhance"
+  "relicEnhance": "Enhance",
+
+  "teamPreset": "Team Presets",
+  "presetSlot": "Slot {index}",
+  "@presetSlot": {"placeholders": {"index": {"type": "int"}}},
+  "presetEmpty": "Empty",
+  "presetSave": "Save Team",
+  "presetLoad": "Load",
+  "presetDelete": "Delete",
+  "presetRename": "Rename",
+  "presetNameHint": "Preset name (max 10 chars)",
+  "presetSaved": "Preset saved",
+  "presetLoaded": "Preset loaded",
+  "presetDeleted": "Preset deleted",
+  "presetDeleteConfirm": "Delete this preset?",
+  "presetMissing": "Some monsters are missing"
 }

@@ -9,6 +9,7 @@ import '../../../core/enums/monster_rarity.dart';
 import '../../../data/models/monster_model.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
+import '../../providers/team_preset_provider.dart';
 
 /// Full-screen team editor opened from CollectionScreen or battle.
 class TeamEditScreen extends ConsumerStatefulWidget {
@@ -66,6 +67,24 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
+  void _showPresetSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => _PresetSheet(
+        currentIds: _selectedIds,
+        onLoad: (ids) {
+          setState(() {
+            _selectedIds = List.of(ids);
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -86,6 +105,11 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
       appBar: AppBar(
         title: Text(l.teamEdit),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bookmark_outline, size: 22),
+            tooltip: l.teamPreset,
+            onPressed: _showPresetSheet,
+          ),
           TextButton(
             onPressed: _isDirty ? _save : null,
             child: Text(
@@ -247,6 +271,246 @@ class _TeamSlot extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Roster card (selectable)
+// =============================================================================
+
+// =============================================================================
+// Preset bottom sheet
+// =============================================================================
+
+class _PresetSheet extends ConsumerWidget {
+  const _PresetSheet({
+    required this.currentIds,
+    required this.onLoad,
+  });
+
+  final List<String> currentIds;
+  final void Function(List<String>) onLoad;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final presetState = ref.watch(teamPresetProvider);
+    final roster = ref.watch(monsterListProvider);
+    final rosterIds = roster.map((m) => m.id).toSet();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textTertiary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l.teamPreset,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...List.generate(TeamPresetNotifier.maxSlots, (i) {
+            final preset = presetState.presets[i];
+            return _PresetSlotTile(
+              index: i,
+              preset: preset,
+              currentIds: currentIds,
+              rosterIds: rosterIds,
+              onLoad: (ids) {
+                onLoad(ids);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l.presetLoaded),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _PresetSlotTile extends ConsumerWidget {
+  const _PresetSlotTile({
+    required this.index,
+    required this.preset,
+    required this.currentIds,
+    required this.rosterIds,
+    required this.onLoad,
+  });
+
+  final int index;
+  final TeamPreset? preset;
+  final List<String> currentIds;
+  final Set<String> rosterIds;
+  final void Function(List<String>) onLoad;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final isEmpty = preset == null;
+
+    return Card(
+      color: AppColors.surfaceVariant,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: isEmpty
+              ? AppColors.border
+              : AppColors.primary.withValues(alpha: 0.2),
+          child: Text(
+            '${index + 1}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isEmpty ? AppColors.textTertiary : AppColors.primary,
+            ),
+          ),
+        ),
+        title: Text(
+          isEmpty ? l.presetEmpty : preset!.name,
+          style: TextStyle(
+            color: isEmpty ? AppColors.textTertiary : null,
+            fontStyle: isEmpty ? FontStyle.italic : null,
+          ),
+        ),
+        subtitle: isEmpty
+            ? null
+            : Text(
+                '${preset!.monsterIds.length} monsters',
+                style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+              ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Save current team to this slot
+            IconButton(
+              icon: const Icon(Icons.save_outlined, size: 20),
+              tooltip: l.presetSave,
+              onPressed: currentIds.isEmpty
+                  ? null
+                  : () => _saveToSlot(context, ref),
+            ),
+            if (!isEmpty) ...[
+              // Load
+              IconButton(
+                icon: const Icon(Icons.download_outlined, size: 20),
+                tooltip: l.presetLoad,
+                onPressed: () {
+                  final ids = preset!.monsterIds;
+                  final available =
+                      ids.where((id) => rosterIds.contains(id)).toList();
+                  if (available.length < ids.length) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l.presetMissing),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                  if (available.isNotEmpty) {
+                    onLoad(available);
+                  }
+                },
+              ),
+              // Delete
+              IconButton(
+                icon: Icon(Icons.delete_outline,
+                    size: 20, color: Colors.red.shade300),
+                tooltip: l.presetDelete,
+                onPressed: () => _deleteSlot(context, ref),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveToSlot(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final controller =
+        TextEditingController(text: preset?.name ?? l.presetSlot(index + 1));
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.presetSave),
+        content: TextField(
+          controller: controller,
+          maxLength: 10,
+          decoration: InputDecoration(hintText: l.presetNameHint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isEmpty) return;
+              ref.read(teamPresetProvider.notifier).savePreset(
+                    index,
+                    name,
+                    currentIds,
+                  );
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l.presetSaved),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+            child: Text(l.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteSlot(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.presetDelete),
+        content: Text(l.presetDeleteConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(teamPresetProvider.notifier).deletePreset(index);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l.presetDeleted),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+            child: Text(l.confirm),
+          ),
+        ],
       ),
     );
   }

@@ -641,5 +641,20 @@
   "replayActions": "액션",
   "replayMyTeam": "아군",
   "replayEnemyTeam": "적군",
-  "relicEnhance": "강화"
+  "relicEnhance": "강화",
+
+  "teamPreset": "팀 프리셋",
+  "presetSlot": "슬롯 {index}",
+  "@presetSlot": {"placeholders": {"index": {"type": "int"}}},
+  "presetEmpty": "비어있음",
+  "presetSave": "현재 팀 저장",
+  "presetLoad": "불러오기",
+  "presetDelete": "삭제",
+  "presetRename": "이름 변경",
+  "presetNameHint": "프리셋 이름 (최대 10자)",
+  "presetSaved": "프리셋이 저장되었습니다",
+  "presetLoaded": "프리셋을 불러왔습니다",
+  "presetDeleted": "프리셋이 삭제되었습니다",
+  "presetDeleteConfirm": "이 프리셋을 삭제하시겠습니까?",
+  "presetMissing": "일부 몬스터가 없어 불러올 수 없습니다"
 }
