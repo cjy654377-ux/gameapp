@@ -7,6 +7,7 @@ import 'package:gameapp/data/datasources/local_storage.dart';
 import 'package:gameapp/data/models/equippable_skill_model.dart';
 import 'package:gameapp/data/models/mount_model.dart';
 import 'package:gameapp/data/models/player_model.dart';
+import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 
@@ -548,13 +549,19 @@ class _EquipmentSlot extends StatelessWidget {
 // Skill Card (equipped)
 // =============================================================================
 
-class _SkillCard extends StatelessWidget {
+class _SkillCard extends ConsumerWidget {
   const _SkillCard({required this.skill});
   final EquippableSkillModel skill;
 
+  int _upgradeCost(EquippableSkillModel s) => s.level * 200 * s.rarity;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final rarityColor = _rarityColor(skill.rarity);
+    final cost = _upgradeCost(skill);
+    final gold = ref.watch(currencyProvider).gold;
+    final canUpgrade = skill.canLevelUp && gold >= cost;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -562,47 +569,99 @@ class _SkillCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: rarityColor.withValues(alpha: 0.5)),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: rarityColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.auto_awesome, color: rarityColor, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: rarityColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.auto_awesome, color: rarityColor, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(skill.name,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: rarityColor)),
-                    const SizedBox(width: 6),
-                    Text('Lv.${skill.level}',
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary)),
+                    Row(
+                      children: [
+                        Text(skill.name,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: rarityColor)),
+                        const SizedBox(width: 6),
+                        Text('Lv.${skill.level}/${skill.maxLevel}',
+                            style: const TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${_skillTypeLabel(skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)}',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '${_skillTypeLabel(skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+              ),
+              Text('★' * skill.rarity,
+                  style: TextStyle(fontSize: 12, color: rarityColor)),
+            ],
+          ),
+          if (skill.canLevelUp) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Spacer(),
+                Text('다음: ${(skill.value * (1.0 + skill.level * 0.1)).toStringAsFixed(1)}',
+                    style: const TextStyle(fontSize: 10, color: AppColors.textTertiary)),
+                const SizedBox(width: 12),
+                SizedBox(
+                  height: 28,
+                  child: ElevatedButton.icon(
+                    onPressed: canUpgrade
+                        ? () => _levelUpSkill(context, ref, skill, cost)
+                        : null,
+                    icon: const Icon(Icons.arrow_upward, size: 14),
+                    label: Text('$cost G', style: const TextStyle(fontSize: 11)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canUpgrade ? AppColors.success : AppColors.disabled,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-          Text('★' * skill.rarity,
-              style: TextStyle(fontSize: 12, color: rarityColor)),
+          ],
         ],
       ),
+    );
+  }
+
+  Future<void> _levelUpSkill(
+      BuildContext context, WidgetRef ref, EquippableSkillModel s, int cost) async {
+    final cn = ref.read(currencyProvider.notifier);
+    if (!await cn.spendGold(cost)) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('골드가 부족합니다')),
+      );
+      return;
+    }
+    final upgraded = s.copyWith(level: s.level + 1);
+    await LocalStorage.instance.saveSkill(upgraded);
+    // Force rebuild by triggering player state
+    ref.read(playerProvider.notifier).forceUpdate(
+          ref.read(playerProvider).player!,
+        );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${s.name} Lv.${upgraded.level} 강화 완료!')),
     );
   }
 }
@@ -611,13 +670,19 @@ class _SkillCard extends StatelessWidget {
 // Mount Card (equipped)
 // =============================================================================
 
-class _MountCard extends StatelessWidget {
+class _MountCard extends ConsumerWidget {
   const _MountCard({required this.mount});
   final MountModel mount;
 
+  int _upgradeCost(MountModel m) => m.level * 150 * m.rarity;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final rarityColor = _rarityColor(mount.rarity);
+    final cost = _upgradeCost(mount);
+    final gold = ref.watch(currencyProvider).gold;
+    final canUpgrade = mount.level < mount.maxLevel && gold >= cost;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -625,47 +690,100 @@ class _MountCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: rarityColor.withValues(alpha: 0.5)),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: rarityColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.pets, color: rarityColor, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: rarityColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.pets, color: rarityColor, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(mount.name,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: rarityColor)),
-                    const SizedBox(width: 6),
-                    Text('Lv.${mount.level}',
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary)),
+                    Row(
+                      children: [
+                        Text(mount.name,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: rarityColor)),
+                        const SizedBox(width: 6),
+                        Text('Lv.${mount.level}/${mount.maxLevel}',
+                            style: const TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${mount.statType.toUpperCase()} +${mount.effectiveStatValue.toStringAsFixed(1)}',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 2),
+              ),
+              Text('★' * mount.rarity,
+                  style: TextStyle(fontSize: 12, color: rarityColor)),
+            ],
+          ),
+          if (mount.level < mount.maxLevel) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Spacer(),
                 Text(
-                  '${mount.statType.toUpperCase()} +${mount.effectiveStatValue.toStringAsFixed(1)}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                  '다음: +${(mount.statValue * (1.0 + mount.level * 0.05)).toStringAsFixed(1)}',
+                  style: const TextStyle(fontSize: 10, color: AppColors.textTertiary),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  height: 28,
+                  child: ElevatedButton.icon(
+                    onPressed: canUpgrade
+                        ? () => _levelUpMount(context, ref, mount, cost)
+                        : null,
+                    icon: const Icon(Icons.arrow_upward, size: 14),
+                    label: Text('$cost G', style: const TextStyle(fontSize: 11)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canUpgrade ? AppColors.success : AppColors.disabled,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-          Text('★' * mount.rarity,
-              style: TextStyle(fontSize: 12, color: rarityColor)),
+          ],
         ],
       ),
+    );
+  }
+
+  Future<void> _levelUpMount(
+      BuildContext context, WidgetRef ref, MountModel m, int cost) async {
+    final cn = ref.read(currencyProvider.notifier);
+    if (!await cn.spendGold(cost)) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('골드가 부족합니다')),
+      );
+      return;
+    }
+    final upgraded = m.copyWith(level: m.level + 1);
+    await LocalStorage.instance.saveMount(upgraded);
+    ref.read(playerProvider.notifier).forceUpdate(
+          ref.read(playerProvider).player!,
+        );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${m.name} Lv.${upgraded.level} 강화 완료!')),
     );
   }
 }

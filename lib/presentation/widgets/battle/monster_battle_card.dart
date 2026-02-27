@@ -32,6 +32,8 @@ class MonsterBattleCard extends StatelessWidget {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
+  bool get _isHero => monster.monsterId == 'hero_player';
+
   MonsterElement get _element =>
       MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
 
@@ -58,21 +60,28 @@ class MonsterBattleCard extends StatelessWidget {
     final avatarSize = width * 0.52;
     final isDead = !monster.isAlive;
 
+    final borderColor = _isHero
+        ? (isDead ? AppColors.gold.withValues(alpha: 0.3) : AppColors.gold)
+        : _rarityColor.withValues(alpha: isDead ? 0.2 : 0.55);
+    final glowColor = _isHero
+        ? (isDead ? Colors.transparent : AppColors.gold.withValues(alpha: 0.25))
+        : _elementColor.withValues(alpha: isDead ? 0.0 : 0.18);
+
     Widget card = Container(
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.card.withValues(alpha:0.85),
+        color: AppColors.card.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: _rarityColor.withValues(alpha:isDead ? 0.2 : 0.55),
-          width: 1.2,
+          color: borderColor,
+          width: _isHero ? 2.0 : 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: _elementColor.withValues(alpha:isDead ? 0.0 : 0.18),
-            blurRadius: 8,
-            spreadRadius: 0,
+            color: glowColor,
+            blurRadius: _isHero ? 12 : 8,
+            spreadRadius: _isHero ? 1 : 0,
           ),
         ],
       ),
@@ -95,7 +104,7 @@ class MonsterBattleCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Avatar background with element icon
+              // Avatar background with element/hero icon
               Container(
                 width: avatarSize,
                 height: avatarSize,
@@ -106,13 +115,19 @@ class MonsterBattleCard extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: isDead
                         ? [Colors.grey.withValues(alpha: 0.15), Colors.grey.withValues(alpha: 0.08)]
-                        : [_elementColor.withValues(alpha: 0.35), _elementColor.withValues(alpha: 0.12)],
+                        : _isHero
+                            ? [AppColors.gold.withValues(alpha: 0.35), AppColors.primary.withValues(alpha: 0.2)]
+                            : [_elementColor.withValues(alpha: 0.35), _elementColor.withValues(alpha: 0.12)],
                   ),
                 ),
                 child: Icon(
-                  _elementIcon,
+                  _isHero ? Icons.person : _elementIcon,
                   size: avatarSize * 0.45,
-                  color: isDead ? AppColors.disabledText : _elementColor,
+                  color: isDead
+                      ? AppColors.disabledText
+                      : _isHero
+                          ? AppColors.gold
+                          : _elementColor,
                 ),
               ),
               // Dead skull overlay on avatar
@@ -167,8 +182,30 @@ class MonsterBattleCard extends StatelessWidget {
 
           const SizedBox(height: 2),
 
-          // ── Element badge ──────────────────────────────────────────────
-          _ElementBadge(element: _element, isDead: isDead),
+          // ── Hero badge or Element badge ─────────────────────────────────
+          if (_isHero)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: isDead ? 0.1 : 0.22),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: AppColors.gold.withValues(alpha: isDead ? 0.15 : 0.5),
+                  width: 0.7,
+                ),
+              ),
+              child: Text(
+                'HERO',
+                style: TextStyle(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w700,
+                  color: isDead ? AppColors.disabledText : AppColors.gold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            )
+          else
+            _ElementBadge(element: _element, isDead: isDead),
 
           const SizedBox(height: 3),
 
