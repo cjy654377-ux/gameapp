@@ -24,6 +24,7 @@ import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
 import 'package:gameapp/domain/services/guild_service.dart';
 import 'package:gameapp/data/static/event_database.dart';
+import 'package:gameapp/domain/services/prestige_service.dart';
 
 // =============================================================================
 // BattleScreen — root entry point
@@ -1023,39 +1024,75 @@ class _VictoryDialogState extends ConsumerState<_VictoryDialog> {
 
                 // ── Reward section ─────────────────────────────────────────
                 if (reward != null) ...[
-                  Text(
-                    l.earnedReward,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _RewardChip(
-                        icon: Icons.monetization_on_rounded,
-                        iconColor: AppColors.gold,
-                        label: FormatUtils.formatNumber(reward.gold),
-                        sublabel: l.gold,
-                      ),
-                      _RewardChip(
-                        icon: Icons.auto_awesome_rounded,
-                        iconColor: AppColors.experience,
-                        label: FormatUtils.formatNumber(reward.exp),
-                        sublabel: l.experience,
-                      ),
-                      if (reward.bonusShard != null)
-                        _RewardChip(
-                          icon: Icons.diamond_rounded,
-                          iconColor: AppColors.primaryLight,
-                          label: '×${reward.bonusShard}',
-                          sublabel: l.monsterShard,
+                  () {
+                    final playerData = ref.read(playerProvider).player;
+                    final mult = playerData != null
+                        ? PrestigeService.bonusMultiplier(playerData)
+                        : 1.0;
+                    final displayGold = (reward.gold * mult).round();
+                    final displayExp = (reward.exp * mult).round();
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              l.earnedReward,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (mult > 1.0) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.gold.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
+                                ),
+                                child: Text(
+                                  '×${mult.toStringAsFixed(1)}',
+                                  style: const TextStyle(
+                                    color: AppColors.gold,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                    ],
-                  ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _RewardChip(
+                              icon: Icons.monetization_on_rounded,
+                              iconColor: AppColors.gold,
+                              label: FormatUtils.formatNumber(displayGold),
+                              sublabel: l.gold,
+                            ),
+                            _RewardChip(
+                              icon: Icons.auto_awesome_rounded,
+                              iconColor: AppColors.experience,
+                              label: FormatUtils.formatNumber(displayExp),
+                              sublabel: l.experience,
+                            ),
+                            if (reward.bonusShard != null)
+                              _RewardChip(
+                                icon: Icons.diamond_rounded,
+                                iconColor: AppColors.primaryLight,
+                                label: '×${reward.bonusShard}',
+                                sublabel: l.monsterShard,
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }(),
                   const SizedBox(height: 12),
                 ] else
                   Padding(
