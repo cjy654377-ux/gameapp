@@ -17,6 +17,7 @@ import '../providers/player_provider.dart';
 import '../../domain/services/prestige_service.dart';
 import '../providers/quest_provider.dart';
 import '../providers/attendance_provider.dart';
+import 'package:gameapp/data/static/quest_database.dart';
 import '../providers/relic_provider.dart';
 import '../dialogs/attendance_dialog.dart';
 
@@ -249,6 +250,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Listen for newly completed quests → show achievement toast.
+    ref.listen<QuestState>(questProvider, (prev, next) {
+      if (next.newlyCompletedIds.isEmpty) return;
+      final l = AppLocalizations.of(context)!;
+      for (final questId in next.newlyCompletedIds) {
+        final def = QuestDatabase.findById(questId);
+        if (def == null) continue;
+        final name = def.name;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                context.go(AppRoutes.quest);
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.achievementToast(name),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          l.achievementTapToView,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            backgroundColor: Colors.deepPurple,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      ref.read(questProvider.notifier).clearNewlyCompleted();
+    });
+
     final l = AppLocalizations.of(context)!;
     final currentIndex = _resolveIndex(context);
     final tabLabels = [

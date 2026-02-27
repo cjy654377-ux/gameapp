@@ -17,12 +17,14 @@ class CollectionFilter {
   final int? rarity;
   final String? element;
   final bool showOnlyOwned;
+  final bool showOnlyFavorites;
   final CollectionSort sort;
 
   const CollectionFilter({
     this.rarity,
     this.element,
     this.showOnlyOwned = false,
+    this.showOnlyFavorites = false,
     this.sort = CollectionSort.defaultOrder,
   });
 
@@ -30,6 +32,7 @@ class CollectionFilter {
     int? rarity,
     String? element,
     bool? showOnlyOwned,
+    bool? showOnlyFavorites,
     CollectionSort? sort,
     bool clearRarity = false,
     bool clearElement = false,
@@ -38,6 +41,7 @@ class CollectionFilter {
       rarity: clearRarity ? null : (rarity ?? this.rarity),
       element: clearElement ? null : (element ?? this.element),
       showOnlyOwned: showOnlyOwned ?? this.showOnlyOwned,
+      showOnlyFavorites: showOnlyFavorites ?? this.showOnlyFavorites,
       sort: sort ?? this.sort,
     );
   }
@@ -46,6 +50,7 @@ class CollectionFilter {
       rarity != null ||
       element != null ||
       showOnlyOwned ||
+      showOnlyFavorites ||
       sort != CollectionSort.defaultOrder;
 }
 
@@ -70,6 +75,10 @@ class CollectionFilterNotifier extends StateNotifier<CollectionFilter> {
 
   void toggleShowOnlyOwned() {
     state = state.copyWith(showOnlyOwned: !state.showOnlyOwned);
+  }
+
+  void toggleShowOnlyFavorites() {
+    state = state.copyWith(showOnlyFavorites: !state.showOnlyFavorites);
   }
 
   void setSort(CollectionSort sort) {
@@ -141,6 +150,10 @@ final collectionEntriesProvider = Provider<List<CollectionEntry>>((ref) {
 
   if (filter.showOnlyOwned) {
     entries = entries.where((e) => e.isOwned);
+  }
+  if (filter.showOnlyFavorites) {
+    entries = entries.where((e) =>
+        e.ownedInstances.any((m) => m.isFavorite));
   }
 
   final result = entries.toList();

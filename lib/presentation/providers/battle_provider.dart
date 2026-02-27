@@ -575,6 +575,59 @@ class BattleNotifier extends StateNotifier<BattleState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Skip battle (cleared stages only)
+  // ---------------------------------------------------------------------------
+
+  /// Skips battle for an already-cleared stage and directly awards rewards.
+  /// Returns the reward if successful, null otherwise.
+  Future<BattleReward?> skipBattle(int stageIdx) async {
+    final playerData = ref.read(playerProvider).player;
+    if (playerData == null) return null;
+
+    // Only cleared stages can be skipped.
+    final maxClearedIdx = _stageStringToIndex(playerData.maxClearedStageId);
+    if (stageIdx > maxClearedIdx || stageIdx <= 0) return null;
+
+    // Calculate reward.
+    final reward = BattleService.calculateReward(stageIdx);
+
+    final currency = ref.read(currencyProvider.notifier);
+    final player = ref.read(playerProvider.notifier);
+
+    // Apply prestige bonus.
+    final multiplier = PrestigeService.bonusMultiplier(playerData);
+    final bonusGold = (reward.gold * multiplier).round();
+    final bonusExp = (reward.exp * multiplier).round();
+
+    await currency.addGold(bonusGold);
+    if (reward.bonusShard != null) {
+      await currency.addShard(reward.bonusShard!);
+    }
+    await player.addPlayerExp(bonusExp);
+    await player.addBattleCount();
+
+    // Increment affinity for team monsters.
+    final teamIds = ref.read(monsterListProvider)
+        .where((m) => m.isInTeam)
+        .map((m) => m.id)
+        .toList();
+    await ref.read(monsterListProvider.notifier).incrementBattleCounts(teamIds);
+
+    // Quest + season pass triggers.
+    final questNotifier = ref.read(questProvider.notifier);
+    await questNotifier.onTrigger(QuestTrigger.battleWin);
+    ref.read(seasonPassProvider.notifier).addXp(20);
+
+    AudioService.instance.playRewardCollect();
+
+    return BattleReward(
+      gold: bonusGold,
+      exp: bonusExp,
+      bonusShard: reward.bonusShard,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Retreat
   // ---------------------------------------------------------------------------
 

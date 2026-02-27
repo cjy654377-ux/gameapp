@@ -3361,6 +3361,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'모든 소환 기록을 삭제하시겠습니까?'**
   String get gachaHistoryClearConfirm;
+
+  /// No description provided for @achievementToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'업적 달성! {name}'**
+  String achievementToast(String name);
+
+  /// No description provided for @achievementTapToView.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 확인'**
+  String get achievementTapToView;
+
+  /// No description provided for @settingsNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get settingsNotification;
+
+  /// No description provided for @settingsNotificationToggle.
+  ///
+  /// In ko, this message translates to:
+  /// **'푸시 알림'**
+  String get settingsNotificationToggle;
+
+  /// No description provided for @stageSkip.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킵'**
+  String get stageSkip;
+
+  /// No description provided for @stageSkipResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'스테이지 스킵 완료!'**
+  String get stageSkipResult;
+
+  /// No description provided for @stageSkipGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 +{gold}'**
+  String stageSkipGold(int gold);
+
+  /// No description provided for @stageSkipExp.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 +{exp}'**
+  String stageSkipExp(int exp);
+
+  /// No description provided for @favorite.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기'**
+  String get favorite;
+
+  /// No description provided for @favoriteOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기만'**
+  String get favoriteOnly;
 }
 
 class _AppLocalizationsDelegate

@@ -1825,4 +1825,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get gachaHistoryClearConfirm => '모든 소환 기록을 삭제하시겠습니까?';
+
+  @override
+  String achievementToast(String name) {
+    return '업적 달성! $name';
+  }
+
+  @override
+  String get achievementTapToView => '탭하여 확인';
+
+  @override
+  String get settingsNotification => '알림';
+
+  @override
+  String get settingsNotificationToggle => '푸시 알림';
+
+  @override
+  String get stageSkip => '스킵';
+
+  @override
+  String get stageSkipResult => '스테이지 스킵 완료!';
+
+  @override
+  String stageSkipGold(int gold) {
+    return '골드 +$gold';
+  }
+
+  @override
+  String stageSkipExp(int exp) {
+    return '경험치 +$exp';
+  }
+
+  @override
+  String get favorite => '즐겨찾기';
+
+  @override
+  String get favoriteOnly => '즐겨찾기만';
 }

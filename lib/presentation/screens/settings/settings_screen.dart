@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/datasources/local_storage.dart';
 import '../../../domain/services/audio_service.dart';
+import '../../../domain/services/notification_service.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
 import '../../providers/locale_provider.dart';
@@ -71,6 +72,11 @@ class SettingsScreen extends ConsumerWidget {
             // Sound / Haptic toggle
             _SectionHeader(title: l.settingsEffects),
             _SoundToggleTile(),
+            const SizedBox(height: 24),
+
+            // Notification toggle
+            _SectionHeader(title: l.settingsNotification),
+            _NotificationToggleTile(),
             const SizedBox(height: 24),
 
             // Game info
@@ -440,6 +446,47 @@ class _LanguageToggleTile extends ConsumerWidget {
             activeThumbColor: Colors.blue,
             onChanged: (_) {
               ref.read(localeProvider.notifier).toggle();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationToggleTile extends StatefulWidget {
+  @override
+  State<_NotificationToggleTile> createState() => _NotificationToggleTileState();
+}
+
+class _NotificationToggleTileState extends State<_NotificationToggleTile> {
+  @override
+  Widget build(BuildContext context) {
+    final enabled = NotificationService.instance.isEnabled;
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(
+            enabled ? Icons.notifications_active : Icons.notifications_off,
+            color: enabled ? Colors.blue : AppColors.textTertiary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            l.settingsNotificationToggle,
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          Switch(
+            value: enabled,
+            activeTrackColor: Colors.blue.withValues(alpha: 0.5),
+            activeThumbColor: Colors.blue,
+            onChanged: (v) {
+              NotificationService.instance.setEnabled(v);
+              setState(() {});
             },
           ),
         ],

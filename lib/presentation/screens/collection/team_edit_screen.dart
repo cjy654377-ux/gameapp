@@ -91,12 +91,15 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
     final roster = ref.watch(monsterListProvider);
     final selectedSet = _selectedIds.toSet();
 
-    // Sort: in-team first, then by rarity desc, then level desc.
+    // Sort: in-team first, then favorites, then by rarity desc, then level desc.
     final sorted = List<MonsterModel>.from(roster)
       ..sort((a, b) {
         final aSelected = selectedSet.contains(a.id) ? 0 : 1;
         final bSelected = selectedSet.contains(b.id) ? 0 : 1;
         if (aSelected != bSelected) return aSelected.compareTo(bSelected);
+        final aFav = a.isFavorite ? 0 : 1;
+        final bFav = b.isFavorite ? 0 : 1;
+        if (aFav != bFav) return aFav.compareTo(bFav);
         if (a.rarity != b.rarity) return b.rarity.compareTo(a.rarity);
         return b.level.compareTo(a.level);
       });

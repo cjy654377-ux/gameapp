@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hive/hive.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -18,6 +19,21 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _initialised = false;
+
+  /// Whether notifications are enabled by the user.
+  bool get isEnabled {
+    final box = Hive.box('settings');
+    return box.get('notificationsEnabled', defaultValue: true) as bool;
+  }
+
+  /// Toggles notification enabled state and persists to Hive.
+  void setEnabled(bool enabled) {
+    final box = Hive.box('settings');
+    box.put('notificationsEnabled', enabled);
+    if (!enabled) {
+      cancelAll();
+    }
+  }
 
   // Notification IDs
   static const int _offlineCapId = 1;
@@ -50,7 +66,7 @@ class NotificationService {
   ///
   /// [lastOnlineAt] is used to calculate when offline rewards will be capped.
   Future<void> scheduleOfflineReminders(DateTime lastOnlineAt) async {
-    if (!_initialised) return;
+    if (!_initialised || !isEnabled) return;
 
     await cancelAll();
 

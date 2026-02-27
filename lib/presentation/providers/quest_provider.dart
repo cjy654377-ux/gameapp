@@ -13,6 +13,10 @@ class QuestState {
   final List<QuestModel> quests;
   final bool isLoaded;
 
+  /// Quest IDs that just became completable (progress reached target) in the
+  /// latest trigger. Cleared on next trigger or when consumed by UI.
+  final List<String> newlyCompletedIds;
+
   /// Pre-computed quest lists by type — avoids repeated O(n) DB lookups.
   late final List<QuestModel> dailyQuests;
   late final List<QuestModel> weeklyQuests;
@@ -22,6 +26,7 @@ class QuestState {
   QuestState({
     this.quests = const [],
     this.isLoaded = false,
+    this.newlyCompletedIds = const [],
   }) {
     dailyQuests = _filterByType(QuestType.daily);
     weeklyQuests = _filterByType(QuestType.weekly);
@@ -32,10 +37,12 @@ class QuestState {
   QuestState copyWith({
     List<QuestModel>? quests,
     bool? isLoaded,
+    List<String>? newlyCompletedIds,
   }) {
     return QuestState(
       quests: quests ?? this.quests,
       isLoaded: isLoaded ?? this.isLoaded,
+      newlyCompletedIds: newlyCompletedIds ?? this.newlyCompletedIds,
     );
   }
 
@@ -137,7 +144,37 @@ class QuestNotifier extends StateNotifier<QuestState> {
       for (final q in changedQuests) {
         await _storage.saveQuest(q);
       }
-      state = state.copyWith(quests: updated);
+
+      // Detect quests that just became completable.
+      final newlyCompleted = <String>[];
+      for (final q in changedQuests) {
+        final def = QuestDatabase.findById(q.questId);
+        if (def == null) continue;
+        // Just reached target and not already claimed.
+        if (q.currentProgress >= def.targetCount && !q.isCompleted) {
+          // Check the old quest didn't already meet the target.
+          final oldQuest = state.quests.firstWhere(
+            (oq) => oq.questId == q.questId,
+            orElse: () => q,
+          );
+          final oldDef = QuestDatabase.findById(oldQuest.questId);
+          if (oldDef != null && oldQuest.currentProgress < oldDef.targetCount) {
+            newlyCompleted.add(q.questId);
+          }
+        }
+      }
+
+      state = state.copyWith(
+        quests: updated,
+        newlyCompletedIds: newlyCompleted,
+      );
+    }
+  }
+
+  /// Clears the newlyCompletedIds list (called after UI consumes the toast).
+  void clearNewlyCompleted() {
+    if (state.newlyCompletedIds.isNotEmpty) {
+      state = state.copyWith(newlyCompletedIds: const []);
     }
   }
 

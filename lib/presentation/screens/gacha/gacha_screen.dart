@@ -14,6 +14,8 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/gacha_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
+import 'package:gameapp/routing/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 class GachaScreen extends ConsumerWidget {
   const GachaScreen({super.key});
@@ -106,6 +108,39 @@ class _GachaBanner extends StatelessWidget {
               ),
             );
           }),
+          // History button (top-right)
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Builder(
+              builder: (context) => GestureDetector(
+                onTap: () => context.push(AppRoutes.gachaHistory),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.history_rounded, color: Colors.white70, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        l.gachaHistoryTitle,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Main content
           Padding(
             padding: const EdgeInsets.all(20),

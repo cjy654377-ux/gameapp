@@ -1832,4 +1832,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gachaHistoryClearConfirm => 'Delete all summon records?';
+
+  @override
+  String achievementToast(String name) {
+    return 'Achievement! $name';
+  }
+
+  @override
+  String get achievementTapToView => 'Tap to view';
+
+  @override
+  String get settingsNotification => 'Notifications';
+
+  @override
+  String get settingsNotificationToggle => 'Push Notifications';
+
+  @override
+  String get stageSkip => 'Skip';
+
+  @override
+  String get stageSkipResult => 'Stage skipped!';
+
+  @override
+  String stageSkipGold(int gold) {
+    return 'Gold +$gold';
+  }
+
+  @override
+  String stageSkipExp(int exp) {
+    return 'EXP +$exp';
+  }
+
+  @override
+  String get favorite => 'Favorite';
+
+  @override
+  String get favoriteOnly => 'Favorites';
 }

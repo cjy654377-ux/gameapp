@@ -140,6 +140,22 @@ class MonsterListNotifier extends StateNotifier<List<MonsterModel>> {
   }
 
   // ---------------------------------------------------------------------------
+  // Favorite
+  // ---------------------------------------------------------------------------
+
+  /// Toggles the favorite status of the monster with [id].
+  Future<void> toggleFavorite(String id) async {
+    final idx = state.indexWhere((m) => m.id == id);
+    if (idx < 0) return;
+    final monster = state[idx];
+    final updated = monster.copyWith(isFavorite: !monster.isFavorite);
+    final list = [...state];
+    list[idx] = updated;
+    await _storage.saveMonster(updated);
+    state = list;
+  }
+
+  // ---------------------------------------------------------------------------
   // Persistence
   // ---------------------------------------------------------------------------
 

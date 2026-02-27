@@ -596,5 +596,22 @@
   "gachaHistoryEmpty": "No summon records",
   "gachaHistoryTotal": "Total {count} pulls",
   "@gachaHistoryTotal": {"placeholders": {"count": {"type": "int"}}},
-  "gachaHistoryClearConfirm": "Delete all summon records?"
+  "gachaHistoryClearConfirm": "Delete all summon records?",
+
+  "achievementToast": "Achievement! {name}",
+  "@achievementToast": {"placeholders": {"name": {"type": "String"}}},
+  "achievementTapToView": "Tap to view",
+
+  "settingsNotification": "Notifications",
+  "settingsNotificationToggle": "Push Notifications",
+
+  "stageSkip": "Skip",
+  "stageSkipResult": "Stage skipped!",
+  "stageSkipGold": "Gold +{gold}",
+  "@stageSkipGold": {"placeholders": {"gold": {"type": "int"}}},
+  "stageSkipExp": "EXP +{exp}",
+  "@stageSkipExp": {"placeholders": {"exp": {"type": "int"}}},
+
+  "favorite": "Favorite",
+  "favoriteOnly": "Favorites"
 }

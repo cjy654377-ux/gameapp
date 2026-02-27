@@ -80,6 +80,10 @@ class MonsterModel extends HiveObject {
   @HiveField(18)
   String? nickname;
 
+  /// Whether the player has marked this monster as a favorite.
+  @HiveField(19)
+  bool isFavorite;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -100,6 +104,7 @@ class MonsterModel extends HiveObject {
     this.awakeningStars = 0,
     this.battleCount = 0,
     this.nickname,
+    this.isFavorite = false,
   });
 
   /// Display name: nickname if set, otherwise species name.
@@ -232,6 +237,7 @@ class MonsterModel extends HiveObject {
     int? awakeningStars,
     int? battleCount,
     Object? nickname = _sentinel,
+    bool? isFavorite,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -257,6 +263,7 @@ class MonsterModel extends HiveObject {
       nickname: nickname == _sentinel
           ? this.nickname
           : nickname as String?,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
@@ -307,13 +314,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       awakeningStars: fields[16] as int? ?? 0,
       battleCount:    fields[17] as int? ?? 0,
       nickname:       fields[18] as String?,
+      isFavorite:     fields[19] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(19) // total number of fields
+      ..writeByte(20) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -351,7 +359,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(17)
       ..write(obj.battleCount)
       ..writeByte(18)
-      ..write(obj.nickname);
+      ..write(obj.nickname)
+      ..writeByte(19)
+      ..write(obj.isFavorite);
   }
 
   @override

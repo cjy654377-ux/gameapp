@@ -151,6 +151,29 @@ class _AreaStageGrid extends ConsumerWidget {
                     context.pop();
                   }
                 : null,
+            onSkip: isCleared
+                ? () async {
+                    final reward = await ref
+                        .read(battleProvider.notifier)
+                        .skipBattle(stageIdx);
+                    if (reward != null && context.mounted) {
+                      final l = AppLocalizations.of(context)!;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${l.stageSkipResult}  ${l.stageSkipGold(reward.gold)}  ${l.stageSkipExp(reward.exp)}',
+                          ),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  }
+                : null,
           );
         },
       ),
@@ -169,6 +192,7 @@ class _StageCard extends StatelessWidget {
     required this.isCurrent,
     required this.isUnlocked,
     this.onTap,
+    this.onSkip,
   });
 
   final StageData stage;
@@ -176,6 +200,7 @@ class _StageCard extends StatelessWidget {
   final bool isCurrent;
   final bool isUnlocked;
   final VoidCallback? onTap;
+  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +260,7 @@ class _StageCard extends StatelessWidget {
               ],
             ),
 
-            // Bottom row: enemies count + rewards
+            // Bottom row: enemies count + rewards + skip button
             Row(
               children: [
                 // Enemy count
@@ -270,6 +295,29 @@ class _StageCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const Spacer(),
+                // Skip button for cleared stages
+                if (onSkip != null)
+                  GestureDetector(
+                    onTap: onSkip,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: const Text(
+                        '⚡',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],

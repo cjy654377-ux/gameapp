@@ -295,6 +295,30 @@ class CollectionScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // Favorite toggle
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: FilterChip(
+              avatar: Icon(
+                filter.showOnlyFavorites ? Icons.favorite : Icons.favorite_border,
+                size: 16,
+                color: filter.showOnlyFavorites ? Colors.red : AppColors.textTertiary,
+              ),
+              label: Text(l.favoriteOnly),
+              selected: filter.showOnlyFavorites,
+              onSelected: (_) {
+                ref.read(collectionFilterProvider.notifier).toggleShowOnlyFavorites();
+              },
+              selectedColor: Colors.red.withValues(alpha: 0.15),
+              checkmarkColor: Colors.red,
+              labelStyle: TextStyle(
+                fontSize: 12,
+                color: filter.showOnlyFavorites
+                    ? Colors.red
+                    : AppColors.textSecondary,
+              ),
+            ),
+          ),
           // Rarity filters
           for (final r in MonsterRarity.values)
             Padding(
@@ -464,17 +488,18 @@ class CollectionScreen extends ConsumerWidget {
 // Monster card in grid
 // =============================================================================
 
-class _MonsterCard extends StatelessWidget {
+class _MonsterCard extends ConsumerWidget {
   const _MonsterCard({required this.entry, required this.onTap});
 
   final CollectionEntry entry;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final rarity = MonsterRarity.fromRarity(entry.template.rarity);
     final element =
         MonsterElement.fromName(entry.template.element) ?? MonsterElement.fire;
+    final isFavorite = entry.best?.isFavorite ?? false;
 
     return Semantics(
       label: entry.isOwned ? entry.template.name : '미발견 몬스터',
@@ -494,39 +519,62 @@ class _MonsterCard extends StatelessWidget {
               width: entry.isOwned ? 1.5 : 1,
             ),
           ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            // Monster icon (silhouette if not owned)
-            _buildIcon(element),
-            const SizedBox(height: 4),
-            // Name
-            Text(
-              entry.isOwned ? entry.template.name : '???',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: entry.isOwned
-                    ? AppColors.textPrimary
-                    : AppColors.textTertiary,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Monster icon (silhouette if not owned)
+                  _buildIcon(element),
+                  const SizedBox(height: 4),
+                  // Name
+                  Text(
+                    entry.isOwned ? entry.template.name : '???',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: entry.isOwned
+                          ? AppColors.textPrimary
+                          : AppColors.textTertiary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Stars
+                  Text(
+                    rarity.starsDisplay,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: entry.isOwned ? rarity.color : AppColors.disabled,
+                    ),
+                  ),
+                  // Count badge
+                  if (entry.count > 1)
+                    Text(
+                      'x${entry.count}',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                ],
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-            // Stars
-            Text(
-              rarity.starsDisplay,
-              style: TextStyle(
-                fontSize: 10,
-                color: entry.isOwned ? rarity.color : AppColors.disabled,
-              ),
-            ),
-            // Count badge
-            if (entry.count > 1)
-              Text(
-                'x${entry.count}',
-                style: TextStyle(
-                  fontSize: 9,
-                  color: AppColors.textTertiary,
+            // Favorite heart
+            if (entry.isOwned && entry.best != null)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(monsterListProvider.notifier)
+                        .toggleFavorite(entry.best!.id);
+                  },
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 16,
+                    color: isFavorite ? Colors.red : AppColors.textTertiary,
+                  ),
                 ),
               ),
           ],
