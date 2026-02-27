@@ -1909,4 +1909,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get turnLabel => 'Turns';
+
+  @override
+  String get skinTitle => 'Skins';
+
+  @override
+  String get skinEquipped => 'Equipped';
+
+  @override
+  String get skinEquip => 'Equip';
+
+  @override
+  String get skinUnequip => 'Unequip';
+
+  @override
+  String get skinUnlock => 'Unlock';
+
+  @override
+  String get skinUnlocked => 'Unlocked';
+
+  @override
+  String get skinLocked => 'Locked';
+
+  @override
+  String skinCost(int cost) {
+    return '$cost Shards';
+  }
+
+  @override
+  String get skinUnlockSuccess => 'Skin unlocked!';
+
+  @override
+  String get skinEquipSuccess => 'Skin equipped!';
+
+  @override
+  String get skinUnequipSuccess => 'Skin unequipped.';
+
+  @override
+  String get skinInsufficientShards => 'Not enough shards.';
+
+  @override
+  String get skinNone => 'No skin equipped';
+
+  @override
+  String get skinUniversal => 'All Monsters';
+
+  @override
+  String skinElementOnly(String element) {
+    return '$element Only';
+  }
+
+  @override
+  String get skinExclusive => 'Exclusive';
 }

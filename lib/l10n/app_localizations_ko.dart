@@ -1902,4 +1902,56 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get turnLabel => '턴';
+
+  @override
+  String get skinTitle => '스킨';
+
+  @override
+  String get skinEquipped => '장착 중';
+
+  @override
+  String get skinEquip => '장착';
+
+  @override
+  String get skinUnequip => '해제';
+
+  @override
+  String get skinUnlock => '해금';
+
+  @override
+  String get skinUnlocked => '해금 완료';
+
+  @override
+  String get skinLocked => '잠김';
+
+  @override
+  String skinCost(int cost) {
+    return '소환석 $cost개';
+  }
+
+  @override
+  String get skinUnlockSuccess => '스킨을 해금했습니다!';
+
+  @override
+  String get skinEquipSuccess => '스킨을 장착했습니다!';
+
+  @override
+  String get skinUnequipSuccess => '스킨을 해제했습니다.';
+
+  @override
+  String get skinInsufficientShards => '소환석이 부족합니다.';
+
+  @override
+  String get skinNone => '장착된 스킨이 없습니다';
+
+  @override
+  String get skinUniversal => '모든 몬스터';
+
+  @override
+  String skinElementOnly(String element) {
+    return '$element 속성 전용';
+  }
+
+  @override
+  String get skinExclusive => '전용 스킨';
 }

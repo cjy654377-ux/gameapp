@@ -19,6 +19,7 @@ import '../providers/quest_provider.dart';
 import '../providers/attendance_provider.dart';
 import 'package:gameapp/data/static/quest_database.dart';
 import '../providers/relic_provider.dart';
+import '../providers/skin_provider.dart';
 import '../dialogs/attendance_dialog.dart';
 
 /// Tab configuration used by [HomeScreen].
@@ -102,6 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       await ref.read(relicProvider.notifier).loadRelics();
       ref.read(expeditionProvider.notifier).load();
       ref.read(guildProvider.notifier).loadGuild();
+      ref.read(skinProvider.notifier).load();
       _loaded = true;
       _checkOfflineReward();
     } catch (e) {

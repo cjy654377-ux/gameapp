@@ -84,6 +84,10 @@ class MonsterModel extends HiveObject {
   @HiveField(19)
   bool isFavorite;
 
+  /// Currently equipped skin ID (null = no skin).
+  @HiveField(20)
+  String? equippedSkinId;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -105,6 +109,7 @@ class MonsterModel extends HiveObject {
     this.battleCount = 0,
     this.nickname,
     this.isFavorite = false,
+    this.equippedSkinId,
   });
 
   /// Display name: nickname if set, otherwise species name.
@@ -238,6 +243,7 @@ class MonsterModel extends HiveObject {
     int? battleCount,
     Object? nickname = _sentinel,
     bool? isFavorite,
+    Object? equippedSkinId = _sentinel,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -264,6 +270,9 @@ class MonsterModel extends HiveObject {
           ? this.nickname
           : nickname as String?,
       isFavorite: isFavorite ?? this.isFavorite,
+      equippedSkinId: equippedSkinId == _sentinel
+          ? this.equippedSkinId
+          : equippedSkinId as String?,
     );
   }
 
@@ -315,13 +324,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       battleCount:    fields[17] as int? ?? 0,
       nickname:       fields[18] as String?,
       isFavorite:     fields[19] as bool? ?? false,
+      equippedSkinId: fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(20) // total number of fields
+      ..writeByte(21) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -361,7 +371,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(18)
       ..write(obj.nickname)
       ..writeByte(19)
-      ..write(obj.isFavorite);
+      ..write(obj.isFavorite)
+      ..writeByte(20)
+      ..write(obj.equippedSkinId);
   }
 
   @override

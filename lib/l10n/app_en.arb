@@ -631,5 +631,24 @@
   "waveProgress": "{name} - Wave {current}/{total}",
   "@waveProgress": {"placeholders": {"name": {"type": "String"}, "current": {"type": "int"}, "total": {"type": "int"}}},
 
-  "turnLabel": "Turns"
+  "turnLabel": "Turns",
+
+  "skinTitle": "Skins",
+  "skinEquipped": "Equipped",
+  "skinEquip": "Equip",
+  "skinUnequip": "Unequip",
+  "skinUnlock": "Unlock",
+  "skinUnlocked": "Unlocked",
+  "skinLocked": "Locked",
+  "skinCost": "{cost} Shards",
+  "@skinCost": {"placeholders": {"cost": {"type": "int"}}},
+  "skinUnlockSuccess": "Skin unlocked!",
+  "skinEquipSuccess": "Skin equipped!",
+  "skinUnequipSuccess": "Skin unequipped.",
+  "skinInsufficientShards": "Not enough shards.",
+  "skinNone": "No skin equipped",
+  "skinUniversal": "All Monsters",
+  "skinElementOnly": "{element} Only",
+  "@skinElementOnly": {"placeholders": {"element": {"type": "String"}}},
+  "skinExclusive": "Exclusive"
 }

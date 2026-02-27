@@ -3499,6 +3499,102 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'턴'**
   String get turnLabel;
+
+  /// No description provided for @skinTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킨'**
+  String get skinTitle;
+
+  /// No description provided for @skinEquipped.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착 중'**
+  String get skinEquipped;
+
+  /// No description provided for @skinEquip.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착'**
+  String get skinEquip;
+
+  /// No description provided for @skinUnequip.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제'**
+  String get skinUnequip;
+
+  /// No description provided for @skinUnlock.
+  ///
+  /// In ko, this message translates to:
+  /// **'해금'**
+  String get skinUnlock;
+
+  /// No description provided for @skinUnlocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'해금 완료'**
+  String get skinUnlocked;
+
+  /// No description provided for @skinLocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠김'**
+  String get skinLocked;
+
+  /// No description provided for @skinCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석 {cost}개'**
+  String skinCost(int cost);
+
+  /// No description provided for @skinUnlockSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킨을 해금했습니다!'**
+  String get skinUnlockSuccess;
+
+  /// No description provided for @skinEquipSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킨을 장착했습니다!'**
+  String get skinEquipSuccess;
+
+  /// No description provided for @skinUnequipSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킨을 해제했습니다.'**
+  String get skinUnequipSuccess;
+
+  /// No description provided for @skinInsufficientShards.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석이 부족합니다.'**
+  String get skinInsufficientShards;
+
+  /// No description provided for @skinNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착된 스킨이 없습니다'**
+  String get skinNone;
+
+  /// No description provided for @skinUniversal.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 몬스터'**
+  String get skinUniversal;
+
+  /// No description provided for @skinElementOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'{element} 속성 전용'**
+  String skinElementOnly(String element);
+
+  /// No description provided for @skinExclusive.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 스킨'**
+  String get skinExclusive;
 }
 
 class _AppLocalizationsDelegate

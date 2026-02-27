@@ -7,13 +7,16 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../core/utils/format_utils.dart';
+import '../../../core/utils/skin_resolver.dart';
 import '../../../core/enums/monster_rarity.dart';
 import '../../../core/constants/game_config.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../data/models/relic_model.dart';
+import '../../../data/static/skin_database.dart';
 import '../../../data/static/skill_database.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/relic_provider.dart';
+import '../../providers/skin_provider.dart';
 
 /// Full-screen monster detail profile.
 class MonsterDetailScreen extends ConsumerWidget {
@@ -27,6 +30,8 @@ class MonsterDetailScreen extends ConsumerWidget {
     final rarity = MonsterRarity.fromRarity(monster.rarity);
     final element =
         MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
+    final displayEmoji = SkinResolver.emoji(monster);
+    final displayColor = SkinResolver.color(monster);
     final skill = SkillDatabase.findByTemplateId(monster.templateId);
     final relicNotifier = ref.read(relicProvider.notifier);
     final relicBonus = relicNotifier.relicBonuses(monster.id);
@@ -42,7 +47,7 @@ class MonsterDetailScreen extends ConsumerWidget {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: element.color.withValues(alpha: 0.3),
+            backgroundColor: displayColor.withValues(alpha: 0.3),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -50,7 +55,7 @@ class MonsterDetailScreen extends ConsumerWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      element.color.withValues(alpha: 0.4),
+                      displayColor.withValues(alpha: 0.4),
                       AppColors.background,
                     ],
                   ),
@@ -65,11 +70,11 @@ class MonsterDetailScreen extends ConsumerWidget {
                         height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: element.color.withValues(alpha: 0.25),
+                          color: displayColor.withValues(alpha: 0.25),
                           border: Border.all(color: rarity.color, width: 3),
                         ),
                         child: Center(
-                          child: Text(element.emoji,
+                          child: Text(displayEmoji,
                               style: const TextStyle(fontSize: 40)),
                         ),
                       ),
@@ -252,6 +257,10 @@ class MonsterDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   _ElementMatchupTable(element: element),
+                  const SizedBox(height: 20),
+
+                  // Skin section
+                  _SkinSection(monster: monster, l: l),
                   const SizedBox(height: 20),
 
                   // Equipped relics
@@ -1300,6 +1309,338 @@ class _MatchupRow extends StatelessWidget {
               ),
             )),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// Skin Section
+// =============================================================================
+
+class _SkinSection extends ConsumerWidget {
+  const _SkinSection({required this.monster, required this.l});
+  final MonsterModel monster;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final skinState = ref.watch(skinProvider);
+    final equippedSkin = monster.equippedSkinId != null
+        ? SkinDatabase.findById(monster.equippedSkinId!)
+        : null;
+    final applicableSkins = SkinDatabase.applicableTo(
+      element: monster.element,
+      templateId: monster.templateId,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: l.skinTitle),
+        const SizedBox(height: 8),
+
+        // Currently equipped
+        if (equippedSkin != null)
+          _EquippedSkinCard(
+            skin: equippedSkin,
+            onUnequip: () async {
+              await ref.read(skinProvider.notifier).unequipSkin(monster.id);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.skinUnequipSuccess)),
+                );
+              }
+            },
+            l: l,
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              l.skinNone,
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
+            ),
+          ),
+
+        const SizedBox(height: 8),
+
+        // Available skins grid
+        ...applicableSkins.map(
+          (skin) => _SkinCard(
+            skin: skin,
+            isUnlocked: skinState.isUnlocked(skin.id),
+            isEquipped: monster.equippedSkinId == skin.id,
+            monster: monster,
+            l: l,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EquippedSkinCard extends StatelessWidget {
+  const _EquippedSkinCard({
+    required this.skin,
+    required this.onUnequip,
+    required this.l,
+  });
+  final SkinDefinition skin;
+  final VoidCallback onUnequip;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: (skin.overrideColor ?? AppColors.primary).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (skin.overrideColor ?? AppColors.primary).withValues(alpha: 0.4),
+          width: 2,
+        ),
+      ),
+      child: Row(
+        children: [
+          if (skin.overrideEmoji != null)
+            Text(skin.overrideEmoji!, style: const TextStyle(fontSize: 28)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      skin.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        l.skinEquipped,
+                        style: const TextStyle(fontSize: 10, color: Colors.green),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  skin.description,
+                  style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onUnequip,
+            child: Text(l.skinUnequip, style: const TextStyle(fontSize: 12)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkinCard extends ConsumerWidget {
+  const _SkinCard({
+    required this.skin,
+    required this.isUnlocked,
+    required this.isEquipped,
+    required this.monster,
+    required this.l,
+  });
+  final SkinDefinition skin;
+  final bool isUnlocked;
+  final bool isEquipped;
+  final MonsterModel monster;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rarityColor = _rarityColor(skin.rarity);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isEquipped
+            ? rarityColor.withValues(alpha: 0.1)
+            : AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isEquipped
+              ? rarityColor.withValues(alpha: 0.5)
+              : AppColors.border,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Skin preview
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: (skin.overrideColor ?? AppColors.border).withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                skin.overrideEmoji ?? '?',
+                style: const TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      skin.name,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: isUnlocked
+                            ? AppColors.textPrimary
+                            : AppColors.textTertiary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '★' * skin.rarity,
+                      style: TextStyle(fontSize: 10, color: rarityColor),
+                    ),
+                  ],
+                ),
+                Text(
+                  _targetLabel(skin),
+                  style: TextStyle(fontSize: 10, color: AppColors.textTertiary),
+                ),
+              ],
+            ),
+          ),
+          // Action button
+          if (isEquipped)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                l.skinEquipped,
+                style: const TextStyle(fontSize: 11, color: Colors.green),
+              ),
+            )
+          else if (isUnlocked)
+            _ActionButton(
+              label: l.skinEquip,
+              color: AppColors.primary,
+              onTap: () async {
+                final ok = await ref.read(skinProvider.notifier).equipSkin(
+                      monsterId: monster.id,
+                      skinId: skin.id,
+                    );
+                if (ok && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.skinEquipSuccess)),
+                  );
+                }
+              },
+            )
+          else
+            _ActionButton(
+              label: l.skinCost(skin.shardCost),
+              color: Colors.teal,
+              onTap: () async {
+                final ok = await ref.read(skinProvider.notifier).unlockSkin(skin.id);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        ok ? l.skinUnlockSuccess : l.skinInsufficientShards,
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _targetLabel(SkinDefinition s) {
+    if (s.targetTemplateId != null) return l.skinExclusive;
+    if (s.targetElement != null) {
+      final elem = MonsterElement.fromName(s.targetElement!);
+      return l.skinElementOnly(elem?.koreanName ?? s.targetElement!);
+    }
+    return l.skinUniversal;
+  }
+
+  Color _rarityColor(int rarity) {
+    switch (rarity) {
+      case 1:
+        return Colors.grey;
+      case 2:
+        return Colors.green;
+      case 3:
+        return Colors.blue;
+      case 4:
+        return Colors.purple;
+      case 5:
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ),
     );
   }
 }

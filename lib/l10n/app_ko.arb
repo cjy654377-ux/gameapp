@@ -707,5 +707,24 @@
   "waveProgress": "{name} - 웨이브 {current}/{total}",
   "@waveProgress": {"placeholders": {"name": {"type": "String"}, "current": {"type": "int"}, "total": {"type": "int"}}},
 
-  "turnLabel": "턴"
+  "turnLabel": "턴",
+
+  "skinTitle": "스킨",
+  "skinEquipped": "장착 중",
+  "skinEquip": "장착",
+  "skinUnequip": "해제",
+  "skinUnlock": "해금",
+  "skinUnlocked": "해금 완료",
+  "skinLocked": "잠김",
+  "skinCost": "소환석 {cost}개",
+  "@skinCost": {"placeholders": {"cost": {"type": "int"}}},
+  "skinUnlockSuccess": "스킨을 해금했습니다!",
+  "skinEquipSuccess": "스킨을 장착했습니다!",
+  "skinUnequipSuccess": "스킨을 해제했습니다.",
+  "skinInsufficientShards": "소환석이 부족합니다.",
+  "skinNone": "장착된 스킨이 없습니다",
+  "skinUniversal": "모든 몬스터",
+  "skinElementOnly": "{element} 속성 전용",
+  "@skinElementOnly": {"placeholders": {"element": {"type": "String"}}},
+  "skinExclusive": "전용 스킨"
 }
