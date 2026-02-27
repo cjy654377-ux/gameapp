@@ -337,6 +337,15 @@
 - [x] event_dungeon .select() 중복 full watch 제거
 - [x] l10n: 10+ 하드코딩 문자열 제거 (settingsTheme, onboardingSetupError, gachaPityLabel 등)
 
+## 코드 리뷰 최적화 (8차)
+- [x] BattleLogList 공용 위젯 추출 (6개 화면 ~120줄 중복 제거)
+- [x] leaderboard_screen empty state 추가
+- [x] team_edit_screen context.mounted 체크 3곳 추가
+- [x] arena_screen List → List<BattleLogEntry> 타입 안전성
+- [x] 상점 소환석 구매 추가 (x5 20💎, x20 70💎)
+- [x] 추가 테스트 388개 (guild 133 + daily_dungeon 96 + synergy 100 + skin 59)
+- [x] 총 845개 테스트 (기존 457 + 신규 388)
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
