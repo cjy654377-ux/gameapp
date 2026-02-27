@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:gameapp/l10n/app_localizations.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/game_config.dart';
 import '../../core/utils/format_utils.dart';
@@ -37,16 +38,17 @@ class _OfflineRewardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final hours = reward.cappedHours.floor();
     final minutes = ((reward.cappedHours - hours) * 60).round();
 
     String timeText;
     if (hours > 0 && minutes > 0) {
-      timeText = '$hours시간 $minutes분';
+      timeText = l.offlineHoursMinutes(hours, minutes);
     } else if (hours > 0) {
-      timeText = '$hours시간';
+      timeText = l.offlineHours(hours);
     } else {
-      timeText = '$minutes분';
+      timeText = l.offlineMinutes(minutes);
     }
 
     return Center(
@@ -94,7 +96,7 @@ class _OfflineRewardContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '오프라인 보상',
+                        l.offlineRewardTitle,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -103,7 +105,7 @@ class _OfflineRewardContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$timeText 동안 모은 보상',
+                        l.offlineRewardTime(timeText),
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
@@ -121,7 +123,7 @@ class _OfflineRewardContent extends StatelessWidget {
                       _RewardRow(
                         icon: Icons.monetization_on_rounded,
                         iconColor: AppColors.gold,
-                        label: '골드',
+                        label: l.gold,
                         value: '+${FormatUtils.formatNumberWithComma(reward.gold)}',
                         valueColor: AppColors.gold,
                       ),
@@ -129,7 +131,7 @@ class _OfflineRewardContent extends StatelessWidget {
                       _RewardRow(
                         icon: Icons.auto_awesome_rounded,
                         iconColor: AppColors.experience,
-                        label: '경험치',
+                        label: l.experience,
                         value: '+${FormatUtils.formatNumberWithComma(reward.exp)}',
                         valueColor: AppColors.experience,
                       ),
@@ -137,7 +139,7 @@ class _OfflineRewardContent extends StatelessWidget {
                           GameConfig.maxOfflineHours) ...[
                         const SizedBox(height: 12),
                         Text(
-                          '최대 보상 시간에 도달했습니다',
+                          l.offlineMaxReward,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.warning,
@@ -164,8 +166,8 @@ class _OfflineRewardContent extends StatelessWidget {
                         ),
                         elevation: 4,
                       ),
-                      child: const Text(
-                        '보상 받기',
+                      child: Text(
+                        l.offlineClaim,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
