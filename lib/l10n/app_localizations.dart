@@ -3421,6 +3421,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'즐겨찾기만'**
   String get favoriteOnly;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In ko, this message translates to:
+  /// **'테마'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트'**
+  String get settingsThemeLight;
+
+  /// No description provided for @onboardingSetupError.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 중 오류가 발생했습니다. 다시 시도해주세요.'**
+  String get onboardingSetupError;
+
+  /// No description provided for @gachaPityLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'천장'**
+  String get gachaPityLabel;
+
+  /// No description provided for @collectionUnknownMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'미발견 몬스터'**
+  String get collectionUnknownMonster;
+
+  /// No description provided for @semanticPlayer.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어'**
+  String get semanticPlayer;
 }
 
 class _AppLocalizationsDelegate

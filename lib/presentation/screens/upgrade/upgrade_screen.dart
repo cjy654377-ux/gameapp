@@ -215,15 +215,12 @@ class _UpgradePanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedId =
         ref.watch(upgradeProvider.select((s) => s.selectedMonsterId));
-    final roster = ref.watch(monsterListProvider);
+    final monster = ref.watch(
+      monsterListProvider.select(
+        (list) => list.where((m) => m.id == selectedId).firstOrNull,
+      ),
+    );
     final activeTab = ref.watch(upgradeProvider.select((s) => s.activeTab));
-
-    MonsterModel? monster;
-    try {
-      monster = roster.firstWhere((m) => m.id == selectedId);
-    } catch (_) {
-      monster = null;
-    }
 
     if (monster == null) {
       // Selection became invalid (e.g. monster deleted).

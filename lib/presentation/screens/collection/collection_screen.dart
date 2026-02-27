@@ -496,13 +496,14 @@ class _MonsterCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final rarity = MonsterRarity.fromRarity(entry.template.rarity);
     final element =
         MonsterElement.fromName(entry.template.element) ?? MonsterElement.fire;
     final isFavorite = entry.best?.isFavorite ?? false;
 
     return Semantics(
-      label: entry.isOwned ? entry.template.name : '미발견 몬스터',
+      label: entry.isOwned ? entry.template.name : l.collectionUnknownMonster,
       button: true,
       child: GestureDetector(
         onTap: onTap,
@@ -526,7 +527,7 @@ class _MonsterCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Monster icon (silhouette if not owned)
-                  _buildIcon(element),
+                  _buildIcon(element, l),
                   const SizedBox(height: 4),
                   // Name
                   Text(
@@ -584,13 +585,13 @@ class _MonsterCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildIcon(MonsterElement element) {
+  Widget _buildIcon(MonsterElement element, AppLocalizations l) {
     if (!entry.isOwned) {
       return Icon(
         Icons.help_outline,
         size: 36,
         color: AppColors.disabled,
-        semanticLabel: '미발견 몬스터',
+        semanticLabel: l.collectionUnknownMonster,
       );
     }
     return Container(

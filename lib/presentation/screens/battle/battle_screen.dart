@@ -317,7 +317,7 @@ class _IdleBanner extends ConsumerWidget {
     final collection = ref.watch(collectionStatsProvider);
 
     // Team power
-    final team = ref.watch(monsterListProvider).where((m) => m.isInTeam).toList();
+    final team = ref.watch(teamMonstersProvider);
     final teamPower = team.fold<double>(0, (s, m) => s + m.finalAtk + m.finalDef + m.finalHp + m.finalSpd);
 
     // Guild remaining
@@ -343,7 +343,7 @@ class _IdleBanner extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: '플레이어'),
+                  Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: l.semanticPlayer),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

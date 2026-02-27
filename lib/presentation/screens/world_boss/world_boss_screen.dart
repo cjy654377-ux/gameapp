@@ -369,7 +369,7 @@ class _FightingView extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  'AUTO',
+                  l.battleAutoMode,
                   style: TextStyle(
                     color: wbState.isAutoMode ? Colors.amber : Colors.grey,
                   ),

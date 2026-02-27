@@ -166,7 +166,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
     final monster = _createMonsterFromTemplate(pull.result.template);
 
     await ref.read(monsterListProvider.notifier).addMonster(monster);
-    _incrementPlayerPullCount(1);
+    await _incrementPlayerPullCount(1);
     _updateCollectProgress();
 
     // High rarity feedback (4-5 star).
@@ -209,7 +209,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
         .map((r) => _createMonsterFromTemplate(r.template))
         .toList();
     await monsterNotifier.addMonsters(newMonsters);
-    _incrementPlayerPullCount(10);
+    await _incrementPlayerPullCount(10);
     _updateCollectProgress();
 
     state = state.copyWith(
@@ -250,8 +250,8 @@ class GachaNotifier extends StateNotifier<GachaState> {
     );
   }
 
-  void _incrementPlayerPullCount(int count) {
-    ref.read(playerProvider.notifier).addGachaPullCount(count);
+  Future<void> _incrementPlayerPullCount(int count) async {
+    await ref.read(playerProvider.notifier).addGachaPullCount(count);
     ref.read(questProvider.notifier).onTrigger(
           QuestTrigger.gachaPull,
           count: count,

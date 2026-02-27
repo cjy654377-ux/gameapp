@@ -74,9 +74,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     } catch (e) {
       debugPrint('[Onboarding] _completeOnboarding error: $e');
       if (mounted) {
+        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error during setup. Please try again.'),
+          SnackBar(
+            content: Text(l.onboardingSetupError),
             backgroundColor: Colors.red,
           ),
         );

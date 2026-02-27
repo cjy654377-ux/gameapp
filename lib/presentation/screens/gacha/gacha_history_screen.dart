@@ -158,6 +158,7 @@ class _HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rarity = MonsterRarity.fromRarity(entry.rarity);
     final element =
         MonsterElement.fromName(entry.element) ?? MonsterElement.fire;
@@ -183,7 +184,7 @@ class _HistoryTile extends StatelessWidget {
         ),
         trailing: entry.isPity
             ? Chip(
-                label: const Text('PITY', style: TextStyle(fontSize: 10)),
+                label: Text(l.gachaPityLabel, style: const TextStyle(fontSize: 10)),
                 backgroundColor: Colors.amber.withValues(alpha: 0.2),
                 padding: EdgeInsets.zero,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

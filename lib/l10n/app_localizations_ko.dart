@@ -1861,4 +1861,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get favoriteOnly => '즐겨찾기만';
+
+  @override
+  String get settingsTheme => '테마';
+
+  @override
+  String get settingsThemeDark => '다크';
+
+  @override
+  String get settingsThemeLight => '라이트';
+
+  @override
+  String get onboardingSetupError => '설정 중 오류가 발생했습니다. 다시 시도해주세요.';
+
+  @override
+  String get gachaPityLabel => '천장';
+
+  @override
+  String get collectionUnknownMonster => '미발견 몬스터';
+
+  @override
+  String get semanticPlayer => '플레이어';
 }

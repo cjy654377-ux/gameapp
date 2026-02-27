@@ -65,7 +65,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Theme toggle
-            _SectionHeader(title: 'Theme'),
+            _SectionHeader(title: l.settingsTheme),
             _ThemeToggleTile(),
             const SizedBox(height: 24),
 
@@ -391,6 +391,7 @@ class _SoundToggleTileState extends State<_SoundToggleTile> {
 class _ThemeToggleTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final mode = ref.watch(themeModeProvider);
     final isDark = mode == ThemeMode.dark;
     return Container(
@@ -405,7 +406,7 @@ class _ThemeToggleTile extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            isDark ? 'Dark' : 'Light',
+            isDark ? l.settingsThemeDark : l.settingsThemeLight,
             style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const Spacer(),

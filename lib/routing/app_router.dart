@@ -190,7 +190,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.monsterDetail,
         builder: (context, state) {
-          final monster = state.extra as MonsterModel;
+          final monster = state.extra;
+          if (monster is! MonsterModel) {
+            return const Scaffold(body: Center(child: Text('Invalid monster data')));
+          }
           return MonsterDetailScreen(monster: monster);
         },
       ),

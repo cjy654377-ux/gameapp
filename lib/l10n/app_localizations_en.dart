@@ -1868,4 +1868,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favoriteOnly => 'Favorites';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get onboardingSetupError => 'Error during setup. Please try again.';
+
+  @override
+  String get gachaPityLabel => 'PITY';
+
+  @override
+  String get collectionUnknownMonster => 'Unknown Monster';
+
+  @override
+  String get semanticPlayer => 'Player';
 }

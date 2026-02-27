@@ -613,5 +613,14 @@
   "@stageSkipExp": {"placeholders": {"exp": {"type": "int"}}},
 
   "favorite": "Favorite",
-  "favoriteOnly": "Favorites"
+  "favoriteOnly": "Favorites",
+
+  "settingsTheme": "Theme",
+  "settingsThemeDark": "Dark",
+  "settingsThemeLight": "Light",
+
+  "onboardingSetupError": "Error during setup. Please try again.",
+  "gachaPityLabel": "PITY",
+  "collectionUnknownMonster": "Unknown Monster",
+  "semanticPlayer": "Player"
 }
