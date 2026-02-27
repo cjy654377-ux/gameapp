@@ -23,7 +23,11 @@ class ShopScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Current balance
-          _BalanceCard(gold: currency.gold, diamond: currency.diamond),
+          _BalanceCard(
+            gold: currency.gold,
+            diamond: currency.diamond,
+            shard: currency.monsterShard,
+          ),
           const SizedBox(height: 16),
 
           // Exchange section
@@ -217,9 +221,10 @@ class ShopScreen extends ConsumerWidget {
 // =============================================================================
 
 class _BalanceCard extends StatelessWidget {
-  const _BalanceCard({required this.gold, required this.diamond});
+  const _BalanceCard({required this.gold, required this.diamond, required this.shard});
   final int gold;
   final int diamond;
+  final int shard;
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +241,8 @@ class _BalanceCard extends StatelessWidget {
           _CurrencyDisplay(icon: Icons.monetization_on, color: Colors.amber, value: gold),
           Container(width: 1, height: 30, color: AppColors.border),
           _CurrencyDisplay(icon: Icons.diamond, color: Colors.cyan, value: diamond),
+          Container(width: 1, height: 30, color: AppColors.border),
+          _CurrencyDisplay(icon: Icons.hexagon, color: Colors.teal, value: shard),
         ],
       ),
     );
