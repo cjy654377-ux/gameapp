@@ -678,7 +678,7 @@ class _ControlBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Row 1: speed buttons ─────────────────────────────────────
+          // ── Row 1: speed buttons + skip ──────────────────────────────
           Row(
             children: [
               _SpeedButton(
@@ -701,6 +701,27 @@ class _ControlBar extends ConsumerWidget {
                 currentSpeed: speed,
                 onTap: notifier.toggleSpeed,
               ),
+              const Spacer(),
+              if (phase == BattlePhase.fighting)
+                GestureDetector(
+                  onTap: notifier.instantFinish,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.skip_next, color: AppColors.warning, size: 16),
+                        SizedBox(width: 4),
+                        Text('스킵', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
 

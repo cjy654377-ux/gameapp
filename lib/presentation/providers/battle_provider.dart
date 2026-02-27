@@ -521,6 +521,17 @@ class BattleNotifier extends StateNotifier<BattleState> {
     state = state.copyWith(isRepeatMode: false);
   }
 
+  /// Instantly finishes the current battle by processing all remaining turns.
+  void instantFinish() {
+    if (state.phase != BattlePhase.fighting) return;
+    _stopAutoTimer();
+    // Process turns until battle ends (max 200 to prevent infinite loop)
+    for (int i = 0; i < 200; i++) {
+      if (state.phase != BattlePhase.fighting) break;
+      processTurn();
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Reward collection
   // ---------------------------------------------------------------------------
