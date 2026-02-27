@@ -3961,6 +3961,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'활성 시너지 없음'**
   String get synergyNone;
+
+  /// No description provided for @tabMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터'**
+  String get tabMonster;
+
+  /// No description provided for @tabSkillSummon.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬'**
+  String get tabSkillSummon;
+
+  /// No description provided for @tabRelicSummon.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비'**
+  String get tabRelicSummon;
+
+  /// No description provided for @tabMountSummon.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것'**
+  String get tabMountSummon;
+
+  /// No description provided for @skillSummonTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 소환'**
+  String get skillSummonTitle;
+
+  /// No description provided for @skillSummonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'강력한 스킬을 획득하세요'**
+  String get skillSummonDesc;
+
+  /// No description provided for @relicSummonTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 소환'**
+  String get relicSummonTitle;
+
+  /// No description provided for @relicSummonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'희귀한 장비를 획득하세요'**
+  String get relicSummonDesc;
+
+  /// No description provided for @mountSummonTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 소환'**
+  String get mountSummonTitle;
+
+  /// No description provided for @mountSummonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'전설의 탈것을 획득하세요'**
+  String get mountSummonDesc;
+
+  /// No description provided for @pull1.
+  ///
+  /// In ko, this message translates to:
+  /// **'1회 소환'**
+  String get pull1;
+
+  /// No description provided for @pull10.
+  ///
+  /// In ko, this message translates to:
+  /// **'10회 소환'**
+  String get pull10;
+
+  /// No description provided for @pull100.
+  ///
+  /// In ko, this message translates to:
+  /// **'100회 소환'**
+  String get pull100;
 }
 
 class _AppLocalizationsDelegate

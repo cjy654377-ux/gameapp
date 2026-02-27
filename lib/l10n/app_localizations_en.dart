@@ -2224,4 +2224,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get synergyNone => 'No active synergies';
+
+  @override
+  String get tabMonster => 'Monster';
+
+  @override
+  String get tabSkillSummon => 'Skill';
+
+  @override
+  String get tabRelicSummon => 'Relic';
+
+  @override
+  String get tabMountSummon => 'Mount';
+
+  @override
+  String get skillSummonTitle => 'Skill Summon';
+
+  @override
+  String get skillSummonDesc => 'Acquire powerful skills';
+
+  @override
+  String get relicSummonTitle => 'Relic Summon';
+
+  @override
+  String get relicSummonDesc => 'Acquire rare relics';
+
+  @override
+  String get mountSummonTitle => 'Mount Summon';
+
+  @override
+  String get mountSummonDesc => 'Acquire legendary mounts';
+
+  @override
+  String get pull1 => 'Summon x1';
+
+  @override
+  String get pull10 => 'Summon x10';
+
+  @override
+  String get pull100 => 'Summon x100';
 }

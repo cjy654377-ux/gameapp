@@ -753,5 +753,19 @@
   "notifChannelDesc": "Offline rewards and reminder notifications",
   "expeditionOptionLabel": "{h}h Expedition",
   "@expeditionOptionLabel": {"placeholders": {"h": {"type": "int"}}},
-  "synergyNone": "No active synergies"
+  "synergyNone": "No active synergies",
+
+  "tabMonster": "Monster",
+  "tabSkillSummon": "Skill",
+  "tabRelicSummon": "Relic",
+  "tabMountSummon": "Mount",
+  "skillSummonTitle": "Skill Summon",
+  "skillSummonDesc": "Acquire powerful skills",
+  "relicSummonTitle": "Relic Summon",
+  "relicSummonDesc": "Acquire rare relics",
+  "mountSummonTitle": "Mount Summon",
+  "mountSummonDesc": "Acquire legendary mounts",
+  "pull1": "Summon x1",
+  "pull10": "Summon x10",
+  "pull100": "Summon x100"
 }

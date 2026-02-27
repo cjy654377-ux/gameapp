@@ -2213,4 +2213,43 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get synergyNone => '활성 시너지 없음';
+
+  @override
+  String get tabMonster => '몬스터';
+
+  @override
+  String get tabSkillSummon => '스킬';
+
+  @override
+  String get tabRelicSummon => '장비';
+
+  @override
+  String get tabMountSummon => '탈것';
+
+  @override
+  String get skillSummonTitle => '스킬 소환';
+
+  @override
+  String get skillSummonDesc => '강력한 스킬을 획득하세요';
+
+  @override
+  String get relicSummonTitle => '장비 소환';
+
+  @override
+  String get relicSummonDesc => '희귀한 장비를 획득하세요';
+
+  @override
+  String get mountSummonTitle => '탈것 소환';
+
+  @override
+  String get mountSummonDesc => '전설의 탈것을 획득하세요';
+
+  @override
+  String get pull1 => '1회 소환';
+
+  @override
+  String get pull10 => '10회 소환';
+
+  @override
+  String get pull100 => '100회 소환';
 }

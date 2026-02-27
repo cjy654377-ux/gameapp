@@ -22,38 +22,354 @@ class GachaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final showResults = ref.watch(gachaProvider.select((s) => s.showResults));
 
     return TutorialOverlay(
       forStep: TutorialSteps.gachaIntro,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: Stack(
-          children: [
-            Column(
-              children: const [
-                CurrencyBar(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 12),
-                        _GachaBanner(),
-                        SizedBox(height: 16),
-                        _PityBar(),
-                        SizedBox(height: 16),
-                        _RateTable(),
-                        SizedBox(height: 20),
-                        _PullButtons(),
-                        SizedBox(height: 24),
+      child: DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          body: Stack(
+            children: [
+              Column(
+                children: [
+                  const CurrencyBar(),
+                  // ── Summon type tabs ──────────────────────────────────
+                  Container(
+                    color: AppColors.surface,
+                    child: TabBar(
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      indicatorColor: AppColors.primary,
+                      indicatorWeight: 3,
+                      labelStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      unselectedLabelStyle: const TextStyle(fontSize: 13),
+                      tabs: [
+                        Tab(text: l.tabMonster),
+                        Tab(text: l.tabSkillSummon),
+                        Tab(text: l.tabRelicSummon),
+                        Tab(text: l.tabMountSummon),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  // ── Tab content ──────────────────────────────────────
+                  const Expanded(
+                    child: TabBarView(
+                      children: [
+                        _MonsterGachaTab(),
+                        _SkillGachaTab(),
+                        _RelicGachaTab(),
+                        _MountGachaTab(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (showResults) const _ResultOverlay(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Monster Gacha Tab (original content)
+// =============================================================================
+
+class _MonsterGachaTab extends StatelessWidget {
+  const _MonsterGachaTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          SizedBox(height: 12),
+          _GachaBanner(),
+          SizedBox(height: 16),
+          _PityBar(),
+          SizedBox(height: 16),
+          _RateTable(),
+          SizedBox(height: 20),
+          _PullButtons(),
+          SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Skill Gacha Tab
+// =============================================================================
+
+class _SkillGachaTab extends ConsumerWidget {
+  const _SkillGachaTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Banner
+          Container(
+            width: double.infinity,
+            height: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6A1B9A), Color(0xFFAB47BC)],
+              ),
             ),
-            if (showResults) const _ResultOverlay(),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.auto_fix_high, size: 48, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(
+                    l.skillSummonTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.skillSummonDesc,
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Pull buttons
+          _GenericPullButton(
+            label: l.pull10,
+            cost: '10',
+            currencyIcon: Icons.confirmation_number,
+            currencyColor: Colors.purple,
+            onTap: () {
+              // TODO: implement skill gacha pull
+            },
+          ),
+          const SizedBox(height: 10),
+          _GenericPullButton(
+            label: l.pull100,
+            cost: '100',
+            currencyIcon: Icons.confirmation_number,
+            currencyColor: Colors.purple,
+            onTap: () {
+              // TODO: implement skill gacha 100-pull
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Relic (Item) Gacha Tab
+// =============================================================================
+
+class _RelicGachaTab extends ConsumerWidget {
+  const _RelicGachaTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Banner
+          Container(
+            width: double.infinity,
+            height: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.shield, size: 48, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(
+                    l.relicSummonTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.relicSummonDesc,
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _GenericPullButton(
+            label: l.pull10,
+            cost: '10',
+            currencyIcon: Icons.toll,
+            currencyColor: Colors.blue,
+            onTap: () {
+              // TODO: implement relic gacha pull
+            },
+          ),
+          const SizedBox(height: 10),
+          _GenericPullButton(
+            label: l.pull100,
+            cost: '100',
+            currencyIcon: Icons.toll,
+            currencyColor: Colors.blue,
+            onTap: () {
+              // TODO: implement relic gacha 100-pull
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Mount Gacha Tab
+// =============================================================================
+
+class _MountGachaTab extends ConsumerWidget {
+  const _MountGachaTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Banner
+          Container(
+            width: double.infinity,
+            height: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.pets, size: 48, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(
+                    l.mountSummonTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.mountSummonDesc,
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _GenericPullButton(
+            label: l.pull1,
+            cost: '300',
+            currencyIcon: Icons.diamond,
+            currencyColor: Colors.orange,
+            onTap: () {
+              // TODO: implement mount gacha pull
+            },
+          ),
+          const SizedBox(height: 10),
+          _GenericPullButton(
+            label: l.pull10,
+            cost: '2700',
+            currencyIcon: Icons.diamond,
+            currencyColor: Colors.orange,
+            onTap: () {
+              // TODO: implement mount gacha 10-pull
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Shared pull button widget
+// =============================================================================
+
+class _GenericPullButton extends StatelessWidget {
+  const _GenericPullButton({
+    required this.label,
+    required this.cost,
+    required this.currencyIcon,
+    required this.currencyColor,
+    required this.onTap,
+  });
+
+  final String label;
+  final String cost;
+  final IconData currencyIcon;
+  final Color currencyColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: currencyColor.withValues(alpha: 0.15),
+          foregroundColor: currencyColor,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: currencyColor.withValues(alpha: 0.4)),
+          ),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+            const SizedBox(width: 10),
+            Icon(currencyIcon, size: 18),
+            const SizedBox(width: 4),
+            Text(cost, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

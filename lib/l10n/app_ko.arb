@@ -829,5 +829,19 @@
   "notifChannelDesc": "오프라인 보상 및 리마인더 알림",
   "expeditionOptionLabel": "{h}시간 원정",
   "@expeditionOptionLabel": {"placeholders": {"h": {"type": "int"}}},
-  "synergyNone": "활성 시너지 없음"
+  "synergyNone": "활성 시너지 없음",
+
+  "tabMonster": "몬스터",
+  "tabSkillSummon": "스킬",
+  "tabRelicSummon": "장비",
+  "tabMountSummon": "탈것",
+  "skillSummonTitle": "스킬 소환",
+  "skillSummonDesc": "강력한 스킬을 획득하세요",
+  "relicSummonTitle": "장비 소환",
+  "relicSummonDesc": "희귀한 장비를 획득하세요",
+  "mountSummonTitle": "탈것 소환",
+  "mountSummonDesc": "전설의 탈것을 획득하세요",
+  "pull1": "1회 소환",
+  "pull10": "10회 소환",
+  "pull100": "100회 소환"
 }
