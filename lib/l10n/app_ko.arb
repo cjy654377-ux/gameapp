@@ -611,5 +611,22 @@
   "dailyDungeonComplete": "던전 완료!",
   "dailyDungeonDefeated": "패배",
   "dailyDungeonCollect": "보상 수령",
-  "dailyDungeonExitConfirm": "현재까지 획득한 보상을 수령하고 나가시겠습니까?"
+  "dailyDungeonExitConfirm": "현재까지 획득한 보상을 수령하고 나가시겠습니까?",
+  "elementMatchup": "속성 상성표",
+  "elementMatchupDesc": "공격 시 상성 배율 (🔼1.3x 유리 / 🔽0.7x 불리)",
+  "superEffective": "유리",
+  "notEffective": "불리",
+  "passiveSkill": "패시브 스킬",
+  "ultimateSkill": "궁극기",
+  "ultCharge": "차지: {charge}",
+  "@ultCharge": {"placeholders": {"charge": {"type": "int"}}},
+  "evolutionTree": "진화 트리",
+  "evoStageBase": "기본",
+  "evoStageFirst": "1차 진화",
+  "evoStageFinal": "최종 진화",
+  "evoCurrentMark": "현재",
+  "triggerOnTurnStart": "턴 시작",
+  "triggerOnAttack": "공격 시",
+  "triggerOnDamaged": "피격 시",
+  "triggerBattleStart": "전투 시작"
 }

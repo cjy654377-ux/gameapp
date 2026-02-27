@@ -1664,4 +1664,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyDungeonExitConfirm => 'Collect current rewards and exit?';
+
+  @override
+  String get elementMatchup => 'Element Matchup';
+
+  @override
+  String get elementMatchupDesc =>
+      'Attack multiplier (🔼1.3x advantage / 🔽0.7x disadvantage)';
+
+  @override
+  String get superEffective => 'Strong';
+
+  @override
+  String get notEffective => 'Weak';
+
+  @override
+  String get passiveSkill => 'Passive Skill';
+
+  @override
+  String get ultimateSkill => 'Ultimate Skill';
+
+  @override
+  String ultCharge(int charge) {
+    return 'Charge: $charge';
+  }
+
+  @override
+  String get evolutionTree => 'Evolution Tree';
+
+  @override
+  String get evoStageBase => 'Base';
+
+  @override
+  String get evoStageFirst => '1st Evo';
+
+  @override
+  String get evoStageFinal => 'Final Evo';
+
+  @override
+  String get evoCurrentMark => 'Current';
+
+  @override
+  String get triggerOnTurnStart => 'Turn Start';
+
+  @override
+  String get triggerOnAttack => 'On Attack';
+
+  @override
+  String get triggerOnDamaged => 'On Hit';
+
+  @override
+  String get triggerBattleStart => 'Battle Start';
 }

@@ -1658,4 +1658,54 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dailyDungeonExitConfirm => '현재까지 획득한 보상을 수령하고 나가시겠습니까?';
+
+  @override
+  String get elementMatchup => '속성 상성표';
+
+  @override
+  String get elementMatchupDesc => '공격 시 상성 배율 (🔼1.3x 유리 / 🔽0.7x 불리)';
+
+  @override
+  String get superEffective => '유리';
+
+  @override
+  String get notEffective => '불리';
+
+  @override
+  String get passiveSkill => '패시브 스킬';
+
+  @override
+  String get ultimateSkill => '궁극기';
+
+  @override
+  String ultCharge(int charge) {
+    return '차지: $charge';
+  }
+
+  @override
+  String get evolutionTree => '진화 트리';
+
+  @override
+  String get evoStageBase => '기본';
+
+  @override
+  String get evoStageFirst => '1차 진화';
+
+  @override
+  String get evoStageFinal => '최종 진화';
+
+  @override
+  String get evoCurrentMark => '현재';
+
+  @override
+  String get triggerOnTurnStart => '턴 시작';
+
+  @override
+  String get triggerOnAttack => '공격 시';
+
+  @override
+  String get triggerOnDamaged => '피격 시';
+
+  @override
+  String get triggerBattleStart => '전투 시작';
 }

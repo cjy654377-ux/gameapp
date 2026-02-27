@@ -535,5 +535,22 @@
   "dailyDungeonComplete": "Dungeon Complete!",
   "dailyDungeonDefeated": "Defeated",
   "dailyDungeonCollect": "Collect Rewards",
-  "dailyDungeonExitConfirm": "Collect current rewards and exit?"
+  "dailyDungeonExitConfirm": "Collect current rewards and exit?",
+  "elementMatchup": "Element Matchup",
+  "elementMatchupDesc": "Attack multiplier (🔼1.3x advantage / 🔽0.7x disadvantage)",
+  "superEffective": "Strong",
+  "notEffective": "Weak",
+  "passiveSkill": "Passive Skill",
+  "ultimateSkill": "Ultimate Skill",
+  "ultCharge": "Charge: {charge}",
+  "@ultCharge": {"placeholders": {"charge": {"type": "int"}}},
+  "evolutionTree": "Evolution Tree",
+  "evoStageBase": "Base",
+  "evoStageFirst": "1st Evo",
+  "evoStageFinal": "Final Evo",
+  "evoCurrentMark": "Current",
+  "triggerOnTurnStart": "Turn Start",
+  "triggerOnAttack": "On Attack",
+  "triggerOnDamaged": "On Hit",
+  "triggerBattleStart": "Battle Start"
 }

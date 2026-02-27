@@ -3043,6 +3043,102 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'현재까지 획득한 보상을 수령하고 나가시겠습니까?'**
   String get dailyDungeonExitConfirm;
+
+  /// No description provided for @elementMatchup.
+  ///
+  /// In ko, this message translates to:
+  /// **'속성 상성표'**
+  String get elementMatchup;
+
+  /// No description provided for @elementMatchupDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'공격 시 상성 배율 (🔼1.3x 유리 / 🔽0.7x 불리)'**
+  String get elementMatchupDesc;
+
+  /// No description provided for @superEffective.
+  ///
+  /// In ko, this message translates to:
+  /// **'유리'**
+  String get superEffective;
+
+  /// No description provided for @notEffective.
+  ///
+  /// In ko, this message translates to:
+  /// **'불리'**
+  String get notEffective;
+
+  /// No description provided for @passiveSkill.
+  ///
+  /// In ko, this message translates to:
+  /// **'패시브 스킬'**
+  String get passiveSkill;
+
+  /// No description provided for @ultimateSkill.
+  ///
+  /// In ko, this message translates to:
+  /// **'궁극기'**
+  String get ultimateSkill;
+
+  /// No description provided for @ultCharge.
+  ///
+  /// In ko, this message translates to:
+  /// **'차지: {charge}'**
+  String ultCharge(int charge);
+
+  /// No description provided for @evolutionTree.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화 트리'**
+  String get evolutionTree;
+
+  /// No description provided for @evoStageBase.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get evoStageBase;
+
+  /// No description provided for @evoStageFirst.
+  ///
+  /// In ko, this message translates to:
+  /// **'1차 진화'**
+  String get evoStageFirst;
+
+  /// No description provided for @evoStageFinal.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화'**
+  String get evoStageFinal;
+
+  /// No description provided for @evoCurrentMark.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재'**
+  String get evoCurrentMark;
+
+  /// No description provided for @triggerOnTurnStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 시작'**
+  String get triggerOnTurnStart;
+
+  /// No description provided for @triggerOnAttack.
+  ///
+  /// In ko, this message translates to:
+  /// **'공격 시'**
+  String get triggerOnAttack;
+
+  /// No description provided for @triggerOnDamaged.
+  ///
+  /// In ko, this message translates to:
+  /// **'피격 시'**
+  String get triggerOnDamaged;
+
+  /// No description provided for @triggerBattleStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 시작'**
+  String get triggerBattleStart;
 }
 
 class _AppLocalizationsDelegate

@@ -8,6 +8,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../core/enums/monster_rarity.dart';
+import '../../../core/constants/game_config.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../data/models/relic_model.dart';
 import '../../../data/static/skill_database.dart';
@@ -204,6 +205,53 @@ class MonsterDetailScreen extends ConsumerWidget {
                       l.noSkill,
                       style: TextStyle(color: AppColors.textTertiary),
                     ),
+                  const SizedBox(height: 20),
+
+                  // Passive skill
+                  Builder(builder: (_) {
+                    final passive = SkillDatabase.findPassive(monster.templateId);
+                    if (passive == null) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _SectionTitle(title: l.passiveSkill),
+                        const SizedBox(height: 8),
+                        _PassiveCard(passive: passive, l: l),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  }),
+
+                  // Ultimate skill
+                  Builder(builder: (_) {
+                    final ult = SkillDatabase.findUltimate(monster.templateId);
+                    if (ult == null) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _SectionTitle(title: l.ultimateSkill),
+                        const SizedBox(height: 8),
+                        _UltimateCard(ultimate: ult, l: l),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  }),
+
+                  // Evolution tree
+                  _SectionTitle(title: l.evolutionTree),
+                  const SizedBox(height: 8),
+                  _EvolutionTree(monster: monster, l: l),
+                  const SizedBox(height: 20),
+
+                  // Element matchup
+                  _SectionTitle(title: l.elementMatchup),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.elementMatchupDesc,
+                    style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                  ),
+                  const SizedBox(height: 8),
+                  _ElementMatchupTable(element: element),
                   const SizedBox(height: 20),
 
                   // Equipped relics
@@ -818,5 +866,440 @@ class _RelicTile extends StatelessWidget {
       case 'spd': return l.statSpeed;
       default: return stat;
     }
+  }
+}
+
+// =============================================================================
+// Passive skill card
+// =============================================================================
+
+class _PassiveCard extends StatelessWidget {
+  const _PassiveCard({required this.passive, required this.l});
+  final PassiveDefinition passive;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final triggerLabel = switch (passive.trigger) {
+      PassiveTrigger.onTurnStart => l.triggerOnTurnStart,
+      PassiveTrigger.onAttack => l.triggerOnAttack,
+      PassiveTrigger.onDamaged => l.triggerOnDamaged,
+      PassiveTrigger.battleStart => l.triggerBattleStart,
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.auto_awesome_mosaic, color: Colors.teal[300], size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  passive.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.tealAccent,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  triggerLabel,
+                  style: TextStyle(fontSize: 11, color: Colors.teal[200]),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            passive.description,
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              if (passive.atkBoost > 0)
+                _SkillTag(label: 'ATK +${(passive.atkBoost * 100).round()}%', color: Colors.red),
+              if (passive.defBoost > 0)
+                _SkillTag(label: 'DEF +${(passive.defBoost * 100).round()}%', color: Colors.blue),
+              if (passive.hpRegenPercent > 0)
+                _SkillTag(label: 'HP회복 ${(passive.hpRegenPercent * 100).round()}%', color: Colors.green),
+              if (passive.counterChance > 0)
+                _SkillTag(label: '반격 ${(passive.counterChance * 100).round()}%', color: Colors.orange),
+              if (passive.critBoost > 0)
+                _SkillTag(label: '크리 +${(passive.critBoost * 100).round()}%', color: Colors.amber),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Ultimate skill card
+// =============================================================================
+
+class _UltimateCard extends StatelessWidget {
+  const _UltimateCard({required this.ultimate, required this.l});
+  final UltimateDefinition ultimate;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.bolt, color: Colors.amber[300], size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  ultimate.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amberAccent,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  l.ultCharge(ultimate.maxCharge),
+                  style: TextStyle(fontSize: 11, color: Colors.amber[200]),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            ultimate.description,
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              if (ultimate.damageMultiplier > 0)
+                _SkillTag(
+                  label: '${ultimate.damageMultiplier}x ${ultimate.damageTarget == SkillTargetType.allEnemies ? "전체" : "단일"}',
+                  color: Colors.red,
+                ),
+              if (ultimate.healPercent > 0)
+                _SkillTag(
+                  label: '힐 ${(ultimate.healPercent * 100).round()}%${ultimate.isTeamHeal ? " 전체" : ""}',
+                  color: Colors.green,
+                ),
+              if (ultimate.stunChance > 0)
+                _SkillTag(label: '기절 ${(ultimate.stunChance * 100).round()}%', color: Colors.amber),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Evolution tree
+// =============================================================================
+
+class _EvolutionTree extends StatelessWidget {
+  const _EvolutionTree({required this.monster, required this.l});
+  final MonsterModel monster;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final stages = [
+      (label: l.evoStageBase, multiplier: '1.00x', stage: 0),
+      (label: l.evoStageFirst, multiplier: '1.25x', stage: 1),
+      (label: l.evoStageFinal, multiplier: '1.60x', stage: 2),
+    ];
+    final maxStage = GameConfig.maxEvolutionStage;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          for (int i = 0; i <= maxStage; i++) ...[
+            Expanded(
+              child: _EvoStageNode(
+                label: stages[i].label,
+                multiplier: stages[i].multiplier,
+                isCurrent: monster.evolutionStage == i,
+                isReached: monster.evolutionStage >= i,
+                currentLabel: l.evoCurrentMark,
+              ),
+            ),
+            if (i < maxStage)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Icon(
+                  Icons.arrow_forward,
+                  size: 16,
+                  color: monster.evolutionStage > i
+                      ? AppColors.primary
+                      : AppColors.textTertiary,
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _EvoStageNode extends StatelessWidget {
+  const _EvoStageNode({
+    required this.label,
+    required this.multiplier,
+    required this.isCurrent,
+    required this.isReached,
+    required this.currentLabel,
+  });
+  final String label;
+  final String multiplier;
+  final bool isCurrent;
+  final bool isReached;
+  final String currentLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      decoration: BoxDecoration(
+        color: isCurrent
+            ? AppColors.primary.withValues(alpha: 0.15)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        border: isCurrent
+            ? Border.all(color: AppColors.primary, width: 1.5)
+            : null,
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.auto_awesome,
+            size: 22,
+            color: isReached ? AppColors.primary : AppColors.textTertiary,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: isReached ? AppColors.textPrimary : AppColors.textTertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            multiplier,
+            style: TextStyle(
+              fontSize: 10,
+              color: isReached ? AppColors.primary : AppColors.textTertiary,
+            ),
+          ),
+          if (isCurrent)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                currentLabel,
+                style: const TextStyle(
+                  fontSize: 9,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Element matchup table
+// =============================================================================
+
+class _ElementMatchupTable extends StatelessWidget {
+  const _ElementMatchupTable({required this.element});
+  final MonsterElement element;
+
+  @override
+  Widget build(BuildContext context) {
+    final allElements = MonsterElement.values;
+    final strong = <MonsterElement>[];
+    final weak = <MonsterElement>[];
+
+    for (final target in allElements) {
+      final adv = element.getAdvantage(target);
+      if (adv > 1.0) strong.add(target);
+      if (adv < 1.0) weak.add(target);
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          // This monster's element header
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: element.color.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(element.emoji, style: const TextStyle(fontSize: 18)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                element.koreanName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Strong against
+          if (strong.isNotEmpty) ...[
+            _MatchupRow(
+              label: '🔼',
+              elements: strong,
+              color: Colors.green,
+              multiplier: '1.3x',
+            ),
+            const SizedBox(height: 8),
+          ],
+          // Weak against
+          if (weak.isNotEmpty)
+            _MatchupRow(
+              label: '🔽',
+              elements: weak,
+              color: Colors.red,
+              multiplier: '0.7x',
+            ),
+          if (strong.isEmpty && weak.isEmpty)
+            Text(
+              '-',
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MatchupRow extends StatelessWidget {
+  const _MatchupRow({
+    required this.label,
+    required this.elements,
+    required this.color,
+    required this.multiplier,
+  });
+  final String label;
+  final List<MonsterElement> elements;
+  final Color color;
+  final String multiplier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16)),
+        const SizedBox(width: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            multiplier,
+            style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(width: 8),
+        ...elements.map((e) => Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: e.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: e.color.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(e.emoji, style: const TextStyle(fontSize: 14)),
+                    const SizedBox(width: 4),
+                    Text(
+                      e.koreanName,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: e.color,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )),
+      ],
+    );
   }
 }
