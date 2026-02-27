@@ -306,7 +306,8 @@ class DailyDungeonNotifier extends StateNotifier<DailyDungeonState> {
     if (state.phase != DailyDungeonPhase.floorCleared) return;
 
     final nextFloor = state.currentFloor + 1;
-    final healed = DailyDungeonService.applyFloorHeal(state.playerTeam);
+    final aliveTeam = state.playerTeam.where((m) => m.isAlive).toList();
+    final healed = DailyDungeonService.applyFloorHeal(aliveTeam);
     final enemies = DailyDungeonService.createEnemiesForFloor(nextFloor, state.element);
 
     state = state.copyWith(

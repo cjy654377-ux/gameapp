@@ -415,7 +415,7 @@ class _DailyDungeonScreenState extends ConsumerState<DailyDungeonScreen> {
     DailyDungeonState state,
     AppLocalizations l,
   ) {
-    if (state.accumulatedGold > 0 || state.accumulatedExp > 0) {
+    if (state.accumulatedGold > 0 || state.accumulatedExp > 0 || state.accumulatedShard > 0) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
