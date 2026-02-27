@@ -13,6 +13,7 @@ class ShopScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -28,8 +29,8 @@ class ShopScreen extends ConsumerWidget {
                 children: [
                   const Icon(Icons.store, color: AppColors.primary, size: 24),
                   const SizedBox(width: 8),
-                  const Text('상점',
-                      style: TextStyle(
+                  Text(l.shopHeader,
+                      style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary)),
@@ -44,17 +45,17 @@ class ShopScreen extends ConsumerWidget {
             // Tabs
             Container(
               color: AppColors.surface,
-              child: const TabBar(
+              child: TabBar(
                 labelColor: AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
-                labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: TextStyle(fontSize: 13),
+                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                unselectedLabelStyle: const TextStyle(fontSize: 13),
                 tabs: [
-                  Tab(text: '일반'),
-                  Tab(text: '소환'),
-                  Tab(text: '재화'),
+                  Tab(text: l.shopTabGeneral),
+                  Tab(text: l.shopTabSummon),
+                  Tab(text: l.shopTabCurrency),
                 ],
               ),
             ),
@@ -218,13 +219,13 @@ class _SummonShopTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _SectionTitle(title: '스킬 티켓'),
+        _SectionTitle(title: l.shopSkillTicket),
         const SizedBox(height: 8),
         _ShopItem(
           icon: Icons.confirmation_number,
           iconColor: Colors.purple,
-          title: '스킬 티켓 x1',
-          subtitle: '스킬 소환에 사용',
+          title: l.shopSkillTicket1,
+          subtitle: l.shopSkillTicket1Desc,
           cost: '20 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -241,7 +242,7 @@ class _SummonShopTab extends ConsumerWidget {
         _ShopItem(
           icon: Icons.confirmation_number,
           iconColor: Colors.deepPurple,
-          title: '스킬 티켓 x10',
+          title: l.shopSkillTicket10,
           subtitle: '17% 할인',
           cost: '170 💎',
           onBuy: () async {
@@ -257,13 +258,13 @@ class _SummonShopTab extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 16),
-        const _SectionTitle(title: '장비 티켓'),
+        _SectionTitle(title: l.shopRelicTicket),
         const SizedBox(height: 8),
         _ShopItem(
           icon: Icons.toll,
           iconColor: Colors.blue,
-          title: '장비 티켓 x1',
-          subtitle: '장비 소환에 사용',
+          title: l.shopRelicTicket1,
+          subtitle: l.shopRelicTicket1Desc,
           cost: '20 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -280,7 +281,7 @@ class _SummonShopTab extends ConsumerWidget {
         _ShopItem(
           icon: Icons.toll,
           iconColor: Colors.blueAccent,
-          title: '장비 티켓 x10',
+          title: l.shopRelicTicket10,
           subtitle: '17% 할인',
           cost: '170 💎',
           onBuy: () async {
@@ -296,13 +297,13 @@ class _SummonShopTab extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 16),
-        const _SectionTitle(title: '탈것 젬'),
+        _SectionTitle(title: l.shopMountGem),
         const SizedBox(height: 8),
         _ShopItem(
           icon: Icons.diamond,
           iconColor: Colors.orange,
-          title: '탈것 젬 x300',
-          subtitle: '탈것 소환 1회분',
+          title: l.shopMountGem300,
+          subtitle: l.shopMountGem300Desc,
           cost: '30 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -319,8 +320,8 @@ class _SummonShopTab extends ConsumerWidget {
         _ShopItem(
           icon: Icons.diamond,
           iconColor: Colors.deepOrange,
-          title: '탈것 젬 x3000',
-          subtitle: '탈것 소환 10회분 + 보너스',
+          title: l.shopMountGem3000,
+          subtitle: l.shopMountGem3000Desc,
           cost: '270 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -353,7 +354,7 @@ class _CurrencyShopTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _SectionTitle(title: '재화 교환'),
+        _SectionTitle(title: l.shopCurrencyExchange),
         const SizedBox(height: 8),
         _ShopItem(
           icon: Icons.monetization_on,
@@ -376,7 +377,7 @@ class _CurrencyShopTab extends ConsumerWidget {
         _ShopItem(
           icon: Icons.monetization_on,
           iconColor: Colors.amberAccent,
-          title: '골드 대량 구매',
+          title: l.shopBulkGold,
           subtitle: '90 다이아 → 10,000 골드',
           cost: '90 💎',
           onBuy: () async {

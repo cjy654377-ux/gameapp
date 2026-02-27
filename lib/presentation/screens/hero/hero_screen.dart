@@ -7,6 +7,7 @@ import 'package:gameapp/data/datasources/local_storage.dart';
 import 'package:gameapp/data/models/equippable_skill_model.dart';
 import 'package:gameapp/data/models/mount_model.dart';
 import 'package:gameapp/data/models/player_model.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
@@ -20,6 +21,7 @@ class HeroScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final player = ref.watch(playerProvider).player;
 
     if (player == null) {
@@ -48,8 +50,8 @@ class HeroScreen extends ConsumerWidget {
                   ),
                   const Icon(Icons.person, color: AppColors.primaryLight, size: 24),
                   const SizedBox(width: 8),
-                  const Text('영웅',
-                      style: TextStyle(
+                  Text(l.heroHeader,
+                      style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary)),
@@ -75,17 +77,17 @@ class HeroScreen extends ConsumerWidget {
             // Tabs
             Container(
               color: AppColors.surface,
-              child: const TabBar(
+              child: TabBar(
                 labelColor: AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
-                labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: TextStyle(fontSize: 13),
+                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                unselectedLabelStyle: const TextStyle(fontSize: 13),
                 tabs: [
-                  Tab(text: '장비'),
-                  Tab(text: '인벤토리'),
-                  Tab(text: '합성/분해'),
+                  Tab(text: l.heroTabEquipment),
+                  Tab(text: l.heroTabInventory),
+                  Tab(text: l.heroTabFusion),
                 ],
               ),
             ),
@@ -114,6 +116,7 @@ class _EquipmentTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final player = ref.watch(playerProvider).player;
     if (player == null) return const SizedBox.shrink();
 
@@ -132,13 +135,13 @@ class _EquipmentTab extends ConsumerWidget {
         _HeroStatsSection(player: player, equippedMount: equippedMount),
         const SizedBox(height: 16),
         _EquipmentSlot(
-          label: '스킬',
+          label: l.heroSkillLabel,
           icon: Icons.auto_awesome,
           slotColor: Colors.purple,
           equippedWidget: equippedSkill != null
               ? _SkillCard(skill: equippedSkill)
               : null,
-          emptyText: '장착된 스킬 없음',
+          emptyText: l.heroNoSkill,
           onTap: () => _showSkillPicker(context, ref, player),
           onUnequip: equippedSkill != null
               ? () => _unequip(ref, skill: true)
@@ -146,13 +149,13 @@ class _EquipmentTab extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         _EquipmentSlot(
-          label: '탈것',
+          label: l.heroMountLabel,
           icon: Icons.pets,
           slotColor: Colors.orange,
           equippedWidget: equippedMount != null
               ? _MountCard(mount: equippedMount)
               : null,
-          emptyText: '장착된 탈것 없음',
+          emptyText: l.heroNoMount,
           onTap: () => _showMountPicker(context, ref, player),
           onUnequip: equippedMount != null
               ? () => _unequip(ref, mount: true)
@@ -172,10 +175,11 @@ class _EquipmentTab extends ConsumerWidget {
   }
 
   void _showSkillPicker(BuildContext context, WidgetRef ref, PlayerModel player) {
+    final l = AppLocalizations.of(context)!;
     final skills = LocalStorage.instance.getAllSkills();
     if (skills.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('보유한 스킬이 없습니다. 소환에서 획득하세요!')),
+        SnackBar(content: Text(l.heroNoSkillOwned)),
       );
       return;
     }
@@ -204,10 +208,11 @@ class _EquipmentTab extends ConsumerWidget {
   }
 
   void _showMountPicker(BuildContext context, WidgetRef ref, PlayerModel player) {
+    final l = AppLocalizations.of(context)!;
     final mounts = LocalStorage.instance.getAllMounts();
     if (mounts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('보유한 탈것이 없습니다. 소환에서 획득하세요!')),
+        SnackBar(content: Text(l.heroNoMountOwned)),
       );
       return;
     }
@@ -245,6 +250,7 @@ class _InventoryTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     // Watch player to rebuild when equipment changes
     ref.watch(playerProvider);
 
@@ -261,17 +267,17 @@ class _InventoryTab extends ConsumerWidget {
     });
 
     if (skills.isEmpty && mounts.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inventory_2_outlined, color: AppColors.textTertiary, size: 48),
-            SizedBox(height: 12),
-            Text('보유한 장비가 없습니다',
-                style: TextStyle(fontSize: 14, color: AppColors.textTertiary)),
-            SizedBox(height: 4),
-            Text('소환에서 스킬과 탈것을 획득하세요!',
-                style: TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+            const Icon(Icons.inventory_2_outlined, color: AppColors.textTertiary, size: 48),
+            const SizedBox(height: 12),
+            Text(l.heroNoEquipment,
+                style: const TextStyle(fontSize: 14, color: AppColors.textTertiary)),
+            const SizedBox(height: 4),
+            Text(l.heroGetFromSummon,
+                style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
           ],
         ),
       );
@@ -289,7 +295,7 @@ class _InventoryTab extends ConsumerWidget {
           _SectionHeader(
             icon: Icons.auto_awesome,
             color: Colors.purple,
-            title: '스킬',
+            title: l.heroSkillLabel,
             count: skills.length,
           ),
           const SizedBox(height: 8),
@@ -305,7 +311,7 @@ class _InventoryTab extends ConsumerWidget {
           _SectionHeader(
             icon: Icons.pets,
             color: Colors.orange,
-            title: '탈것',
+            title: l.heroMountLabel,
             count: mounts.length,
           ),
           const SizedBox(height: 8),
@@ -330,6 +336,7 @@ class _InventorySummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -340,11 +347,11 @@ class _InventorySummary extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _SummaryItem(icon: Icons.auto_awesome, color: Colors.purple, label: '스킬', count: skillCount),
+          _SummaryItem(icon: Icons.auto_awesome, color: Colors.purple, label: l.heroSkillLabel, count: skillCount),
           Container(width: 1, height: 30, color: AppColors.border),
-          _SummaryItem(icon: Icons.pets, color: Colors.orange, label: '탈것', count: mountCount),
+          _SummaryItem(icon: Icons.pets, color: Colors.orange, label: l.heroMountLabel, count: mountCount),
           Container(width: 1, height: 30, color: AppColors.border),
-          _SummaryItem(icon: Icons.inventory_2, color: AppColors.info, label: '합계', count: skillCount + mountCount),
+          _SummaryItem(icon: Icons.inventory_2, color: AppColors.info, label: l.heroTotal, count: skillCount + mountCount),
         ],
       ),
     );
@@ -408,6 +415,7 @@ class _InventorySkillCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final rc = _rarityColor(skill.rarity);
     final player = ref.watch(playerProvider).player;
     final isEquipped = player?.equippedSkillId == skill.id;
@@ -448,13 +456,13 @@ class _InventorySkillCard extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                          child: const Text('장착중', style: TextStyle(fontSize: 9, color: AppColors.success, fontWeight: FontWeight.bold)),
+                          child: Text(l.heroEquipped, style: const TextStyle(fontSize: 9, color: AppColors.success, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ]),
                     const SizedBox(height: 2),
                     Text(
-                      '${_skillTypeLabel(skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)} · ${'★' * skill.rarity}',
+                      '${_skillTypeLabel(context, skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)} · ${'★' * skill.rarity}',
                       style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
                     ),
                     if (skill.description.isNotEmpty)
@@ -494,10 +502,11 @@ class _InventorySkillCard extends ConsumerWidget {
   }
 
   Future<void> _levelUp(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
     final cost = _cost();
     if (!await ref.read(currencyProvider.notifier).spendGold(cost)) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('골드가 부족합니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.heroGoldInsufficient)));
       return;
     }
     final upgraded = skill.copyWith(level: skill.level + 1);
@@ -520,6 +529,7 @@ class _InventoryMountCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final rc = _rarityColor(mount.rarity);
     final player = ref.watch(playerProvider).player;
     final isEquipped = player?.equippedMountId == mount.id;
@@ -560,7 +570,7 @@ class _InventoryMountCard extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                          child: const Text('장착중', style: TextStyle(fontSize: 9, color: AppColors.success, fontWeight: FontWeight.bold)),
+                          child: Text(l.heroEquipped, style: const TextStyle(fontSize: 9, color: AppColors.success, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ]),
@@ -606,10 +616,11 @@ class _InventoryMountCard extends ConsumerWidget {
   }
 
   Future<void> _levelUp(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
     final cost = _cost();
     if (!await ref.read(currencyProvider.notifier).spendGold(cost)) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('골드가 부족합니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.heroGoldInsufficient)));
       return;
     }
     final upgraded = mount.copyWith(level: mount.level + 1);
@@ -726,6 +737,7 @@ class _HeroStatsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     double atkB = 0, defB = 0, hpB = 0, spdB = 0;
     if (equippedMount != null) {
       final v = equippedMount!.effectiveStatValue;
@@ -755,11 +767,11 @@ class _HeroStatsSection extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Text('전투 능력치', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text(l.heroBattleStats, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               const Spacer(),
               const Icon(Icons.fitness_center, color: AppColors.warning, size: 14),
               const SizedBox(width: 4),
-              const Text('훈련', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
+              Text(l.heroTraining, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
             ],
           ),
           const SizedBox(height: 12),
@@ -898,6 +910,7 @@ class _EquipmentSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -922,7 +935,7 @@ class _EquipmentSlot extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('해제', style: TextStyle(fontSize: 12)),
+                child: Text(l.heroUnequip, style: const TextStyle(fontSize: 12)),
               ),
           ]),
           const SizedBox(height: 8),
@@ -942,7 +955,7 @@ class _EquipmentSlot extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(emptyText, style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
                     const SizedBox(height: 2),
-                    Text('탭하여 장착', style: TextStyle(fontSize: 11, color: slotColor.withValues(alpha: 0.7))),
+                    Text(l.heroTapToEquip, style: TextStyle(fontSize: 11, color: slotColor.withValues(alpha: 0.7))),
                   ]),
                 ),
           ),
@@ -991,7 +1004,7 @@ class _SkillCard extends ConsumerWidget {
               Text('Lv.${skill.level}/${skill.maxLevel}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
             ]),
             const SizedBox(height: 2),
-            Text('${_skillTypeLabel(skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)}',
+            Text('${_skillTypeLabel(context, skill.skillType)} · ${skill.effectiveValue.toStringAsFixed(1)}',
                 style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
           ])),
           Text('★' * skill.rarity, style: TextStyle(fontSize: 12, color: rc)),
@@ -1023,10 +1036,11 @@ class _SkillCard extends ConsumerWidget {
   }
 
   Future<void> _levelUp(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
     final cost = _cost();
     if (!await ref.read(currencyProvider.notifier).spendGold(cost)) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('골드가 부족합니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.heroGoldInsufficient)));
       return;
     }
     final upgraded = skill.copyWith(level: skill.level + 1);
@@ -1108,10 +1122,11 @@ class _MountCard extends ConsumerWidget {
   }
 
   Future<void> _levelUp(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
     final cost = _cost();
     if (!await ref.read(currencyProvider.notifier).spendGold(cost)) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('골드가 부족합니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.heroGoldInsufficient)));
       return;
     }
     final upgraded = mount.copyWith(level: mount.level + 1);
@@ -1134,15 +1149,16 @@ class _SkillPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.6, maxChildSize: 0.85, minChildSize: 0.3, expand: false,
       builder: (_, controller) => Column(children: [
         const SizedBox(height: 12),
         Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.textTertiary, borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 16),
-        const Text('스킬 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(l.heroSelectSkill, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 4),
-        Text('보유: ${skills.length}개', style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+        Text(l.heroOwned(skills.length), style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
         const SizedBox(height: 12),
         Expanded(
           child: ListView.builder(
@@ -1171,7 +1187,7 @@ class _SkillPickerSheet extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text('Lv.${s.level}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                   ]),
-                  subtitle: Text('${_skillTypeLabel(s.skillType)} · ${s.effectiveValue.toStringAsFixed(1)} · ${'★' * s.rarity}',
+                  subtitle: Text('${_skillTypeLabel(context, s.skillType)} · ${s.effectiveValue.toStringAsFixed(1)} · ${'★' * s.rarity}',
                       style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
                   trailing: eq
                       ? const Icon(Icons.check_circle, color: AppColors.success, size: 24)
@@ -1199,15 +1215,16 @@ class _MountPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.6, maxChildSize: 0.85, minChildSize: 0.3, expand: false,
       builder: (_, controller) => Column(children: [
         const SizedBox(height: 12),
         Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.textTertiary, borderRadius: BorderRadius.circular(2))),
         const SizedBox(height: 16),
-        const Text('탈것 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(l.heroSelectMount, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         const SizedBox(height: 4),
-        Text('보유: ${mounts.length}개', style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+        Text(l.heroOwned(mounts.length), style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
         const SizedBox(height: 12),
         Expanded(
           child: ListView.builder(
@@ -1265,6 +1282,7 @@ class _FusionTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     ref.watch(playerProvider);
     ref.watch(currencyProvider);
 
@@ -1292,13 +1310,13 @@ class _FusionTab extends ConsumerWidget {
     final dismantleMounts = mounts.where((m) => m.id != player?.equippedMountId).toList();
 
     if (skills.isEmpty && mounts.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.build_circle_outlined, color: AppColors.textTertiary, size: 48),
-            SizedBox(height: 12),
-            Text('합성/분해할 장비가 없습니다', style: TextStyle(fontSize: 14, color: AppColors.textTertiary)),
+            const Icon(Icons.build_circle_outlined, color: AppColors.textTertiary, size: 48),
+            const SizedBox(height: 12),
+            Text(l.heroNoFusionItems, style: const TextStyle(fontSize: 14, color: AppColors.textTertiary)),
           ],
         ),
       );
@@ -1308,13 +1326,13 @@ class _FusionTab extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         // ── Fusion Section ─────────────────────────
-        _SectionHeader(icon: Icons.merge_type, color: Colors.deepPurple, title: '합성', count: fusibleSkills.length + fusibleMounts.length),
+        _SectionHeader(icon: Icons.merge_type, color: Colors.deepPurple, title: l.heroFusion, count: fusibleSkills.length + fusibleMounts.length),
         const SizedBox(height: 4),
-        const Text('동일 장비 2개 → 레벨 +1 합성', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+        Text(l.heroFusionDesc, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
         const SizedBox(height: 8),
 
         if (fusibleSkills.isEmpty && fusibleMounts.isEmpty)
-          _emptyCard('합성 가능한 중복 장비가 없습니다')
+          _emptyCard(l.heroNoFusible)
         else ...[
           for (final entry in fusibleSkills)
             _FusionGroupCard(
@@ -1339,13 +1357,13 @@ class _FusionTab extends ConsumerWidget {
         const SizedBox(height: 20),
 
         // ── Dismantle Section ─────────────────────────
-        _SectionHeader(icon: Icons.recycling, color: Colors.red, title: '분해', count: dismantleSkills.length + dismantleMounts.length),
+        _SectionHeader(icon: Icons.recycling, color: Colors.red, title: l.heroDismantle, count: dismantleSkills.length + dismantleMounts.length),
         const SizedBox(height: 4),
-        const Text('장비 분해 → 골드 + 샤드 획득 (장착중 불가)', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+        Text(l.heroDismantleDesc, style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
         const SizedBox(height: 8),
 
         if (dismantleSkills.isEmpty && dismantleMounts.isEmpty)
-          _emptyCard('분해 가능한 장비가 없습니다')
+          _emptyCard(l.heroNoDismantleable)
         else ...[
           for (final s in dismantleSkills)
             _DismantleCard(
@@ -1393,7 +1411,7 @@ class _FusionTab extends ConsumerWidget {
 
     if (!keep.canLevelUp) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미 최대 레벨입니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.heroMaxLevel)));
       return;
     }
 
@@ -1416,7 +1434,7 @@ class _FusionTab extends ConsumerWidget {
 
     if (keep.level >= keep.maxLevel) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미 최대 레벨입니다')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.heroMaxLevel)));
       return;
     }
 
@@ -1480,6 +1498,7 @@ class _FusionGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rc = _rarityColor(rarity);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1502,7 +1521,7 @@ class _FusionGroupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: rc)),
-                Text('보유 $count개 · ${'★' * rarity}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+                Text('${l.heroOwnedCount(count)} · ${'★' * rarity}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
               ],
             ),
           ),
@@ -1511,7 +1530,7 @@ class _FusionGroupCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onFuse,
               icon: const Icon(Icons.merge_type, size: 16),
-              label: const Text('합성', style: TextStyle(fontSize: 12)),
+              label: Text(l.heroFusion, style: const TextStyle(fontSize: 12)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
@@ -1545,6 +1564,7 @@ class _DismantleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rc = _rarityColor(rarity);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1580,7 +1600,7 @@ class _DismantleCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onDismantle,
               icon: const Icon(Icons.recycling, size: 16),
-              label: const Text('분해', style: TextStyle(fontSize: 12)),
+              label: Text(l.heroDismantle, style: const TextStyle(fontSize: 12)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
                 foregroundColor: Colors.white,
@@ -1609,14 +1629,15 @@ Color _rarityColor(int rarity) {
   }
 }
 
-String _skillTypeLabel(String type) {
+String _skillTypeLabel(BuildContext context, String type) {
+  final l = AppLocalizations.of(context)!;
   switch (type) {
-    case 'damage': return '피해';
-    case 'def_buff': return '방어 버프';
+    case 'damage': return l.heroSkillTypeDamage;
+    case 'def_buff': return l.heroSkillTypeDefBuff;
     case 'hp_regen': return 'HP 회복';
-    case 'atk_buff': return '공격 버프';
-    case 'speed_buff': return '속도 버프';
-    case 'crit_boost': return '치명타 강화';
+    case 'atk_buff': return l.heroSkillTypeAtkBuff;
+    case 'speed_buff': return l.heroSkillTypeSpeedBuff;
+    case 'crit_boost': return l.heroSkillTypeCritBoost;
     default: return type;
   }
 }

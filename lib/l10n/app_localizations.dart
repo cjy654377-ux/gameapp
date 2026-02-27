@@ -4039,6 +4039,420 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'100회 소환'**
   String get pull100;
+
+  /// No description provided for @shopTabGeneral.
+  ///
+  /// In ko, this message translates to:
+  /// **'일반'**
+  String get shopTabGeneral;
+
+  /// No description provided for @shopTabSummon.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환'**
+  String get shopTabSummon;
+
+  /// No description provided for @shopTabCurrency.
+  ///
+  /// In ko, this message translates to:
+  /// **'재화'**
+  String get shopTabCurrency;
+
+  /// No description provided for @shopHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'상점'**
+  String get shopHeader;
+
+  /// No description provided for @shopSkillTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 티켓'**
+  String get shopSkillTicket;
+
+  /// No description provided for @shopSkillTicket1.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 티켓 x1'**
+  String get shopSkillTicket1;
+
+  /// No description provided for @shopSkillTicket1Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 소환에 사용'**
+  String get shopSkillTicket1Desc;
+
+  /// No description provided for @shopSkillTicket10.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 티켓 x10'**
+  String get shopSkillTicket10;
+
+  /// No description provided for @shopRelicTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 티켓'**
+  String get shopRelicTicket;
+
+  /// No description provided for @shopRelicTicket1.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 티켓 x1'**
+  String get shopRelicTicket1;
+
+  /// No description provided for @shopRelicTicket1Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 소환에 사용'**
+  String get shopRelicTicket1Desc;
+
+  /// No description provided for @shopRelicTicket10.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 티켓 x10'**
+  String get shopRelicTicket10;
+
+  /// No description provided for @shopMountGem.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 젬'**
+  String get shopMountGem;
+
+  /// No description provided for @shopMountGem300.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 젬 x300'**
+  String get shopMountGem300;
+
+  /// No description provided for @shopMountGem300Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 소환 1회분'**
+  String get shopMountGem300Desc;
+
+  /// No description provided for @shopMountGem3000.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 젬 x3000'**
+  String get shopMountGem3000;
+
+  /// No description provided for @shopMountGem3000Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 소환 10회분 + 보너스'**
+  String get shopMountGem3000Desc;
+
+  /// No description provided for @shopCurrencyExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'재화 교환'**
+  String get shopCurrencyExchange;
+
+  /// No description provided for @shopBulkGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 대량 구매'**
+  String get shopBulkGold;
+
+  /// No description provided for @mapHubTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'월드맵'**
+  String get mapHubTitle;
+
+  /// No description provided for @mapHubCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재'**
+  String get mapHubCurrent;
+
+  /// No description provided for @mapArea1.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작의 숲'**
+  String get mapArea1;
+
+  /// No description provided for @mapArea2.
+  ///
+  /// In ko, this message translates to:
+  /// **'불꽃 화산'**
+  String get mapArea2;
+
+  /// No description provided for @mapArea3.
+  ///
+  /// In ko, this message translates to:
+  /// **'암흑 던전'**
+  String get mapArea3;
+
+  /// No description provided for @mapArea4.
+  ///
+  /// In ko, this message translates to:
+  /// **'심해 신전'**
+  String get mapArea4;
+
+  /// No description provided for @mapArea5.
+  ///
+  /// In ko, this message translates to:
+  /// **'천공 성역'**
+  String get mapArea5;
+
+  /// No description provided for @heroHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'영웅'**
+  String get heroHeader;
+
+  /// No description provided for @heroTabEquipment.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비'**
+  String get heroTabEquipment;
+
+  /// No description provided for @heroTabInventory.
+  ///
+  /// In ko, this message translates to:
+  /// **'인벤토리'**
+  String get heroTabInventory;
+
+  /// No description provided for @heroTabFusion.
+  ///
+  /// In ko, this message translates to:
+  /// **'합성/분해'**
+  String get heroTabFusion;
+
+  /// No description provided for @heroSkillLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬'**
+  String get heroSkillLabel;
+
+  /// No description provided for @heroMountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것'**
+  String get heroMountLabel;
+
+  /// No description provided for @heroNoSkill.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착된 스킬 없음'**
+  String get heroNoSkill;
+
+  /// No description provided for @heroNoMount.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착된 탈것 없음'**
+  String get heroNoMount;
+
+  /// No description provided for @heroNoSkillOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유한 스킬이 없습니다. 소환에서 획득하세요!'**
+  String get heroNoSkillOwned;
+
+  /// No description provided for @heroNoMountOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유한 탈것이 없습니다. 소환에서 획득하세요!'**
+  String get heroNoMountOwned;
+
+  /// No description provided for @heroNoEquipment.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유한 장비가 없습니다'**
+  String get heroNoEquipment;
+
+  /// No description provided for @heroGetFromSummon.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환에서 스킬과 탈것을 획득하세요!'**
+  String get heroGetFromSummon;
+
+  /// No description provided for @heroEquipped.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착중'**
+  String get heroEquipped;
+
+  /// No description provided for @heroGoldInsufficient.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드가 부족합니다'**
+  String get heroGoldInsufficient;
+
+  /// No description provided for @heroBattleStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 능력치'**
+  String get heroBattleStats;
+
+  /// No description provided for @heroTraining.
+  ///
+  /// In ko, this message translates to:
+  /// **'훈련'**
+  String get heroTraining;
+
+  /// No description provided for @heroUnequip.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제'**
+  String get heroUnequip;
+
+  /// No description provided for @heroTapToEquip.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 장착'**
+  String get heroTapToEquip;
+
+  /// No description provided for @heroSelectSkill.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬 선택'**
+  String get heroSelectSkill;
+
+  /// No description provided for @heroSelectMount.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈것 선택'**
+  String get heroSelectMount;
+
+  /// No description provided for @heroOwned.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유: {count}개'**
+  String heroOwned(int count);
+
+  /// No description provided for @heroFusion.
+  ///
+  /// In ko, this message translates to:
+  /// **'합성'**
+  String get heroFusion;
+
+  /// No description provided for @heroDismantle.
+  ///
+  /// In ko, this message translates to:
+  /// **'분해'**
+  String get heroDismantle;
+
+  /// No description provided for @heroFusionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'동일 장비 2개 → 레벨 +1 합성'**
+  String get heroFusionDesc;
+
+  /// No description provided for @heroDismantleDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'장비 분해 → 골드 + 샤드 획득 (장착중 불가)'**
+  String get heroDismantleDesc;
+
+  /// No description provided for @heroNoFusible.
+  ///
+  /// In ko, this message translates to:
+  /// **'합성 가능한 중복 장비가 없습니다'**
+  String get heroNoFusible;
+
+  /// No description provided for @heroNoDismantleable.
+  ///
+  /// In ko, this message translates to:
+  /// **'분해 가능한 장비가 없습니다'**
+  String get heroNoDismantleable;
+
+  /// No description provided for @heroNoFusionItems.
+  ///
+  /// In ko, this message translates to:
+  /// **'합성/분해할 장비가 없습니다'**
+  String get heroNoFusionItems;
+
+  /// No description provided for @heroMaxLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 최대 레벨입니다'**
+  String get heroMaxLevel;
+
+  /// No description provided for @heroOwnedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 {count}개'**
+  String heroOwnedCount(int count);
+
+  /// No description provided for @heroTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'합계'**
+  String get heroTotal;
+
+  /// No description provided for @heroSkillTypeDamage.
+  ///
+  /// In ko, this message translates to:
+  /// **'피해'**
+  String get heroSkillTypeDamage;
+
+  /// No description provided for @heroSkillTypeDefBuff.
+  ///
+  /// In ko, this message translates to:
+  /// **'방어 버프'**
+  String get heroSkillTypeDefBuff;
+
+  /// No description provided for @heroSkillTypeAtkBuff.
+  ///
+  /// In ko, this message translates to:
+  /// **'공격 버프'**
+  String get heroSkillTypeAtkBuff;
+
+  /// No description provided for @heroSkillTypeSpeedBuff.
+  ///
+  /// In ko, this message translates to:
+  /// **'속도 버프'**
+  String get heroSkillTypeSpeedBuff;
+
+  /// No description provided for @heroSkillTypeCritBoost.
+  ///
+  /// In ko, this message translates to:
+  /// **'치명타 강화'**
+  String get heroSkillTypeCritBoost;
+
+  /// No description provided for @quickNavHero.
+  ///
+  /// In ko, this message translates to:
+  /// **'영웅'**
+  String get quickNavHero;
+
+  /// No description provided for @quickNavWorldMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'월드맵'**
+  String get quickNavWorldMap;
+
+  /// No description provided for @battleSkip.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킵'**
+  String get battleSkip;
+
+  /// No description provided for @statTowerHighest.
+  ///
+  /// In ko, this message translates to:
+  /// **'탑 최고층'**
+  String get statTowerHighest;
+
+  /// No description provided for @statArenaRating.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나 레이팅'**
+  String get statArenaRating;
+
+  /// No description provided for @statGuildContrib.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드 기여도'**
+  String get statGuildContrib;
+
+  /// No description provided for @statExpeditionGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'원정대 누적 수익'**
+  String get statExpeditionGold;
 }
 
 class _AppLocalizationsDelegate

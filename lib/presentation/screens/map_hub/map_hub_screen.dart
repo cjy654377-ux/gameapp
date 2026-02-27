@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/data/static/stage_database.dart';
+import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/routing/app_router.dart';
@@ -14,13 +15,11 @@ import 'package:gameapp/routing/app_router.dart';
 
 class _AreaTheme {
   const _AreaTheme({
-    required this.name,
     required this.icon,
     required this.color,
     required this.gradient,
     required this.emoji,
   });
-  final String name;
   final IconData icon;
   final Color color;
   final List<Color> gradient;
@@ -29,35 +28,30 @@ class _AreaTheme {
 
 const _areas = [
   _AreaTheme(
-    name: '시작의 숲',
     icon: Icons.park,
     color: Color(0xFF4CAF50),
     gradient: [Color(0xFF2E7D32), Color(0xFF66BB6A)],
     emoji: '🌲',
   ),
   _AreaTheme(
-    name: '불꽃 화산',
     icon: Icons.whatshot,
     color: Color(0xFFFF5722),
     gradient: [Color(0xFFBF360C), Color(0xFFFF8A65)],
     emoji: '🌋',
   ),
   _AreaTheme(
-    name: '암흑 던전',
     icon: Icons.castle,
     color: Color(0xFF7E57C2),
     gradient: [Color(0xFF4527A0), Color(0xFFB39DDB)],
     emoji: '🏚️',
   ),
   _AreaTheme(
-    name: '심해 신전',
     icon: Icons.water,
     color: Color(0xFF29B6F6),
     gradient: [Color(0xFF01579B), Color(0xFF4FC3F7)],
     emoji: '🌊',
   ),
   _AreaTheme(
-    name: '천공 성역',
     icon: Icons.cloud,
     color: Color(0xFFFFD54F),
     gradient: [Color(0xFFF57F17), Color(0xFFFFF176)],
@@ -74,6 +68,7 @@ class MapHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final player = ref.watch(playerProvider).player;
     if (player == null) {
       return const Scaffold(
@@ -86,6 +81,14 @@ class MapHubScreen extends ConsumerWidget {
     final currentArea = (player.currentStageId.isNotEmpty)
         ? int.tryParse(player.currentStageId.split('-').first) ?? 1
         : 1;
+
+    final areaNames = [
+      l.mapArea1,
+      l.mapArea2,
+      l.mapArea3,
+      l.mapArea4,
+      l.mapArea5,
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -104,8 +107,8 @@ class MapHubScreen extends ConsumerWidget {
                 ),
                 const Icon(Icons.map, color: AppColors.primaryLight, size: 24),
                 const SizedBox(width: 8),
-                const Text('월드맵',
-                    style: TextStyle(
+                Text(l.mapHubTitle,
+                    style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary)),
@@ -137,6 +140,7 @@ class MapHubScreen extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final area = index + 1;
                 final theme = _areas[index];
+                final areaName = areaNames[index];
                 final stages = StageDatabase.byArea(area);
                 final clearedInArea = stages.where((s) {
                   return StageDatabase.linearIndex(s.id) <= maxIdx;
@@ -146,14 +150,16 @@ class MapHubScreen extends ConsumerWidget {
 
                 return _AreaNode(
                   area: area,
+                  areaName: areaName,
                   theme: theme,
                   clearedCount: clearedInArea,
                   totalCount: stages.length,
                   isCurrent: isCurrentArea,
                   isUnlocked: isUnlocked,
                   isLast: index == StageDatabase.areaCount - 1,
+                  currentLabel: l.mapHubCurrent,
                   onTap: isUnlocked
-                      ? () => context.push(AppRoutes.stageSelect)
+                      ? () => context.push('${AppRoutes.stageSelect}?area=$area')
                       : null,
                 );
               },
@@ -179,21 +185,25 @@ class MapHubScreen extends ConsumerWidget {
 class _AreaNode extends StatelessWidget {
   const _AreaNode({
     required this.area,
+    required this.areaName,
     required this.theme,
     required this.clearedCount,
     required this.totalCount,
     required this.isCurrent,
     required this.isUnlocked,
     required this.isLast,
+    required this.currentLabel,
     this.onTap,
   });
   final int area;
+  final String areaName;
   final _AreaTheme theme;
   final int clearedCount;
   final int totalCount;
   final bool isCurrent;
   final bool isUnlocked;
   final bool isLast;
+  final String currentLabel;
   final VoidCallback? onTap;
 
   @override
@@ -280,7 +290,7 @@ class _AreaNode extends StatelessWidget {
                                 color: theme.color.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text('현재',
+                              child: Text(currentLabel,
                                   style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: theme.color)),
                             ),
                           ],
@@ -292,7 +302,7 @@ class _AreaNode extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        theme.name,
+                        areaName,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,

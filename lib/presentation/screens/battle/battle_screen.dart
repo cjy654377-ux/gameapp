@@ -442,8 +442,8 @@ class _IdleBanner extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _QuickNavBtn(icon: Icons.person, label: '영웅', color: AppColors.primaryLight, route: AppRoutes.hero),
-              _QuickNavBtn(icon: Icons.map, label: '월드맵', color: Colors.green, route: AppRoutes.mapHub),
+              _QuickNavBtn(icon: Icons.person, label: l.quickNavHero, color: AppColors.primaryLight, route: AppRoutes.hero),
+              _QuickNavBtn(icon: Icons.map, label: l.quickNavWorldMap, color: Colors.green, route: AppRoutes.mapHub),
               _QuickNavBtn(icon: Icons.layers, label: l.infiniteDungeon, color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
               _QuickNavBtn(icon: Icons.castle, label: l.towerTitle, color: Colors.amber, route: AppRoutes.tower),
               _QuickNavBtn(icon: Icons.whatshot, label: l.worldBoss, color: Colors.red, route: AppRoutes.worldBoss),
@@ -658,6 +658,7 @@ class _ControlBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final speed = ref.watch(battleProvider.select((s) => s.battleSpeed));
     final phase = ref.watch(battleProvider.select((s) => s.phase));
     final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
@@ -713,12 +714,12 @@ class _ControlBar extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.skip_next, color: AppColors.warning, size: 16),
-                        SizedBox(width: 4),
-                        Text('스킵', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
+                        const Icon(Icons.skip_next, color: AppColors.warning, size: 16),
+                        const SizedBox(width: 4),
+                        Text(l.battleSkip, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
                       ],
                     ),
                   ),

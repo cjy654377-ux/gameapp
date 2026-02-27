@@ -2263,4 +2263,216 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pull100 => 'Summon x100';
+
+  @override
+  String get shopTabGeneral => 'General';
+
+  @override
+  String get shopTabSummon => 'Summon';
+
+  @override
+  String get shopTabCurrency => 'Currency';
+
+  @override
+  String get shopHeader => 'Shop';
+
+  @override
+  String get shopSkillTicket => 'Skill Ticket';
+
+  @override
+  String get shopSkillTicket1 => 'Skill Ticket x1';
+
+  @override
+  String get shopSkillTicket1Desc => 'Used for skill summon';
+
+  @override
+  String get shopSkillTicket10 => 'Skill Ticket x10';
+
+  @override
+  String get shopRelicTicket => 'Relic Ticket';
+
+  @override
+  String get shopRelicTicket1 => 'Relic Ticket x1';
+
+  @override
+  String get shopRelicTicket1Desc => 'Used for relic summon';
+
+  @override
+  String get shopRelicTicket10 => 'Relic Ticket x10';
+
+  @override
+  String get shopMountGem => 'Mount Gem';
+
+  @override
+  String get shopMountGem300 => 'Mount Gem x300';
+
+  @override
+  String get shopMountGem300Desc => 'Enough for 1 mount summon';
+
+  @override
+  String get shopMountGem3000 => 'Mount Gem x3000';
+
+  @override
+  String get shopMountGem3000Desc => 'Enough for 10 mount summons + bonus';
+
+  @override
+  String get shopCurrencyExchange => 'Currency Exchange';
+
+  @override
+  String get shopBulkGold => 'Bulk Gold Purchase';
+
+  @override
+  String get mapHubTitle => 'World Map';
+
+  @override
+  String get mapHubCurrent => 'Current';
+
+  @override
+  String get mapArea1 => 'Forest of Beginnings';
+
+  @override
+  String get mapArea2 => 'Flame Volcano';
+
+  @override
+  String get mapArea3 => 'Dark Dungeon';
+
+  @override
+  String get mapArea4 => 'Abyssal Temple';
+
+  @override
+  String get mapArea5 => 'Sky Sanctuary';
+
+  @override
+  String get heroHeader => 'Hero';
+
+  @override
+  String get heroTabEquipment => 'Equipment';
+
+  @override
+  String get heroTabInventory => 'Inventory';
+
+  @override
+  String get heroTabFusion => 'Fusion/Dismantle';
+
+  @override
+  String get heroSkillLabel => 'Skill';
+
+  @override
+  String get heroMountLabel => 'Mount';
+
+  @override
+  String get heroNoSkill => 'No skill equipped';
+
+  @override
+  String get heroNoMount => 'No mount equipped';
+
+  @override
+  String get heroNoSkillOwned => 'No skills owned. Get them from summon!';
+
+  @override
+  String get heroNoMountOwned => 'No mounts owned. Get them from summon!';
+
+  @override
+  String get heroNoEquipment => 'No equipment owned';
+
+  @override
+  String get heroGetFromSummon => 'Get skills and mounts from summon!';
+
+  @override
+  String get heroEquipped => 'Equipped';
+
+  @override
+  String get heroGoldInsufficient => 'Not enough gold';
+
+  @override
+  String get heroBattleStats => 'Battle Stats';
+
+  @override
+  String get heroTraining => 'Training';
+
+  @override
+  String get heroUnequip => 'Unequip';
+
+  @override
+  String get heroTapToEquip => 'Tap to equip';
+
+  @override
+  String get heroSelectSkill => 'Select Skill';
+
+  @override
+  String get heroSelectMount => 'Select Mount';
+
+  @override
+  String heroOwned(int count) {
+    return 'Owned: $count';
+  }
+
+  @override
+  String get heroFusion => 'Fusion';
+
+  @override
+  String get heroDismantle => 'Dismantle';
+
+  @override
+  String get heroFusionDesc => '2 same items → Level +1 fusion';
+
+  @override
+  String get heroDismantleDesc =>
+      'Dismantle → Gold + Shard (cannot dismantle equipped)';
+
+  @override
+  String get heroNoFusible => 'No duplicate items to fuse';
+
+  @override
+  String get heroNoDismantleable => 'No items to dismantle';
+
+  @override
+  String get heroNoFusionItems => 'No items for fusion/dismantle';
+
+  @override
+  String get heroMaxLevel => 'Already at max level';
+
+  @override
+  String heroOwnedCount(int count) {
+    return 'Owned $count';
+  }
+
+  @override
+  String get heroTotal => 'Total';
+
+  @override
+  String get heroSkillTypeDamage => 'Damage';
+
+  @override
+  String get heroSkillTypeDefBuff => 'Def Buff';
+
+  @override
+  String get heroSkillTypeAtkBuff => 'Atk Buff';
+
+  @override
+  String get heroSkillTypeSpeedBuff => 'Speed Buff';
+
+  @override
+  String get heroSkillTypeCritBoost => 'Crit Boost';
+
+  @override
+  String get quickNavHero => 'Hero';
+
+  @override
+  String get quickNavWorldMap => 'World Map';
+
+  @override
+  String get battleSkip => 'Skip';
+
+  @override
+  String get statTowerHighest => 'Tower Highest';
+
+  @override
+  String get statArenaRating => 'Arena Rating';
+
+  @override
+  String get statGuildContrib => 'Guild Contribution';
+
+  @override
+  String get statExpeditionGold => 'Expedition Earnings';
 }

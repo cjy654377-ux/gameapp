@@ -2252,4 +2252,215 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pull100 => '100회 소환';
+
+  @override
+  String get shopTabGeneral => '일반';
+
+  @override
+  String get shopTabSummon => '소환';
+
+  @override
+  String get shopTabCurrency => '재화';
+
+  @override
+  String get shopHeader => '상점';
+
+  @override
+  String get shopSkillTicket => '스킬 티켓';
+
+  @override
+  String get shopSkillTicket1 => '스킬 티켓 x1';
+
+  @override
+  String get shopSkillTicket1Desc => '스킬 소환에 사용';
+
+  @override
+  String get shopSkillTicket10 => '스킬 티켓 x10';
+
+  @override
+  String get shopRelicTicket => '장비 티켓';
+
+  @override
+  String get shopRelicTicket1 => '장비 티켓 x1';
+
+  @override
+  String get shopRelicTicket1Desc => '장비 소환에 사용';
+
+  @override
+  String get shopRelicTicket10 => '장비 티켓 x10';
+
+  @override
+  String get shopMountGem => '탈것 젬';
+
+  @override
+  String get shopMountGem300 => '탈것 젬 x300';
+
+  @override
+  String get shopMountGem300Desc => '탈것 소환 1회분';
+
+  @override
+  String get shopMountGem3000 => '탈것 젬 x3000';
+
+  @override
+  String get shopMountGem3000Desc => '탈것 소환 10회분 + 보너스';
+
+  @override
+  String get shopCurrencyExchange => '재화 교환';
+
+  @override
+  String get shopBulkGold => '골드 대량 구매';
+
+  @override
+  String get mapHubTitle => '월드맵';
+
+  @override
+  String get mapHubCurrent => '현재';
+
+  @override
+  String get mapArea1 => '시작의 숲';
+
+  @override
+  String get mapArea2 => '불꽃 화산';
+
+  @override
+  String get mapArea3 => '암흑 던전';
+
+  @override
+  String get mapArea4 => '심해 신전';
+
+  @override
+  String get mapArea5 => '천공 성역';
+
+  @override
+  String get heroHeader => '영웅';
+
+  @override
+  String get heroTabEquipment => '장비';
+
+  @override
+  String get heroTabInventory => '인벤토리';
+
+  @override
+  String get heroTabFusion => '합성/분해';
+
+  @override
+  String get heroSkillLabel => '스킬';
+
+  @override
+  String get heroMountLabel => '탈것';
+
+  @override
+  String get heroNoSkill => '장착된 스킬 없음';
+
+  @override
+  String get heroNoMount => '장착된 탈것 없음';
+
+  @override
+  String get heroNoSkillOwned => '보유한 스킬이 없습니다. 소환에서 획득하세요!';
+
+  @override
+  String get heroNoMountOwned => '보유한 탈것이 없습니다. 소환에서 획득하세요!';
+
+  @override
+  String get heroNoEquipment => '보유한 장비가 없습니다';
+
+  @override
+  String get heroGetFromSummon => '소환에서 스킬과 탈것을 획득하세요!';
+
+  @override
+  String get heroEquipped => '장착중';
+
+  @override
+  String get heroGoldInsufficient => '골드가 부족합니다';
+
+  @override
+  String get heroBattleStats => '전투 능력치';
+
+  @override
+  String get heroTraining => '훈련';
+
+  @override
+  String get heroUnequip => '해제';
+
+  @override
+  String get heroTapToEquip => '탭하여 장착';
+
+  @override
+  String get heroSelectSkill => '스킬 선택';
+
+  @override
+  String get heroSelectMount => '탈것 선택';
+
+  @override
+  String heroOwned(int count) {
+    return '보유: $count개';
+  }
+
+  @override
+  String get heroFusion => '합성';
+
+  @override
+  String get heroDismantle => '분해';
+
+  @override
+  String get heroFusionDesc => '동일 장비 2개 → 레벨 +1 합성';
+
+  @override
+  String get heroDismantleDesc => '장비 분해 → 골드 + 샤드 획득 (장착중 불가)';
+
+  @override
+  String get heroNoFusible => '합성 가능한 중복 장비가 없습니다';
+
+  @override
+  String get heroNoDismantleable => '분해 가능한 장비가 없습니다';
+
+  @override
+  String get heroNoFusionItems => '합성/분해할 장비가 없습니다';
+
+  @override
+  String get heroMaxLevel => '이미 최대 레벨입니다';
+
+  @override
+  String heroOwnedCount(int count) {
+    return '보유 $count개';
+  }
+
+  @override
+  String get heroTotal => '합계';
+
+  @override
+  String get heroSkillTypeDamage => '피해';
+
+  @override
+  String get heroSkillTypeDefBuff => '방어 버프';
+
+  @override
+  String get heroSkillTypeAtkBuff => '공격 버프';
+
+  @override
+  String get heroSkillTypeSpeedBuff => '속도 버프';
+
+  @override
+  String get heroSkillTypeCritBoost => '치명타 강화';
+
+  @override
+  String get quickNavHero => '영웅';
+
+  @override
+  String get quickNavWorldMap => '월드맵';
+
+  @override
+  String get battleSkip => '스킵';
+
+  @override
+  String get statTowerHighest => '탑 최고층';
+
+  @override
+  String get statArenaRating => '아레나 레이팅';
+
+  @override
+  String get statGuildContrib => '길드 기여도';
+
+  @override
+  String get statExpeditionGold => '원정대 누적 수익';
 }
