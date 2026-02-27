@@ -12,6 +12,9 @@ import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/domain/services/gacha_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/gacha_provider.dart';
+import 'package:gameapp/presentation/providers/skill_gacha_provider.dart';
+import 'package:gameapp/presentation/providers/relic_gacha_provider.dart';
+import 'package:gameapp/presentation/providers/mount_gacha_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
@@ -23,7 +26,10 @@ class GachaScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final showResults = ref.watch(gachaProvider.select((s) => s.showResults));
+    final showMonsterResults = ref.watch(gachaProvider.select((s) => s.showResults));
+    final showSkillResults = ref.watch(skillGachaProvider.select((s) => s.showResults));
+    final showRelicResults = ref.watch(relicGachaProvider.select((s) => s.showResults));
+    final showMountResults = ref.watch(mountGachaProvider.select((s) => s.showResults));
 
     return TutorialOverlay(
       forStep: TutorialSteps.gachaIntro,
@@ -36,7 +42,6 @@ class GachaScreen extends ConsumerWidget {
               Column(
                 children: [
                   const CurrencyBar(),
-                  // ── Summon type tabs ──────────────────────────────────
                   Container(
                     color: AppColors.surface,
                     child: TabBar(
@@ -57,7 +62,6 @@ class GachaScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // ── Tab content ──────────────────────────────────────
                   const Expanded(
                     child: TabBarView(
                       children: [
@@ -70,7 +74,10 @@ class GachaScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              if (showResults) const _ResultOverlay(),
+              if (showMonsterResults) const _ResultOverlay(),
+              if (showSkillResults) const _SkillResultOverlay(),
+              if (showRelicResults) const _RelicResultOverlay(),
+              if (showMountResults) const _MountResultOverlay(),
             ],
           ),
         ),
@@ -117,11 +124,13 @@ class _SkillGachaTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final currency = ref.watch(currencyProvider);
+    final gachaState = ref.watch(skillGachaProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Banner
           Container(
             width: double.infinity,
             height: 160,
@@ -137,43 +146,44 @@ class _SkillGachaTab extends ConsumerWidget {
                 children: [
                   const Icon(Icons.auto_fix_high, size: 48, color: Colors.white),
                   const SizedBox(height: 8),
-                  Text(
-                    l.skillSummonTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                  Text(l.skillSummonTitle,
+                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 4),
-                  Text(
-                    l.skillSummonDesc,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
-                  ),
+                  Text(l.skillSummonDesc,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          // Pull buttons
+          const SizedBox(height: 12),
+          _GenericPityBar(
+            pityCount: gachaState.pityCount,
+            color: Colors.purple,
+          ),
+          const SizedBox(height: 16),
+          _GenericPullButton(
+            label: l.pull1,
+            cost: '1',
+            currencyIcon: Icons.confirmation_number,
+            currencyColor: Colors.purple,
+            enabled: currency.skillTicket >= GameConfig.skillGachaCostTicket1,
+            onTap: () => ref.read(skillGachaProvider.notifier).pullSingleWithTicket(),
+          ),
+          const SizedBox(height: 10),
           _GenericPullButton(
             label: l.pull10,
             cost: '10',
             currencyIcon: Icons.confirmation_number,
             currencyColor: Colors.purple,
-            onTap: () {
-              // TODO: implement skill gacha pull
-            },
+            enabled: currency.skillTicket >= GameConfig.skillGachaCostTicket10,
+            onTap: () => ref.read(skillGachaProvider.notifier).pullTenWithTicket(),
           ),
-          const SizedBox(height: 10),
-          _GenericPullButton(
-            label: l.pull100,
-            cost: '100',
-            currencyIcon: Icons.confirmation_number,
-            currencyColor: Colors.purple,
-            onTap: () {
-              // TODO: implement skill gacha 100-pull
-            },
+          const SizedBox(height: 12),
+          _CurrencyDisplay(
+            label: '보유 스킬 티켓',
+            amount: currency.skillTicket,
+            icon: Icons.confirmation_number,
+            color: Colors.purple,
           ),
         ],
       ),
@@ -191,11 +201,13 @@ class _RelicGachaTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final currency = ref.watch(currencyProvider);
+    final gachaState = ref.watch(relicGachaProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Banner
           Container(
             width: double.infinity,
             height: 160,
@@ -211,42 +223,44 @@ class _RelicGachaTab extends ConsumerWidget {
                 children: [
                   const Icon(Icons.shield, size: 48, color: Colors.white),
                   const SizedBox(height: 8),
-                  Text(
-                    l.relicSummonTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                  Text(l.relicSummonTitle,
+                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 4),
-                  Text(
-                    l.relicSummonDesc,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
-                  ),
+                  Text(l.relicSummonDesc,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          _GenericPityBar(
+            pityCount: gachaState.pityCount,
+            color: Colors.blue,
+          ),
+          const SizedBox(height: 16),
+          _GenericPullButton(
+            label: l.pull1,
+            cost: '1',
+            currencyIcon: Icons.toll,
+            currencyColor: Colors.blue,
+            enabled: currency.relicTicket >= GameConfig.relicGachaCostTicket1,
+            onTap: () => ref.read(relicGachaProvider.notifier).pullSingleWithTicket(),
+          ),
+          const SizedBox(height: 10),
           _GenericPullButton(
             label: l.pull10,
             cost: '10',
             currencyIcon: Icons.toll,
             currencyColor: Colors.blue,
-            onTap: () {
-              // TODO: implement relic gacha pull
-            },
+            enabled: currency.relicTicket >= GameConfig.relicGachaCostTicket10,
+            onTap: () => ref.read(relicGachaProvider.notifier).pullTenWithTicket(),
           ),
-          const SizedBox(height: 10),
-          _GenericPullButton(
-            label: l.pull100,
-            cost: '100',
-            currencyIcon: Icons.toll,
-            currencyColor: Colors.blue,
-            onTap: () {
-              // TODO: implement relic gacha 100-pull
-            },
+          const SizedBox(height: 12),
+          _CurrencyDisplay(
+            label: '보유 장비 티켓',
+            amount: currency.relicTicket,
+            icon: Icons.toll,
+            color: Colors.blue,
           ),
         ],
       ),
@@ -264,11 +278,13 @@ class _MountGachaTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final currency = ref.watch(currencyProvider);
+    final gachaState = ref.watch(mountGachaProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Banner
           Container(
             width: double.infinity,
             height: 160,
@@ -284,42 +300,44 @@ class _MountGachaTab extends ConsumerWidget {
                 children: [
                   const Icon(Icons.pets, size: 48, color: Colors.white),
                   const SizedBox(height: 8),
-                  Text(
-                    l.mountSummonTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                  Text(l.mountSummonTitle,
+                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 4),
-                  Text(
-                    l.mountSummonDesc,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
-                  ),
+                  Text(l.mountSummonDesc,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          _GenericPityBar(
+            pityCount: gachaState.pityCount,
+            color: Colors.orange,
+          ),
+          const SizedBox(height: 16),
           _GenericPullButton(
             label: l.pull1,
-            cost: '300',
+            cost: '${GameConfig.mountGachaCostGem1}',
             currencyIcon: Icons.diamond,
             currencyColor: Colors.orange,
-            onTap: () {
-              // TODO: implement mount gacha pull
-            },
+            enabled: currency.mountGem >= GameConfig.mountGachaCostGem1,
+            onTap: () => ref.read(mountGachaProvider.notifier).pullSingleWithGem(),
           ),
           const SizedBox(height: 10),
           _GenericPullButton(
             label: l.pull10,
-            cost: '2700',
+            cost: '${GameConfig.mountGachaCostGem10}',
             currencyIcon: Icons.diamond,
             currencyColor: Colors.orange,
-            onTap: () {
-              // TODO: implement mount gacha 10-pull
-            },
+            enabled: currency.mountGem >= GameConfig.mountGachaCostGem10,
+            onTap: () => ref.read(mountGachaProvider.notifier).pullTenWithGem(),
+          ),
+          const SizedBox(height: 12),
+          _CurrencyDisplay(
+            label: '보유 탈것 젬',
+            amount: currency.mountGem,
+            icon: Icons.diamond,
+            color: Colors.orange,
           ),
         ],
       ),
@@ -338,6 +356,7 @@ class _GenericPullButton extends StatelessWidget {
     required this.currencyIcon,
     required this.currencyColor,
     required this.onTap,
+    this.enabled = true,
   });
 
   final String label;
@@ -345,20 +364,24 @@ class _GenericPullButton extends StatelessWidget {
   final IconData currencyIcon;
   final Color currencyColor;
   final VoidCallback onTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = enabled ? currencyColor : AppColors.textTertiary;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: currencyColor.withValues(alpha: 0.15),
-          foregroundColor: currencyColor,
+          backgroundColor: effectiveColor.withValues(alpha: 0.15),
+          foregroundColor: effectiveColor,
+          disabledBackgroundColor: AppColors.card,
+          disabledForegroundColor: AppColors.textTertiary,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: currencyColor.withValues(alpha: 0.4)),
+            side: BorderSide(color: effectiveColor.withValues(alpha: 0.4)),
           ),
           elevation: 0,
         ),
@@ -372,6 +395,101 @@ class _GenericPullButton extends StatelessWidget {
             Text(cost, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _GenericPityBar — reusable pity counter
+// =============================================================================
+
+class _GenericPityBar extends StatelessWidget {
+  const _GenericPityBar({required this.pityCount, required this.color});
+
+  final int pityCount;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = GameConfig.pityThreshold - pityCount;
+    final progress = pityCount / GameConfig.pityThreshold;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('천장까지', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              Text('$pityCount / ${GameConfig.pityThreshold}',
+                  style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: AppColors.card,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+          if (remaining > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text('$remaining회 남음',
+                  style: const TextStyle(color: AppColors.textTertiary, fontSize: 10)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _CurrencyDisplay — shows owned currency
+// =============================================================================
+
+class _CurrencyDisplay extends StatelessWidget {
+  const _CurrencyDisplay({
+    required this.label,
+    required this.amount,
+    required this.icon,
+    required this.color,
+  });
+
+  final String label;
+  final int amount;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          const SizedBox(width: 8),
+          Text('$amount',
+              style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w800)),
+        ],
       ),
     );
   }
@@ -1246,6 +1364,303 @@ class _OverlayButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// =============================================================================
+// Generic Result Item — shared across all result overlays
+// =============================================================================
+
+class _GachaResultDisplayItem {
+  final String name;
+  final int rarity;
+  final bool wasPity;
+  final IconData icon;
+
+  const _GachaResultDisplayItem({
+    required this.name,
+    required this.rarity,
+    this.wasPity = false,
+    required this.icon,
+  });
+}
+
+// =============================================================================
+// Generic Result Overlay — reused by skill/relic/mount
+// =============================================================================
+
+class _GenericResultOverlay extends ConsumerStatefulWidget {
+  const _GenericResultOverlay({
+    required this.items,
+    required this.revealIndex,
+    required this.onRevealAll,
+    required this.onDismiss,
+    required this.onRevealNext,
+  });
+
+  final List<_GachaResultDisplayItem> items;
+  final int revealIndex;
+  final VoidCallback onRevealAll;
+  final VoidCallback onDismiss;
+  final VoidCallback onRevealNext;
+
+  @override
+  ConsumerState<_GenericResultOverlay> createState() => _GenericResultOverlayState();
+}
+
+class _GenericResultOverlayState extends ConsumerState<_GenericResultOverlay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+    _autoReveal();
+  }
+
+  Future<void> _autoReveal() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    for (int i = 0; i < widget.items.length; i++) {
+      if (!mounted) return;
+      widget.onRevealNext();
+      final rarity = widget.items[i].rarity;
+      await Future.delayed(Duration(milliseconds: rarity >= 4 ? 600 : 300));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final items = widget.items;
+    final revealIdx = widget.revealIndex;
+
+    return FadeTransition(
+      opacity: _fade,
+      child: Container(
+        color: AppColors.overlayDark,
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                items.length == 1 ? l.gachaResultSingle : l.gachaResultTen,
+                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: items.length == 1
+                    ? Center(child: _GenericResultCard(item: items[0], revealed: revealIdx >= 0))
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 0.7,
+                          ),
+                          itemCount: items.length,
+                          itemBuilder: (_, i) => _GenericResultCard(
+                            item: items[i],
+                            revealed: i <= revealIdx,
+                          ),
+                        ),
+                      ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    if (revealIdx < items.length - 1) ...[
+                      Expanded(
+                        child: _OverlayButton(label: l.gachaRevealAll, onTap: widget.onRevealAll),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: _OverlayButton(label: l.confirm, primary: true, onTap: widget.onDismiss),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _GenericResultCard
+// =============================================================================
+
+class _GenericResultCard extends StatelessWidget {
+  const _GenericResultCard({required this.item, required this.revealed});
+
+  final _GachaResultDisplayItem item;
+  final bool revealed;
+
+  @override
+  Widget build(BuildContext context) {
+    final rarityEnum = MonsterRarity.fromRarity(item.rarity);
+    final l = AppLocalizations.of(context)!;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+      child: revealed
+          ? Container(
+              key: const ValueKey('revealed'),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [rarityEnum.color.withValues(alpha: 0.3), AppColors.surface],
+                ),
+                border: Border.all(
+                  color: rarityEnum.color.withValues(alpha: 0.6),
+                  width: item.rarity >= 4 ? 2 : 1,
+                ),
+                boxShadow: item.rarity >= 4
+                    ? [BoxShadow(color: rarityEnum.color.withValues(alpha: 0.3), blurRadius: 12)]
+                    : null,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(rarityEnum.starsDisplay,
+                      style: TextStyle(color: rarityEnum.color, fontSize: 10)),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: rarityEnum.color.withValues(alpha: 0.2),
+                    ),
+                    child: Icon(item.icon, color: rarityEnum.color, size: 20),
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(item.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: rarityEnum.color, fontSize: 10, fontWeight: FontWeight.w700)),
+                  ),
+                  if (item.wasPity)
+                    Text(l.gachaGuaranteed,
+                        style: const TextStyle(color: AppColors.rarityLegendary, fontSize: 8, fontWeight: FontWeight.w800)),
+                ],
+              ),
+            )
+          : Container(
+              key: const ValueKey('hidden'),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.card,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Center(
+                child: Icon(Icons.help_outline_rounded, color: AppColors.textTertiary, size: 28),
+              ),
+            ),
+    );
+  }
+}
+
+// =============================================================================
+// Skill / Relic / Mount Result Overlays
+// =============================================================================
+
+class _SkillResultOverlay extends ConsumerWidget {
+  const _SkillResultOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(skillGachaProvider);
+    final items = state.lastResults
+        .map((r) => _GachaResultDisplayItem(
+              name: r.template.name,
+              rarity: r.template.rarity,
+              wasPity: r.wasPity,
+              icon: Icons.auto_fix_high,
+            ))
+        .toList();
+
+    return _GenericResultOverlay(
+      items: items,
+      revealIndex: state.revealIndex,
+      onRevealAll: () => ref.read(skillGachaProvider.notifier).revealAll(),
+      onRevealNext: () => ref.read(skillGachaProvider.notifier).revealNext(),
+      onDismiss: () => ref.read(skillGachaProvider.notifier).dismissResults(),
+    );
+  }
+}
+
+class _RelicResultOverlay extends ConsumerWidget {
+  const _RelicResultOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(relicGachaProvider);
+    final items = state.lastResults
+        .map((r) => _GachaResultDisplayItem(
+              name: r.template.name,
+              rarity: r.template.rarity,
+              wasPity: r.wasPity,
+              icon: r.template.type == 'weapon'
+                  ? Icons.gavel
+                  : r.template.type == 'armor'
+                      ? Icons.shield
+                      : Icons.auto_awesome,
+            ))
+        .toList();
+
+    return _GenericResultOverlay(
+      items: items,
+      revealIndex: state.revealIndex,
+      onRevealAll: () => ref.read(relicGachaProvider.notifier).revealAll(),
+      onRevealNext: () => ref.read(relicGachaProvider.notifier).revealNext(),
+      onDismiss: () => ref.read(relicGachaProvider.notifier).dismissResults(),
+    );
+  }
+}
+
+class _MountResultOverlay extends ConsumerWidget {
+  const _MountResultOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(mountGachaProvider);
+    final items = state.lastResults
+        .map((r) => _GachaResultDisplayItem(
+              name: r.template.name,
+              rarity: r.template.rarity,
+              wasPity: r.wasPity,
+              icon: Icons.pets,
+            ))
+        .toList();
+
+    return _GenericResultOverlay(
+      items: items,
+      revealIndex: state.revealIndex,
+      onRevealAll: () => ref.read(mountGachaProvider.notifier).revealAll(),
+      onRevealNext: () => ref.read(mountGachaProvider.notifier).revealNext(),
+      onDismiss: () => ref.read(mountGachaProvider.notifier).dismissResults(),
     );
   }
 }

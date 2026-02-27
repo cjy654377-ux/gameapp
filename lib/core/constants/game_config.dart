@@ -40,6 +40,18 @@ class GameConfig {
   /// Cost in diamonds for 10x gacha pull
   static const int tenPullCostDiamond = 1350;
 
+  // ── Skill gacha ──
+  static const int skillGachaCostTicket1  = 1;
+  static const int skillGachaCostTicket10 = 10;
+
+  // ── Relic gacha ──
+  static const int relicGachaCostTicket1  = 1;
+  static const int relicGachaCostTicket10 = 10;
+
+  // ── Mount gacha ──
+  static const int mountGachaCostGem1  = 300;
+  static const int mountGachaCostGem10 = 2700;
+
   /// Base gold reward per battle win
   static const int baseGoldPerWin = 50;
 

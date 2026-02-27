@@ -120,6 +120,54 @@ class CurrencyNotifier extends StateNotifier<CurrencyModel> {
   }
 
   // ---------------------------------------------------------------------------
+  // Skill Ticket
+  // ---------------------------------------------------------------------------
+
+  Future<void> addSkillTicket(int amount) async {
+    state = state.add(skillTicket: amount);
+    await save();
+  }
+
+  Future<bool> spendSkillTicket(int amount) async {
+    if (!state.canAfford(skillTicket: amount)) return false;
+    state = state.add(skillTicket: -amount);
+    await save();
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Relic Ticket
+  // ---------------------------------------------------------------------------
+
+  Future<void> addRelicTicket(int amount) async {
+    state = state.add(relicTicket: amount);
+    await save();
+  }
+
+  Future<bool> spendRelicTicket(int amount) async {
+    if (!state.canAfford(relicTicket: amount)) return false;
+    state = state.add(relicTicket: -amount);
+    await save();
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Mount Gem
+  // ---------------------------------------------------------------------------
+
+  Future<void> addMountGem(int amount) async {
+    state = state.add(mountGem: amount);
+    await save();
+  }
+
+  Future<bool> spendMountGem(int amount) async {
+    if (!state.canAfford(mountGem: amount)) return false;
+    state = state.add(mountGem: -amount);
+    await save();
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
   // Bulk helpers
   // ---------------------------------------------------------------------------
 

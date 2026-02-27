@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:gameapp/core/constants/game_config.dart';
+import 'package:gameapp/data/static/equippable_skill_database.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/mount_database.dart';
 import 'package:gameapp/data/static/relic_database.dart';
@@ -20,6 +21,13 @@ class RelicPullResult {
   final RelicTemplate template;
   final bool wasPity;
   const RelicPullResult({required this.template, this.wasPity = false});
+}
+
+/// Result of a single equippable skill gacha pull.
+class SkillPullResult {
+  final EquippableSkillTemplate template;
+  final bool wasPity;
+  const SkillPullResult({required this.template, this.wasPity = false});
 }
 
 /// Result of a single mount gacha pull.
@@ -248,6 +256,68 @@ class GachaService {
       if (rareOrAbove.isNotEmpty) {
         final replacement = rareOrAbove[_random.nextInt(rareOrAbove.length)];
         results[9] = MountPullResult(template: replacement);
+        if (replacement.rarity == 5) currentPity = 0;
+      }
+    }
+
+    return (results: results, newPityCount: currentPity);
+  }
+
+  // ===========================================================================
+  // Equippable Skill Gacha
+  // ===========================================================================
+
+  static ({SkillPullResult result, int newPityCount}) performSkillPull(
+    int pityCount,
+  ) {
+    final int updatedPity = pityCount + 1;
+
+    if (updatedPity >= GameConfig.pityThreshold) {
+      final legendaries = EquippableSkillDatabase.byRarity(5);
+      if (legendaries.isNotEmpty) {
+        final template = legendaries[_random.nextInt(legendaries.length)];
+        return (
+          result: SkillPullResult(template: template, wasPity: true),
+          newPityCount: 0,
+        );
+      }
+    }
+
+    final pool = EquippableSkillDatabase.weightedPool;
+    if (pool.isEmpty) {
+      final fallback = EquippableSkillDatabase.all.first;
+      return (result: SkillPullResult(template: fallback), newPityCount: 0);
+    }
+    final templateId = pool[_random.nextInt(pool.length)];
+    final template =
+        EquippableSkillDatabase.findById(templateId) ?? EquippableSkillDatabase.all.first;
+    final int finalPity = template.rarity == 5 ? 0 : updatedPity;
+
+    return (
+      result: SkillPullResult(template: template),
+      newPityCount: finalPity,
+    );
+  }
+
+  static ({List<SkillPullResult> results, int newPityCount}) performSkillTenPull(
+    int pityCount,
+  ) {
+    final List<SkillPullResult> results = [];
+    int currentPity = pityCount;
+    bool hasRareOrAbove = false;
+
+    for (int i = 0; i < 10; i++) {
+      final pull = performSkillPull(currentPity);
+      results.add(pull.result);
+      currentPity = pull.newPityCount;
+      if (pull.result.template.rarity >= 3) hasRareOrAbove = true;
+    }
+
+    if (!hasRareOrAbove) {
+      final rareOrAbove = EquippableSkillDatabase.all.where((t) => t.rarity >= 3).toList();
+      if (rareOrAbove.isNotEmpty) {
+        final replacement = rareOrAbove[_random.nextInt(rareOrAbove.length)];
+        results[9] = SkillPullResult(template: replacement);
         if (replacement.rarity == 5) currentPity = 0;
       }
     }

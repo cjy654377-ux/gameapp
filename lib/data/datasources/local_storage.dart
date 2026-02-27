@@ -9,6 +9,7 @@ import '../models/player_model.dart';
 import '../models/currency_model.dart';
 import '../models/quest_model.dart';
 import '../models/expedition_model.dart';
+import '../models/equippable_skill_model.dart';
 import '../models/mount_model.dart';
 import '../models/relic_model.dart';
 
@@ -26,6 +27,7 @@ const String _kGuildBoxName       = 'guild';
 const String _kGuildKey           = 'guild';
 const String _kExpeditionBoxName  = 'expeditions';
 const String _kMountBoxName      = 'mounts';
+const String _kSkillBoxName      = 'equippable_skills';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -47,6 +49,7 @@ class LocalStorage {
   late Box<GuildModel>    _guildBox;
   late Box<ExpeditionModel> _expeditionBox;
   late Box<MountModel>      _mountBox;
+  late Box<EquippableSkillModel> _skillBox;
 
   bool _initialised = false;
 
@@ -85,6 +88,9 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(MountModelAdapter().typeId)) {
       Hive.registerAdapter(MountModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(EquippableSkillModelAdapter().typeId)) {
+      Hive.registerAdapter(EquippableSkillModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
@@ -94,6 +100,7 @@ class LocalStorage {
     _guildBox    = await Hive.openBox<GuildModel>(_kGuildBoxName);
     _expeditionBox = await Hive.openBox<ExpeditionModel>(_kExpeditionBoxName);
     _mountBox      = await Hive.openBox<MountModel>(_kMountBoxName);
+    _skillBox      = await Hive.openBox<EquippableSkillModel>(_kSkillBoxName);
     await Hive.openBox('settings');
 
     _initialised = true;
@@ -284,6 +291,31 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Equippable Skill CRUD
+  // -------------------------------------------------------------------------
+
+  List<EquippableSkillModel> getAllSkills() => _skillBox.values.toList();
+
+  EquippableSkillModel? getSkill(String id) => _skillBox.get(id);
+
+  Future<void> saveSkill(EquippableSkillModel skill) async {
+    await _skillBox.put(skill.id, skill);
+  }
+
+  Future<void> saveSkills(List<EquippableSkillModel> skills) async {
+    final map = {for (final s in skills) s.id: s};
+    await _skillBox.putAll(map);
+  }
+
+  Future<void> deleteSkill(String id) async {
+    await _skillBox.delete(id);
+  }
+
+  Future<void> clearSkills() async {
+    await _skillBox.clear();
+  }
+
+  // -------------------------------------------------------------------------
   // Guild CRUD
   // -------------------------------------------------------------------------
 
@@ -360,6 +392,7 @@ class LocalStorage {
       _guildBox.clear(),
       _expeditionBox.clear(),
       _mountBox.clear(),
+      _skillBox.clear(),
     ]);
   }
 
@@ -583,6 +616,7 @@ class LocalStorage {
       _guildBox.close(),
       _expeditionBox.close(),
       _mountBox.close(),
+      _skillBox.close(),
     ]);
     _initialised = false;
   }
