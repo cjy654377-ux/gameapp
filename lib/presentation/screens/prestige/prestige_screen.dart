@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
@@ -37,7 +38,7 @@ class PrestigeScreen extends ConsumerWidget {
         title: Text(l.prestigeTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(

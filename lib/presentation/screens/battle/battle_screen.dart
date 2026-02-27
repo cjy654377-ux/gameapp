@@ -1591,8 +1591,27 @@ class _RewardChip extends StatelessWidget {
 // _SynergyBadge
 // =============================================================================
 
-class _EventBannerCarousel extends StatelessWidget {
+class _EventBannerCarousel extends StatefulWidget {
   const _EventBannerCarousel();
+
+  @override
+  State<_EventBannerCarousel> createState() => _EventBannerCarouselState();
+}
+
+class _EventBannerCarouselState extends State<_EventBannerCarousel> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.92);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1603,7 +1622,7 @@ class _EventBannerCarousel extends StatelessWidget {
     return SizedBox(
       height: 72,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.92),
+        controller: _pageController,
         itemCount: events.length,
         itemBuilder: (_, i) {
           final e = events[i];

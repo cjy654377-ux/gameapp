@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -439,7 +440,7 @@ class _DailyDungeonScreenState extends ConsumerState<DailyDungeonScreen> {
       );
     } else {
       notifier.retreatRun();
-      Navigator.pop(context);
+      context.pop();
     }
   }
 }

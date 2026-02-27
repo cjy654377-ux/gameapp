@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/domain/services/world_boss_service.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
@@ -62,7 +63,7 @@ class _WorldBossScreenState extends ConsumerState<WorldBossScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             _autoTimer?.cancel();
-            Navigator.of(context).pop();
+            context.pop();
           },
         ),
       ),

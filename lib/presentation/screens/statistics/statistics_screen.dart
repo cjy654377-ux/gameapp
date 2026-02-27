@@ -22,7 +22,7 @@ class StatisticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final player = ref.watch(playerProvider).player;
+    final player = ref.watch(playerProvider.select((s) => s.player));
     if (player == null) {
       return const Scaffold(
         backgroundColor: AppColors.background,
@@ -33,17 +33,19 @@ class StatisticsScreen extends ConsumerWidget {
     final currency = ref.watch(currencyProvider);
     final monsters = ref.watch(monsterListProvider);
     final stats = ref.watch(collectionStatsProvider);
-    final questState = ref.watch(questProvider);
+    final completedQuests = ref.watch(questProvider.select(
+      (s) => s.quests.where((q) => q.isCompleted).length,
+    ));
+    final claimableCount = ref.watch(questProvider.select((s) => s.claimableCount));
     final relics = ref.watch(relicProvider);
 
     // Computed stats
     final daysSinceCreation = DateTime.now().difference(player.createdAt).inDays;
-    final teamMonsters = monsters.where((m) => m.isInTeam).toList();
+    final teamCount = monsters.where((m) => m.isInTeam).length;
     final maxLevelMonster = monsters.isEmpty
         ? null
         : monsters.reduce((a, b) => a.level > b.level ? a : b);
     final totalBattleCount = monsters.fold<int>(0, (sum, m) => sum + m.battleCount);
-    final completedQuests = questState.quests.where((q) => q.isCompleted).length;
     final stageProgress = StageDatabase.linearIndex(player.maxClearedStageId);
 
     final l = AppLocalizations.of(context)!;
@@ -109,7 +111,7 @@ class StatisticsScreen extends ConsumerWidget {
                     ? '${maxLevelMonster.name} Lv.${maxLevelMonster.level}'
                     : '-',
               ),
-              _StatItem(label: l.statTeamComp, value: '${teamMonsters.length} / 4'),
+              _StatItem(label: l.statTeamComp, value: '$teamCount / 4'),
               _StatItem(
                 label: l.statAvgLevel,
                 value: monsters.isEmpty
@@ -176,7 +178,7 @@ class StatisticsScreen extends ConsumerWidget {
               _StatItem(label: l.statCompletedQuest, value: l.countUnit(completedQuests.toString())),
               _StatItem(
                 label: l.statClaimable,
-                value: l.countUnit(questState.claimableCount.toString()),
+                value: l.countUnit(claimableCount.toString()),
               ),
             ],
           ),

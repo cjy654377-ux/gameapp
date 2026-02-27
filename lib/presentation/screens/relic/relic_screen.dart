@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
@@ -57,7 +58,7 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
         title: Text(l.relicCount(relics.length)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Column(
