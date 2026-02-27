@@ -62,19 +62,9 @@ class BattleScreen extends ConsumerWidget {
                   // Stage header
                   const _StageHeader(),
 
-                  // Battle arena: ~40 % of the remaining height
+                  // Battle arena
                   const Expanded(
-                    flex: 5,
                     child: _BattleArena(),
-                  ),
-
-                  // Thin divider
-                  Container(height: 1, color: AppColors.border),
-
-                  // Battle log: ~25 % of the remaining height
-                  const Expanded(
-                    flex: 3,
-                    child: _BattleLog(),
                   ),
 
                   // Control bar — handles its own SafeArea bottom padding
@@ -650,174 +640,6 @@ class _PhaseBadge extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// _BattleLog
-// =============================================================================
-
-class _BattleLog extends ConsumerStatefulWidget {
-  const _BattleLog();
-
-  @override
-  ConsumerState<_BattleLog> createState() => _BattleLogState();
-}
-
-class _BattleLogState extends ConsumerState<_BattleLog> {
-  final ScrollController _scroll = ScrollController();
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  void _scrollToBottom() {
-    if (!_scroll.hasClients) return;
-    _scroll.animateTo(
-      _scroll.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final log = ref.watch(battleProvider.select((s) => s.battleLog));
-
-    // Auto-scroll to bottom after each new entry renders
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-
-    // Cap display at the last 20 entries
-    final entries = log.length > 20 ? log.sublist(log.length - 20) : log;
-
-    return Container(
-      color: AppColors.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Log header ──────────────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            color: AppColors.surfaceVariant,
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.list_alt_rounded,
-                  size: 13,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  l.battleLog,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  l.battleLogCount(entries.length),
-                  style: const TextStyle(
-                    color: AppColors.textTertiary,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ── Log entries list ────────────────────────────────────────────
-          Expanded(
-            child: entries.isEmpty
-                ? Center(
-                    child: Text(
-                      l.noBattleLog,
-                      style: const TextStyle(
-                        color: AppColors.textTertiary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scroll,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    itemCount: entries.length,
-                    itemBuilder: (ctx, i) => _LogEntryRow(entry: entries[i]),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── _LogEntryRow ──────────────────────────────────────────────────────────────
-
-class _LogEntryRow extends StatelessWidget {
-  const _LogEntryRow({required this.entry});
-
-  final BattleLogEntry entry;
-
-  Color get _textColor {
-    if (entry.isSkillActivation) return const Color(0xFFCE93D8); // purple
-    if (entry.isCritical) return AppColors.error;
-    if (entry.isElementAdvantage) return AppColors.warning;
-    return AppColors.textSecondary;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final String prefix;
-    if (entry.isSkillActivation) {
-      prefix = '';
-    } else if (entry.isCritical) {
-      prefix = l.criticalHit;
-    } else if (entry.isElementAdvantage) {
-      prefix = l.elementAdvantage;
-    } else {
-      prefix = '';
-    }
-
-    final h = entry.timestamp.hour.toString().padLeft(2, '0');
-    final m = entry.timestamp.minute.toString().padLeft(2, '0');
-    final s = entry.timestamp.second.toString().padLeft(2, '0');
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Timestamp
-          Text(
-            '$h:$m:$s',
-            style: const TextStyle(
-              color: AppColors.textTertiary,
-              fontSize: 9,
-              fontFamily: 'monospace',
-            ),
-          ),
-          const SizedBox(width: 6),
-          // Entry text
-          Expanded(
-            child: Text(
-              '$prefix${entry.description}',
-              style: TextStyle(
-                color: _textColor,
-                fontSize: 11,
-                fontWeight: entry.isCritical || entry.isSkillActivation
-                    ? FontWeight.w700
-                    : FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // =============================================================================
 // _ControlBar
@@ -829,8 +651,6 @@ class _ControlBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final speed = ref.watch(battleProvider.select((s) => s.battleSpeed));
-    final isAuto = ref.watch(battleProvider.select((s) => s.isAutoMode));
-    final isRepeat = ref.watch(battleProvider.select((s) => s.isRepeatMode));
     final phase = ref.watch(battleProvider.select((s) => s.phase));
     final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
     final notifier = ref.read(battleProvider.notifier);
@@ -851,7 +671,7 @@ class _ControlBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Row 1: speed buttons + auto-battle toggle ───────────────────
+          // ── Row 1: speed buttons ─────────────────────────────────────
           Row(
             children: [
               _SpeedButton(
@@ -873,18 +693,6 @@ class _ControlBar extends ConsumerWidget {
                 speed: 3.0,
                 currentSpeed: speed,
                 onTap: notifier.toggleSpeed,
-              ),
-
-              const Spacer(),
-
-              _AutoBattleToggle(
-                isAuto: isAuto,
-                onToggle: notifier.toggleAuto,
-              ),
-              const SizedBox(width: 6),
-              _RepeatToggle(
-                isRepeat: isRepeat,
-                onToggle: notifier.toggleRepeatMode,
               ),
             ],
           ),
@@ -958,108 +766,6 @@ class _SpeedButton extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── _AutoBattleToggle ─────────────────────────────────────────────────────────
-
-class _AutoBattleToggle extends StatelessWidget {
-  const _AutoBattleToggle({required this.isAuto, required this.onToggle});
-
-  final bool isAuto;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return GestureDetector(
-      onTap: onToggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isAuto
-              ? AppColors.success.withValues(alpha:0.2)
-              : AppColors.card.withValues(alpha:0.8),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isAuto ? AppColors.success : AppColors.border,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isAuto
-                  ? Icons.play_circle_filled_rounded
-                  : Icons.play_circle_outline_rounded,
-              size: 15,
-              color: isAuto ? AppColors.success : AppColors.textSecondary,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              isAuto ? l.autoOn : l.autoOff,
-              style: TextStyle(
-                color: isAuto ? AppColors.success : AppColors.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── _RepeatToggle ─────────────────────────────────────────────────────────────
-
-class _RepeatToggle extends StatelessWidget {
-  const _RepeatToggle({required this.isRepeat, required this.onToggle});
-
-  final bool isRepeat;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return GestureDetector(
-      onTap: onToggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isRepeat
-              ? Colors.orange.withValues(alpha: 0.2)
-              : AppColors.card.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isRepeat ? Colors.orange : AppColors.border,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.repeat_rounded,
-              size: 15,
-              color: isRepeat ? Colors.orange : AppColors.textSecondary,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              l.repeatBattle,
-              style: TextStyle(
-                color: isRepeat ? Colors.orange : AppColors.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
         ),
       ),
     );

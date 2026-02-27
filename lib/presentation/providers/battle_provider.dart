@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
@@ -93,12 +95,12 @@ class BattleState {
     this.currentTurn      = 0,
     this.turnWithinRound  = 0,
     this.battleSpeed      = 1.0,
-    this.isAutoMode       = false,
+    this.isAutoMode       = true,
     this.currentStageId   = 1,
     this.currentStageName = '',
     this.lastReward,
     this.activeSynergies  = const [],
-    this.isRepeatMode     = false,
+    this.isRepeatMode     = true,
     this.repeatCount      = 0,
     this.repeatTotalGold  = 0,
     this.repeatTotalExp   = 0,
@@ -165,6 +167,32 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
   /// Reference to the Riverpod container — used to read/write other providers.
   final Ref ref;
+
+  Timer? _autoTimer;
+
+  @override
+  void dispose() {
+    _stopAutoTimer();
+    super.dispose();
+  }
+
+  /// Starts a periodic timer that calls [processTurn] automatically.
+  void _startAutoTimer() {
+    _stopAutoTimer();
+    final ms = (800 / state.battleSpeed).round();
+    _autoTimer = Timer.periodic(Duration(milliseconds: ms), (_) {
+      if (state.phase == BattlePhase.fighting) {
+        processTurn();
+      } else {
+        _stopAutoTimer();
+      }
+    });
+  }
+
+  void _stopAutoTimer() {
+    _autoTimer?.cancel();
+    _autoTimer = null;
+  }
 
   // ---------------------------------------------------------------------------
   // Battle start
@@ -236,10 +264,14 @@ class BattleNotifier extends StateNotifier<BattleState> {
       turnWithinRound:  0,
       battleSpeed:      state.battleSpeed,
       isAutoMode:       state.isAutoMode,
+      isRepeatMode:     state.isRepeatMode,
       currentStageId:   resolvedId,
       currentStageName: stageData.name,
       lastReward:       null,
     );
+
+    // Auto-battle: always start the timer (idle game).
+    _startAutoTimer();
   }
 
   // ---------------------------------------------------------------------------
@@ -440,6 +472,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
   void setBattleSpeed(num speed) {
     final clamped = speed.clamp(1, 3).toDouble();
     state = state.copyWith(battleSpeed: clamped);
+    if (state.phase == BattlePhase.fighting) _startAutoTimer();
   }
 
   /// Cycles the speed multiplier: 1.0 → 2.0 → 3.0 → 1.0.
@@ -449,6 +482,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final idx = speeds.indexWhere((s) => (s - current).abs() < 0.01);
     final nextIdx = (idx + 1) % speeds.length;
     state = state.copyWith(battleSpeed: speeds[nextIdx]);
+    if (state.phase == BattlePhase.fighting) _startAutoTimer();
   }
 
   /// Flips [BattleState.isAutoMode] between `true` and `false`.
@@ -635,6 +669,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
   ///
   /// No reward is granted and no counters are updated.
   void retreatBattle() {
+    _stopAutoTimer();
     state = state.copyWith(
       phase:      BattlePhase.idle,
       playerTeam: const [],
