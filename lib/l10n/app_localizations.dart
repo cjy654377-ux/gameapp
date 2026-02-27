@@ -3211,6 +3211,156 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'강화'**
   String get relicEnhance;
+
+  /// No description provided for @teamPreset.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀 프리셋'**
+  String get teamPreset;
+
+  /// No description provided for @presetSlot.
+  ///
+  /// In ko, this message translates to:
+  /// **'슬롯 {index}'**
+  String presetSlot(int index);
+
+  /// No description provided for @presetEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'비어있음'**
+  String get presetEmpty;
+
+  /// No description provided for @presetSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 팀 저장'**
+  String get presetSave;
+
+  /// No description provided for @presetLoad.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오기'**
+  String get presetLoad;
+
+  /// No description provided for @presetDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get presetDelete;
+
+  /// No description provided for @presetRename.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름 변경'**
+  String get presetRename;
+
+  /// No description provided for @presetNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 이름 (최대 10자)'**
+  String get presetNameHint;
+
+  /// No description provided for @presetSaved.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋이 저장되었습니다'**
+  String get presetSaved;
+
+  /// No description provided for @presetLoaded.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋을 불러왔습니다'**
+  String get presetLoaded;
+
+  /// No description provided for @presetDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋이 삭제되었습니다'**
+  String get presetDeleted;
+
+  /// No description provided for @presetDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 프리셋을 삭제하시겠습니까?'**
+  String get presetDeleteConfirm;
+
+  /// No description provided for @presetMissing.
+  ///
+  /// In ko, this message translates to:
+  /// **'일부 몬스터가 없어 불러올 수 없습니다'**
+  String get presetMissing;
+
+  /// No description provided for @compareTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 비교'**
+  String get compareTitle;
+
+  /// No description provided for @compareSelectTwo.
+  ///
+  /// In ko, this message translates to:
+  /// **'비교할 몬스터 2마리를 선택하세요'**
+  String get compareSelectTwo;
+
+  /// No description provided for @compareSelectMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 선택'**
+  String get compareSelectMonster;
+
+  /// No description provided for @sortDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get sortDefault;
+
+  /// No description provided for @sortName.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름순'**
+  String get sortName;
+
+  /// No description provided for @sortRarity.
+  ///
+  /// In ko, this message translates to:
+  /// **'등급순'**
+  String get sortRarity;
+
+  /// No description provided for @sortLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'레벨순'**
+  String get sortLevel;
+
+  /// No description provided for @sortPower.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투력순'**
+  String get sortPower;
+
+  /// No description provided for @gachaHistoryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환 기록'**
+  String get gachaHistoryTitle;
+
+  /// No description provided for @gachaHistoryEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환 기록이 없습니다'**
+  String get gachaHistoryEmpty;
+
+  /// No description provided for @gachaHistoryTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}회 소환'**
+  String gachaHistoryTotal(int count);
+
+  /// No description provided for @gachaHistoryClearConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 소환 기록을 삭제하시겠습니까?'**
+  String get gachaHistoryClearConfirm;
 }
 
 class _AppLocalizationsDelegate

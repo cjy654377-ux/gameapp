@@ -590,5 +590,11 @@
   "sortName": "Name",
   "sortRarity": "Rarity",
   "sortLevel": "Level",
-  "sortPower": "Power"
+  "sortPower": "Power",
+
+  "gachaHistoryTitle": "Summon History",
+  "gachaHistoryEmpty": "No summon records",
+  "gachaHistoryTotal": "Total {count} pulls",
+  "@gachaHistoryTotal": {"placeholders": {"count": {"type": "int"}}},
+  "gachaHistoryClearConfirm": "Delete all summon records?"
 }

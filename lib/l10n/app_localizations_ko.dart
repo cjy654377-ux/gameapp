@@ -1746,4 +1746,83 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get relicEnhance => '강화';
+
+  @override
+  String get teamPreset => '팀 프리셋';
+
+  @override
+  String presetSlot(int index) {
+    return '슬롯 $index';
+  }
+
+  @override
+  String get presetEmpty => '비어있음';
+
+  @override
+  String get presetSave => '현재 팀 저장';
+
+  @override
+  String get presetLoad => '불러오기';
+
+  @override
+  String get presetDelete => '삭제';
+
+  @override
+  String get presetRename => '이름 변경';
+
+  @override
+  String get presetNameHint => '프리셋 이름 (최대 10자)';
+
+  @override
+  String get presetSaved => '프리셋이 저장되었습니다';
+
+  @override
+  String get presetLoaded => '프리셋을 불러왔습니다';
+
+  @override
+  String get presetDeleted => '프리셋이 삭제되었습니다';
+
+  @override
+  String get presetDeleteConfirm => '이 프리셋을 삭제하시겠습니까?';
+
+  @override
+  String get presetMissing => '일부 몬스터가 없어 불러올 수 없습니다';
+
+  @override
+  String get compareTitle => '몬스터 비교';
+
+  @override
+  String get compareSelectTwo => '비교할 몬스터 2마리를 선택하세요';
+
+  @override
+  String get compareSelectMonster => '몬스터 선택';
+
+  @override
+  String get sortDefault => '기본';
+
+  @override
+  String get sortName => '이름순';
+
+  @override
+  String get sortRarity => '등급순';
+
+  @override
+  String get sortLevel => '레벨순';
+
+  @override
+  String get sortPower => '전투력순';
+
+  @override
+  String get gachaHistoryTitle => '소환 기록';
+
+  @override
+  String get gachaHistoryEmpty => '소환 기록이 없습니다';
+
+  @override
+  String gachaHistoryTotal(int count) {
+    return '총 $count회 소환';
+  }
+
+  @override
+  String get gachaHistoryClearConfirm => '모든 소환 기록을 삭제하시겠습니까?';
 }

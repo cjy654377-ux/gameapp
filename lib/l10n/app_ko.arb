@@ -666,5 +666,11 @@
   "sortName": "이름순",
   "sortRarity": "등급순",
   "sortLevel": "레벨순",
-  "sortPower": "전투력순"
+  "sortPower": "전투력순",
+
+  "gachaHistoryTitle": "소환 기록",
+  "gachaHistoryEmpty": "소환 기록이 없습니다",
+  "gachaHistoryTotal": "총 {count}회 소환",
+  "@gachaHistoryTotal": {"placeholders": {"count": {"type": "int"}}},
+  "gachaHistoryClearConfirm": "모든 소환 기록을 삭제하시겠습니까?"
 }

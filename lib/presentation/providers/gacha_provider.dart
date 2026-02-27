@@ -11,6 +11,7 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
+import 'package:gameapp/presentation/providers/gacha_history_provider.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 // =============================================================================
@@ -182,6 +183,17 @@ class GachaNotifier extends StateNotifier<GachaState> {
       totalPulls: state.totalPulls + 1,
     );
 
+    // Record history
+    ref.read(gachaHistoryProvider.notifier).addEntries([
+      GachaHistoryEntry(
+        monsterName: pull.result.template.name,
+        rarity: pull.result.template.rarity,
+        element: pull.result.template.element,
+        timestamp: DateTime.now(),
+        isPity: pull.newPityCount == 0 && pull.result.template.rarity >= 5,
+      ),
+    ]);
+
     return true;
   }
 
@@ -207,6 +219,17 @@ class GachaNotifier extends StateNotifier<GachaState> {
       revealIndex: -1, // animation starts unrevealed
       isAnimating: false,
       totalPulls: state.totalPulls + 10,
+    );
+
+    // Record history
+    final now = DateTime.now();
+    ref.read(gachaHistoryProvider.notifier).addEntries(
+      pull.results.map((r) => GachaHistoryEntry(
+            monsterName: r.template.name,
+            rarity: r.template.rarity,
+            element: r.template.element,
+            timestamp: now,
+          )).toList(),
     );
 
     return true;

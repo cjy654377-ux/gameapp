@@ -1753,4 +1753,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relicEnhance => 'Enhance';
+
+  @override
+  String get teamPreset => 'Team Presets';
+
+  @override
+  String presetSlot(int index) {
+    return 'Slot $index';
+  }
+
+  @override
+  String get presetEmpty => 'Empty';
+
+  @override
+  String get presetSave => 'Save Team';
+
+  @override
+  String get presetLoad => 'Load';
+
+  @override
+  String get presetDelete => 'Delete';
+
+  @override
+  String get presetRename => 'Rename';
+
+  @override
+  String get presetNameHint => 'Preset name (max 10 chars)';
+
+  @override
+  String get presetSaved => 'Preset saved';
+
+  @override
+  String get presetLoaded => 'Preset loaded';
+
+  @override
+  String get presetDeleted => 'Preset deleted';
+
+  @override
+  String get presetDeleteConfirm => 'Delete this preset?';
+
+  @override
+  String get presetMissing => 'Some monsters are missing';
+
+  @override
+  String get compareTitle => 'Compare Monsters';
+
+  @override
+  String get compareSelectTwo => 'Select 2 monsters to compare';
+
+  @override
+  String get compareSelectMonster => 'Select Monster';
+
+  @override
+  String get sortDefault => 'Default';
+
+  @override
+  String get sortName => 'Name';
+
+  @override
+  String get sortRarity => 'Rarity';
+
+  @override
+  String get sortLevel => 'Level';
+
+  @override
+  String get sortPower => 'Power';
+
+  @override
+  String get gachaHistoryTitle => 'Summon History';
+
+  @override
+  String get gachaHistoryEmpty => 'No summon records';
+
+  @override
+  String gachaHistoryTotal(int count) {
+    return 'Total $count pulls';
+  }
+
+  @override
+  String get gachaHistoryClearConfirm => 'Delete all summon records?';
 }
