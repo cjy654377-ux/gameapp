@@ -187,9 +187,7 @@ class StatisticsScreen extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) => FormatUtils.formatDate(dt);
 }
 
 // =============================================================================

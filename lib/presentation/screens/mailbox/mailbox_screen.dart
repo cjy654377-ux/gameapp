@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../providers/mailbox_provider.dart';
 
 class MailboxScreen extends ConsumerStatefulWidget {
@@ -218,9 +219,7 @@ class _MailCard extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) => FormatUtils.formatDateTime(dt);
 }
 
 // =============================================================================

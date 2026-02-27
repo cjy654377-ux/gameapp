@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/monster_model.dart';
 import '../../../domain/services/training_service.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import '../../providers/training_provider.dart';
@@ -387,7 +388,7 @@ class _EmptySlotCard extends ConsumerWidget {
   }
 
   void _showDurationPicker(
-      BuildContext context, WidgetRef ref, dynamic monster) {
+      BuildContext context, WidgetRef ref, MonsterModel monster) {
     final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
@@ -437,7 +438,7 @@ class _EmptySlotCard extends ConsumerWidget {
 
 class _MonsterTile extends StatelessWidget {
   const _MonsterTile({required this.monster, required this.onTap});
-  final dynamic monster;
+  final MonsterModel monster;
   final VoidCallback onTap;
 
   @override

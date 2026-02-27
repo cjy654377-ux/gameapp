@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
+import 'package:gameapp/presentation/widgets/common/reward_chip.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/providers/dungeon_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
@@ -153,20 +154,20 @@ class _DungeonHeader extends StatelessWidget {
           // Accumulated rewards bar.
           Row(
             children: [
-              _RewardChip(
+              RewardChip(
                 icon: Icons.monetization_on_rounded,
                 color: AppColors.gold,
                 value: FormatUtils.formatNumber(state.accumulatedGold),
               ),
               const SizedBox(width: 12),
-              _RewardChip(
+              RewardChip(
                 icon: Icons.auto_awesome_rounded,
                 color: AppColors.experience,
                 value: FormatUtils.formatNumber(state.accumulatedExp),
               ),
               if (state.accumulatedShard > 0) ...[
                 const SizedBox(width: 12),
-                _RewardChip(
+                RewardChip(
                   icon: Icons.diamond_rounded,
                   color: AppColors.primaryLight,
                   value: '${state.accumulatedShard}',
@@ -180,36 +181,6 @@ class _DungeonHeader extends StatelessWidget {
   }
 }
 
-class _RewardChip extends StatelessWidget {
-  const _RewardChip({
-    required this.icon,
-    required this.color,
-    required this.value,
-  });
-
-  final IconData icon;
-  final Color color;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 14),
-        const SizedBox(width: 3),
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 // =============================================================================
 // _DungeonArena

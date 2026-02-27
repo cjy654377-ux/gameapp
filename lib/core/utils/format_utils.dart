@@ -161,6 +161,18 @@ class FormatUtils {
     return '$count마리';
   }
 
+  /// Format date as YYYY.MM.DD
+  /// Example: DateTime(2026, 2, 27) → "2026.02.27"
+  static String formatDate(DateTime dt) {
+    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
+  }
+
+  /// Format date-time as M/D HH:MM
+  /// Example: DateTime(2026, 2, 27, 14, 30) → "2/27 14:30"
+  static String formatDateTime(DateTime dt) {
+    return '${dt.month}/${dt.day} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
   /// Format a large number compactly for display in limited space
   /// Example: 1234567 → "1.2M", 1234 → "1.2K"
   static String formatCompact(int number) {

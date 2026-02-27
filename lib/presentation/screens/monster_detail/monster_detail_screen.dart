@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
+import '../../../core/utils/format_utils.dart';
 import '../../../core/enums/monster_rarity.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../data/models/relic_model.dart';
@@ -209,9 +210,7 @@ class MonsterDetailScreen extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
-  }
+  String _formatDate(DateTime dt) => FormatUtils.formatDate(dt);
 }
 
 // =============================================================================

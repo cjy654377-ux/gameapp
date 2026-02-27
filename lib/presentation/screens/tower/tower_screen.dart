@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
+import 'package:gameapp/presentation/widgets/common/reward_chip.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/tower_service.dart';
 import 'package:gameapp/presentation/providers/tower_provider.dart';
@@ -135,20 +136,20 @@ class _TowerHeader extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              _RewardChip(
+              RewardChip(
                 icon: Icons.monetization_on_rounded,
                 color: AppColors.gold,
                 value: FormatUtils.formatNumber(state.accGold),
               ),
               const SizedBox(width: 12),
-              _RewardChip(
+              RewardChip(
                 icon: Icons.auto_awesome_rounded,
                 color: AppColors.experience,
                 value: FormatUtils.formatNumber(state.accExp),
               ),
               if (state.accDiamond > 0) ...[
                 const SizedBox(width: 12),
-                _RewardChip(
+                RewardChip(
                   icon: Icons.diamond_rounded,
                   color: Colors.cyan,
                   value: '${state.accDiamond}',
@@ -156,7 +157,7 @@ class _TowerHeader extends StatelessWidget {
               ],
               if (state.accTicket > 0) ...[
                 const SizedBox(width: 12),
-                _RewardChip(
+                RewardChip(
                   icon: Icons.confirmation_number,
                   color: Colors.purple,
                   value: '${state.accTicket}',
@@ -179,28 +180,6 @@ class _TowerHeader extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _RewardChip extends StatelessWidget {
-  const _RewardChip({required this.icon, required this.color, required this.value});
-  final IconData icon;
-  final Color color;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 14),
-        const SizedBox(width: 3),
-        Text(
-          value,
-          style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700),
-        ),
-      ],
     );
   }
 }
