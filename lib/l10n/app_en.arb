@@ -584,5 +584,11 @@
 
   "compareTitle": "Compare Monsters",
   "compareSelectTwo": "Select 2 monsters to compare",
-  "compareSelectMonster": "Select Monster"
+  "compareSelectMonster": "Select Monster",
+
+  "sortDefault": "Default",
+  "sortName": "Name",
+  "sortRarity": "Rarity",
+  "sortLevel": "Level",
+  "sortPower": "Power"
 }

@@ -660,5 +660,11 @@
 
   "compareTitle": "몬스터 비교",
   "compareSelectTwo": "비교할 몬스터 2마리를 선택하세요",
-  "compareSelectMonster": "몬스터 선택"
+  "compareSelectMonster": "몬스터 선택",
+
+  "sortDefault": "기본",
+  "sortName": "이름순",
+  "sortRarity": "등급순",
+  "sortLevel": "레벨순",
+  "sortPower": "전투력순"
 }

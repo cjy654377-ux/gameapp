@@ -332,6 +332,50 @@ class CollectionScreen extends ConsumerWidget {
                 labelStyle: const TextStyle(fontSize: 14),
               ),
             ),
+          // Sort dropdown
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: PopupMenuButton<CollectionSort>(
+              initialValue: filter.sort,
+              onSelected: (sort) {
+                ref.read(collectionFilterProvider.notifier).setSort(sort);
+              },
+              child: Chip(
+                avatar: const Icon(Icons.sort, size: 16),
+                label: Text(
+                  _sortLabel(l, filter.sort),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: filter.sort != CollectionSort.defaultOrder
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: CollectionSort.defaultOrder,
+                  child: Text(l.sortDefault),
+                ),
+                PopupMenuItem(
+                  value: CollectionSort.name,
+                  child: Text(l.sortName),
+                ),
+                PopupMenuItem(
+                  value: CollectionSort.rarityDesc,
+                  child: Text(l.sortRarity),
+                ),
+                PopupMenuItem(
+                  value: CollectionSort.levelDesc,
+                  child: Text(l.sortLevel),
+                ),
+                PopupMenuItem(
+                  value: CollectionSort.powerDesc,
+                  child: Text(l.sortPower),
+                ),
+              ],
+            ),
+          ),
           // Clear
           if (filter.hasFilter)
             Padding(
@@ -349,6 +393,21 @@ class CollectionScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _sortLabel(AppLocalizations l, CollectionSort sort) {
+    switch (sort) {
+      case CollectionSort.defaultOrder:
+        return l.sortDefault;
+      case CollectionSort.name:
+        return l.sortName;
+      case CollectionSort.rarityDesc:
+        return l.sortRarity;
+      case CollectionSort.levelDesc:
+        return l.sortLevel;
+      case CollectionSort.powerDesc:
+        return l.sortPower;
+    }
   }
 
   Widget _buildEmpty(BuildContext context) {

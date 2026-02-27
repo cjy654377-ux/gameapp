@@ -8,24 +8,29 @@ import 'monster_provider.dart';
 import 'player_provider.dart';
 
 // =============================================================================
-// Filter state
+// Sort / Filter state
 // =============================================================================
+
+enum CollectionSort { defaultOrder, name, rarityDesc, levelDesc, powerDesc }
 
 class CollectionFilter {
   final int? rarity;
   final String? element;
   final bool showOnlyOwned;
+  final CollectionSort sort;
 
   const CollectionFilter({
     this.rarity,
     this.element,
     this.showOnlyOwned = false,
+    this.sort = CollectionSort.defaultOrder,
   });
 
   CollectionFilter copyWith({
     int? rarity,
     String? element,
     bool? showOnlyOwned,
+    CollectionSort? sort,
     bool clearRarity = false,
     bool clearElement = false,
   }) {
@@ -33,10 +38,15 @@ class CollectionFilter {
       rarity: clearRarity ? null : (rarity ?? this.rarity),
       element: clearElement ? null : (element ?? this.element),
       showOnlyOwned: showOnlyOwned ?? this.showOnlyOwned,
+      sort: sort ?? this.sort,
     );
   }
 
-  bool get hasFilter => rarity != null || element != null || showOnlyOwned;
+  bool get hasFilter =>
+      rarity != null ||
+      element != null ||
+      showOnlyOwned ||
+      sort != CollectionSort.defaultOrder;
 }
 
 class CollectionFilterNotifier extends StateNotifier<CollectionFilter> {
@@ -60,6 +70,10 @@ class CollectionFilterNotifier extends StateNotifier<CollectionFilter> {
 
   void toggleShowOnlyOwned() {
     state = state.copyWith(showOnlyOwned: !state.showOnlyOwned);
+  }
+
+  void setSort(CollectionSort sort) {
+    state = state.copyWith(sort: sort);
   }
 
   void clearAll() {
@@ -129,7 +143,41 @@ final collectionEntriesProvider = Provider<List<CollectionEntry>>((ref) {
     entries = entries.where((e) => e.isOwned);
   }
 
-  return entries.toList();
+  final result = entries.toList();
+
+  // Apply sort
+  switch (filter.sort) {
+    case CollectionSort.defaultOrder:
+      break; // keep MonsterDatabase order
+    case CollectionSort.name:
+      result.sort((a, b) => a.template.name.compareTo(b.template.name));
+    case CollectionSort.rarityDesc:
+      result.sort((a, b) => b.template.rarity.compareTo(a.template.rarity));
+    case CollectionSort.levelDesc:
+      result.sort((a, b) {
+        final aLv = a.best?.level ?? 0;
+        final bLv = b.best?.level ?? 0;
+        return bLv.compareTo(aLv);
+      });
+    case CollectionSort.powerDesc:
+      result.sort((a, b) {
+        final aPow = a.best != null
+            ? a.best!.finalAtk +
+                a.best!.finalDef +
+                a.best!.finalHp +
+                a.best!.finalSpd
+            : 0.0;
+        final bPow = b.best != null
+            ? b.best!.finalAtk +
+                b.best!.finalDef +
+                b.best!.finalHp +
+                b.best!.finalSpd
+            : 0.0;
+        return bPow.compareTo(aPow);
+      });
+  }
+
+  return result;
 });
 
 /// Collection progress stats.
