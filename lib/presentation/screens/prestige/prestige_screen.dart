@@ -5,6 +5,7 @@ import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/prestige_provider.dart';
+import 'package:gameapp/presentation/widgets/common/reward_row.dart';
 
 class PrestigeScreen extends ConsumerWidget {
   const PrestigeScreen({super.key});
@@ -102,19 +103,19 @@ class PrestigeScreen extends ConsumerWidget {
                 title: l.prestigeGains,
                 color: Colors.green.withValues(alpha: 0.1),
                 children: [
-                  _RewardRow(
+                  RewardRow(
                     icon: Icons.diamond,
                     label: l.diamondFull,
                     value: '+$diamondReward',
                     color: Colors.cyanAccent,
                   ),
-                  _RewardRow(
+                  RewardRow(
                     icon: Icons.confirmation_number,
                     label: l.gachaTicket,
                     value: '+$ticketReward',
                     color: Colors.purple,
                   ),
-                  _RewardRow(
+                  RewardRow(
                     icon: Icons.trending_up,
                     label: l.permanentBonus,
                     value: '${currentBonus.toInt()}% → ${nextBonus.toInt()}%',
@@ -452,42 +453,6 @@ class _RequirementRow extends StatelessWidget {
   }
 }
 
-class _RewardRow extends StatelessWidget {
-  const _RewardRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 14)),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _LossRow extends StatelessWidget {
   const _LossRow({required this.label});

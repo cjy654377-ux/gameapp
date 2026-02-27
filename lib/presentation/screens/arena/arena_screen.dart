@@ -10,6 +10,7 @@ import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/services/arena_service.dart';
 import 'package:gameapp/presentation/providers/arena_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
+import 'package:gameapp/presentation/widgets/common/reward_row.dart';
 
 class ArenaScreen extends ConsumerStatefulWidget {
   const ArenaScreen({super.key});
@@ -692,7 +693,7 @@ class _ResultView extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    _RewardRow(
+                    RewardRow(
                       icon: Icons.trending_up,
                       label: l.ratingLabel,
                       value: '${reward.ratingChange > 0 ? '+' : ''}${reward.ratingChange}',
@@ -702,7 +703,7 @@ class _ResultView extends ConsumerWidget {
                     ),
                     if (reward.gold > 0) ...[
                       const SizedBox(height: 8),
-                      _RewardRow(
+                      RewardRow(
                         icon: Icons.monetization_on,
                         label: l.gold,
                         value: '+${FormatUtils.formatNumber(reward.gold)}',
@@ -711,7 +712,7 @@ class _ResultView extends ConsumerWidget {
                     ],
                     if (reward.diamond > 0) ...[
                       const SizedBox(height: 8),
-                      _RewardRow(
+                      RewardRow(
                         icon: Icons.diamond,
                         label: l.diamond,
                         value: '+${reward.diamond}',
@@ -759,39 +760,3 @@ class _ResultView extends ConsumerWidget {
   }
 }
 
-class _RewardRow extends StatelessWidget {
-  const _RewardRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-}

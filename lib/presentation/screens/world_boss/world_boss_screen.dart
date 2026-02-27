@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/domain/services/world_boss_service.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/world_boss_provider.dart';
+import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/presentation/widgets/battle/hp_bar.dart';
+import 'package:gameapp/presentation/widgets/common/reward_row.dart';
 
 class WorldBossScreen extends ConsumerStatefulWidget {
   const WorldBossScreen({super.key});
@@ -104,17 +106,17 @@ class _IdleView extends ConsumerWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: _elementColor(bossElement).withValues(alpha: 0.2),
+                color: (MonsterElement.fromName(bossElement)?.color ?? Colors.white).withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _elementColor(bossElement),
+                  color: (MonsterElement.fromName(bossElement)?.color ?? Colors.white),
                   width: 3,
                 ),
               ),
               child: Icon(
                 Icons.whatshot,
                 size: 60,
-                color: _elementColor(bossElement),
+                color: (MonsterElement.fromName(bossElement)?.color ?? Colors.white),
               ),
             ),
             const SizedBox(height: 16),
@@ -217,7 +219,7 @@ class _FightingView extends ConsumerWidget {
               Row(
                 children: [
                   Icon(Icons.whatshot,
-                      color: _elementColor(boss.element), size: 24),
+                      color: MonsterElement.fromName(boss.element)?.color ?? Colors.white, size: 24),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -488,26 +490,26 @@ class _FinishedView extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    _RewardRow(
+                    RewardRow(
                       icon: Icons.monetization_on,
                       label: l.gold,
                       value: '+${reward.gold}',
                       color: Colors.amber,
                     ),
-                    _RewardRow(
+                    RewardRow(
                       icon: Icons.auto_awesome,
                       label: l.experience,
                       value: '+${reward.exp}',
                       color: Colors.green,
                     ),
-                    _RewardRow(
+                    RewardRow(
                       icon: Icons.diamond,
                       label: l.diamondFull,
                       value: '+${reward.diamond}',
                       color: Colors.cyanAccent,
                     ),
                     if (reward.shard > 0)
-                      _RewardRow(
+                      RewardRow(
                         icon: Icons.auto_fix_high,
                         label: l.monsterShard,
                         value: '+${reward.shard}',
@@ -568,41 +570,6 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _RewardRow extends StatelessWidget {
-  const _RewardRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 13)),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // =============================================================================
 // Helpers
@@ -616,29 +583,6 @@ String _formatDamage(double damage) {
     return '${(damage / 1000).toStringAsFixed(1)}K';
   }
   return damage.toInt().toString();
-}
-
-Color _elementColor(String element) {
-  switch (element) {
-    case 'fire':
-      return Colors.red;
-    case 'water':
-      return Colors.blue;
-    case 'electric':
-      return Colors.yellow;
-    case 'stone':
-      return Colors.brown;
-    case 'grass':
-      return Colors.green;
-    case 'ghost':
-      return Colors.purple;
-    case 'light':
-      return Colors.amber;
-    case 'dark':
-      return Colors.grey;
-    default:
-      return Colors.white;
-  }
 }
 
 String _elementName(BuildContext context, String element) {
