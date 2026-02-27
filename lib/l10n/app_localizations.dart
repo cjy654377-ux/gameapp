@@ -2695,6 +2695,354 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'PREMIUM'**
   String get seasonPassPremiumBadge;
+
+  /// No description provided for @trainingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'트레이닝'**
+  String get trainingTitle;
+
+  /// No description provided for @trainingDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터를 배치하면 시간 경과 후 자동으로 경험치를 획득합니다'**
+  String get trainingDesc;
+
+  /// No description provided for @trainingEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 배치하기'**
+  String get trainingEmpty;
+
+  /// No description provided for @trainingSelectMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'트레이닝할 몬스터 선택'**
+  String get trainingSelectMonster;
+
+  /// No description provided for @trainingDuration.
+  ///
+  /// In ko, this message translates to:
+  /// **'트레이닝 시간 선택'**
+  String get trainingDuration;
+
+  /// No description provided for @trainingComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료!'**
+  String get trainingComplete;
+
+  /// No description provided for @trainingRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남음'**
+  String get trainingRemaining;
+
+  /// No description provided for @trainingCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'수집'**
+  String get trainingCollect;
+
+  /// No description provided for @trainingCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get trainingCancel;
+
+  /// No description provided for @trainingNoMonsters.
+  ///
+  /// In ko, this message translates to:
+  /// **'배치 가능한 몬스터가 없습니다'**
+  String get trainingNoMonsters;
+
+  /// No description provided for @leaderboardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'랭킹'**
+  String get leaderboardTitle;
+
+  /// No description provided for @leaderboardArena.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나'**
+  String get leaderboardArena;
+
+  /// No description provided for @leaderboardDungeon.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전'**
+  String get leaderboardDungeon;
+
+  /// No description provided for @leaderboardTower.
+  ///
+  /// In ko, this message translates to:
+  /// **'탑'**
+  String get leaderboardTower;
+
+  /// No description provided for @leaderboardBoss.
+  ///
+  /// In ko, this message translates to:
+  /// **'월드보스'**
+  String get leaderboardBoss;
+
+  /// No description provided for @leaderboardMyRank.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 순위'**
+  String get leaderboardMyRank;
+
+  /// No description provided for @leaderboardPlayers.
+  ///
+  /// In ko, this message translates to:
+  /// **'명 참여'**
+  String get leaderboardPlayers;
+
+  /// No description provided for @titleScreenTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'칭호'**
+  String get titleScreenTitle;
+
+  /// No description provided for @titleCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 칭호'**
+  String get titleCurrent;
+
+  /// No description provided for @titleNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'칭호 없음'**
+  String get titleNone;
+
+  /// No description provided for @titleHidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'숨겨진 업적을 달성하면 해금됩니다'**
+  String get titleHidden;
+
+  /// No description provided for @titleEquip.
+  ///
+  /// In ko, this message translates to:
+  /// **'장착'**
+  String get titleEquip;
+
+  /// No description provided for @titleUnequip.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제'**
+  String get titleUnequip;
+
+  /// No description provided for @mailboxTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'우편함'**
+  String get mailboxTitle;
+
+  /// No description provided for @mailboxEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'우편이 없습니다'**
+  String get mailboxEmpty;
+
+  /// No description provided for @mailboxClaim.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령'**
+  String get mailboxClaim;
+
+  /// No description provided for @mailboxClaimed.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령 완료'**
+  String get mailboxClaimed;
+
+  /// No description provided for @mailboxClaimAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 수령'**
+  String get mailboxClaimAll;
+
+  /// No description provided for @shopTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'상점'**
+  String get shopTitle;
+
+  /// No description provided for @shopExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'재화 교환'**
+  String get shopExchange;
+
+  /// No description provided for @shopItems.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이템 구매'**
+  String get shopItems;
+
+  /// No description provided for @shopBuy.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매'**
+  String get shopBuy;
+
+  /// No description provided for @shopBuyGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 구매'**
+  String get shopBuyGold;
+
+  /// No description provided for @shopBuyDiamond.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 구매'**
+  String get shopBuyDiamond;
+
+  /// No description provided for @shopBuyTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권 x1'**
+  String get shopBuyTicket;
+
+  /// No description provided for @shopBuyTicketDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 30개로 소환권 1장 구매'**
+  String get shopBuyTicketDesc;
+
+  /// No description provided for @shopBuyTicket10.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권 x10'**
+  String get shopBuyTicket10;
+
+  /// No description provided for @shopBuyTicket10Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 250개로 소환권 10장 (17% 할인)'**
+  String get shopBuyTicket10Desc;
+
+  /// No description provided for @shopBuyExpPotion.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 물약 x1'**
+  String get shopBuyExpPotion;
+
+  /// No description provided for @shopBuyExpPotionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 500으로 경험치 물약 1개 구매'**
+  String get shopBuyExpPotionDesc;
+
+  /// No description provided for @shopBuyExpPotion10.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 물약 x10'**
+  String get shopBuyExpPotion10;
+
+  /// No description provided for @shopBuyExpPotion10Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 4,000으로 경험치 물약 10개 (20% 할인)'**
+  String get shopBuyExpPotion10Desc;
+
+  /// No description provided for @shopInsufficient.
+  ///
+  /// In ko, this message translates to:
+  /// **'재화가 부족합니다'**
+  String get shopInsufficient;
+
+  /// No description provided for @shopPurchaseSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 완료!'**
+  String get shopPurchaseSuccess;
+
+  /// No description provided for @repeatBattle.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복'**
+  String get repeatBattle;
+
+  /// No description provided for @nicknameTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'닉네임 설정'**
+  String get nicknameTitle;
+
+  /// No description provided for @nicknameReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화'**
+  String get nicknameReset;
+
+  /// No description provided for @dailyDungeonTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 던전'**
+  String get dailyDungeonTitle;
+
+  /// No description provided for @dailyDungeonTheme.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전'**
+  String get dailyDungeonTheme;
+
+  /// No description provided for @dailyDungeonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일별 속성 테마 던전. 보상 1.5배!'**
+  String get dailyDungeonDesc;
+
+  /// No description provided for @dailyDungeonRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 도전'**
+  String get dailyDungeonRemaining;
+
+  /// No description provided for @dailyDungeonStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전 입장'**
+  String get dailyDungeonStart;
+
+  /// No description provided for @dailyDungeonCleared.
+  ///
+  /// In ko, this message translates to:
+  /// **'클리어!'**
+  String get dailyDungeonCleared;
+
+  /// No description provided for @dailyDungeonNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 층'**
+  String get dailyDungeonNext;
+
+  /// No description provided for @dailyDungeonComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전 완료!'**
+  String get dailyDungeonComplete;
+
+  /// No description provided for @dailyDungeonDefeated.
+  ///
+  /// In ko, this message translates to:
+  /// **'패배'**
+  String get dailyDungeonDefeated;
+
+  /// No description provided for @dailyDungeonCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령'**
+  String get dailyDungeonCollect;
+
+  /// No description provided for @dailyDungeonExitConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재까지 획득한 보상을 수령하고 나가시겠습니까?'**
+  String get dailyDungeonExitConfirm;
 }
 
 class _AppLocalizationsDelegate

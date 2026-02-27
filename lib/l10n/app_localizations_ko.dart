@@ -1484,4 +1484,178 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get seasonPassPremiumBadge => 'PREMIUM';
+
+  @override
+  String get trainingTitle => '트레이닝';
+
+  @override
+  String get trainingDesc => '몬스터를 배치하면 시간 경과 후 자동으로 경험치를 획득합니다';
+
+  @override
+  String get trainingEmpty => '몬스터 배치하기';
+
+  @override
+  String get trainingSelectMonster => '트레이닝할 몬스터 선택';
+
+  @override
+  String get trainingDuration => '트레이닝 시간 선택';
+
+  @override
+  String get trainingComplete => '완료!';
+
+  @override
+  String get trainingRemaining => '남음';
+
+  @override
+  String get trainingCollect => '수집';
+
+  @override
+  String get trainingCancel => '취소';
+
+  @override
+  String get trainingNoMonsters => '배치 가능한 몬스터가 없습니다';
+
+  @override
+  String get leaderboardTitle => '랭킹';
+
+  @override
+  String get leaderboardArena => '아레나';
+
+  @override
+  String get leaderboardDungeon => '던전';
+
+  @override
+  String get leaderboardTower => '탑';
+
+  @override
+  String get leaderboardBoss => '월드보스';
+
+  @override
+  String get leaderboardMyRank => '내 순위';
+
+  @override
+  String get leaderboardPlayers => '명 참여';
+
+  @override
+  String get titleScreenTitle => '칭호';
+
+  @override
+  String get titleCurrent => '현재 칭호';
+
+  @override
+  String get titleNone => '칭호 없음';
+
+  @override
+  String get titleHidden => '숨겨진 업적을 달성하면 해금됩니다';
+
+  @override
+  String get titleEquip => '장착';
+
+  @override
+  String get titleUnequip => '해제';
+
+  @override
+  String get mailboxTitle => '우편함';
+
+  @override
+  String get mailboxEmpty => '우편이 없습니다';
+
+  @override
+  String get mailboxClaim => '수령';
+
+  @override
+  String get mailboxClaimed => '수령 완료';
+
+  @override
+  String get mailboxClaimAll => '모두 수령';
+
+  @override
+  String get shopTitle => '상점';
+
+  @override
+  String get shopExchange => '재화 교환';
+
+  @override
+  String get shopItems => '아이템 구매';
+
+  @override
+  String get shopBuy => '구매';
+
+  @override
+  String get shopBuyGold => '골드 구매';
+
+  @override
+  String get shopBuyDiamond => '다이아 구매';
+
+  @override
+  String get shopBuyTicket => '소환권 x1';
+
+  @override
+  String get shopBuyTicketDesc => '다이아 30개로 소환권 1장 구매';
+
+  @override
+  String get shopBuyTicket10 => '소환권 x10';
+
+  @override
+  String get shopBuyTicket10Desc => '다이아 250개로 소환권 10장 (17% 할인)';
+
+  @override
+  String get shopBuyExpPotion => '경험치 물약 x1';
+
+  @override
+  String get shopBuyExpPotionDesc => '골드 500으로 경험치 물약 1개 구매';
+
+  @override
+  String get shopBuyExpPotion10 => '경험치 물약 x10';
+
+  @override
+  String get shopBuyExpPotion10Desc => '골드 4,000으로 경험치 물약 10개 (20% 할인)';
+
+  @override
+  String get shopInsufficient => '재화가 부족합니다';
+
+  @override
+  String get shopPurchaseSuccess => '구매 완료!';
+
+  @override
+  String get repeatBattle => '반복';
+
+  @override
+  String get nicknameTitle => '닉네임 설정';
+
+  @override
+  String get nicknameReset => '초기화';
+
+  @override
+  String get dailyDungeonTitle => '일일 던전';
+
+  @override
+  String get dailyDungeonTheme => '던전';
+
+  @override
+  String get dailyDungeonDesc => '요일별 속성 테마 던전. 보상 1.5배!';
+
+  @override
+  String get dailyDungeonRemaining => '남은 도전';
+
+  @override
+  String get dailyDungeonStart => '던전 입장';
+
+  @override
+  String get dailyDungeonCleared => '클리어!';
+
+  @override
+  String get dailyDungeonNext => '다음 층';
+
+  @override
+  String get dailyDungeonComplete => '던전 완료!';
+
+  @override
+  String get dailyDungeonDefeated => '패배';
+
+  @override
+  String get dailyDungeonCollect => '보상 수령';
+
+  @override
+  String get dailyDungeonExitConfirm => '현재까지 획득한 보상을 수령하고 나가시겠습니까?';
 }

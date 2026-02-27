@@ -1488,4 +1488,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seasonPassPremiumBadge => 'PREMIUM';
+
+  @override
+  String get trainingTitle => 'Training';
+
+  @override
+  String get trainingDesc =>
+      'Place monsters to gain XP automatically over time';
+
+  @override
+  String get trainingEmpty => 'Place a monster';
+
+  @override
+  String get trainingSelectMonster => 'Select monster to train';
+
+  @override
+  String get trainingDuration => 'Select training duration';
+
+  @override
+  String get trainingComplete => 'Complete!';
+
+  @override
+  String get trainingRemaining => 'remaining';
+
+  @override
+  String get trainingCollect => 'Collect';
+
+  @override
+  String get trainingCancel => 'Cancel';
+
+  @override
+  String get trainingNoMonsters => 'No available monsters';
+
+  @override
+  String get leaderboardTitle => 'Ranking';
+
+  @override
+  String get leaderboardArena => 'Arena';
+
+  @override
+  String get leaderboardDungeon => 'Dungeon';
+
+  @override
+  String get leaderboardTower => 'Tower';
+
+  @override
+  String get leaderboardBoss => 'World Boss';
+
+  @override
+  String get leaderboardMyRank => 'My Rank';
+
+  @override
+  String get leaderboardPlayers => 'players';
+
+  @override
+  String get titleScreenTitle => 'Titles';
+
+  @override
+  String get titleCurrent => 'Current Title';
+
+  @override
+  String get titleNone => 'No Title';
+
+  @override
+  String get titleHidden => 'Complete hidden achievements to unlock';
+
+  @override
+  String get titleEquip => 'Equip';
+
+  @override
+  String get titleUnequip => 'Unequip';
+
+  @override
+  String get mailboxTitle => 'Mailbox';
+
+  @override
+  String get mailboxEmpty => 'No mail';
+
+  @override
+  String get mailboxClaim => 'Claim';
+
+  @override
+  String get mailboxClaimed => 'Claimed';
+
+  @override
+  String get mailboxClaimAll => 'Claim All';
+
+  @override
+  String get shopTitle => 'Shop';
+
+  @override
+  String get shopExchange => 'Currency Exchange';
+
+  @override
+  String get shopItems => 'Buy Items';
+
+  @override
+  String get shopBuy => 'Buy';
+
+  @override
+  String get shopBuyGold => 'Buy Gold';
+
+  @override
+  String get shopBuyDiamond => 'Buy Diamond';
+
+  @override
+  String get shopBuyTicket => 'Summon Ticket x1';
+
+  @override
+  String get shopBuyTicketDesc => 'Buy 1 ticket for 30 diamonds';
+
+  @override
+  String get shopBuyTicket10 => 'Summon Ticket x10';
+
+  @override
+  String get shopBuyTicket10Desc => 'Buy 10 tickets for 250 diamonds (17% off)';
+
+  @override
+  String get shopBuyExpPotion => 'EXP Potion x1';
+
+  @override
+  String get shopBuyExpPotionDesc => 'Buy 1 potion for 500 gold';
+
+  @override
+  String get shopBuyExpPotion10 => 'EXP Potion x10';
+
+  @override
+  String get shopBuyExpPotion10Desc =>
+      'Buy 10 potions for 4,000 gold (20% off)';
+
+  @override
+  String get shopInsufficient => 'Not enough currency';
+
+  @override
+  String get shopPurchaseSuccess => 'Purchase complete!';
+
+  @override
+  String get repeatBattle => 'Repeat';
+
+  @override
+  String get nicknameTitle => 'Set Nickname';
+
+  @override
+  String get nicknameReset => 'Reset';
+
+  @override
+  String get dailyDungeonTitle => 'Daily Dungeon';
+
+  @override
+  String get dailyDungeonTheme => 'Dungeon';
+
+  @override
+  String get dailyDungeonDesc => 'Element-themed daily dungeon. 1.5x rewards!';
+
+  @override
+  String get dailyDungeonRemaining => 'Attempts left';
+
+  @override
+  String get dailyDungeonStart => 'Enter Dungeon';
+
+  @override
+  String get dailyDungeonCleared => 'Cleared!';
+
+  @override
+  String get dailyDungeonNext => 'Next Floor';
+
+  @override
+  String get dailyDungeonComplete => 'Dungeon Complete!';
+
+  @override
+  String get dailyDungeonDefeated => 'Defeated';
+
+  @override
+  String get dailyDungeonCollect => 'Collect Rewards';
+
+  @override
+  String get dailyDungeonExitConfirm => 'Collect current rewards and exit?';
 }

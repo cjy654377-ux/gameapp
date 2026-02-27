@@ -31,6 +31,7 @@ import '../presentation/screens/title/title_screen.dart';
 import '../presentation/screens/training/training_screen.dart';
 import '../presentation/screens/world_boss/world_boss_screen.dart';
 import '../presentation/screens/shop/shop_screen.dart';
+import '../presentation/screens/daily_dungeon/daily_dungeon_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -65,6 +66,7 @@ class AppRoutes {
   static const title = '/title';
   static const mailbox = '/mailbox';
   static const shop = '/shop';
+  static const dailyDungeon = '/daily-dungeon';
 }
 
 // ---------------------------------------------------------------------------
@@ -162,6 +164,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.shop,
         builder: (context, state) => const ShopScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.dailyDungeon,
+        builder: (context, state) => const DailyDungeonScreen(),
       ),
       GoRoute(
         path: AppRoutes.monsterDetail,

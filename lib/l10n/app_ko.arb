@@ -599,5 +599,17 @@
   "repeatBattle": "반복",
 
   "nicknameTitle": "닉네임 설정",
-  "nicknameReset": "초기화"
+  "nicknameReset": "초기화",
+
+  "dailyDungeonTitle": "일일 던전",
+  "dailyDungeonTheme": "던전",
+  "dailyDungeonDesc": "요일별 속성 테마 던전. 보상 1.5배!",
+  "dailyDungeonRemaining": "남은 도전",
+  "dailyDungeonStart": "던전 입장",
+  "dailyDungeonCleared": "클리어!",
+  "dailyDungeonNext": "다음 층",
+  "dailyDungeonComplete": "던전 완료!",
+  "dailyDungeonDefeated": "패배",
+  "dailyDungeonCollect": "보상 수령",
+  "dailyDungeonExitConfirm": "현재까지 획득한 보상을 수령하고 나가시겠습니까?"
 }

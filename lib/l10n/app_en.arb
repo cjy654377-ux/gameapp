@@ -523,5 +523,17 @@
   "repeatBattle": "Repeat",
 
   "nicknameTitle": "Set Nickname",
-  "nicknameReset": "Reset"
+  "nicknameReset": "Reset",
+
+  "dailyDungeonTitle": "Daily Dungeon",
+  "dailyDungeonTheme": "Dungeon",
+  "dailyDungeonDesc": "Element-themed daily dungeon. 1.5x rewards!",
+  "dailyDungeonRemaining": "Attempts left",
+  "dailyDungeonStart": "Enter Dungeon",
+  "dailyDungeonCleared": "Cleared!",
+  "dailyDungeonNext": "Next Floor",
+  "dailyDungeonComplete": "Dungeon Complete!",
+  "dailyDungeonDefeated": "Defeated",
+  "dailyDungeonCollect": "Collect Rewards",
+  "dailyDungeonExitConfirm": "Collect current rewards and exit?"
 }
