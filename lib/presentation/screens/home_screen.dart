@@ -137,6 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Future<void> _onPaused() async {
+    final l = AppLocalizations.of(context)!;
     // Update lastOnlineAt (saves player internally), then save currency.
     await ref.read(playerProvider.notifier).updateLastOnline();
     await LocalStorage.instance.saveCurrency(ref.read(currencyProvider));
@@ -144,7 +145,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Schedule offline reminder notifications.
     final player = ref.read(playerProvider).player;
     if (player != null) {
-      NotificationService.instance.scheduleOfflineReminders(player.lastOnlineAt);
+      NotificationService.instance.scheduleOfflineReminders(
+        player.lastOnlineAt,
+        capTitle: l.notifCapTitle,
+        capBody: l.notifCapBody,
+        comeBackTitle: l.notifComeBackTitle,
+        comeBackBody: l.notifComeBackBody,
+        channelName: l.notifChannelName,
+        channelDesc: l.notifChannelDesc,
+      );
     }
   }
 

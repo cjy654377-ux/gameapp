@@ -11,9 +11,9 @@ class ExpeditionService {
 
   /// Available expedition durations (seconds).
   static const List<ExpeditionOption> options = [
-    ExpeditionOption(durationSeconds: 3600, label: '1시간 원정'),
-    ExpeditionOption(durationSeconds: 14400, label: '4시간 원정'),
-    ExpeditionOption(durationSeconds: 28800, label: '8시간 원정'),
+    ExpeditionOption(durationSeconds: 3600),
+    ExpeditionOption(durationSeconds: 14400),
+    ExpeditionOption(durationSeconds: 28800),
   ];
 
   /// Calculate expedition rewards based on duration and total monster level.
@@ -48,12 +48,10 @@ class ExpeditionService {
 
 class ExpeditionOption {
   final int durationSeconds;
-  final String label;
 
-  const ExpeditionOption({
-    required this.durationSeconds,
-    required this.label,
-  });
+  const ExpeditionOption({required this.durationSeconds});
+
+  int get hours => durationSeconds ~/ 3600;
 }
 
 class ExpeditionReward {

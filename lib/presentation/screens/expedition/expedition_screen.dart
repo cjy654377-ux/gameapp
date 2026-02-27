@@ -260,7 +260,7 @@ class _StartOptionState extends ConsumerState<_StartOption> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      widget.option.label,
+                      AppLocalizations.of(context)!.expeditionOptionLabel(widget.option.hours),
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),

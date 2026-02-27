@@ -743,5 +743,15 @@
   "timerMS": "{m}m {s}s",
   "@timerMS": {"placeholders": {"m": {"type": "int"}, "s": {"type": "int"}}},
   "timerS": "{s}s",
-  "@timerS": {"placeholders": {"s": {"type": "int"}}}
+  "@timerS": {"placeholders": {"s": {"type": "int"}}},
+
+  "notifCapTitle": "Offline rewards maxed out!",
+  "notifCapBody": "Rewards are no longer accumulating. Come collect them!",
+  "notifComeBackTitle": "Your monsters miss you!",
+  "notifComeBackBody": "Offline rewards are full. Come back now!",
+  "notifChannelName": "Game Notifications",
+  "notifChannelDesc": "Offline rewards and reminder notifications",
+  "expeditionOptionLabel": "{h}h Expedition",
+  "@expeditionOptionLabel": {"placeholders": {"h": {"type": "int"}}},
+  "synergyNone": "No active synergies"
 }

@@ -24,26 +24,24 @@ void main() {
       expect(durations, [3600, 14400, 28800]);
     });
 
-    test('options labels are non-empty strings', () {
-      for (final option in ExpeditionService.options) {
-        expect(option.label, isNotEmpty,
-            reason: 'Each option must have a non-empty label');
-      }
+    test('options hours are 1, 4, 8', () {
+      final hours = ExpeditionService.options.map((o) => o.hours).toList();
+      expect(hours, [1, 4, 8]);
     });
 
     test('first option is 1-hour expedition', () {
       expect(ExpeditionService.options[0].durationSeconds, 3600);
-      expect(ExpeditionService.options[0].label, '1시간 원정');
+      expect(ExpeditionService.options[0].hours, 1);
     });
 
     test('second option is 4-hour expedition', () {
       expect(ExpeditionService.options[1].durationSeconds, 14400);
-      expect(ExpeditionService.options[1].label, '4시간 원정');
+      expect(ExpeditionService.options[1].hours, 4);
     });
 
     test('third option is 8-hour expedition', () {
       expect(ExpeditionService.options[2].durationSeconds, 28800);
-      expect(ExpeditionService.options[2].label, '8시간 원정');
+      expect(ExpeditionService.options[2].hours, 8);
     });
   });
 
@@ -52,13 +50,10 @@ void main() {
   // ===========================================================================
 
   group('ExpeditionOption model', () {
-    test('can be constructed with durationSeconds and label', () {
-      const option = ExpeditionOption(
-        durationSeconds: 7200,
-        label: '2시간 원정',
-      );
+    test('can be constructed with durationSeconds and has hours getter', () {
+      const option = ExpeditionOption(durationSeconds: 7200);
       expect(option.durationSeconds, 7200);
-      expect(option.label, '2시간 원정');
+      expect(option.hours, 2);
     });
   });
 
@@ -711,7 +706,7 @@ void main() {
           totalMonsterLevel: 1,
         );
         expect(reward, isA<ExpeditionReward>(),
-            reason: '${option.label} must return a valid ExpeditionReward');
+            reason: '${option.hours}h option must return a valid ExpeditionReward');
       }
     });
 

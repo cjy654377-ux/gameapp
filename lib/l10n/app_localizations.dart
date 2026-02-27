@@ -3913,6 +3913,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{s}초'**
   String timerS(int s);
+
+  /// No description provided for @notifCapTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오프라인 보상 최대치 도달!'**
+  String get notifCapTitle;
+
+  /// No description provided for @notifCapBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상이 더 쌓이지 않아요. 접속해서 수령하세요!'**
+  String get notifCapBody;
+
+  /// No description provided for @notifComeBackTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터들이 기다리고 있어요!'**
+  String get notifComeBackTitle;
+
+  /// No description provided for @notifComeBackBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'오프라인 보상이 가득 찼어요. 지금 접속하세요!'**
+  String get notifComeBackBody;
+
+  /// No description provided for @notifChannelName.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 알림'**
+  String get notifChannelName;
+
+  /// No description provided for @notifChannelDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'오프라인 보상 및 리마인더 알림'**
+  String get notifChannelDesc;
+
+  /// No description provided for @expeditionOptionLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간 원정'**
+  String expeditionOptionLabel(int h);
+
+  /// No description provided for @synergyNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'활성 시너지 없음'**
+  String get synergyNone;
 }
 
 class _AppLocalizationsDelegate

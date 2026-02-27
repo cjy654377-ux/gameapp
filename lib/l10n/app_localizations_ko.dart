@@ -2187,4 +2187,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String timerS(int s) {
     return '$s초';
   }
+
+  @override
+  String get notifCapTitle => '오프라인 보상 최대치 도달!';
+
+  @override
+  String get notifCapBody => '보상이 더 쌓이지 않아요. 접속해서 수령하세요!';
+
+  @override
+  String get notifComeBackTitle => '몬스터들이 기다리고 있어요!';
+
+  @override
+  String get notifComeBackBody => '오프라인 보상이 가득 찼어요. 지금 접속하세요!';
+
+  @override
+  String get notifChannelName => '게임 알림';
+
+  @override
+  String get notifChannelDesc => '오프라인 보상 및 리마인더 알림';
+
+  @override
+  String expeditionOptionLabel(int h) {
+    return '$h시간 원정';
+  }
+
+  @override
+  String get synergyNone => '활성 시너지 없음';
 }

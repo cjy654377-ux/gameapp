@@ -2197,4 +2197,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String timerS(int s) {
     return '${s}s';
   }
+
+  @override
+  String get notifCapTitle => 'Offline rewards maxed out!';
+
+  @override
+  String get notifCapBody =>
+      'Rewards are no longer accumulating. Come collect them!';
+
+  @override
+  String get notifComeBackTitle => 'Your monsters miss you!';
+
+  @override
+  String get notifComeBackBody => 'Offline rewards are full. Come back now!';
+
+  @override
+  String get notifChannelName => 'Game Notifications';
+
+  @override
+  String get notifChannelDesc => 'Offline rewards and reminder notifications';
+
+  @override
+  String expeditionOptionLabel(int h) {
+    return '${h}h Expedition';
+  }
+
+  @override
+  String get synergyNone => 'No active synergies';
 }

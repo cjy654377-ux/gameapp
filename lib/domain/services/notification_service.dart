@@ -19,6 +19,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _initialised = false;
+  String _channelName = 'Game Notifications';
+  String _channelDesc = 'Offline rewards and reminder notifications';
 
   /// Whether notifications are enabled by the user.
   bool get isEnabled {
@@ -65,8 +67,19 @@ class NotificationService {
   /// Schedule notifications when the app goes to background.
   ///
   /// [lastOnlineAt] is used to calculate when offline rewards will be capped.
-  Future<void> scheduleOfflineReminders(DateTime lastOnlineAt) async {
+  Future<void> scheduleOfflineReminders(
+    DateTime lastOnlineAt, {
+    required String capTitle,
+    required String capBody,
+    required String comeBackTitle,
+    required String comeBackBody,
+    required String channelName,
+    required String channelDesc,
+  }) async {
     if (!_initialised || !isEnabled) return;
+
+    _channelName = channelName;
+    _channelDesc = channelDesc;
 
     await cancelAll();
 
@@ -77,8 +90,8 @@ class NotificationService {
       await _scheduleAt(
         id: _offlineCapId,
         scheduledAt: capTime,
-        title: '오프라인 보상 최대치 도달!',
-        body: '보상이 더 쌓이지 않아요. 접속해서 수령하세요!',
+        title: capTitle,
+        body: capBody,
       );
     }
 
@@ -88,8 +101,8 @@ class NotificationService {
       await _scheduleAt(
         id: _comeBackId,
         scheduledAt: comeBackTime,
-        title: '몬스터들이 기다리고 있어요!',
-        body: '오프라인 보상이 가득 찼어요. 지금 접속하세요!',
+        title: comeBackTitle,
+        body: comeBackBody,
       );
     }
   }
@@ -106,15 +119,15 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'gameapp_reminders',
-      '게임 알림',
-      channelDescription: '오프라인 보상 및 리마인더 알림',
+      _channelName,
+      channelDescription: _channelDesc,
       importance: Importance.high,
       priority: Priority.defaultPriority,
     );
     const iosDetails = DarwinNotificationDetails();
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
