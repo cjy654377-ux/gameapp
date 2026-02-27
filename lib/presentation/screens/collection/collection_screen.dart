@@ -9,6 +9,8 @@ import '../../../core/enums/monster_element.dart';
 import '../../../core/enums/monster_rarity.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/collection_provider.dart';
+import '../../providers/collection_challenge_provider.dart';
+import '../../providers/monster_provider.dart';
 import '../../widgets/common/currency_bar.dart';
 import '../../widgets/tutorial_overlay.dart';
 
@@ -38,6 +40,7 @@ class CollectionScreen extends ConsumerWidget {
               const CurrencyBar(),
               _buildHeader(context, stats),
               _buildMilestoneBar(context, ref),
+              _buildChallengeBar(context, ref),
               _buildFilterBar(context, ref, filter),
               Expanded(
                 child: entries.isEmpty
@@ -154,6 +157,104 @@ class CollectionScreen extends ConsumerWidget {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildChallengeBar(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final challengeState = ref.watch(collectionChallengeProvider);
+    final ownedIds = ref.watch(monsterListProvider).map((m) => m.templateId).toSet();
+    final isKo = Localizations.localeOf(context).languageCode == 'ko';
+
+    return SizedBox(
+      height: 64,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        itemCount: ChallengeDatabase.all.length,
+        itemBuilder: (_, i) {
+          final ch = ChallengeDatabase.all[i];
+          final (current, required) = ch.progressFn(ownedIds);
+          final isComplete = current >= required;
+          final isClaimed = challengeState.claimedIds.contains(ch.id);
+
+          return Container(
+            width: 150,
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isClaimed
+                  ? AppColors.surface.withValues(alpha: 0.5)
+                  : AppColors.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isClaimed
+                    ? AppColors.border
+                    : isComplete
+                        ? Colors.green.withValues(alpha: 0.6)
+                        : AppColors.border,
+                width: isComplete && !isClaimed ? 1.5 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isKo ? ch.titleKo : ch.titleEn,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isClaimed ? AppColors.textTertiary : AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: LinearProgressIndicator(
+                          value: required > 0 ? current / required : 0,
+                          minHeight: 4,
+                          backgroundColor: AppColors.border,
+                          valueColor: AlwaysStoppedAnimation(
+                            isClaimed ? AppColors.textTertiary : isComplete ? Colors.green : AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    if (isClaimed)
+                      const Icon(Icons.check_circle, size: 14, color: AppColors.textTertiary)
+                    else if (isComplete)
+                      GestureDetector(
+                        onTap: () => ref.read(collectionChallengeProvider.notifier).claimChallenge(ch.id),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            l.questClaim,
+                            style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        '$current/$required',
+                        style: TextStyle(fontSize: 9, color: AppColors.textTertiary),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
