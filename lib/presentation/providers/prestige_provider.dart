@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:gameapp/core/models/app_message.dart';
 import 'package:gameapp/data/datasources/local_storage.dart';
 import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
@@ -15,7 +16,7 @@ import 'package:gameapp/presentation/providers/relic_provider.dart';
 class PrestigeState {
   final bool isProcessing;
   final bool showConfirmation;
-  final String? resultMessage;
+  final AppMessage? resultMessage;
 
   const PrestigeState({
     this.isProcessing = false,
@@ -26,7 +27,7 @@ class PrestigeState {
   PrestigeState copyWith({
     bool? isProcessing,
     bool? showConfirmation,
-    String? resultMessage,
+    AppMessage? resultMessage,
     bool clearMessage = false,
   }) {
     return PrestigeState(
@@ -107,10 +108,8 @@ class PrestigeNotifier extends StateNotifier<PrestigeState> {
     state = PrestigeState(
       isProcessing: false,
       showConfirmation: false,
-      resultMessage:
-          '전생 $newPrestigeLevel회 완료! '
-          '보너스 +${newBonusPercent.toInt()}%, '
-          '다이아 +$diamondReward, 소환권 +$ticketReward',
+      resultMessage: AppMessage.prestige(
+        newPrestigeLevel, newBonusPercent.toInt(), diamondReward, ticketReward),
     );
     return true;
   }

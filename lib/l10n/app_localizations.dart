@@ -3595,6 +3595,216 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전용 스킨'**
   String get skinExclusive;
+
+  /// No description provided for @offlineRewardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오프라인 보상'**
+  String get offlineRewardTitle;
+
+  /// No description provided for @offlineRewardTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'{time} 동안 모은 보상'**
+  String offlineRewardTime(String time);
+
+  /// No description provided for @offlineHoursMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간 {m}분'**
+  String offlineHoursMinutes(int h, int m);
+
+  /// No description provided for @offlineHours.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간'**
+  String offlineHours(int h);
+
+  /// No description provided for @offlineMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{m}분'**
+  String offlineMinutes(int m);
+
+  /// No description provided for @offlineMaxReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 보상 시간에 도달했습니다'**
+  String get offlineMaxReward;
+
+  /// No description provided for @offlineClaim.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 받기'**
+  String get offlineClaim;
+
+  /// No description provided for @msgLevelUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level} 달성!'**
+  String msgLevelUp(int level);
+
+  /// No description provided for @msgExpPotionLevelUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level} 달성! (+{gained})'**
+  String msgExpPotionLevelUp(int level, int gained);
+
+  /// No description provided for @msgExpGained.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 획득!'**
+  String get msgExpGained;
+
+  /// No description provided for @msgEvolution1.
+  ///
+  /// In ko, this message translates to:
+  /// **'1차 진화 성공!'**
+  String get msgEvolution1;
+
+  /// No description provided for @msgEvolution2.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화 성공!'**
+  String get msgEvolution2;
+
+  /// No description provided for @msgFusionHidden.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 해금! ({rarity}성 히든)'**
+  String msgFusionHidden(String name, int rarity);
+
+  /// No description provided for @msgFusionNormal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 획득! ({rarity}성)'**
+  String msgFusionNormal(String name, int rarity);
+
+  /// No description provided for @msgAwakening.
+  ///
+  /// In ko, this message translates to:
+  /// **'각성 {stars}성 달성! (+10% 스탯)'**
+  String msgAwakening(int stars);
+
+  /// No description provided for @msgTrainingStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 트레이닝 시작!'**
+  String msgTrainingStart(String name);
+
+  /// No description provided for @msgTrainingCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} +{xp}XP'**
+  String msgTrainingCollect(String name, int xp);
+
+  /// No description provided for @msgTrainingCollectLevelUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} +{xp}XP (Lv.{oldLv}→{newLv})'**
+  String msgTrainingCollectLevelUp(String name, int xp, int oldLv, int newLv);
+
+  /// No description provided for @msgTrainingCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'트레이닝 취소'**
+  String get msgTrainingCancel;
+
+  /// No description provided for @msgExpeditionStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'원정 출발! ({hours}시간)'**
+  String msgExpeditionStart(int hours);
+
+  /// No description provided for @msgRewardSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 수령: {rewards}'**
+  String msgRewardSummary(String rewards);
+
+  /// No description provided for @rewardGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 +{amount}'**
+  String rewardGold(int amount);
+
+  /// No description provided for @rewardExpPotion.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치포션 +{amount}'**
+  String rewardExpPotion(int amount);
+
+  /// No description provided for @rewardShard.
+  ///
+  /// In ko, this message translates to:
+  /// **'진화석 +{amount}'**
+  String rewardShard(int amount);
+
+  /// No description provided for @rewardDiamond.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 +{amount}'**
+  String rewardDiamond(int amount);
+
+  /// No description provided for @rewardGachaTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환권 +{amount}'**
+  String rewardGachaTicket(int amount);
+
+  /// No description provided for @msgPrestige.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생 {level}회 완료! 보너스 +{bonus}%, 다이아 +{diamonds}, 소환권 +{tickets}'**
+  String msgPrestige(int level, int bonus, int diamonds, int tickets);
+
+  /// No description provided for @mailWelcomeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'환영합니다!'**
+  String get mailWelcomeTitle;
+
+  /// No description provided for @mailWelcomeBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 수집 게임에 오신 것을 환영합니다! 시작 선물을 받아주세요.'**
+  String get mailWelcomeBody;
+
+  /// No description provided for @mailDailyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 접속 보상'**
+  String get mailDailyTitle;
+
+  /// No description provided for @mailDailyBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 접속해 주셔서 감사합니다! 오늘의 보상입니다.'**
+  String get mailDailyBody;
+
+  /// No description provided for @mailWeeklyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간 보너스'**
+  String get mailWeeklyTitle;
+
+  /// No description provided for @mailWeeklyBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 주도 화이팅! 주간 보너스 보상입니다.'**
+  String get mailWeeklyBody;
+
+  /// No description provided for @milestoneCollect.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}종 수집'**
+  String milestoneCollect(int count);
+
+  /// No description provided for @milestoneComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'도감 완성!'**
+  String get milestoneComplete;
 }
 
 class _AppLocalizationsDelegate

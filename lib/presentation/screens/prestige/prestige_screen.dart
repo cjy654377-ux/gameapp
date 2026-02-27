@@ -175,7 +175,7 @@ class PrestigeScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        prestige.resultMessage!,
+                        prestige.resultMessage!.resolve(AppLocalizations.of(context)!),
                         style: const TextStyle(
                           color: Colors.amber,
                           fontWeight: FontWeight.bold,

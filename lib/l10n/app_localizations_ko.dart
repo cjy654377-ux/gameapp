@@ -1954,4 +1954,151 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get skinExclusive => '전용 스킨';
+
+  @override
+  String get offlineRewardTitle => '오프라인 보상';
+
+  @override
+  String offlineRewardTime(String time) {
+    return '$time 동안 모은 보상';
+  }
+
+  @override
+  String offlineHoursMinutes(int h, int m) {
+    return '$h시간 $m분';
+  }
+
+  @override
+  String offlineHours(int h) {
+    return '$h시간';
+  }
+
+  @override
+  String offlineMinutes(int m) {
+    return '$m분';
+  }
+
+  @override
+  String get offlineMaxReward => '최대 보상 시간에 도달했습니다';
+
+  @override
+  String get offlineClaim => '보상 받기';
+
+  @override
+  String msgLevelUp(int level) {
+    return 'Lv.$level 달성!';
+  }
+
+  @override
+  String msgExpPotionLevelUp(int level, int gained) {
+    return 'Lv.$level 달성! (+$gained)';
+  }
+
+  @override
+  String get msgExpGained => '경험치 획득!';
+
+  @override
+  String get msgEvolution1 => '1차 진화 성공!';
+
+  @override
+  String get msgEvolution2 => '최종 진화 성공!';
+
+  @override
+  String msgFusionHidden(String name, int rarity) {
+    return '$name 해금! ($rarity성 히든)';
+  }
+
+  @override
+  String msgFusionNormal(String name, int rarity) {
+    return '$name 획득! ($rarity성)';
+  }
+
+  @override
+  String msgAwakening(int stars) {
+    return '각성 $stars성 달성! (+10% 스탯)';
+  }
+
+  @override
+  String msgTrainingStart(String name) {
+    return '$name 트레이닝 시작!';
+  }
+
+  @override
+  String msgTrainingCollect(String name, int xp) {
+    return '$name +${xp}XP';
+  }
+
+  @override
+  String msgTrainingCollectLevelUp(String name, int xp, int oldLv, int newLv) {
+    return '$name +${xp}XP (Lv.$oldLv→$newLv)';
+  }
+
+  @override
+  String get msgTrainingCancel => '트레이닝 취소';
+
+  @override
+  String msgExpeditionStart(int hours) {
+    return '원정 출발! ($hours시간)';
+  }
+
+  @override
+  String msgRewardSummary(String rewards) {
+    return '보상 수령: $rewards';
+  }
+
+  @override
+  String rewardGold(int amount) {
+    return '골드 +$amount';
+  }
+
+  @override
+  String rewardExpPotion(int amount) {
+    return '경험치포션 +$amount';
+  }
+
+  @override
+  String rewardShard(int amount) {
+    return '진화석 +$amount';
+  }
+
+  @override
+  String rewardDiamond(int amount) {
+    return '다이아 +$amount';
+  }
+
+  @override
+  String rewardGachaTicket(int amount) {
+    return '소환권 +$amount';
+  }
+
+  @override
+  String msgPrestige(int level, int bonus, int diamonds, int tickets) {
+    return '전생 $level회 완료! 보너스 +$bonus%, 다이아 +$diamonds, 소환권 +$tickets';
+  }
+
+  @override
+  String get mailWelcomeTitle => '환영합니다!';
+
+  @override
+  String get mailWelcomeBody => '몬스터 수집 게임에 오신 것을 환영합니다! 시작 선물을 받아주세요.';
+
+  @override
+  String get mailDailyTitle => '일일 접속 보상';
+
+  @override
+  String get mailDailyBody => '매일 접속해 주셔서 감사합니다! 오늘의 보상입니다.';
+
+  @override
+  String get mailWeeklyTitle => '주간 보너스';
+
+  @override
+  String get mailWeeklyBody => '이번 주도 화이팅! 주간 보너스 보상입니다.';
+
+  @override
+  String milestoneCollect(int count) {
+    return '$count종 수집';
+  }
+
+  @override
+  String get milestoneComplete => '도감 완성!';
 }

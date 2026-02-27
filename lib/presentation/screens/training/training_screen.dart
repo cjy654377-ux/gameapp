@@ -43,7 +43,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     ref.listen<TrainingState>(trainingProvider, (prev, next) {
       if (next.message != null && next.message != prev?.message) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message!), duration: const Duration(seconds: 2)),
+          SnackBar(content: Text(next.message!.resolve(l)), duration: const Duration(seconds: 2)),
         );
         ref.read(trainingProvider.notifier).clearMessage();
       }

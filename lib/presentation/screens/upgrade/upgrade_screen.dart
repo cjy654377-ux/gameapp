@@ -27,9 +27,10 @@ class UpgradeScreen extends ConsumerWidget {
     ref.listen<UpgradeState>(upgradeProvider, (prev, next) {
       if (next.successMessage != null &&
           next.successMessage != prev?.successMessage) {
+        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.successMessage!),
+            content: Text(next.successMessage!.resolve(l)),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
             shape:

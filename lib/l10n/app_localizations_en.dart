@@ -1961,4 +1961,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skinExclusive => 'Exclusive';
+
+  @override
+  String get offlineRewardTitle => 'Offline Rewards';
+
+  @override
+  String offlineRewardTime(String time) {
+    return 'Rewards collected over $time';
+  }
+
+  @override
+  String offlineHoursMinutes(int h, int m) {
+    return '${h}h ${m}m';
+  }
+
+  @override
+  String offlineHours(int h) {
+    return '${h}h';
+  }
+
+  @override
+  String offlineMinutes(int m) {
+    return '${m}m';
+  }
+
+  @override
+  String get offlineMaxReward => 'Maximum reward time reached';
+
+  @override
+  String get offlineClaim => 'Claim Rewards';
+
+  @override
+  String msgLevelUp(int level) {
+    return 'Lv.$level achieved!';
+  }
+
+  @override
+  String msgExpPotionLevelUp(int level, int gained) {
+    return 'Lv.$level achieved! (+$gained)';
+  }
+
+  @override
+  String get msgExpGained => 'EXP gained!';
+
+  @override
+  String get msgEvolution1 => '1st Evolution success!';
+
+  @override
+  String get msgEvolution2 => 'Final Evolution success!';
+
+  @override
+  String msgFusionHidden(String name, int rarity) {
+    return '$name unlocked! ($rarity★ Hidden)';
+  }
+
+  @override
+  String msgFusionNormal(String name, int rarity) {
+    return '$name obtained! ($rarity★)';
+  }
+
+  @override
+  String msgAwakening(int stars) {
+    return 'Awakening $stars★ achieved! (+10% Stats)';
+  }
+
+  @override
+  String msgTrainingStart(String name) {
+    return '$name training started!';
+  }
+
+  @override
+  String msgTrainingCollect(String name, int xp) {
+    return '$name +${xp}XP';
+  }
+
+  @override
+  String msgTrainingCollectLevelUp(String name, int xp, int oldLv, int newLv) {
+    return '$name +${xp}XP (Lv.$oldLv→$newLv)';
+  }
+
+  @override
+  String get msgTrainingCancel => 'Training cancelled';
+
+  @override
+  String msgExpeditionStart(int hours) {
+    return 'Expedition departed! (${hours}h)';
+  }
+
+  @override
+  String msgRewardSummary(String rewards) {
+    return 'Rewards collected: $rewards';
+  }
+
+  @override
+  String rewardGold(int amount) {
+    return 'Gold +$amount';
+  }
+
+  @override
+  String rewardExpPotion(int amount) {
+    return 'EXP Potion +$amount';
+  }
+
+  @override
+  String rewardShard(int amount) {
+    return 'Shards +$amount';
+  }
+
+  @override
+  String rewardDiamond(int amount) {
+    return 'Diamonds +$amount';
+  }
+
+  @override
+  String rewardGachaTicket(int amount) {
+    return 'Tickets +$amount';
+  }
+
+  @override
+  String msgPrestige(int level, int bonus, int diamonds, int tickets) {
+    return 'Prestige $level complete! Bonus +$bonus%, Diamonds +$diamonds, Tickets +$tickets';
+  }
+
+  @override
+  String get mailWelcomeTitle => 'Welcome!';
+
+  @override
+  String get mailWelcomeBody =>
+      'Welcome to the monster collection game! Please accept your starter gift.';
+
+  @override
+  String get mailDailyTitle => 'Daily Login Reward';
+
+  @override
+  String get mailDailyBody =>
+      'Thanks for logging in today! Here is your daily reward.';
+
+  @override
+  String get mailWeeklyTitle => 'Weekly Bonus';
+
+  @override
+  String get mailWeeklyBody =>
+      'Keep going this week! Here is your weekly bonus reward.';
+
+  @override
+  String milestoneCollect(int count) {
+    return 'Collect $count';
+  }
+
+  @override
+  String get milestoneComplete => 'Collection Complete!';
 }

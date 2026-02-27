@@ -29,7 +29,7 @@ class _MailboxScreenState extends ConsumerState<MailboxScreen> {
     ref.listen<MailboxState>(mailboxProvider, (prev, next) {
       if (next.message != null && next.message != prev?.message) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message!), duration: const Duration(seconds: 2)),
+          SnackBar(content: Text(next.message!.resolve(l)), duration: const Duration(seconds: 2)),
         );
         ref.read(mailboxProvider.notifier).clearMessage();
       }

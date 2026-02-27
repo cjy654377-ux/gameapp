@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/models/app_message.dart';
 import '../../data/datasources/local_storage.dart';
 import '../../data/models/expedition_model.dart';
 import '../../domain/services/audio_service.dart';
@@ -14,7 +15,7 @@ import 'monster_provider.dart';
 
 class ExpeditionState {
   final List<ExpeditionModel> expeditions;
-  final String? successMessage;
+  final AppMessage? successMessage;
 
   const ExpeditionState({
     this.expeditions = const [],
@@ -27,7 +28,7 @@ class ExpeditionState {
 
   ExpeditionState copyWith({
     List<ExpeditionModel>? expeditions,
-    String? successMessage,
+    AppMessage? successMessage,
     bool clearMessage = false,
   }) {
     return ExpeditionState(
@@ -97,7 +98,7 @@ class ExpeditionNotifier extends StateNotifier<ExpeditionState> {
     final updated = List<ExpeditionModel>.from(state.expeditions)..add(expedition);
     state = state.copyWith(
       expeditions: updated,
-      successMessage: '원정 출발! (${expedition.durationLabel})',
+      successMessage: AppMessage.expeditionStart(expedition.durationSeconds ~/ 3600),
     );
     return true;
   }
@@ -131,15 +132,14 @@ class ExpeditionNotifier extends StateNotifier<ExpeditionState> {
 
     AudioService.instance.playRewardCollect();
 
-    final parts = <String>[];
-    if (reward.gold > 0) parts.add('골드 +${reward.gold}');
-    if (reward.expPotions > 0) parts.add('경험치포션 +${reward.expPotions}');
-    if (reward.shards > 0) parts.add('진화석 +${reward.shards}');
-    if (reward.diamonds > 0) parts.add('다이아 +${reward.diamonds}');
-
     state = state.copyWith(
       expeditions: updated,
-      successMessage: '보상 수령: ${parts.join(', ')}',
+      successMessage: AppMessage.rewardSummary(
+        gold: reward.gold,
+        expPotions: reward.expPotions,
+        shards: reward.shards,
+        diamonds: reward.diamonds,
+      ),
     );
     return true;
   }

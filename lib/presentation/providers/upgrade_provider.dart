@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:gameapp/core/models/app_message.dart';
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/data/static/quest_database.dart';
@@ -36,7 +37,7 @@ class UpgradeState {
   final bool isProcessing;
 
   /// Flash message after a successful operation (auto-dismissed).
-  final String? successMessage;
+  final AppMessage? successMessage;
 
   /// Second monster ID selected for fusion (null = none).
   final String? fusionMonsterId;
@@ -58,7 +59,7 @@ class UpgradeState {
     bool clearSelection = false,
     UpgradeTab? activeTab,
     bool? isProcessing,
-    String? successMessage,
+    AppMessage? successMessage,
     bool clearMessage = false,
     String? fusionMonsterId,
     bool clearFusion = false,
@@ -142,7 +143,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
 
     state = state.copyWith(
       isProcessing: false,
-      successMessage: 'Lv.${upgraded.level} 달성!',
+      successMessage: AppMessage.levelUp(upgraded.level),
     );
     return true;
   }
@@ -175,8 +176,8 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     state = state.copyWith(
       isProcessing: false,
       successMessage: levelsGained > 0
-          ? 'Lv.${upgraded.level} 달성! (+$levelsGained)'
-          : '경험치 획득!',
+          ? AppMessage.expPotionLevelUp(upgraded.level, levelsGained)
+          : AppMessage.expGained(),
     );
     return true;
   }
@@ -224,10 +225,9 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     ref.read(questProvider.notifier).onTrigger(QuestTrigger.monsterEvolve);
     AudioService.instance.playEvolution();
 
-    final stageName = evolved.evolutionStage == 1 ? '1차 진화' : '최종 진화';
     state = state.copyWith(
       isProcessing: false,
-      successMessage: '$stageName 성공!',
+      successMessage: AppMessage.evolution(evolved.evolutionStage),
     );
     return true;
   }
@@ -341,8 +341,8 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
       clearSelection: true,
       clearFusion: true,
       successMessage: recipe != null
-          ? '${template.name} 해금! (${template.rarity}성 히든)'
-          : '${template.name} 획득! (${template.rarity}성)',
+          ? AppMessage.fusionHidden(template.name, template.rarity)
+          : AppMessage.fusionNormal(template.name, template.rarity),
       fusionResultName: template.name,
     );
     return true;
@@ -398,7 +398,7 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
 
     state = state.copyWith(
       isProcessing: false,
-      successMessage: '각성 ${awakened.awakeningStars}성 달성! (+10% 스탯)',
+      successMessage: AppMessage.awakening(awakened.awakeningStars),
     );
     return true;
   }

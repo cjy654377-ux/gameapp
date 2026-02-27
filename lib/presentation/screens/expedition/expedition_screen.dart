@@ -44,7 +44,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
       if (next.successMessage != null && next.successMessage != prev?.successMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.successMessage!),
+            content: Text(next.successMessage!.resolve(AppLocalizations.of(context)!)),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),

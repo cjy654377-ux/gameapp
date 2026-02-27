@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
+import '../../core/models/app_message.dart';
 import 'currency_provider.dart';
 
 // =============================================================================
@@ -94,7 +95,7 @@ class MailItem {
 
 class MailboxState {
   final List<MailItem> mails;
-  final String? message;
+  final AppMessage? message;
 
   const MailboxState({this.mails = const [], this.message});
 
@@ -104,7 +105,7 @@ class MailboxState {
 
   MailboxState copyWith({
     List<MailItem>? mails,
-    String? message,
+    AppMessage? message,
     bool clearMessage = false,
   }) =>
       MailboxState(
@@ -253,15 +254,14 @@ class MailboxNotifier extends StateNotifier<MailboxState> {
     final updated = [...state.mails];
     updated[idx] = updated[idx].copyWith(isClaimed: true, isRead: true);
 
-    final rewards = <String>[];
-    if ((mail.rewardGold ?? 0) > 0) rewards.add('골드 +${mail.rewardGold}');
-    if ((mail.rewardDiamond ?? 0) > 0) rewards.add('다이아 +${mail.rewardDiamond}');
-    if ((mail.rewardExpPotion ?? 0) > 0) rewards.add('경험치포션 +${mail.rewardExpPotion}');
-    if ((mail.rewardGachaTicket ?? 0) > 0) rewards.add('소환권 +${mail.rewardGachaTicket}');
-
     state = state.copyWith(
       mails: updated,
-      message: rewards.join(', '),
+      message: AppMessage.mailReward(
+        gold: mail.rewardGold ?? 0,
+        diamond: mail.rewardDiamond ?? 0,
+        expPotion: mail.rewardExpPotion ?? 0,
+        gachaTicket: mail.rewardGachaTicket ?? 0,
+      ),
     );
     await _save();
   }

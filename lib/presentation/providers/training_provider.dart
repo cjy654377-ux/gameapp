@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
+import '../../core/models/app_message.dart';
 import '../../data/models/monster_model.dart';
 import '../../domain/services/training_service.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
@@ -84,7 +85,7 @@ class TrainingSlot {
 
 class TrainingState {
   final List<TrainingSlot> slots;
-  final String? message;
+  final AppMessage? message;
 
   const TrainingState({this.slots = const [], this.message});
 
@@ -99,7 +100,7 @@ class TrainingState {
 
   TrainingState copyWith({
     List<TrainingSlot>? slots,
-    String? message,
+    AppMessage? message,
     bool clearMessage = false,
   }) =>
       TrainingState(
@@ -173,7 +174,7 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
 
     state = state.copyWith(
       slots: [...state.slots, slot],
-      message: '${monster.name} 트레이닝 시작!',
+      message: AppMessage.trainingStart(monster.name),
     );
     await _save();
     return true;
@@ -204,8 +205,9 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
 
     final levelsGained = updated.level - monster.level;
     final msg = levelsGained > 0
-        ? '${monster.name} +${slot.xpReward}XP (Lv.${monster.level}→${updated.level})'
-        : '${monster.name} +${slot.xpReward}XP';
+        ? AppMessage.trainingCollectLevelUp(
+            monster.name, slot.xpReward, monster.level, updated.level)
+        : AppMessage.trainingCollect(monster.name, slot.xpReward);
 
     state = state.copyWith(slots: updatedSlots, message: msg);
     await _save();
@@ -216,7 +218,7 @@ class TrainingNotifier extends StateNotifier<TrainingState> {
 
   Future<void> cancelTraining(String slotId) async {
     final updated = state.slots.where((s) => s.id != slotId).toList();
-    state = state.copyWith(slots: updated, message: '트레이닝 취소');
+    state = state.copyWith(slots: updated, message: AppMessage.trainingCancel());
     await _save();
   }
 
