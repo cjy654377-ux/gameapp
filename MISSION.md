@@ -1,6 +1,6 @@
 # 몬스터 수집 방치형 게임 - 미션 추적
 
-## 현재 Phase: 6차 고도화 완료 (M1~M10)
+## 현재 Phase: 7차 고도화 완료 (N1~N10) + 코드 리뷰 최적화
 
 ## 기본 개발 (Phase 1-7) - 전체 완료
 - [x] Phase 1~7 전체 완료 (자동전투, 가챠, 강화/진화, 오프라인보상, 도감, 폴리싱)
@@ -305,15 +305,33 @@
   - GachaHistoryProvider: 최근 100회 기록, 희귀도별 통계
   - GachaHistoryScreen: 기록 리스트+통계 요약+삭제
   - gacha_provider에 히스토리 기록 연동 (1회/10연)
-  - /gacha-history 라우트 (가챠 화면 버튼 연동 미완 - N6 계속 필요)
-- [ ] N7: 업적 알림 토스트
-  - 업적 달성 시 화면 상단 애니메이션 토스트, 탭하면 업적 화면 이동
-- [ ] N8: 설정 화면 확장
-  - 언어 전환 (한/영), BGM/SFX 볼륨, 알림 설정, 데이터 초기화
-- [ ] N9: 전투 스킵 (클리어 스테이지)
-  - 이미 클리어한 스테이지 즉시 스킵 → 보상 직접 수령
-- [ ] N10: 몬스터 즐겨찾기
-  - 즐겨찾기 토글, 도감/팀편성에서 즐겨찾기 우선 정렬
+  - /gacha-history 라우트, gacha_screen 히스토리 버튼 추가
+- [x] N7: 업적 알림 토스트
+  - QuestState.newlyCompletedIds 추가, onTrigger에서 완료 감지
+  - home_screen ref.listen → SnackBar 토스트 (탭→퀘스트화면)
+- [x] N8: 설정 화면 확장
+  - NotificationService: isEnabled/setEnabled (Hive persist)
+  - 설정화면 알림 토글 섹션 추가
+- [x] N9: 전투 스킵 (클리어 스테이지)
+  - BattleNotifier.skipBattle(): 즉시 보상 지급+퀘스트/시즌패스 연동
+  - stage_select_screen: 클리어 스테이지 ⚡ 스킵 버튼
+- [x] N10: 몬스터 즐겨찾기
+  - MonsterModel.isFavorite (HiveField 19), toggleFavorite
+  - 도감 즐겨찾기 필터+하트 오버레이, 팀편성 즐겨찾기 우선 정렬
+
+## 코드 리뷰 최적화 (7차)
+- [x] C-01: app_router monsterDetail 안전한 타입 체크 (is! → fallback Scaffold)
+- [x] H-03: _IdleBanner monsterListProvider → teamMonstersProvider
+- [x] H-04: upgrade_screen _UpgradePanel .select() 적용 (특정 몬스터만)
+- [x] M-08: settings_screen Theme/Dark/Light 하드코딩 → l10n
+- [x] M-14: gacha_provider _incrementPlayerPullCount async/await
+- [x] RewardRow 공용 위젯 추출 (arena/prestige/world_boss ~70줄 중복 제거)
+- [x] _elementColor 제거 → MonsterElement.fromName().color 통일
+- [x] PageController 릭 수정 (_EventBannerCarousel → StatefulWidget)
+- [x] statistics_screen .select() 최적화 (player/quest provider)
+- [x] Navigator.pop → context.pop 통일 (6개 화면)
+- [x] event_dungeon .select() 중복 full watch 제거
+- [x] l10n: 10+ 하드코딩 문자열 제거 (settingsTheme, onboardingSetupError, gachaPityLabel 등)
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
