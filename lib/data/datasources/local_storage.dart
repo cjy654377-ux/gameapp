@@ -9,6 +9,7 @@ import '../models/player_model.dart';
 import '../models/currency_model.dart';
 import '../models/quest_model.dart';
 import '../models/expedition_model.dart';
+import '../models/mount_model.dart';
 import '../models/relic_model.dart';
 
 /// Keys used to store singleton documents in their respective boxes.
@@ -24,6 +25,7 @@ const String _kRelicBoxName    = 'relics';
 const String _kGuildBoxName       = 'guild';
 const String _kGuildKey           = 'guild';
 const String _kExpeditionBoxName  = 'expeditions';
+const String _kMountBoxName      = 'mounts';
 
 /// [LocalStorage] is a singleton that wraps all Hive persistence operations.
 ///
@@ -44,6 +46,7 @@ class LocalStorage {
   late Box<RelicModel>    _relicBox;
   late Box<GuildModel>    _guildBox;
   late Box<ExpeditionModel> _expeditionBox;
+  late Box<MountModel>      _mountBox;
 
   bool _initialised = false;
 
@@ -79,6 +82,9 @@ class LocalStorage {
     if (!Hive.isAdapterRegistered(ExpeditionModelAdapter().typeId)) {
       Hive.registerAdapter(ExpeditionModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(MountModelAdapter().typeId)) {
+      Hive.registerAdapter(MountModelAdapter());
+    }
 
     _monsterBox  = await Hive.openBox<MonsterModel>(_kMonsterBoxName);
     _playerBox   = await Hive.openBox<PlayerModel>(_kPlayerBoxName);
@@ -87,6 +93,7 @@ class LocalStorage {
     _relicBox    = await Hive.openBox<RelicModel>(_kRelicBoxName);
     _guildBox    = await Hive.openBox<GuildModel>(_kGuildBoxName);
     _expeditionBox = await Hive.openBox<ExpeditionModel>(_kExpeditionBoxName);
+    _mountBox      = await Hive.openBox<MountModel>(_kMountBoxName);
     await Hive.openBox('settings');
 
     _initialised = true;
@@ -252,6 +259,31 @@ class LocalStorage {
   }
 
   // -------------------------------------------------------------------------
+  // Mount CRUD
+  // -------------------------------------------------------------------------
+
+  List<MountModel> getAllMounts() => _mountBox.values.toList();
+
+  MountModel? getMount(String id) => _mountBox.get(id);
+
+  Future<void> saveMount(MountModel mount) async {
+    await _mountBox.put(mount.id, mount);
+  }
+
+  Future<void> saveMounts(List<MountModel> mounts) async {
+    final map = {for (final m in mounts) m.id: m};
+    await _mountBox.putAll(map);
+  }
+
+  Future<void> deleteMount(String id) async {
+    await _mountBox.delete(id);
+  }
+
+  Future<void> clearMounts() async {
+    await _mountBox.clear();
+  }
+
+  // -------------------------------------------------------------------------
   // Guild CRUD
   // -------------------------------------------------------------------------
 
@@ -327,6 +359,7 @@ class LocalStorage {
       _relicBox.clear(),
       _guildBox.clear(),
       _expeditionBox.clear(),
+      _mountBox.clear(),
     ]);
   }
 
@@ -549,6 +582,7 @@ class LocalStorage {
       _relicBox.close(),
       _guildBox.close(),
       _expeditionBox.close(),
+      _mountBox.close(),
     ]);
     _initialised = false;
   }

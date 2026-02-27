@@ -18,9 +18,21 @@ class CurrencyModel extends HiveObject {
   @HiveField(3)
   int expPotion;
 
-  /// Item — used to perform one gacha pull.
+  /// Item — used to perform one monster gacha pull.
   @HiveField(4)
   int gachaTicket;
+
+  /// Ticket for skill gacha pulls.
+  @HiveField(5)
+  int skillTicket;
+
+  /// Ticket for relic/item gacha pulls.
+  @HiveField(6)
+  int relicTicket;
+
+  /// Gem for mount gacha pulls.
+  @HiveField(7)
+  int mountGem;
 
   CurrencyModel({
     required this.gold,
@@ -28,6 +40,9 @@ class CurrencyModel extends HiveObject {
     required this.monsterShard,
     required this.expPotion,
     required this.gachaTicket,
+    this.skillTicket = 0,
+    this.relicTicket = 0,
+    this.mountGem = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -55,12 +70,18 @@ class CurrencyModel extends HiveObject {
     int monsterShard = 0,
     int expPotion = 0,
     int gachaTicket = 0,
+    int skillTicket = 0,
+    int relicTicket = 0,
+    int mountGem = 0,
   }) {
     return this.gold >= gold &&
         this.diamond >= diamond &&
         this.monsterShard >= monsterShard &&
         this.expPotion >= expPotion &&
-        this.gachaTicket >= gachaTicket;
+        this.gachaTicket >= gachaTicket &&
+        this.skillTicket >= skillTicket &&
+        this.relicTicket >= relicTicket &&
+        this.mountGem >= mountGem;
   }
 
   /// Returns a new [CurrencyModel] with the given amounts added (use negative
@@ -71,6 +92,9 @@ class CurrencyModel extends HiveObject {
     int monsterShard = 0,
     int expPotion = 0,
     int gachaTicket = 0,
+    int skillTicket = 0,
+    int relicTicket = 0,
+    int mountGem = 0,
   }) {
     return CurrencyModel(
       gold: (this.gold + gold).clamp(0, 9999999),
@@ -78,6 +102,9 @@ class CurrencyModel extends HiveObject {
       monsterShard: (this.monsterShard + monsterShard).clamp(0, 9999999),
       expPotion: (this.expPotion + expPotion).clamp(0, 9999999),
       gachaTicket: (this.gachaTicket + gachaTicket).clamp(0, 9999999),
+      skillTicket: (this.skillTicket + skillTicket).clamp(0, 9999999),
+      relicTicket: (this.relicTicket + relicTicket).clamp(0, 9999999),
+      mountGem: (this.mountGem + mountGem).clamp(0, 9999999),
     );
   }
 
@@ -91,6 +118,9 @@ class CurrencyModel extends HiveObject {
     int? monsterShard,
     int? expPotion,
     int? gachaTicket,
+    int? skillTicket,
+    int? relicTicket,
+    int? mountGem,
   }) {
     return CurrencyModel(
       gold: gold ?? this.gold,
@@ -98,6 +128,9 @@ class CurrencyModel extends HiveObject {
       monsterShard: monsterShard ?? this.monsterShard,
       expPotion: expPotion ?? this.expPotion,
       gachaTicket: gachaTicket ?? this.gachaTicket,
+      skillTicket: skillTicket ?? this.skillTicket,
+      relicTicket: relicTicket ?? this.relicTicket,
+      mountGem: mountGem ?? this.mountGem,
     );
   }
 
@@ -105,7 +138,8 @@ class CurrencyModel extends HiveObject {
   String toString() {
     return 'CurrencyModel(gold: $gold, diamond: $diamond, '
         'monsterShard: $monsterShard, expPotion: $expPotion, '
-        'gachaTicket: $gachaTicket)';
+        'gachaTicket: $gachaTicket, skillTicket: $skillTicket, '
+        'relicTicket: $relicTicket, mountGem: $mountGem)';
   }
 }
 
@@ -130,13 +164,16 @@ class CurrencyModelAdapter extends TypeAdapter<CurrencyModel> {
       monsterShard: fields[2] as int,
       expPotion:    fields[3] as int,
       gachaTicket:  fields[4] as int,
+      skillTicket:  fields[5] as int? ?? 0,
+      relicTicket:  fields[6] as int? ?? 0,
+      mountGem:     fields[7] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, CurrencyModel obj) {
     writer
-      ..writeByte(5) // number of fields
+      ..writeByte(8) // number of fields
       ..writeByte(0)
       ..write(obj.gold)
       ..writeByte(1)
@@ -146,7 +183,13 @@ class CurrencyModelAdapter extends TypeAdapter<CurrencyModel> {
       ..writeByte(3)
       ..write(obj.expPotion)
       ..writeByte(4)
-      ..write(obj.gachaTicket);
+      ..write(obj.gachaTicket)
+      ..writeByte(5)
+      ..write(obj.skillTicket)
+      ..writeByte(6)
+      ..write(obj.relicTicket)
+      ..writeByte(7)
+      ..write(obj.mountGem);
   }
 
   @override
