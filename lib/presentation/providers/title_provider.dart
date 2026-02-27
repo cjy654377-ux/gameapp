@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
+import '../../data/static/title_database.dart';
+import 'currency_provider.dart';
 import 'player_provider.dart';
 import 'collection_provider.dart';
 
@@ -12,21 +14,34 @@ import 'collection_provider.dart';
 class TitleState {
   final Set<String> unlockedTitleIds;
   final String? equippedTitleId;
+  final Set<int> claimedMilestones; // indices of claimed milestones
 
   const TitleState({
     this.unlockedTitleIds = const {},
     this.equippedTitleId,
+    this.claimedMilestones = const {},
   });
+
+  /// Total achievement points from unlocked titles.
+  int get achievementPoints {
+    int pts = 0;
+    for (final t in TitleDatabase.titles) {
+      if (unlockedTitleIds.contains(t.id)) pts += t.points;
+    }
+    return pts;
+  }
 
   TitleState copyWith({
     Set<String>? unlockedTitleIds,
     String? equippedTitleId,
     bool clearEquipped = false,
+    Set<int>? claimedMilestones,
   }) =>
       TitleState(
         unlockedTitleIds: unlockedTitleIds ?? this.unlockedTitleIds,
         equippedTitleId:
             clearEquipped ? null : (equippedTitleId ?? this.equippedTitleId),
+        claimedMilestones: claimedMilestones ?? this.claimedMilestones,
       );
 }
 
@@ -45,6 +60,8 @@ class TitleNotifier extends StateNotifier<TitleState> {
 
   static const _key = 'unlocked_titles';
 
+  static const _milestoneKey = 'claimed_milestones';
+
   void load() {
     final box = Hive.box('settings');
     final raw = box.get(_key) as String?;
@@ -53,16 +70,24 @@ class TitleNotifier extends StateNotifier<TitleState> {
       unlocked = (jsonDecode(raw) as List).cast<String>().toSet();
     }
 
+    final milestoneRaw = box.get(_milestoneKey) as String?;
+    Set<int> claimed = {};
+    if (milestoneRaw != null && milestoneRaw.isNotEmpty) {
+      claimed = (jsonDecode(milestoneRaw) as List).cast<int>().toSet();
+    }
+
     final player = _ref.read(playerProvider).player;
     state = TitleState(
       unlockedTitleIds: unlocked,
       equippedTitleId: player?.currentTitle,
+      claimedMilestones: claimed,
     );
   }
 
   Future<void> _save() async {
     final box = Hive.box('settings');
     await box.put(_key, jsonEncode(state.unlockedTitleIds.toList()));
+    await box.put(_milestoneKey, jsonEncode(state.claimedMilestones.toList()));
   }
 
   /// Check all conditions and unlock any new titles.
@@ -103,6 +128,33 @@ class TitleNotifier extends StateNotifier<TitleState> {
       state = state.copyWith(unlockedTitleIds: newUnlocks);
       await _save();
     }
+  }
+
+  /// Claim a milestone reward by index.
+  Future<bool> claimMilestone(int index) async {
+    if (state.claimedMilestones.contains(index)) return false;
+    if (index < 0 || index >= TitleDatabase.milestones.length) return false;
+
+    final milestone = TitleDatabase.milestones[index];
+    if (state.achievementPoints < milestone.requiredPoints) return false;
+
+    final currency = _ref.read(currencyProvider.notifier);
+    switch (milestone.rewardType) {
+      case 'gold':
+        await currency.addGold(milestone.rewardAmount);
+      case 'diamond':
+        await currency.addDiamond(milestone.rewardAmount);
+      case 'shard':
+        await currency.addShard(milestone.rewardAmount);
+      case 'gachaTicket':
+        await currency.addGachaTicket(milestone.rewardAmount);
+    }
+
+    state = state.copyWith(
+      claimedMilestones: {...state.claimedMilestones, index},
+    );
+    await _save();
+    return true;
   }
 
   Future<void> equipTitle(String? titleId) async {

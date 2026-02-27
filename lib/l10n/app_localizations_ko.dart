@@ -1708,4 +1708,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get triggerBattleStart => '전투 시작';
+
+  @override
+  String achievementPoints(int points) {
+    return '업적 포인트: ${points}P';
+  }
 }

@@ -628,5 +628,7 @@
   "triggerOnTurnStart": "턴 시작",
   "triggerOnAttack": "공격 시",
   "triggerOnDamaged": "피격 시",
-  "triggerBattleStart": "전투 시작"
+  "triggerBattleStart": "전투 시작",
+  "achievementPoints": "업적 포인트: {points}P",
+  "@achievementPoints": {"placeholders": {"points": {"type": "int"}}}
 }

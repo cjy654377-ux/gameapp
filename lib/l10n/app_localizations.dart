@@ -3139,6 +3139,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전투 시작'**
   String get triggerBattleStart;
+
+  /// No description provided for @achievementPoints.
+  ///
+  /// In ko, this message translates to:
+  /// **'업적 포인트: {points}P'**
+  String achievementPoints(int points);
 }
 
 class _AppLocalizationsDelegate

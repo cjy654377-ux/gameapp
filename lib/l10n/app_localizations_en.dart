@@ -1715,4 +1715,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get triggerBattleStart => 'Battle Start';
+
+  @override
+  String achievementPoints(int points) {
+    return 'Achievement Points: ${points}P';
+  }
 }

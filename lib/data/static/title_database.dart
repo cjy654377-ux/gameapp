@@ -6,7 +6,8 @@ class TitleDefinition {
   final String nameEn;
   final String descKo;
   final String descEn;
-  final String unlockCondition; // description of unlock condition
+  final String unlockCondition;
+  final int points; // achievement points awarded on unlock
 
   const TitleDefinition({
     required this.id,
@@ -15,6 +16,24 @@ class TitleDefinition {
     required this.descKo,
     required this.descEn,
     required this.unlockCondition,
+    this.points = 10,
+  });
+}
+
+/// Milestone reward tiers for achievement points.
+class AchievementMilestone {
+  final int requiredPoints;
+  final String rewardType; // 'gold', 'diamond', 'shard', 'gachaTicket'
+  final int rewardAmount;
+  final String descKo;
+  final String descEn;
+
+  const AchievementMilestone({
+    required this.requiredPoints,
+    required this.rewardType,
+    required this.rewardAmount,
+    required this.descKo,
+    required this.descEn,
   });
 }
 
@@ -30,6 +49,7 @@ class TitleDatabase {
       descKo: '전투 100회 승리',
       descEn: 'Win 100 battles',
       unlockCondition: 'battle_100',
+      points: 5,
     ),
     TitleDefinition(
       id: 'champion',
@@ -38,6 +58,7 @@ class TitleDatabase {
       descKo: '전투 500회 승리',
       descEn: 'Win 500 battles',
       unlockCondition: 'battle_500',
+      points: 15,
     ),
     TitleDefinition(
       id: 'legend',
@@ -46,6 +67,7 @@ class TitleDatabase {
       descKo: '전투 1000회 승리',
       descEn: 'Win 1000 battles',
       unlockCondition: 'battle_1000',
+      points: 25,
     ),
 
     // Collection
@@ -56,6 +78,7 @@ class TitleDatabase {
       descKo: '몬스터 10종 수집',
       descEn: 'Collect 10 monster types',
       unlockCondition: 'collect_10',
+      points: 10,
     ),
     TitleDefinition(
       id: 'professor',
@@ -64,6 +87,7 @@ class TitleDatabase {
       descKo: '몬스터 전종 수집',
       descEn: 'Collect all monster types',
       unlockCondition: 'collect_all',
+      points: 30,
     ),
 
     // Gacha
@@ -74,6 +98,7 @@ class TitleDatabase {
       descKo: '소환 50회 수행',
       descEn: 'Perform 50 summons',
       unlockCondition: 'gacha_50',
+      points: 5,
     ),
     TitleDefinition(
       id: 'whale',
@@ -82,6 +107,7 @@ class TitleDatabase {
       descKo: '소환 200회 수행',
       descEn: 'Perform 200 summons',
       unlockCondition: 'gacha_200',
+      points: 15,
     ),
 
     // Dungeon
@@ -92,6 +118,7 @@ class TitleDatabase {
       descKo: '던전 20층 도달',
       descEn: 'Reach dungeon floor 20',
       unlockCondition: 'dungeon_20',
+      points: 10,
     ),
     TitleDefinition(
       id: 'deepdiver',
@@ -100,6 +127,7 @@ class TitleDatabase {
       descKo: '던전 50층 도달',
       descEn: 'Reach dungeon floor 50',
       unlockCondition: 'dungeon_50',
+      points: 20,
     ),
 
     // Prestige
@@ -110,6 +138,7 @@ class TitleDatabase {
       descKo: '첫 전생 달성',
       descEn: 'Complete first prestige',
       unlockCondition: 'prestige_1',
+      points: 15,
     ),
     TitleDefinition(
       id: 'immortal',
@@ -118,6 +147,7 @@ class TitleDatabase {
       descKo: '전생 5회 달성',
       descEn: 'Complete 5 prestiges',
       unlockCondition: 'prestige_5',
+      points: 25,
     ),
 
     // Special
@@ -128,6 +158,53 @@ class TitleDatabase {
       descKo: '7일 연속 출석',
       descEn: 'Check in 7 days in a row',
       unlockCondition: 'checkin_7',
+      points: 10,
+    ),
+  ];
+
+  /// Achievement point milestones with rewards.
+  static const List<AchievementMilestone> milestones = [
+    AchievementMilestone(
+      requiredPoints: 10,
+      rewardType: 'gold',
+      rewardAmount: 5000,
+      descKo: '골드 5,000',
+      descEn: '5,000 Gold',
+    ),
+    AchievementMilestone(
+      requiredPoints: 25,
+      rewardType: 'diamond',
+      rewardAmount: 50,
+      descKo: '다이아 50',
+      descEn: '50 Diamonds',
+    ),
+    AchievementMilestone(
+      requiredPoints: 50,
+      rewardType: 'gachaTicket',
+      rewardAmount: 5,
+      descKo: '소환권 5장',
+      descEn: '5 Summon Tickets',
+    ),
+    AchievementMilestone(
+      requiredPoints: 75,
+      rewardType: 'shard',
+      rewardAmount: 10,
+      descKo: '소환석 10개',
+      descEn: '10 Shards',
+    ),
+    AchievementMilestone(
+      requiredPoints: 100,
+      rewardType: 'diamond',
+      rewardAmount: 200,
+      descKo: '다이아 200',
+      descEn: '200 Diamonds',
+    ),
+    AchievementMilestone(
+      requiredPoints: 150,
+      rewardType: 'gachaTicket',
+      rewardAmount: 10,
+      descKo: '소환권 10장',
+      descEn: '10 Summon Tickets',
     ),
   ];
 

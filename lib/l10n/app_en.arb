@@ -552,5 +552,7 @@
   "triggerOnTurnStart": "Turn Start",
   "triggerOnAttack": "On Attack",
   "triggerOnDamaged": "On Hit",
-  "triggerBattleStart": "Battle Start"
+  "triggerBattleStart": "Battle Start",
+  "achievementPoints": "Achievement Points: {points}P",
+  "@achievementPoints": {"placeholders": {"points": {"type": "int"}}}
 }
