@@ -1618,6 +1618,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Buy 10 potions for 4,000 gold (20% off)';
 
   @override
+  String get shopBuyShard => 'Monster Shard x5';
+
+  @override
+  String get shopBuyShardDesc => 'Buy 5 shards for 20 diamonds';
+
+  @override
+  String get shopBuyShard10 => 'Monster Shard x20';
+
+  @override
+  String get shopBuyShard10Desc => 'Buy 20 shards for 70 diamonds (13% off)';
+
+  @override
   String get shopInsufficient => 'Not enough currency';
 
   @override

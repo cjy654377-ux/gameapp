@@ -96,6 +96,22 @@ class ShopScreen extends ConsumerWidget {
             cost: '4,000 G',
             onBuy: () => _buyExpPotion10(context, ref, l),
           ),
+          _ShopItem(
+            icon: Icons.hexagon,
+            iconColor: Colors.teal,
+            title: l.shopBuyShard,
+            subtitle: l.shopBuyShardDesc,
+            cost: '20 💎',
+            onBuy: () => _buyShard(context, ref, l),
+          ),
+          _ShopItem(
+            icon: Icons.hexagon,
+            iconColor: Colors.tealAccent,
+            title: l.shopBuyShard10,
+            subtitle: l.shopBuyShard10Desc,
+            cost: '70 💎',
+            onBuy: () => _buyShard10(context, ref, l),
+          ),
         ],
       ),
     );
@@ -170,6 +186,28 @@ class ShopScreen extends ConsumerWidget {
       return;
     }
     await notifier.addExpPotion(10);
+    if (context.mounted) _showResult(context, l.shopPurchaseSuccess);
+  }
+
+  void _buyShard(BuildContext context, WidgetRef ref, AppLocalizations l) async {
+    final notifier = ref.read(currencyProvider.notifier);
+    final ok = await notifier.spendDiamond(20);
+    if (!ok) {
+      if (context.mounted) _showResult(context, l.shopInsufficient);
+      return;
+    }
+    await notifier.addShard(5);
+    if (context.mounted) _showResult(context, l.shopPurchaseSuccess);
+  }
+
+  void _buyShard10(BuildContext context, WidgetRef ref, AppLocalizations l) async {
+    final notifier = ref.read(currencyProvider.notifier);
+    final ok = await notifier.spendDiamond(70);
+    if (!ok) {
+      if (context.mounted) _showResult(context, l.shopInsufficient);
+      return;
+    }
+    await notifier.addShard(20);
     if (context.mounted) _showResult(context, l.shopPurchaseSuccess);
   }
 }

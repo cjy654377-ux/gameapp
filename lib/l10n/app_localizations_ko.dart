@@ -1612,6 +1612,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get shopBuyExpPotion10Desc => '골드 4,000으로 경험치 물약 10개 (20% 할인)';
 
   @override
+  String get shopBuyShard => '소환석 x5';
+
+  @override
+  String get shopBuyShardDesc => '다이아 20개로 소환석 5개 구매';
+
+  @override
+  String get shopBuyShard10 => '소환석 x20';
+
+  @override
+  String get shopBuyShard10Desc => '다이아 70개로 소환석 20개 (13% 할인)';
+
+  @override
   String get shopInsufficient => '재화가 부족합니다';
 
   @override

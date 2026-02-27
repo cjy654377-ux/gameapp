@@ -2948,6 +2948,30 @@ abstract class AppLocalizations {
   /// **'골드 4,000으로 경험치 물약 10개 (20% 할인)'**
   String get shopBuyExpPotion10Desc;
 
+  /// No description provided for @shopBuyShard.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석 x5'**
+  String get shopBuyShard;
+
+  /// No description provided for @shopBuyShardDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 20개로 소환석 5개 구매'**
+  String get shopBuyShardDesc;
+
+  /// No description provided for @shopBuyShard10.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석 x20'**
+  String get shopBuyShard10;
+
+  /// No description provided for @shopBuyShard10Desc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 70개로 소환석 20개 (13% 할인)'**
+  String get shopBuyShard10Desc;
+
   /// No description provided for @shopInsufficient.
   ///
   /// In ko, this message translates to:

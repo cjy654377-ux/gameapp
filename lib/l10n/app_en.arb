@@ -517,6 +517,10 @@
   "shopBuyExpPotionDesc": "Buy 1 potion for 500 gold",
   "shopBuyExpPotion10": "EXP Potion x10",
   "shopBuyExpPotion10Desc": "Buy 10 potions for 4,000 gold (20% off)",
+  "shopBuyShard": "Monster Shard x5",
+  "shopBuyShardDesc": "Buy 5 shards for 20 diamonds",
+  "shopBuyShard10": "Monster Shard x20",
+  "shopBuyShard10Desc": "Buy 20 shards for 70 diamonds (13% off)",
   "shopInsufficient": "Not enough currency",
   "shopPurchaseSuccess": "Purchase complete!",
 
