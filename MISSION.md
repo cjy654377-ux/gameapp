@@ -346,6 +346,20 @@
 - [x] 추가 테스트 388개 (guild 133 + daily_dungeon 96 + synergy 100 + skin 59)
 - [x] 총 845개 테스트 (기존 457 + 신규 388)
 
+## 코드 리뷰 최적화 (9차 - l10n 대규모 전환)
+- [x] AppMessage 시스템 도입: provider 메시지를 String? → AppMessage? 구조화
+- [x] 5개 provider l10n 전환 (upgrade, training, expedition, prestige, mailbox)
+- [x] 5개 화면 SnackBar/inline 리스너 AppMessage.resolve(l) 적용
+- [x] monster_detail_screen: 스킬/패시브/궁극기 태그 17개 l10n
+- [x] battle_screen: 팀 요약, upgrade_screen: 몬스터 정보, expedition_screen: 타이머
+- [x] offline_reward_dialog: 5개 하드코딩 문자열 l10n
+- [x] collection 마일스톤: label 제거 → localizedLabel(l) 메서드
+- [x] mailbox_screen: 시스템 메일 제목/본문 ID 기반 l10n resolve
+- [x] notification_service: 알림 텍스트 파라미터화
+- [x] ExpeditionOption: label 제거 → hours getter + UI에서 l10n
+- [x] 총 ~60개 l10n 키 추가 (한국어/영어)
+- [x] 845개 테스트 전부 통과, flutter analyze 0 issues
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
