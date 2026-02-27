@@ -324,49 +324,54 @@ class _IdleBanner extends ConsumerWidget {
 
           // ── Player info row ──────────────────────────────────────────
           if (player != null)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: l.semanticPlayer),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.playerLevelStage(player.playerLevel, player.currentStageId),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+            GestureDetector(
+              onTap: () => context.push(AppRoutes.hero),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: l.semanticPlayer),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.playerLevelStage(player.playerLevel, player.currentStageId),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l.teamSummary(FormatUtils.formatNumber(teamPower.round()), team.length, collection.owned, collection.total),
-                          style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (player.prestigeLevel > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.purple.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        l.prestigeN(player.prestigeLevel),
-                        style: TextStyle(fontSize: 10, color: Colors.purple[300], fontWeight: FontWeight.bold),
+                          const SizedBox(height: 2),
+                          Text(
+                            l.teamSummary(FormatUtils.formatNumber(teamPower.round()), team.length, collection.owned, collection.total),
+                            style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                          ),
+                        ],
                       ),
                     ),
-                ],
+                    if (player.prestigeLevel > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          l.prestigeN(player.prestigeLevel),
+                          style: TextStyle(fontSize: 10, color: Colors.purple[300], fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.chevron_right, color: AppColors.textTertiary, size: 20),
+                  ],
+                ),
               ),
             ),
           const SizedBox(height: 10),
@@ -436,6 +441,7 @@ class _IdleBanner extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
+              _QuickNavBtn(icon: Icons.person, label: '영웅', color: AppColors.primaryLight, route: AppRoutes.hero),
               _QuickNavBtn(icon: Icons.layers, label: l.infiniteDungeon, color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
               _QuickNavBtn(icon: Icons.castle, label: l.towerTitle, color: Colors.amber, route: AppRoutes.tower),
               _QuickNavBtn(icon: Icons.whatshot, label: l.worldBoss, color: Colors.red, route: AppRoutes.worldBoss),
