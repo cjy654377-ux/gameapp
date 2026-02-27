@@ -30,7 +30,7 @@ class HeroScreen extends ConsumerWidget {
     }
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: Column(
@@ -85,6 +85,7 @@ class HeroScreen extends ConsumerWidget {
                 tabs: [
                   Tab(text: '장비'),
                   Tab(text: '인벤토리'),
+                  Tab(text: '합성/분해'),
                 ],
               ),
             ),
@@ -93,6 +94,7 @@ class HeroScreen extends ConsumerWidget {
                 children: [
                   _EquipmentTab(),
                   _InventoryTab(),
+                  _FusionTab(),
                 ],
               ),
             ),
@@ -1149,6 +1151,348 @@ class _MountPickerSheet extends StatelessWidget {
           ),
         ),
       ]),
+    );
+  }
+}
+
+// =============================================================================
+// Fusion / Dismantle Tab
+// =============================================================================
+
+class _FusionTab extends ConsumerWidget {
+  const _FusionTab();
+
+  // Dismantle rewards: gold = rarity * level * 50, shard = rarity
+  static int _dismantleGold(int rarity, int level) => rarity * level * 50;
+  static int _dismantleShard(int rarity) => rarity;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(playerProvider);
+    ref.watch(currencyProvider);
+
+    final skills = LocalStorage.instance.getAllSkills();
+    final mounts = LocalStorage.instance.getAllMounts();
+    final player = ref.read(playerProvider).player;
+
+    // Group skills by templateId for fusion
+    final skillGroups = <String, List<EquippableSkillModel>>{};
+    for (final s in skills) {
+      skillGroups.putIfAbsent(s.templateId, () => []).add(s);
+    }
+    // Group mounts by templateId
+    final mountGroups = <String, List<MountModel>>{};
+    for (final m in mounts) {
+      mountGroups.putIfAbsent(m.templateId, () => []).add(m);
+    }
+
+    // Fusible: groups with 2+ items
+    final fusibleSkills = skillGroups.entries.where((e) => e.value.length >= 2).toList();
+    final fusibleMounts = mountGroups.entries.where((e) => e.value.length >= 2).toList();
+
+    // Dismantleable: all items except currently equipped
+    final dismantleSkills = skills.where((s) => s.id != player?.equippedSkillId).toList();
+    final dismantleMounts = mounts.where((m) => m.id != player?.equippedMountId).toList();
+
+    if (skills.isEmpty && mounts.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.build_circle_outlined, color: AppColors.textTertiary, size: 48),
+            SizedBox(height: 12),
+            Text('합성/분해할 장비가 없습니다', style: TextStyle(fontSize: 14, color: AppColors.textTertiary)),
+          ],
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // ── Fusion Section ─────────────────────────
+        _SectionHeader(icon: Icons.merge_type, color: Colors.deepPurple, title: '합성', count: fusibleSkills.length + fusibleMounts.length),
+        const SizedBox(height: 4),
+        const Text('동일 장비 2개 → 레벨 +1 합성', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+        const SizedBox(height: 8),
+
+        if (fusibleSkills.isEmpty && fusibleMounts.isEmpty)
+          _emptyCard('합성 가능한 중복 장비가 없습니다')
+        else ...[
+          for (final entry in fusibleSkills)
+            _FusionGroupCard(
+              icon: Icons.auto_awesome,
+              name: entry.value.first.name,
+              rarity: entry.value.first.rarity,
+              count: entry.value.length,
+              itemType: 'skill',
+              onFuse: () => _fuseSkills(context, ref, entry.value),
+            ),
+          for (final entry in fusibleMounts)
+            _FusionGroupCard(
+              icon: Icons.pets,
+              name: entry.value.first.name,
+              rarity: entry.value.first.rarity,
+              count: entry.value.length,
+              itemType: 'mount',
+              onFuse: () => _fuseMounts(context, ref, entry.value),
+            ),
+        ],
+
+        const SizedBox(height: 20),
+
+        // ── Dismantle Section ─────────────────────────
+        _SectionHeader(icon: Icons.recycling, color: Colors.red, title: '분해', count: dismantleSkills.length + dismantleMounts.length),
+        const SizedBox(height: 4),
+        const Text('장비 분해 → 골드 + 샤드 획득 (장착중 불가)', style: TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+        const SizedBox(height: 8),
+
+        if (dismantleSkills.isEmpty && dismantleMounts.isEmpty)
+          _emptyCard('분해 가능한 장비가 없습니다')
+        else ...[
+          for (final s in dismantleSkills)
+            _DismantleCard(
+              icon: Icons.auto_awesome,
+              name: s.name,
+              rarity: s.rarity,
+              level: s.level,
+              goldReward: _dismantleGold(s.rarity, s.level),
+              shardReward: _dismantleShard(s.rarity),
+              onDismantle: () => _dismantleSkill(context, ref, s),
+            ),
+          for (final m in dismantleMounts)
+            _DismantleCard(
+              icon: Icons.pets,
+              name: m.name,
+              rarity: m.rarity,
+              level: m.level,
+              goldReward: _dismantleGold(m.rarity, m.level),
+              shardReward: _dismantleShard(m.rarity),
+              onDismantle: () => _dismantleMount(context, ref, m),
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _emptyCard(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+    );
+  }
+
+  Future<void> _fuseSkills(BuildContext context, WidgetRef ref, List<EquippableSkillModel> group) async {
+    // Sort by level desc, pick the best one to keep, consume the worst one
+    group.sort((a, b) => b.level.compareTo(a.level));
+    final keep = group.first;
+    final consume = group.last;
+
+    if (!keep.canLevelUp) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미 최대 레벨입니다')));
+      return;
+    }
+
+    // Level up the kept skill, delete the consumed one
+    final upgraded = keep.copyWith(level: keep.level + 1);
+    await LocalStorage.instance.saveSkill(upgraded);
+    await LocalStorage.instance.deleteSkill(consume.id);
+    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${keep.name} 합성! Lv.${upgraded.level}')),
+    );
+  }
+
+  Future<void> _fuseMounts(BuildContext context, WidgetRef ref, List<MountModel> group) async {
+    group.sort((a, b) => b.level.compareTo(a.level));
+    final keep = group.first;
+    final consume = group.last;
+
+    if (keep.level >= keep.maxLevel) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('이미 최대 레벨입니다')));
+      return;
+    }
+
+    final upgraded = keep.copyWith(level: keep.level + 1);
+    await LocalStorage.instance.saveMount(upgraded);
+    await LocalStorage.instance.deleteMount(consume.id);
+    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${keep.name} 합성! Lv.${upgraded.level}')),
+    );
+  }
+
+  Future<void> _dismantleSkill(BuildContext context, WidgetRef ref, EquippableSkillModel skill) async {
+    final gold = _dismantleGold(skill.rarity, skill.level);
+    final shard = _dismantleShard(skill.rarity);
+
+    await LocalStorage.instance.deleteSkill(skill.id);
+    await ref.read(currencyProvider.notifier).addGold(gold);
+    await ref.read(currencyProvider.notifier).addShard(shard);
+    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${skill.name} 분해! +$gold G, +$shard 샤드')),
+    );
+  }
+
+  Future<void> _dismantleMount(BuildContext context, WidgetRef ref, MountModel mount) async {
+    final gold = _dismantleGold(mount.rarity, mount.level);
+    final shard = _dismantleShard(mount.rarity);
+
+    await LocalStorage.instance.deleteMount(mount.id);
+    await ref.read(currencyProvider.notifier).addGold(gold);
+    await ref.read(currencyProvider.notifier).addShard(shard);
+    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${mount.name} 분해! +$gold G, +$shard 샤드')),
+    );
+  }
+}
+
+class _FusionGroupCard extends StatelessWidget {
+  const _FusionGroupCard({
+    required this.icon,
+    required this.name,
+    required this.rarity,
+    required this.count,
+    required this.itemType,
+    required this.onFuse,
+  });
+  final IconData icon;
+  final String name;
+  final int rarity;
+  final int count;
+  final String itemType;
+  final VoidCallback onFuse;
+
+  @override
+  Widget build(BuildContext context) {
+    final rc = _rarityColor(rarity);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: rc.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: rc.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: rc, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: rc)),
+                Text('보유 $count개 · ${'★' * rarity}', style: const TextStyle(fontSize: 11, color: AppColors.textTertiary)),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 32,
+            child: ElevatedButton.icon(
+              onPressed: onFuse,
+              icon: const Icon(Icons.merge_type, size: 16),
+              label: const Text('합성', style: TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DismantleCard extends StatelessWidget {
+  const _DismantleCard({
+    required this.icon,
+    required this.name,
+    required this.rarity,
+    required this.level,
+    required this.goldReward,
+    required this.shardReward,
+    required this.onDismantle,
+  });
+  final IconData icon;
+  final String name;
+  final int rarity;
+  final int level;
+  final int goldReward;
+  final int shardReward;
+  final VoidCallback onDismantle;
+
+  @override
+  Widget build(BuildContext context) {
+    final rc = _rarityColor(rarity);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: rc.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: rc, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: rc)),
+                  const SizedBox(width: 4),
+                  Text('Lv.$level', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                ]),
+                Text('+$goldReward G · +$shardReward 샤드', style: const TextStyle(fontSize: 11, color: AppColors.gold)),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 32,
+            child: ElevatedButton.icon(
+              onPressed: onDismantle,
+              icon: const Icon(Icons.recycling, size: 16),
+              label: const Text('분해', style: TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
