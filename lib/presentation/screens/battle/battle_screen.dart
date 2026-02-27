@@ -438,6 +438,7 @@ class _IdleBanner extends ConsumerWidget {
               _QuickNavBtn(icon: Icons.leaderboard, label: l.leaderboardTitle, color: Colors.cyan, route: AppRoutes.leaderboard),
               _QuickNavBtn(icon: Icons.workspace_premium, label: l.titleScreenTitle, color: Colors.amber, route: AppRoutes.title),
               _QuickNavBtn(icon: Icons.mail, label: l.mailboxTitle, color: Colors.pink, route: AppRoutes.mailbox),
+              _QuickNavBtn(icon: Icons.store, label: l.shopTitle, color: Colors.green, route: AppRoutes.shop),
               _QuickNavBtn(icon: Icons.bar_chart, label: l.statistics, color: Colors.blueGrey, route: AppRoutes.statistics),
             ],
           ),

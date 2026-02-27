@@ -501,5 +501,22 @@
   "mailboxEmpty": "No mail",
   "mailboxClaim": "Claim",
   "mailboxClaimed": "Claimed",
-  "mailboxClaimAll": "Claim All"
+  "mailboxClaimAll": "Claim All",
+
+  "shopTitle": "Shop",
+  "shopExchange": "Currency Exchange",
+  "shopItems": "Buy Items",
+  "shopBuy": "Buy",
+  "shopBuyGold": "Buy Gold",
+  "shopBuyDiamond": "Buy Diamond",
+  "shopBuyTicket": "Summon Ticket x1",
+  "shopBuyTicketDesc": "Buy 1 ticket for 30 diamonds",
+  "shopBuyTicket10": "Summon Ticket x10",
+  "shopBuyTicket10Desc": "Buy 10 tickets for 250 diamonds (17% off)",
+  "shopBuyExpPotion": "EXP Potion x1",
+  "shopBuyExpPotionDesc": "Buy 1 potion for 500 gold",
+  "shopBuyExpPotion10": "EXP Potion x10",
+  "shopBuyExpPotion10Desc": "Buy 10 potions for 4,000 gold (20% off)",
+  "shopInsufficient": "Not enough currency",
+  "shopPurchaseSuccess": "Purchase complete!"
 }

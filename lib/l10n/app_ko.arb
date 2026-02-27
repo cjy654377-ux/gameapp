@@ -577,5 +577,22 @@
   "mailboxEmpty": "우편이 없습니다",
   "mailboxClaim": "수령",
   "mailboxClaimed": "수령 완료",
-  "mailboxClaimAll": "모두 수령"
+  "mailboxClaimAll": "모두 수령",
+
+  "shopTitle": "상점",
+  "shopExchange": "재화 교환",
+  "shopItems": "아이템 구매",
+  "shopBuy": "구매",
+  "shopBuyGold": "골드 구매",
+  "shopBuyDiamond": "다이아 구매",
+  "shopBuyTicket": "소환권 x1",
+  "shopBuyTicketDesc": "다이아 30개로 소환권 1장 구매",
+  "shopBuyTicket10": "소환권 x10",
+  "shopBuyTicket10Desc": "다이아 250개로 소환권 10장 (17% 할인)",
+  "shopBuyExpPotion": "경험치 물약 x1",
+  "shopBuyExpPotionDesc": "골드 500으로 경험치 물약 1개 구매",
+  "shopBuyExpPotion10": "경험치 물약 x10",
+  "shopBuyExpPotion10Desc": "골드 4,000으로 경험치 물약 10개 (20% 할인)",
+  "shopInsufficient": "재화가 부족합니다",
+  "shopPurchaseSuccess": "구매 완료!"
 }
