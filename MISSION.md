@@ -153,7 +153,11 @@
   - 스타터 6종 확장, 2x3 그리드, 미니 스탯 미리보기
   - 글로우 아이콘, AnimatedSwitcher, 스텝 인디케이터
 ### 콘텐츠 확장
-- [ ] H5: 몬스터 스킨/의상 시스템 (외형 커스터마이징)
+- [x] H5: 몬스터 스킨/의상 시스템 (외형 커스터마이징)
+  - SkinDatabase: 14종 스킨 (유니버설6+속성5+전용3), 1~5성
+  - MonsterModel.equippedSkinId (HiveField 20), SkinResolver 비주얼 해석
+  - SkinProvider: 소환석으로 해금, 장착/해제, Hive settings 영속화
+  - monster_detail_screen 스킨 섹션 UI
 - [x] H6: 도전의 탑 (주간 리셋 고난이도 컨텐츠, 층별 고정 보상)
   - TowerService: 30층, 보스(10/20/30층), 하드 스케일링(x2.5), 주간 리셋 3회
   - TowerProvider: 층간 회복 없음, 상태이펙트만 리셋, 누적 보상

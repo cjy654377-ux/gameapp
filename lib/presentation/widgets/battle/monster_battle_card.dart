@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
+import 'package:gameapp/data/static/skin_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/widgets/battle/hp_bar.dart';
 
@@ -36,7 +37,13 @@ class MonsterBattleCard extends StatelessWidget {
 
   MonsterRarity get _rarity => MonsterRarity.fromRarity(monster.rarity);
 
-  Color get _elementColor => _element.color;
+  Color get _elementColor {
+    if (monster.equippedSkinId != null) {
+      final skin = SkinDatabase.findById(monster.equippedSkinId!);
+      if (skin?.overrideColor != null) return skin!.overrideColor!;
+    }
+    return _element.color;
+  }
   Color get _rarityColor => _rarity.color;
 
   IconData get _elementIcon =>

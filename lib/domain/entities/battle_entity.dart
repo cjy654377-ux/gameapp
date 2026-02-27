@@ -120,6 +120,9 @@ class BattleMonster {
   /// Max charge needed to fire ultimate.
   final int ultimateMaxCharge;
 
+  /// Equipped skin ID (for visual override in battle cards).
+  final String? equippedSkinId;
+
   /// Whether this monster can still act (HP > 0).
   bool get isAlive => currentHp > 0;
 
@@ -157,6 +160,7 @@ class BattleMonster {
     this.ultimateName,
     this.ultimateCharge = 0.0,
     this.ultimateMaxCharge = 100,
+    this.equippedSkinId,
   });
 
   /// Returns a new [BattleMonster] with the specified fields overridden.
@@ -187,6 +191,7 @@ class BattleMonster {
     String? ultimateName,
     double? ultimateCharge,
     int? ultimateMaxCharge,
+    Object? equippedSkinId = _bmSentinel,
   }) {
     return BattleMonster(
       monsterId:        monsterId        ?? this.monsterId,
@@ -215,6 +220,9 @@ class BattleMonster {
       ultimateName:     ultimateName     ?? this.ultimateName,
       ultimateCharge:   ultimateCharge   ?? this.ultimateCharge,
       ultimateMaxCharge: ultimateMaxCharge ?? this.ultimateMaxCharge,
+      equippedSkinId:   equippedSkinId == _bmSentinel
+          ? this.equippedSkinId
+          : equippedSkinId as String?,
     );
   }
 
@@ -333,3 +341,6 @@ class StageInfo {
       'StageInfo(stageId: $stageId, stageName: $stageName, '
       'enemies: ${enemies.length}, reward: $reward)';
 }
+
+// Sentinel for BattleMonster.copyWith nullable fields.
+const Object _bmSentinel = Object();

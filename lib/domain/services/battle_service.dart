@@ -716,6 +716,7 @@ class BattleService {
         ultimateName:     ultimate?.name,
         ultimateCharge:   0.0,
         ultimateMaxCharge: ultimate?.maxCharge ?? 100,
+        equippedSkinId:   m.equippedSkinId,
       );
     }).toList();
 
