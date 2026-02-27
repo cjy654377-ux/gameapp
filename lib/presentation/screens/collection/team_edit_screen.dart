@@ -336,12 +336,14 @@ class _PresetSheet extends ConsumerWidget {
               onLoad: (ids) {
                 onLoad(ids);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l.presetLoaded),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l.presetLoaded),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                }
               },
             );
           }),
@@ -475,12 +477,14 @@ class _PresetSlotTile extends ConsumerWidget {
                     currentIds,
                   );
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l.presetSaved),
-                  duration: const Duration(seconds: 1),
-                ),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l.presetSaved),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              }
             },
             child: Text(l.save),
           ),
@@ -505,12 +509,14 @@ class _PresetSlotTile extends ConsumerWidget {
             onPressed: () {
               ref.read(teamPresetProvider.notifier).deletePreset(index);
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l.presetDeleted),
-                  duration: const Duration(seconds: 1),
-                ),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l.presetDeleted),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              }
             },
             child: Text(l.confirm),
           ),

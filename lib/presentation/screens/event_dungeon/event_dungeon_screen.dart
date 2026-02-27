@@ -10,6 +10,7 @@ import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/domain/services/event_dungeon_service.dart';
 import 'package:gameapp/presentation/providers/event_dungeon_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
+import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
 
 class EventDungeonScreen extends ConsumerStatefulWidget {
   const EventDungeonScreen({super.key});
@@ -417,23 +418,9 @@ class _FightViewState extends ConsumerState<_FightView> {
               ? Center(
                   child: Text(l.battleWaiting,
                       style: TextStyle(color: AppColors.textTertiary)))
-              : ListView.builder(
+              : BattleLogList(
+                  entries: ed.battleLog,
                   reverse: true,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  itemCount: ed.battleLog.length,
-                  itemBuilder: (ctx, i) {
-                    final entry = ed.battleLog[ed.battleLog.length - 1 - i];
-                    return Text(
-                      entry.description,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: entry.isSkillActivation
-                            ? Colors.purple[300]
-                            : AppColors.textSecondary,
-                      ),
-                    );
-                  },
                 ),
         ),
         // Speed.

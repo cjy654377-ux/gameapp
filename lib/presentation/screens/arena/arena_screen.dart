@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
+import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/arena_service.dart';
 import 'package:gameapp/presentation/providers/arena_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
+import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
 import 'package:gameapp/presentation/widgets/common/reward_row.dart';
 
 class ArenaScreen extends ConsumerStatefulWidget {
@@ -574,7 +576,7 @@ class _TeamGrid extends StatelessWidget {
 
 class _BattleLogView extends StatelessWidget {
   const _BattleLogView({required this.log});
-  final List log;
+  final List<BattleLogEntry> log;
 
   @override
   Widget build(BuildContext context) {
@@ -588,27 +590,9 @@ class _BattleLogView extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
+    return BattleLogList(
+      entries: log,
       reverse: true,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      itemCount: log.length,
-      itemBuilder: (ctx, i) {
-        final entry = log[log.length - 1 - i];
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1),
-          child: Text(
-            entry.description,
-            style: TextStyle(
-              fontSize: 11,
-              color: entry.isSkillActivation
-                  ? Colors.purple[300]
-                  : entry.isCritical
-                      ? Colors.orange[300]
-                      : AppColors.textSecondary,
-            ),
-          ),
-        );
-      },
     );
   }
 }

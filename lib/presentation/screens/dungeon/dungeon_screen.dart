@@ -6,6 +6,7 @@ import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/presentation/widgets/common/reward_chip.dart';
+import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/providers/dungeon_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
@@ -414,33 +415,9 @@ class _DungeonLogState extends State<_DungeonLog> {
                           color: AppColors.textTertiary, fontSize: 12),
                     ),
                   )
-                : ListView.builder(
+                : BattleLogList(
+                    entries: entries,
                     controller: _scroll,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    itemCount: entries.length,
-                    itemBuilder: (ctx, i) {
-                      final entry = entries[i];
-                      final color = entry.isSkillActivation
-                          ? const Color(0xFFCE93D8)
-                          : entry.isCritical
-                              ? AppColors.error
-                              : AppColors.textSecondary;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 1.5),
-                        child: Text(
-                          entry.description,
-                          style: TextStyle(
-                            color: color,
-                            fontSize: 11,
-                            fontWeight: entry.isCritical ||
-                                    entry.isSkillActivation
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                          ),
-                        ),
-                      );
-                    },
                   ),
           ),
         ],

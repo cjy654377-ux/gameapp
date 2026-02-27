@@ -9,6 +9,7 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/world_boss_provider.dart';
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/presentation/widgets/battle/hp_bar.dart';
+import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
 import 'package:gameapp/presentation/widgets/common/reward_row.dart';
 
 class WorldBossScreen extends ConsumerStatefulWidget {
@@ -322,31 +323,9 @@ class _FightingView extends ConsumerWidget {
 
         // Battle log
         Expanded(
-          child: ListView.builder(
+          child: BattleLogList(
+            entries: wbState.battleLog,
             reverse: true,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            itemCount: wbState.battleLog.length,
-            itemBuilder: (ctx, i) {
-              final entry =
-                  wbState.battleLog[wbState.battleLog.length - 1 - i];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(
-                  entry.description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: entry.isSkillActivation
-                        ? const Color(0xFFCE93D8)
-                        : entry.isCritical
-                            ? Colors.amber
-                            : Colors.grey[400],
-                    fontWeight: entry.isSkillActivation || entry.isCritical
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                ),
-              );
-            },
           ),
         ),
 

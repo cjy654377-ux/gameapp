@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../domain/services/guild_service.dart';
 import '../../providers/guild_provider.dart';
+import '../../widgets/common/battle_log_list.dart';
 
 class GuildScreen extends ConsumerStatefulWidget {
   const GuildScreen({super.key});
@@ -393,26 +394,9 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
         Expanded(
           child: Container(
             color: AppColors.surface,
-            child: ListView.builder(
+            child: BattleLogList(
+              entries: guildState.battleLog,
               reverse: true,
-              padding: const EdgeInsets.all(8),
-              itemCount: guildState.battleLog.length,
-              itemBuilder: (ctx, i) {
-                final entry =
-                    guildState.battleLog[guildState.battleLog.length - 1 - i];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1),
-                  child: Text(
-                    entry.description,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: entry.isCritical
-                          ? Colors.orange
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                );
-              },
             ),
           ),
         ),

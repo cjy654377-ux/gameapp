@@ -67,14 +67,21 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
           _RankSummary(state: state, l: l),
           // Entries list
           Expanded(
-            child: ListView.builder(
-              cacheExtent: 600,
-              itemCount: state.entries.length,
-              itemBuilder: (_, i) => _RankTile(
-                entry: state.entries[i],
-                tab: state.activeTab,
-              ),
-            ),
+            child: state.entries.isEmpty
+                ? Center(
+                    child: Text(
+                      '—',
+                      style: TextStyle(color: AppColors.textTertiary),
+                    ),
+                  )
+                : ListView.builder(
+                    cacheExtent: 600,
+                    itemCount: state.entries.length,
+                    itemBuilder: (_, i) => _RankTile(
+                      entry: state.entries[i],
+                      tab: state.activeTab,
+                    ),
+                  ),
           ),
         ],
       ),

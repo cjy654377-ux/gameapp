@@ -9,6 +9,7 @@ import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/tower_service.dart';
 import 'package:gameapp/presentation/providers/tower_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
+import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 
 // =============================================================================
@@ -332,24 +333,9 @@ class _BattleLog extends StatelessWidget {
         child: Text('...', style: TextStyle(color: AppColors.textTertiary)),
       );
     }
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    return BattleLogList(
+      entries: log,
       reverse: true,
-      itemCount: log.length,
-      itemBuilder: (_, i) {
-        final entry = log[log.length - 1 - i];
-        Color textColor = AppColors.textSecondary;
-        if (entry.isCritical) textColor = const Color(0xFFFF6B6B);
-        if (entry.isSkillActivation) textColor = const Color(0xFFBB86FC);
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1),
-          child: Text(
-            entry.description,
-            style: TextStyle(color: textColor, fontSize: 11),
-          ),
-        );
-      },
     );
   }
 }
