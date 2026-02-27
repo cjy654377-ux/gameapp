@@ -1882,4 +1882,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get semanticPlayer => '플레이어';
+
+  @override
+  String waveProgress(String name, int current, int total) {
+    return '$name - 웨이브 $current/$total';
+  }
+
+  @override
+  String get turnLabel => '턴';
 }

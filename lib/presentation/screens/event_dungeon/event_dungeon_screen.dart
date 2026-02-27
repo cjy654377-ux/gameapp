@@ -105,10 +105,18 @@ class _LobbyView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final events = ref.watch(eventDungeonProvider.select((s) => s.events));
-    final ed = ref.watch(eventDungeonProvider);
+    final clearedToday = ref.watch(eventDungeonProvider.select((s) => s.clearedToday));
+    final lastClearedDate = ref.watch(eventDungeonProvider.select((s) => s.lastClearedDate));
 
     if (events.isEmpty) {
       return Center(child: Text(l.eventLoading));
+    }
+
+    bool canAttempt(String eventId) {
+      final now = DateTime.now();
+      final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      if (lastClearedDate != today) return true;
+      return !clearedToday.contains(eventId);
     }
 
     return ListView(
@@ -132,7 +140,7 @@ class _LobbyView extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: _EventCard(
                 event: event,
-                canAttempt: ed.canAttempt(event.id),
+                canAttempt: canAttempt(event.id),
                 onStart: () => ref
                     .read(eventDungeonProvider.notifier)
                     .startEvent(event),
@@ -349,7 +357,7 @@ class _FightViewState extends ConsumerState<_FightView> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
-            '${event?.name ?? ""} - 웨이브 ${ed.currentWave}/${event?.stages ?? 0}',
+            l.waveProgress(event?.name ?? '', ed.currentWave, event?.stages ?? 0),
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,

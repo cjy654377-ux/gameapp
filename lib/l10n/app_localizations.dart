@@ -3463,6 +3463,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'플레이어'**
   String get semanticPlayer;
+
+  /// No description provided for @waveProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} - 웨이브 {current}/{total}'**
+  String waveProgress(String name, int current, int total);
+
+  /// No description provided for @turnLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴'**
+  String get turnLabel;
 }
 
 class _AppLocalizationsDelegate

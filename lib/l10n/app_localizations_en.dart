@@ -1889,4 +1889,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get semanticPlayer => 'Player';
+
+  @override
+  String waveProgress(String name, int current, int total) {
+    return '$name - Wave $current/$total';
+  }
+
+  @override
+  String get turnLabel => 'Turns';
 }

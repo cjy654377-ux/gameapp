@@ -622,5 +622,10 @@
   "onboardingSetupError": "Error during setup. Please try again.",
   "gachaPityLabel": "PITY",
   "collectionUnknownMonster": "Unknown Monster",
-  "semanticPlayer": "Player"
+  "semanticPlayer": "Player",
+
+  "waveProgress": "{name} - Wave {current}/{total}",
+  "@waveProgress": {"placeholders": {"name": {"type": "String"}, "current": {"type": "int"}, "total": {"type": "int"}}},
+
+  "turnLabel": "Turns"
 }

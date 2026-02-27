@@ -1427,7 +1427,7 @@ class _BattleStatsPanel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _StatMini(label: l.totalDamage, value: FormatUtils.formatCompact(stats.totalDamage.round())),
-              _StatMini(label: '턴', value: '${stats.totalTurns}'),
+              _StatMini(label: l.turnLabel, value: '${stats.totalTurns}'),
               _StatMini(label: l.critCount, value: '${stats.totalCriticals}'),
               _StatMini(label: l.skillCount, value: '${stats.totalSkillUses}'),
             ],

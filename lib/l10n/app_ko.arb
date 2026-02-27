@@ -698,5 +698,10 @@
   "onboardingSetupError": "설정 중 오류가 발생했습니다. 다시 시도해주세요.",
   "gachaPityLabel": "천장",
   "collectionUnknownMonster": "미발견 몬스터",
-  "semanticPlayer": "플레이어"
+  "semanticPlayer": "플레이어",
+
+  "waveProgress": "{name} - 웨이브 {current}/{total}",
+  "@waveProgress": {"placeholders": {"name": {"type": "String"}, "current": {"type": "int"}, "total": {"type": "int"}}},
+
+  "turnLabel": "턴"
 }
