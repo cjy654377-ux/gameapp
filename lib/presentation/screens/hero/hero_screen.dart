@@ -708,13 +708,24 @@ class _ExpBar extends StatelessWidget {
 // Hero Stats Section
 // =============================================================================
 
-class _HeroStatsSection extends StatelessWidget {
+class _HeroStatsSection extends ConsumerWidget {
   const _HeroStatsSection({required this.player, this.equippedMount});
   final PlayerModel player;
   final MountModel? equippedMount;
 
+  // Initial base values & training increments
+  static const _initAtk = 15.0, _incrAtk = 1.0;
+  static const _initDef = 8.0, _incrDef = 0.5;
+  static const _initHp = 150.0, _incrHp = 10.0;
+  static const _initSpd = 12.0, _incrSpd = 0.5;
+
+  static int _trainCount(double current, double initial, double incr) =>
+      ((current - initial) / incr).round();
+
+  static int _trainCost(int count) => 100 * (count + 1);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double atkB = 0, defB = 0, hpB = 0, spdB = 0;
     if (equippedMount != null) {
       final v = equippedMount!.effectiveStatValue;
@@ -725,6 +736,13 @@ class _HeroStatsSection extends StatelessWidget {
         case 'spd': spdB = v;
       }
     }
+
+    final atkCnt = _trainCount(player.heroBaseAtk, _initAtk, _incrAtk);
+    final defCnt = _trainCount(player.heroBaseDef, _initDef, _incrDef);
+    final hpCnt = _trainCount(player.heroBaseHp, _initHp, _incrHp);
+    final spdCnt = _trainCount(player.heroBaseSpd, _initSpd, _incrSpd);
+    final gold = ref.watch(currencyProvider).gold;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -735,43 +753,122 @@ class _HeroStatsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('전투 능력치', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Row(
+            children: [
+              const Text('전투 능력치', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              const Spacer(),
+              const Icon(Icons.fitness_center, color: AppColors.warning, size: 14),
+              const SizedBox(width: 4),
+              const Text('훈련', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
+            ],
+          ),
           const SizedBox(height: 12),
-          _StatRow(label: 'ATK', icon: Icons.flash_on, color: AppColors.error, baseValue: player.heroAtk, bonus: atkB),
+          _TrainableStatRow(
+            label: 'ATK', icon: Icons.flash_on, color: AppColors.error,
+            baseValue: player.heroAtk, bonus: atkB,
+            trainCount: atkCnt, cost: _trainCost(atkCnt), gold: gold,
+            onTrain: () => _train(ref, 'atk', atkCnt),
+          ),
           const SizedBox(height: 8),
-          _StatRow(label: 'DEF', icon: Icons.shield, color: AppColors.info, baseValue: player.heroDef, bonus: defB),
+          _TrainableStatRow(
+            label: 'DEF', icon: Icons.shield, color: AppColors.info,
+            baseValue: player.heroDef, bonus: defB,
+            trainCount: defCnt, cost: _trainCost(defCnt), gold: gold,
+            onTrain: () => _train(ref, 'def', defCnt),
+          ),
           const SizedBox(height: 8),
-          _StatRow(label: 'HP', icon: Icons.favorite, color: AppColors.success, baseValue: player.heroHp, bonus: hpB),
+          _TrainableStatRow(
+            label: 'HP', icon: Icons.favorite, color: AppColors.success,
+            baseValue: player.heroHp, bonus: hpB,
+            trainCount: hpCnt, cost: _trainCost(hpCnt), gold: gold,
+            onTrain: () => _train(ref, 'hp', hpCnt),
+          ),
           const SizedBox(height: 8),
-          _StatRow(label: 'SPD', icon: Icons.speed, color: AppColors.warning, baseValue: player.heroSpd, bonus: spdB),
+          _TrainableStatRow(
+            label: 'SPD', icon: Icons.speed, color: AppColors.warning,
+            baseValue: player.heroSpd, bonus: spdB,
+            trainCount: spdCnt, cost: _trainCost(spdCnt), gold: gold,
+            onTrain: () => _train(ref, 'spd', spdCnt),
+          ),
         ],
       ),
     );
   }
+
+  Future<void> _train(WidgetRef ref, String stat, int currentCount) async {
+    final cost = _trainCost(currentCount);
+    final ok = await ref.read(currencyProvider.notifier).spendGold(cost);
+    if (!ok) return;
+    await ref.read(playerProvider.notifier).updatePlayer((p) {
+      switch (stat) {
+        case 'atk': return p.copyWith(heroBaseAtk: p.heroBaseAtk + _incrAtk);
+        case 'def': return p.copyWith(heroBaseDef: p.heroBaseDef + _incrDef);
+        case 'hp':  return p.copyWith(heroBaseHp: p.heroBaseHp + _incrHp);
+        case 'spd': return p.copyWith(heroBaseSpd: p.heroBaseSpd + _incrSpd);
+        default: return p;
+      }
+    });
+  }
 }
 
-class _StatRow extends StatelessWidget {
-  const _StatRow({required this.label, required this.icon, required this.color, required this.baseValue, this.bonus = 0});
+class _TrainableStatRow extends StatelessWidget {
+  const _TrainableStatRow({
+    required this.label, required this.icon, required this.color,
+    required this.baseValue, this.bonus = 0,
+    required this.trainCount, required this.cost, required this.gold,
+    required this.onTrain,
+  });
   final String label;
   final IconData icon;
   final Color color;
   final double baseValue;
   final double bonus;
+  final int trainCount;
+  final int cost;
+  final int gold;
+  final VoidCallback onTrain;
 
   @override
   Widget build(BuildContext context) {
     final total = baseValue + bonus;
+    final canAfford = gold >= cost;
     return Row(
       children: [
         Icon(icon, color: color, size: 18),
         const SizedBox(width: 8),
         SizedBox(width: 36, child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary))),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         Text(total.toStringAsFixed(1), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         if (bonus > 0) ...[
-          const SizedBox(width: 6),
-          Text('(+${bonus.toStringAsFixed(1)})', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
+          const SizedBox(width: 4),
+          Text('(+${bonus.toStringAsFixed(1)})', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
         ],
+        if (trainCount > 0) ...[
+          const SizedBox(width: 4),
+          Text('Lv$trainCount', style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.7))),
+        ],
+        const Spacer(),
+        GestureDetector(
+          onTap: canAfford ? onTrain : null,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: canAfford ? color.withValues(alpha: 0.15) : AppColors.disabled.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: canAfford ? color.withValues(alpha: 0.4) : AppColors.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, color: canAfford ? color : AppColors.disabledText, size: 14),
+                const SizedBox(width: 2),
+                Text('$cost', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: canAfford ? color : AppColors.disabledText)),
+                const SizedBox(width: 2),
+                Icon(Icons.monetization_on, color: canAfford ? AppColors.warning : AppColors.disabledText, size: 12),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
