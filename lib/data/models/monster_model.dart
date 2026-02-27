@@ -76,6 +76,10 @@ class MonsterModel extends HiveObject {
   @HiveField(17)
   int battleCount;
 
+  /// Optional custom nickname. When set, displayed instead of species name.
+  @HiveField(18)
+  String? nickname;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -95,7 +99,11 @@ class MonsterModel extends HiveObject {
     this.skillName,
     this.awakeningStars = 0,
     this.battleCount = 0,
+    this.nickname,
   });
+
+  /// Display name: nickname if set, otherwise species name.
+  String get displayName => nickname ?? name;
 
   // -------------------------------------------------------------------------
   // Scaling helpers
@@ -223,6 +231,7 @@ class MonsterModel extends HiveObject {
     Object? skillName = _sentinel,
     int? awakeningStars,
     int? battleCount,
+    Object? nickname = _sentinel,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -245,6 +254,9 @@ class MonsterModel extends HiveObject {
           : skillName as String?,
       awakeningStars: awakeningStars ?? this.awakeningStars,
       battleCount: battleCount ?? this.battleCount,
+      nickname: nickname == _sentinel
+          ? this.nickname
+          : nickname as String?,
     );
   }
 
@@ -294,13 +306,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       skillName:      fields[15] as String?,
       awakeningStars: fields[16] as int? ?? 0,
       battleCount:    fields[17] as int? ?? 0,
+      nickname:       fields[18] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(18) // total number of fields
+      ..writeByte(19) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -336,7 +349,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(16)
       ..write(obj.awakeningStars)
       ..writeByte(17)
-      ..write(obj.battleCount);
+      ..write(obj.battleCount)
+      ..writeByte(18)
+      ..write(obj.nickname);
   }
 
   @override

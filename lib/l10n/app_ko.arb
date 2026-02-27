@@ -596,5 +596,8 @@
   "shopInsufficient": "재화가 부족합니다",
   "shopPurchaseSuccess": "구매 완료!",
 
-  "repeatBattle": "반복"
+  "repeatBattle": "반복",
+
+  "nicknameTitle": "닉네임 설정",
+  "nicknameReset": "초기화"
 }

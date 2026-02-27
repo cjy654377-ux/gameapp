@@ -11,6 +11,7 @@ import '../../../core/enums/monster_rarity.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../data/models/relic_model.dart';
 import '../../../data/static/skill_database.dart';
+import '../../providers/monster_provider.dart';
 import '../../providers/relic_provider.dart';
 
 /// Full-screen monster detail profile.
@@ -72,13 +73,28 @@ class MonsterDetailScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        monster.name,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () => _showNicknameDialog(context, ref, monster, l),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              monster.displayName,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.edit, size: 14, color: AppColors.textTertiary),
+                          ],
                         ),
                       ),
+                      if (monster.nickname != null)
+                        Text(
+                          monster.name,
+                          style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                        ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -211,6 +227,65 @@ class MonsterDetailScreen extends ConsumerWidget {
   }
 
   String _formatDate(DateTime dt) => FormatUtils.formatDate(dt);
+
+  void _showNicknameDialog(
+    BuildContext context,
+    WidgetRef ref,
+    MonsterModel monster,
+    AppLocalizations l,
+  ) {
+    final controller = TextEditingController(text: monster.nickname ?? '');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(l.nicknameTitle,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: TextField(
+          controller: controller,
+          maxLength: 10,
+          autofocus: true,
+          style: const TextStyle(color: AppColors.textPrimary),
+          decoration: InputDecoration(
+            hintText: monster.name,
+            hintStyle: TextStyle(color: AppColors.textTertiary),
+          ),
+        ),
+        actions: [
+          if (monster.nickname != null)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                final updated = monster.copyWith(nickname: null);
+                ref.read(monsterListProvider.notifier).updateMonster(updated);
+              },
+              child: Text(l.nicknameReset,
+                  style: TextStyle(color: AppColors.error)),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel,
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              final text = controller.text.trim();
+              final updated = text.isEmpty
+                  ? monster.copyWith(nickname: null)
+                  : monster.copyWith(nickname: text);
+              ref.read(monsterListProvider.notifier).updateMonster(updated);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l.confirm),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // =============================================================================

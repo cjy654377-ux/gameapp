@@ -520,5 +520,8 @@
   "shopInsufficient": "Not enough currency",
   "shopPurchaseSuccess": "Purchase complete!",
 
-  "repeatBattle": "Repeat"
+  "repeatBattle": "Repeat",
+
+  "nicknameTitle": "Set Nickname",
+  "nicknameReset": "Reset"
 }
