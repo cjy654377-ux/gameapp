@@ -518,5 +518,7 @@
   "shopBuyExpPotion10": "EXP Potion x10",
   "shopBuyExpPotion10Desc": "Buy 10 potions for 4,000 gold (20% off)",
   "shopInsufficient": "Not enough currency",
-  "shopPurchaseSuccess": "Purchase complete!"
+  "shopPurchaseSuccess": "Purchase complete!",
+
+  "repeatBattle": "Repeat"
 }

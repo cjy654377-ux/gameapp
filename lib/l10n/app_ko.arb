@@ -594,5 +594,7 @@
   "shopBuyExpPotion10": "경험치 물약 x10",
   "shopBuyExpPotion10Desc": "골드 4,000으로 경험치 물약 10개 (20% 할인)",
   "shopInsufficient": "재화가 부족합니다",
-  "shopPurchaseSuccess": "구매 완료!"
+  "shopPurchaseSuccess": "구매 완료!",
+
+  "repeatBattle": "반복"
 }

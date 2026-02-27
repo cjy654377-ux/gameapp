@@ -71,6 +71,19 @@ class BattleState {
   /// Synergies active for the current player team.
   final List<SynergyEffect> activeSynergies;
 
+  /// When `true`, after victory the battle automatically collects rewards
+  /// and starts the next battle without showing the victory dialog.
+  final bool isRepeatMode;
+
+  /// Number of victories accumulated during the current repeat session.
+  final int repeatCount;
+
+  /// Accumulated gold earned during the current repeat session.
+  final int repeatTotalGold;
+
+  /// Accumulated exp earned during the current repeat session.
+  final int repeatTotalExp;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -84,6 +97,10 @@ class BattleState {
     this.currentStageName = '',
     this.lastReward,
     this.activeSynergies  = const [],
+    this.isRepeatMode     = false,
+    this.repeatCount      = 0,
+    this.repeatTotalGold  = 0,
+    this.repeatTotalExp   = 0,
   });
 
   BattleState copyWith({
@@ -100,6 +117,10 @@ class BattleState {
     BattleReward?       lastReward,
     bool                clearReward = false,
     List<SynergyEffect>? activeSynergies,
+    bool?               isRepeatMode,
+    int?                repeatCount,
+    int?                repeatTotalGold,
+    int?                repeatTotalExp,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -114,6 +135,10 @@ class BattleState {
       currentStageName: currentStageName ?? this.currentStageName,
       lastReward:       clearReward ? null : (lastReward ?? this.lastReward),
       activeSynergies:  activeSynergies  ?? this.activeSynergies,
+      isRepeatMode:     isRepeatMode     ?? this.isRepeatMode,
+      repeatCount:      repeatCount      ?? this.repeatCount,
+      repeatTotalGold:  repeatTotalGold  ?? this.repeatTotalGold,
+      repeatTotalExp:   repeatTotalExp   ?? this.repeatTotalExp,
     );
   }
 
@@ -353,6 +378,15 @@ class BattleNotifier extends StateNotifier<BattleState> {
         battleLog:  log,
         lastReward: reward,
       );
+
+      // Auto-collect and restart in repeat mode.
+      if (state.isRepeatMode) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (state.phase == BattlePhase.victory && state.isRepeatMode) {
+            collectReward();
+          }
+        });
+      }
       return;
     }
 
@@ -363,6 +397,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
         playerTeam: playerTeam,
         enemyTeam:  enemyTeam,
         battleLog:  log,
+        isRepeatMode: false, // Stop repeat on defeat.
       );
       return;
     }
@@ -413,6 +448,25 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
   /// Alias kept for backwards compatibility.
   void toggleAuto() => toggleAutoMode();
+
+  /// Toggles repeat mode: auto-collect rewards + restart battle after victory.
+  void toggleRepeatMode() {
+    final newRepeat = !state.isRepeatMode;
+    state = state.copyWith(
+      isRepeatMode: newRepeat,
+      // Enable auto mode too when repeat is on.
+      isAutoMode: newRepeat ? true : state.isAutoMode,
+      // Reset counters when enabling.
+      repeatCount: newRepeat ? 0 : state.repeatCount,
+      repeatTotalGold: newRepeat ? 0 : state.repeatTotalGold,
+      repeatTotalExp: newRepeat ? 0 : state.repeatTotalExp,
+    );
+  }
+
+  /// Stops repeat mode.
+  void stopRepeat() {
+    state = state.copyWith(isRepeatMode: false);
+  }
 
   // ---------------------------------------------------------------------------
   // Reward collection
@@ -489,11 +543,21 @@ class BattleNotifier extends StateNotifier<BattleState> {
       await player.advanceTutorial(2); // → gachaIntro
     }
 
+    // Track repeat rewards.
+    final newRepeatCount = state.repeatCount + (state.isRepeatMode ? 1 : 0);
+    final newRepeatGold = state.repeatTotalGold + (state.isRepeatMode ? bonusGold : 0);
+    final newRepeatExp = state.repeatTotalExp + (state.isRepeatMode ? bonusExp : 0);
+
     // Clear reward from state.
-    state = state.copyWith(clearReward: true);
+    state = state.copyWith(
+      clearReward: true,
+      repeatCount: newRepeatCount,
+      repeatTotalGold: newRepeatGold,
+      repeatTotalExp: newRepeatExp,
+    );
 
     // Auto-advance or return to idle.
-    if (state.isAutoMode) {
+    if (state.isRepeatMode || state.isAutoMode) {
       _advanceToNextStage();
     } else {
       state = state.copyWith(phase: BattlePhase.idle);

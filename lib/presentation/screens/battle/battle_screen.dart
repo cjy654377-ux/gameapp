@@ -39,6 +39,10 @@ class BattleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final phase = ref.watch(battleProvider.select((s) => s.phase));
+    final isRepeatMode = ref.watch(battleProvider.select((s) => s.isRepeatMode));
+    final repeatCount = ref.watch(battleProvider.select((s) => s.repeatCount));
+    final repeatGold = ref.watch(battleProvider.select((s) => s.repeatTotalGold));
+    final repeatExp = ref.watch(battleProvider.select((s) => s.repeatTotalExp));
 
     return TutorialOverlay(
       forStep: TutorialSteps.battleIntro,
@@ -77,8 +81,20 @@ class BattleScreen extends ConsumerWidget {
                 ],
               ),
 
-              // ── Victory dialog overlay ───────────────────────────────────
-              if (phase == BattlePhase.victory) const _VictoryDialog(),
+              // ── Victory dialog overlay (skip in repeat mode) ─────────────
+              if (phase == BattlePhase.victory && !isRepeatMode) const _VictoryDialog(),
+
+              // ── Repeat mode counter overlay ────────────────────────────────
+              if (isRepeatMode && repeatCount > 0)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 50,
+                  right: 12,
+                  child: _RepeatCounter(
+                    count: repeatCount,
+                    totalGold: repeatGold,
+                    totalExp: repeatExp,
+                  ),
+                ),
             ],
           ),
         ),
@@ -807,6 +823,7 @@ class _ControlBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final speed = ref.watch(battleProvider.select((s) => s.battleSpeed));
     final isAuto = ref.watch(battleProvider.select((s) => s.isAutoMode));
+    final isRepeat = ref.watch(battleProvider.select((s) => s.isRepeatMode));
     final phase = ref.watch(battleProvider.select((s) => s.phase));
     final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
     final notifier = ref.read(battleProvider.notifier);
@@ -856,6 +873,11 @@ class _ControlBar extends ConsumerWidget {
               _AutoBattleToggle(
                 isAuto: isAuto,
                 onToggle: notifier.toggleAuto,
+              ),
+              const SizedBox(width: 6),
+              _RepeatToggle(
+                isRepeat: isRepeat,
+                onToggle: notifier.toggleRepeatMode,
               ),
             ],
           ),
@@ -982,6 +1004,102 @@ class _AutoBattleToggle extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── _RepeatToggle ─────────────────────────────────────────────────────────────
+
+class _RepeatToggle extends StatelessWidget {
+  const _RepeatToggle({required this.isRepeat, required this.onToggle});
+
+  final bool isRepeat;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return GestureDetector(
+      onTap: onToggle,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isRepeat
+              ? Colors.orange.withValues(alpha: 0.2)
+              : AppColors.card.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isRepeat ? Colors.orange : AppColors.border,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.repeat_rounded,
+              size: 15,
+              color: isRepeat ? Colors.orange : AppColors.textSecondary,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              l.repeatBattle,
+              style: TextStyle(
+                color: isRepeat ? Colors.orange : AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── _RepeatCounter ────────────────────────────────────────────────────────────
+
+class _RepeatCounter extends StatelessWidget {
+  const _RepeatCounter({
+    required this.count,
+    required this.totalGold,
+    required this.totalExp,
+  });
+
+  final int count;
+  final int totalGold;
+  final int totalExp;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 4),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${count}x',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          Text(
+            '${FormatUtils.formatNumber(totalGold)}G  ${FormatUtils.formatNumber(totalExp)}XP',
+            style: const TextStyle(color: Colors.white70, fontSize: 10),
+          ),
+        ],
       ),
     );
   }
