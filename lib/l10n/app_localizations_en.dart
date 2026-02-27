@@ -1720,4 +1720,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String achievementPoints(int points) {
     return 'Achievement Points: ${points}P';
   }
+
+  @override
+  String get replayTitle => 'Battle Log';
+
+  @override
+  String get replayEmpty => 'No battle records';
+
+  @override
+  String get replayClear => 'Clear Records';
+
+  @override
+  String get replayClearConfirm => 'Delete all battle records?';
+
+  @override
+  String get replayVictory => 'Victory';
+
+  @override
+  String get replayDefeat => 'Defeat';
+
+  @override
+  String get replayTurns => 'turns';
+
+  @override
+  String get replayActions => 'actions';
+
+  @override
+  String get replayMyTeam => 'Allies';
+
+  @override
+  String get replayEnemyTeam => 'Enemies';
 }

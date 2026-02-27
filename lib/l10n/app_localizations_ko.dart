@@ -1713,4 +1713,34 @@ class AppLocalizationsKo extends AppLocalizations {
   String achievementPoints(int points) {
     return '업적 포인트: ${points}P';
   }
+
+  @override
+  String get replayTitle => '전투 기록';
+
+  @override
+  String get replayEmpty => '전투 기록이 없습니다';
+
+  @override
+  String get replayClear => '기록 삭제';
+
+  @override
+  String get replayClearConfirm => '모든 전투 기록을 삭제하시겠습니까?';
+
+  @override
+  String get replayVictory => '승리';
+
+  @override
+  String get replayDefeat => '패배';
+
+  @override
+  String get replayTurns => '턴';
+
+  @override
+  String get replayActions => '액션';
+
+  @override
+  String get replayMyTeam => '아군';
+
+  @override
+  String get replayEnemyTeam => '적군';
 }

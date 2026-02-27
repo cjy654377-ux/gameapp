@@ -554,5 +554,15 @@
   "triggerOnDamaged": "On Hit",
   "triggerBattleStart": "Battle Start",
   "achievementPoints": "Achievement Points: {points}P",
-  "@achievementPoints": {"placeholders": {"points": {"type": "int"}}}
+  "@achievementPoints": {"placeholders": {"points": {"type": "int"}}},
+  "replayTitle": "Battle Log",
+  "replayEmpty": "No battle records",
+  "replayClear": "Clear Records",
+  "replayClearConfirm": "Delete all battle records?",
+  "replayVictory": "Victory",
+  "replayDefeat": "Defeat",
+  "replayTurns": "turns",
+  "replayActions": "actions",
+  "replayMyTeam": "Allies",
+  "replayEnemyTeam": "Enemies"
 }

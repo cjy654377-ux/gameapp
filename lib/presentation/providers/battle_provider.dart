@@ -12,6 +12,7 @@ import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 import 'package:gameapp/presentation/providers/season_pass_provider.dart';
+import 'package:gameapp/presentation/providers/battle_replay_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helpers — delegate to StageDatabase shared utilities.
@@ -379,6 +380,9 @@ class BattleNotifier extends StateNotifier<BattleState> {
         lastReward: reward,
       );
 
+      // Save replay record.
+      _saveReplay(log, true);
+
       // Auto-collect and restart in repeat mode.
       if (state.isRepeatMode) {
         Future.delayed(const Duration(milliseconds: 300), () {
@@ -402,6 +406,9 @@ class BattleNotifier extends StateNotifier<BattleState> {
         battleLog:  log,
         isRepeatMode: false, // Stop repeat on defeat.
       );
+
+      // Save replay record.
+      _saveReplay(log, false);
       return;
     }
 
@@ -604,6 +611,20 @@ class BattleNotifier extends StateNotifier<BattleState> {
     return team.map((m) => m.copyWith()).toList();
   }
 
+  void _saveReplay(List<BattleLogEntry> log, bool isVictory) {
+    final stageKey = _stageIndexToKey(state.currentStageId);
+    final record = BattleRecord(
+      id: '${DateTime.now().millisecondsSinceEpoch}',
+      timestamp: DateTime.now(),
+      label: 'Stage $stageKey',
+      isVictory: isVictory,
+      totalTurns: state.currentTurn,
+      playerNames: state.playerTeam.map((m) => m.name).toList(),
+      enemyNames: state.enemyTeam.map((m) => m.name).toList(),
+      logLines: log.map((e) => e.description).toList(),
+    );
+    ref.read(battleReplayProvider.notifier).addRecord(record);
+  }
 }
 
 // =============================================================================

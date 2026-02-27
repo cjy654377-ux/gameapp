@@ -3145,6 +3145,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'업적 포인트: {points}P'**
   String achievementPoints(int points);
+
+  /// No description provided for @replayTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 기록'**
+  String get replayTitle;
+
+  /// No description provided for @replayEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 기록이 없습니다'**
+  String get replayEmpty;
+
+  /// No description provided for @replayClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 삭제'**
+  String get replayClear;
+
+  /// No description provided for @replayClearConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 전투 기록을 삭제하시겠습니까?'**
+  String get replayClearConfirm;
+
+  /// No description provided for @replayVictory.
+  ///
+  /// In ko, this message translates to:
+  /// **'승리'**
+  String get replayVictory;
+
+  /// No description provided for @replayDefeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'패배'**
+  String get replayDefeat;
+
+  /// No description provided for @replayTurns.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴'**
+  String get replayTurns;
+
+  /// No description provided for @replayActions.
+  ///
+  /// In ko, this message translates to:
+  /// **'액션'**
+  String get replayActions;
+
+  /// No description provided for @replayMyTeam.
+  ///
+  /// In ko, this message translates to:
+  /// **'아군'**
+  String get replayMyTeam;
+
+  /// No description provided for @replayEnemyTeam.
+  ///
+  /// In ko, this message translates to:
+  /// **'적군'**
+  String get replayEnemyTeam;
 }
 
 class _AppLocalizationsDelegate
