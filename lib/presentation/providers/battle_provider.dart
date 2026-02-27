@@ -12,6 +12,8 @@ import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/domain/services/prestige_service.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
+import 'package:gameapp/data/datasources/local_storage.dart';
+import 'package:gameapp/data/static/equippable_skill_database.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 import 'package:gameapp/presentation/providers/season_pass_provider.dart';
 import 'package:gameapp/presentation/providers/battle_replay_provider.dart';
@@ -251,12 +253,19 @@ class BattleNotifier extends StateNotifier<BattleState> {
       );
     }).toList();
 
+    // ── Create hero BattleMonster from player stats ──
+    final player = ref.read(playerProvider).player;
+    final heroMonster = _buildHeroBattleMonster(player);
+
+    // Prepend hero to team (hero is always slot 0).
+    final fullTeam = [heroMonster, ...teamWithRelics];
+
     // Build enemy team.
     final enemyTeam = BattleService.createEnemiesForStage(resolvedId);
 
     state = BattleState(
       phase:            BattlePhase.fighting,
-      playerTeam:       teamWithRelics,
+      playerTeam:       fullTeam,
       enemyTeam:        enemyTeam,
       activeSynergies:  result.synergies,
       battleLog:        const [],
@@ -697,6 +706,73 @@ class BattleNotifier extends StateNotifier<BattleState> {
   /// mutations inside [processTurn] do not affect the previous state reference.
   List<BattleMonster> _copyTeam(List<BattleMonster> team) {
     return team.map((m) => m.copyWith()).toList();
+  }
+
+  /// Build a [BattleMonster] representing the player's hero character.
+  BattleMonster _buildHeroBattleMonster(
+    dynamic /* PlayerModel? */ player,
+  ) {
+    // Base hero stats (use defaults if player is null).
+    double atk = 15.0, def = 8.0, hp = 150.0, spd = 12.0;
+    String heroName = '영웅';
+
+    if (player != null) {
+      atk = player.heroAtk;
+      def = player.heroDef;
+      hp  = player.heroHp;
+      spd = player.heroSpd;
+      heroName = player.nickname;
+
+      // Apply mount stat bonus if equipped.
+      if (player.equippedMountId != null) {
+        final mount = LocalStorage.instance.getMount(player.equippedMountId!);
+        if (mount != null) {
+          switch (mount.statType) {
+            case 'atk': atk += mount.effectiveStatValue;
+            case 'def': def += mount.effectiveStatValue;
+            case 'hp':  hp  += mount.effectiveStatValue;
+            case 'spd': spd += mount.effectiveStatValue;
+          }
+        }
+      }
+    }
+
+    // Resolve equipped skill.
+    String? skillId;
+    String? skillName;
+    int skillCooldown = 0;
+    int skillMaxCooldown = 0;
+
+    if (player?.equippedSkillId != null) {
+      final skill = LocalStorage.instance.getSkill(player!.equippedSkillId!);
+      if (skill != null) {
+        final template = EquippableSkillDatabase.findById(skill.templateId);
+        if (template != null) {
+          skillId = template.id;
+          skillName = template.name;
+          skillCooldown = 0; // starts ready
+          skillMaxCooldown = template.cooldown;
+        }
+      }
+    }
+
+    return BattleMonster(
+      monsterId: 'hero_player',
+      templateId: 'hero',
+      name: heroName,
+      element: 'light',
+      size: 'medium',
+      rarity: 5,
+      maxHp: hp,
+      currentHp: hp,
+      atk: atk,
+      def: def,
+      spd: spd,
+      skillId: skillId,
+      skillName: skillName,
+      skillCooldown: skillCooldown,
+      skillMaxCooldown: skillMaxCooldown,
+    );
   }
 
   void _saveReplay(List<BattleLogEntry> log, bool isVictory) {

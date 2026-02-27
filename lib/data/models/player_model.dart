@@ -74,6 +74,30 @@ class PlayerModel extends HiveObject {
   @HiveField(19)
   String? currentTitle;
 
+  /// Hero base attack (scales with playerLevel).
+  @HiveField(20)
+  double heroBaseAtk;
+
+  /// Hero base defence.
+  @HiveField(21)
+  double heroBaseDef;
+
+  /// Hero base HP.
+  @HiveField(22)
+  double heroBaseHp;
+
+  /// Hero base speed.
+  @HiveField(23)
+  double heroBaseSpd;
+
+  /// Equipped skill ID from equippable_skill gacha (null = none).
+  @HiveField(24)
+  String? equippedSkillId;
+
+  /// Equipped mount ID from mount gacha (null = none).
+  @HiveField(25)
+  String? equippedMountId;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -95,6 +119,12 @@ class PlayerModel extends HiveObject {
     this.checkInStreak = 0,
     this.totalCheckInDays = 0,
     this.currentTitle,
+    this.heroBaseAtk = 15.0,
+    this.heroBaseDef = 8.0,
+    this.heroBaseHp = 150.0,
+    this.heroBaseSpd = 12.0,
+    this.equippedSkillId,
+    this.equippedMountId,
   });
 
   // -------------------------------------------------------------------------
@@ -106,6 +136,15 @@ class PlayerModel extends HiveObject {
 
   /// Pure formula: experience required to advance from [level] to level+1.
   static int expForLevel(int level) => (200 * (1.15 * level)).round();
+
+  // -------------------------------------------------------------------------
+  // Hero computed stats (scales with playerLevel)
+  // -------------------------------------------------------------------------
+
+  double get heroAtk => heroBaseAtk * (1.0 + (playerLevel - 1) * 0.08);
+  double get heroDef => heroBaseDef * (1.0 + (playerLevel - 1) * 0.06);
+  double get heroHp  => heroBaseHp  * (1.0 + (playerLevel - 1) * 0.10);
+  double get heroSpd => heroBaseSpd * (1.0 + (playerLevel - 1) * 0.04);
 
   // -------------------------------------------------------------------------
   // Convenience factory for new players
@@ -166,6 +205,14 @@ class PlayerModel extends HiveObject {
     int? totalCheckInDays,
     String? currentTitle,
     bool clearTitle = false,
+    double? heroBaseAtk,
+    double? heroBaseDef,
+    double? heroBaseHp,
+    double? heroBaseSpd,
+    String? equippedSkillId,
+    bool clearEquippedSkill = false,
+    String? equippedMountId,
+    bool clearEquippedMount = false,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -189,6 +236,12 @@ class PlayerModel extends HiveObject {
       checkInStreak: checkInStreak ?? this.checkInStreak,
       totalCheckInDays: totalCheckInDays ?? this.totalCheckInDays,
       currentTitle: clearTitle ? null : (currentTitle ?? this.currentTitle),
+      heroBaseAtk: heroBaseAtk ?? this.heroBaseAtk,
+      heroBaseDef: heroBaseDef ?? this.heroBaseDef,
+      heroBaseHp: heroBaseHp ?? this.heroBaseHp,
+      heroBaseSpd: heroBaseSpd ?? this.heroBaseSpd,
+      equippedSkillId: clearEquippedSkill ? null : (equippedSkillId ?? this.equippedSkillId),
+      equippedMountId: clearEquippedMount ? null : (equippedMountId ?? this.equippedMountId),
     );
   }
 
@@ -235,13 +288,19 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       checkInStreak: fields[17] as int? ?? 0,
       totalCheckInDays: fields[18] as int? ?? 0,
       currentTitle: fields[19] as String?,
+      heroBaseAtk: (fields[20] as num?)?.toDouble() ?? 15.0,
+      heroBaseDef: (fields[21] as num?)?.toDouble() ?? 8.0,
+      heroBaseHp: (fields[22] as num?)?.toDouble() ?? 150.0,
+      heroBaseSpd: (fields[23] as num?)?.toDouble() ?? 12.0,
+      equippedSkillId: fields[24] as String?,
+      equippedMountId: fields[25] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(20) // number of fields
+      ..writeByte(26) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -281,7 +340,19 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(18)
       ..write(obj.totalCheckInDays)
       ..writeByte(19)
-      ..write(obj.currentTitle);
+      ..write(obj.currentTitle)
+      ..writeByte(20)
+      ..write(obj.heroBaseAtk)
+      ..writeByte(21)
+      ..write(obj.heroBaseDef)
+      ..writeByte(22)
+      ..write(obj.heroBaseHp)
+      ..writeByte(23)
+      ..write(obj.heroBaseSpd)
+      ..writeByte(24)
+      ..write(obj.equippedSkillId)
+      ..writeByte(25)
+      ..write(obj.equippedMountId);
   }
 
   @override
