@@ -268,6 +268,7 @@ class _MonsterHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final rarityEnum = MonsterRarity.fromRarity(monster.rarity);
 
     return Container(
@@ -342,7 +343,7 @@ class _MonsterHeader extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Lv.${monster.level}  |  진화 ${monster.evolutionStage}단계',
+                  l.monsterLevelInfo(monster.level, monster.evolutionStage),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,

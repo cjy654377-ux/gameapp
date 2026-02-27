@@ -176,7 +176,7 @@ class _ExpeditionCard extends ConsumerWidget {
                 )
               else
                 Text(
-                  _formatDuration(remaining),
+                  _formatDuration(remaining, AppLocalizations.of(context)!),
                   style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
             ],
@@ -211,13 +211,13 @@ class _ExpeditionCard extends ConsumerWidget {
     );
   }
 
-  String _formatDuration(Duration d) {
+  String _formatDuration(Duration d, AppLocalizations l) {
     final h = d.inHours;
     final m = d.inMinutes % 60;
     final s = d.inSeconds % 60;
-    if (h > 0) return '$h시간 $m분 $s초';
-    if (m > 0) return '$m분 $s초';
-    return '$s초';
+    if (h > 0) return l.timerHMS(h, m, s);
+    if (m > 0) return l.timerMS(m, s);
+    return l.timerS(s);
   }
 }
 

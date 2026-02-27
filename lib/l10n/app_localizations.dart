@@ -3805,6 +3805,114 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'도감 완성!'**
   String get milestoneComplete;
+
+  /// No description provided for @skillCd.
+  ///
+  /// In ko, this message translates to:
+  /// **'CD: {cd}턴'**
+  String skillCd(int cd);
+
+  /// No description provided for @tagAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get tagAll;
+
+  /// No description provided for @tagSingle.
+  ///
+  /// In ko, this message translates to:
+  /// **'단일'**
+  String get tagSingle;
+
+  /// No description provided for @tagShield.
+  ///
+  /// In ko, this message translates to:
+  /// **'방패 {pct}%'**
+  String tagShield(int pct);
+
+  /// No description provided for @tagHeal.
+  ///
+  /// In ko, this message translates to:
+  /// **'힐 {pct}%'**
+  String tagHeal(int pct);
+
+  /// No description provided for @tagDrain.
+  ///
+  /// In ko, this message translates to:
+  /// **'흡수 {pct}%'**
+  String tagDrain(int pct);
+
+  /// No description provided for @tagBurn.
+  ///
+  /// In ko, this message translates to:
+  /// **'화상 {turns}턴'**
+  String tagBurn(int turns);
+
+  /// No description provided for @tagStun.
+  ///
+  /// In ko, this message translates to:
+  /// **'기절 {pct}%'**
+  String tagStun(int pct);
+
+  /// No description provided for @tagHpRegen.
+  ///
+  /// In ko, this message translates to:
+  /// **'HP회복 {pct}%'**
+  String tagHpRegen(int pct);
+
+  /// No description provided for @tagCounter.
+  ///
+  /// In ko, this message translates to:
+  /// **'반격 {pct}%'**
+  String tagCounter(int pct);
+
+  /// No description provided for @tagCrit.
+  ///
+  /// In ko, this message translates to:
+  /// **'크리 +{pct}%'**
+  String tagCrit(int pct);
+
+  /// No description provided for @affinityNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 레벨까지 {battles}회 (보너스: +{bonus}%)'**
+  String affinityNext(int battles, int bonus);
+
+  /// No description provided for @relicInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{stat} +{value} | {rarity}성'**
+  String relicInfo(String stat, int value, int rarity);
+
+  /// No description provided for @teamSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투력 {power}  |  팀 {count}/4  |  도감 {owned}/{total}'**
+  String teamSummary(String power, int count, int owned, int total);
+
+  /// No description provided for @monsterLevelInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level}  |  진화 {stage}단계'**
+  String monsterLevelInfo(int level, int stage);
+
+  /// No description provided for @timerHMS.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간 {m}분 {s}초'**
+  String timerHMS(int h, int m, int s);
+
+  /// No description provided for @timerMS.
+  ///
+  /// In ko, this message translates to:
+  /// **'{m}분 {s}초'**
+  String timerMS(int m, int s);
+
+  /// No description provided for @timerS.
+  ///
+  /// In ko, this message translates to:
+  /// **'{s}초'**
+  String timerS(int s);
 }
 
 class _AppLocalizationsDelegate

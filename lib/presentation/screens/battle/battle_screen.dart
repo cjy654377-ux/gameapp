@@ -358,7 +358,7 @@ class _IdleBanner extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '전투력 ${FormatUtils.formatNumber(teamPower.round())}  |  팀 ${team.length}/4  |  도감 ${collection.owned}/${collection.total}',
+                          l.teamSummary(FormatUtils.formatNumber(teamPower.round()), team.length, collection.owned, collection.total),
                           style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
                         ),
                       ],

@@ -697,7 +697,7 @@ class _AffinityBar extends StatelessWidget {
         Text(
           isMax
               ? l.affinityBonus(level * 2)
-              : '다음 레벨까지 ${monster.battleCountToNextAffinity}회 (보너스: +${(level * 2)}%)',
+              : l.affinityNext(monster.battleCountToNextAffinity, level * 2),
           style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
@@ -715,6 +715,7 @@ class _SkillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -745,7 +746,7 @@ class _SkillCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'CD: ${skill.cooldown}턴',
+                  l.skillCd(skill.cooldown),
                   style: TextStyle(fontSize: 11, color: Colors.purple[200]),
                 ),
               ),
@@ -763,25 +764,25 @@ class _SkillCard extends StatelessWidget {
             children: [
               if (skill.damageMultiplier > 0)
                 _SkillTag(
-                  label: '${skill.damageMultiplier}x ${skill.damageTarget == SkillTargetType.allEnemies ? "전체" : "단일"}',
+                  label: '${skill.damageMultiplier}x ${skill.damageTarget == SkillTargetType.allEnemies ? l.tagAll : l.tagSingle}',
                   color: Colors.red,
                 ),
               if (skill.shieldPercent > 0)
                 _SkillTag(
-                  label: '방패 ${(skill.shieldPercent * 100).round()}%${skill.isTeamShield ? " 전체" : ""}',
+                  label: '${l.tagShield((skill.shieldPercent * 100).round())}${skill.isTeamShield ? " ${l.tagAll}" : ""}',
                   color: Colors.blue,
                 ),
               if (skill.healPercent > 0)
                 _SkillTag(
-                  label: '힐 ${(skill.healPercent * 100).round()}%${skill.isTeamHeal ? " 전체" : ""}',
+                  label: '${l.tagHeal((skill.healPercent * 100).round())}${skill.isTeamHeal ? " ${l.tagAll}" : ""}',
                   color: Colors.green,
                 ),
               if (skill.drainPercent > 0)
-                _SkillTag(label: '흡수 ${(skill.drainPercent * 100).round()}%', color: Colors.teal),
+                _SkillTag(label: l.tagDrain((skill.drainPercent * 100).round()), color: Colors.teal),
               if (skill.burnTurns > 0)
-                _SkillTag(label: '화상 ${skill.burnTurns}턴', color: Colors.orange),
+                _SkillTag(label: l.tagBurn(skill.burnTurns), color: Colors.orange),
               if (skill.stunChance > 0)
-                _SkillTag(label: '기절 ${(skill.stunChance * 100).round()}%', color: Colors.amber),
+                _SkillTag(label: l.tagStun((skill.stunChance * 100).round()), color: Colors.amber),
             ],
           ),
         ],
@@ -847,7 +848,7 @@ class _RelicTile extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  '${_statLabel(relic.statType, l)} +${relic.statValue.toInt()} | ${relic.rarity}성',
+                  l.relicInfo(_statLabel(relic.statType, l), relic.statValue.toInt(), relic.rarity),
                   style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
                 ),
               ],
@@ -948,11 +949,11 @@ class _PassiveCard extends StatelessWidget {
               if (passive.defBoost > 0)
                 _SkillTag(label: 'DEF +${(passive.defBoost * 100).round()}%', color: Colors.blue),
               if (passive.hpRegenPercent > 0)
-                _SkillTag(label: 'HP회복 ${(passive.hpRegenPercent * 100).round()}%', color: Colors.green),
+                _SkillTag(label: l.tagHpRegen((passive.hpRegenPercent * 100).round()), color: Colors.green),
               if (passive.counterChance > 0)
-                _SkillTag(label: '반격 ${(passive.counterChance * 100).round()}%', color: Colors.orange),
+                _SkillTag(label: l.tagCounter((passive.counterChance * 100).round()), color: Colors.orange),
               if (passive.critBoost > 0)
-                _SkillTag(label: '크리 +${(passive.critBoost * 100).round()}%', color: Colors.amber),
+                _SkillTag(label: l.tagCrit((passive.critBoost * 100).round()), color: Colors.amber),
             ],
           ),
         ],
@@ -1021,16 +1022,16 @@ class _UltimateCard extends StatelessWidget {
             children: [
               if (ultimate.damageMultiplier > 0)
                 _SkillTag(
-                  label: '${ultimate.damageMultiplier}x ${ultimate.damageTarget == SkillTargetType.allEnemies ? "전체" : "단일"}',
+                  label: '${ultimate.damageMultiplier}x ${ultimate.damageTarget == SkillTargetType.allEnemies ? l.tagAll : l.tagSingle}',
                   color: Colors.red,
                 ),
               if (ultimate.healPercent > 0)
                 _SkillTag(
-                  label: '힐 ${(ultimate.healPercent * 100).round()}%${ultimate.isTeamHeal ? " 전체" : ""}',
+                  label: '${l.tagHeal((ultimate.healPercent * 100).round())}${ultimate.isTeamHeal ? " ${l.tagAll}" : ""}',
                   color: Colors.green,
                 ),
               if (ultimate.stunChance > 0)
-                _SkillTag(label: '기절 ${(ultimate.stunChance * 100).round()}%', color: Colors.amber),
+                _SkillTag(label: l.tagStun((ultimate.stunChance * 100).round()), color: Colors.amber),
             ],
           ),
         ],

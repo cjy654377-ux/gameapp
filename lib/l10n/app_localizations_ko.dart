@@ -2101,4 +2101,90 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get milestoneComplete => '도감 완성!';
+
+  @override
+  String skillCd(int cd) {
+    return 'CD: $cd턴';
+  }
+
+  @override
+  String get tagAll => '전체';
+
+  @override
+  String get tagSingle => '단일';
+
+  @override
+  String tagShield(int pct) {
+    return '방패 $pct%';
+  }
+
+  @override
+  String tagHeal(int pct) {
+    return '힐 $pct%';
+  }
+
+  @override
+  String tagDrain(int pct) {
+    return '흡수 $pct%';
+  }
+
+  @override
+  String tagBurn(int turns) {
+    return '화상 $turns턴';
+  }
+
+  @override
+  String tagStun(int pct) {
+    return '기절 $pct%';
+  }
+
+  @override
+  String tagHpRegen(int pct) {
+    return 'HP회복 $pct%';
+  }
+
+  @override
+  String tagCounter(int pct) {
+    return '반격 $pct%';
+  }
+
+  @override
+  String tagCrit(int pct) {
+    return '크리 +$pct%';
+  }
+
+  @override
+  String affinityNext(int battles, int bonus) {
+    return '다음 레벨까지 $battles회 (보너스: +$bonus%)';
+  }
+
+  @override
+  String relicInfo(String stat, int value, int rarity) {
+    return '$stat +$value | $rarity성';
+  }
+
+  @override
+  String teamSummary(String power, int count, int owned, int total) {
+    return '전투력 $power  |  팀 $count/4  |  도감 $owned/$total';
+  }
+
+  @override
+  String monsterLevelInfo(int level, int stage) {
+    return 'Lv.$level  |  진화 $stage단계';
+  }
+
+  @override
+  String timerHMS(int h, int m, int s) {
+    return '$h시간 $m분 $s초';
+  }
+
+  @override
+  String timerMS(int m, int s) {
+    return '$m분 $s초';
+  }
+
+  @override
+  String timerS(int s) {
+    return '$s초';
+  }
 }

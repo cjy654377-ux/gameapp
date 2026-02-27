@@ -2111,4 +2111,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get milestoneComplete => 'Collection Complete!';
+
+  @override
+  String skillCd(int cd) {
+    return 'CD: ${cd}t';
+  }
+
+  @override
+  String get tagAll => 'All';
+
+  @override
+  String get tagSingle => 'Single';
+
+  @override
+  String tagShield(int pct) {
+    return 'Shield $pct%';
+  }
+
+  @override
+  String tagHeal(int pct) {
+    return 'Heal $pct%';
+  }
+
+  @override
+  String tagDrain(int pct) {
+    return 'Drain $pct%';
+  }
+
+  @override
+  String tagBurn(int turns) {
+    return 'Burn ${turns}t';
+  }
+
+  @override
+  String tagStun(int pct) {
+    return 'Stun $pct%';
+  }
+
+  @override
+  String tagHpRegen(int pct) {
+    return 'HP Regen $pct%';
+  }
+
+  @override
+  String tagCounter(int pct) {
+    return 'Counter $pct%';
+  }
+
+  @override
+  String tagCrit(int pct) {
+    return 'Crit +$pct%';
+  }
+
+  @override
+  String affinityNext(int battles, int bonus) {
+    return '$battles battles to next level (Bonus: +$bonus%)';
+  }
+
+  @override
+  String relicInfo(String stat, int value, int rarity) {
+    return '$stat +$value | $rarity★';
+  }
+
+  @override
+  String teamSummary(String power, int count, int owned, int total) {
+    return 'Power $power  |  Team $count/4  |  Dex $owned/$total';
+  }
+
+  @override
+  String monsterLevelInfo(int level, int stage) {
+    return 'Lv.$level  |  Evo Stage $stage';
+  }
+
+  @override
+  String timerHMS(int h, int m, int s) {
+    return '${h}h ${m}m ${s}s';
+  }
+
+  @override
+  String timerMS(int m, int s) {
+    return '${m}m ${s}s';
+  }
+
+  @override
+  String timerS(int s) {
+    return '${s}s';
+  }
 }
