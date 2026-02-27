@@ -3205,6 +3205,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'적군'**
   String get replayEnemyTeam;
+
+  /// No description provided for @relicEnhance.
+  ///
+  /// In ko, this message translates to:
+  /// **'강화'**
+  String get relicEnhance;
 }
 
 class _AppLocalizationsDelegate

@@ -564,5 +564,6 @@
   "replayTurns": "turns",
   "replayActions": "actions",
   "replayMyTeam": "Allies",
-  "replayEnemyTeam": "Enemies"
+  "replayEnemyTeam": "Enemies",
+  "relicEnhance": "Enhance"
 }

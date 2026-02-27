@@ -101,6 +101,30 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
   }
 
   // ---------------------------------------------------------------------------
+  // Enhancement
+  // ---------------------------------------------------------------------------
+
+  /// Gold cost for next enhancement level.
+  static int enhanceCost(RelicModel relic) {
+    return 500 * (relic.enhanceLevel + 1) * relic.rarity;
+  }
+
+  /// Enhance a relic by one level, increasing stat value.
+  Future<bool> enhanceRelic(String relicId) async {
+    final idx = state.indexWhere((r) => r.id == relicId);
+    if (idx < 0) return false;
+    final relic = state[idx];
+    if (!relic.canEnhance) return false;
+
+    final enhanced = relic.copyWith(enhanceLevel: relic.enhanceLevel + 1);
+    await _storage.saveRelic(enhanced);
+    final updated = [...state];
+    updated[idx] = enhanced;
+    state = updated;
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
   // Random relic generation (for drops)
   // ---------------------------------------------------------------------------
 
@@ -163,15 +187,16 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
     double atkBonus = 0, defBonus = 0, hpBonus = 0, spdBonus = 0;
     for (final relic in state) {
       if (relic.equippedMonsterId != monsterId) continue;
+      final val = relic.enhancedStatValue;
       switch (relic.statType) {
         case 'atk':
-          atkBonus += relic.statValue;
+          atkBonus += val;
         case 'def':
-          defBonus += relic.statValue;
+          defBonus += val;
         case 'hp':
-          hpBonus += relic.statValue;
+          hpBonus += val;
         case 'spd':
-          spdBonus += relic.statValue;
+          spdBonus += val;
       }
     }
     return (atk: atkBonus, def: defBonus, hp: hpBonus, spd: spdBonus);

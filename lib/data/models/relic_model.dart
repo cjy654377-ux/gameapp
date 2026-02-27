@@ -46,6 +46,10 @@ class RelicModel extends HiveObject {
   @HiveField(8)
   DateTime acquiredAt;
 
+  /// Enhancement level (0 = base, max = rarity * 3).
+  @HiveField(9)
+  int enhanceLevel;
+
   RelicModel({
     required this.id,
     required this.templateId,
@@ -56,9 +60,18 @@ class RelicModel extends HiveObject {
     required this.statValue,
     this.equippedMonsterId,
     required this.acquiredAt,
+    this.enhanceLevel = 0,
   });
 
   bool get isEquipped => equippedMonsterId != null;
+
+  /// Max enhance level = rarity * 3 (e.g. 3-star = +9).
+  int get maxEnhanceLevel => rarity * 3;
+
+  /// Stat value with enhancement bonus (10% per level).
+  double get enhancedStatValue => statValue * (1.0 + enhanceLevel * 0.10);
+
+  bool get canEnhance => enhanceLevel < maxEnhanceLevel;
 
   RelicType get relicType {
     switch (type) {
@@ -95,6 +108,7 @@ class RelicModel extends HiveObject {
     String? equippedMonsterId,
     bool clearEquip = false,
     DateTime? acquiredAt,
+    int? enhanceLevel,
   }) {
     return RelicModel(
       id: id ?? this.id,
@@ -107,6 +121,7 @@ class RelicModel extends HiveObject {
       equippedMonsterId:
           clearEquip ? null : (equippedMonsterId ?? this.equippedMonsterId),
       acquiredAt: acquiredAt ?? this.acquiredAt,
+      enhanceLevel: enhanceLevel ?? this.enhanceLevel,
     );
   }
 
@@ -140,13 +155,14 @@ class RelicModelAdapter extends TypeAdapter<RelicModel> {
       statValue:         (fields[6] as num).toDouble(),
       equippedMonsterId: fields[7] as String?,
       acquiredAt:        fields[8] as DateTime,
+      enhanceLevel:      fields[9] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, RelicModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -164,7 +180,9 @@ class RelicModelAdapter extends TypeAdapter<RelicModel> {
       ..writeByte(7)
       ..write(obj.equippedMonsterId)
       ..writeByte(8)
-      ..write(obj.acquiredAt);
+      ..write(obj.acquiredAt)
+      ..writeByte(9)
+      ..write(obj.enhanceLevel);
   }
 
   @override

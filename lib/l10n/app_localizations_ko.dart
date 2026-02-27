@@ -1743,4 +1743,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get replayEnemyTeam => '적군';
+
+  @override
+  String get relicEnhance => '강화';
 }

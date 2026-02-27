@@ -1750,4 +1750,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get replayEnemyTeam => 'Enemies';
+
+  @override
+  String get relicEnhance => 'Enhance';
 }

@@ -640,5 +640,6 @@
   "replayTurns": "턴",
   "replayActions": "액션",
   "replayMyTeam": "아군",
-  "replayEnemyTeam": "적군"
+  "replayEnemyTeam": "적군",
+  "relicEnhance": "강화"
 }

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gameapp/l10n/app_localizations.dart';
+import 'package:gameapp/core/constants/app_colors.dart';
+import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/data/models/relic_model.dart';
+import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
@@ -258,12 +261,30 @@ class _RelicCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '${_statLabel(l, relic.statType)} +${relic.statValue.toInt()}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[400],
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '${_statLabel(l, relic.statType)} +${relic.enhancedStatValue.toInt()}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                      if (relic.enhanceLevel > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '+${relic.enhanceLevel}',
+                            style: const TextStyle(fontSize: 10, color: Colors.amber, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -351,24 +372,37 @@ class _RelicDetailSheet extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // Stat bonus
+          // Stat bonus + enhance info
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
               children: [
-                Text(
-                  '${_statLabel(l, relic.statType)} +${relic.statValue.toInt()}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.amber,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${_statLabel(l, relic.statType)} +${relic.enhancedStatValue.toInt()}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber,
+                      ),
+                    ),
+                    if (relic.enhanceLevel > 0)
+                      Text(
+                        ' (+${relic.enhanceLevel})',
+                        style: TextStyle(fontSize: 14, color: Colors.amber[200]),
+                      ),
+                  ],
                 ),
+                if (relic.canEnhance) ...[
+                  const SizedBox(height: 8),
+                  _EnhanceButton(relic: relic),
+                ],
               ],
             ),
           ),
@@ -547,5 +581,47 @@ String _statLabel(AppLocalizations l, String stat) {
       return l.statSpeed;
     default:
       return stat;
+  }
+}
+
+// =============================================================================
+// Enhance Button
+// =============================================================================
+
+class _EnhanceButton extends ConsumerWidget {
+  const _EnhanceButton({required this.relic});
+  final RelicModel relic;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final gold = ref.watch(currencyProvider.select((c) => c.gold));
+    final cost = RelicNotifier.enhanceCost(relic);
+    final canAfford = gold >= cost;
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: canAfford
+            ? () async {
+                final success = await ref.read(currencyProvider.notifier).spendGold(cost);
+                if (!success) return;
+                await ref.read(relicProvider.notifier).enhanceRelic(relic.id);
+                if (context.mounted) Navigator.of(context).pop();
+              }
+            : null,
+        icon: const Icon(Icons.upgrade, size: 18),
+        label: Text(
+          '${l.relicEnhance} +${relic.enhanceLevel + 1} (${FormatUtils.formatNumber(cost)} ${l.gold})',
+          style: const TextStyle(fontSize: 13),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.disabled.withValues(alpha: 0.3),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+        ),
+      ),
+    );
   }
 }
