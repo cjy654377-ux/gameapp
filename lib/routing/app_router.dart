@@ -168,8 +168,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MailboxScreen(),
       ),
       GoRoute(
-        path: AppRoutes.shop,
-        builder: (context, state) => const ShopScreen(),
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.dailyDungeon,
@@ -233,9 +233,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ),
           GoRoute(
-            path: AppRoutes.settings,
+            path: AppRoutes.shop,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: SettingsScreen(),
+              child: ShopScreen(),
             ),
           ),
         ],

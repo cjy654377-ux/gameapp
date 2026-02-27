@@ -62,9 +62,9 @@ const List<_TabItem> _tabs = [
     activeIcon: Icons.assignment,
   ),
   _TabItem(
-    route: AppRoutes.settings,
-    icon: Icons.settings_outlined,
-    activeIcon: Icons.settings,
+    route: AppRoutes.shop,
+    icon: Icons.store_outlined,
+    activeIcon: Icons.store,
   ),
 ];
 
@@ -323,7 +323,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       l.tabCollection,
       l.tabUpgrade,
       l.tabQuest,
-      l.tabSettings,
+      l.shopTitle,
     ];
 
     return Scaffold(
