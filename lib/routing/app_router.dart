@@ -36,6 +36,7 @@ import '../presentation/screens/battle_replay/battle_replay_screen.dart';
 import '../presentation/screens/monster_compare/monster_compare_screen.dart';
 import '../presentation/screens/gacha/gacha_history_screen.dart';
 import '../presentation/screens/hero/hero_screen.dart';
+import '../presentation/screens/map_hub/map_hub_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -75,6 +76,7 @@ class AppRoutes {
   static const monsterCompare = '/monster-compare';
   static const gachaHistory = '/gacha-history';
   static const hero = '/hero';
+  static const mapHub = '/map-hub';
 }
 
 // ---------------------------------------------------------------------------
@@ -192,6 +194,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.hero,
         builder: (context, state) => const HeroScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mapHub,
+        builder: (context, state) => const MapHubScreen(),
       ),
       GoRoute(
         path: AppRoutes.monsterDetail,
