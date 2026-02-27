@@ -382,7 +382,10 @@ class BattleNotifier extends StateNotifier<BattleState> {
       // Auto-collect and restart in repeat mode.
       if (state.isRepeatMode) {
         Future.delayed(const Duration(milliseconds: 300), () {
-          if (state.phase == BattlePhase.victory && state.isRepeatMode) {
+          // Guard: only auto-collect if still in victory with uncollected reward.
+          if (state.phase == BattlePhase.victory &&
+              state.isRepeatMode &&
+              state.lastReward != null) {
             collectReward();
           }
         });
