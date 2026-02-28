@@ -11,6 +11,10 @@ import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
+import 'package:gameapp/presentation/providers/arena_provider.dart';
+import 'package:gameapp/presentation/providers/tower_provider.dart';
+import 'package:gameapp/presentation/providers/guild_provider.dart';
+import 'package:gameapp/presentation/providers/expedition_provider.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 
 // =============================================================================
@@ -38,6 +42,10 @@ class StatisticsScreen extends ConsumerWidget {
     ));
     final claimableCount = ref.watch(questProvider.select((s) => s.claimableCount));
     final relics = ref.watch(relicProvider);
+    final arenaState = ref.watch(arenaProvider);
+    final towerState = ref.watch(towerProvider);
+    final guildState = ref.watch(guildProvider);
+    final expeditionState = ref.watch(expeditionProvider);
 
     // Computed stats
     final daysSinceCreation = DateTime.now().difference(player.createdAt).inDays;
@@ -92,6 +100,11 @@ class StatisticsScreen extends ConsumerWidget {
               ),
               _StatItem(label: l.statBestClear, value: player.maxClearedStageId.isEmpty ? '-' : player.maxClearedStageId),
               _StatItem(label: l.statDungeonBest, value: player.maxDungeonFloor > 0 ? l.countUnit(player.maxDungeonFloor.toString()) : '-'),
+              _StatItem(label: l.statTowerHighest, value: towerState.highestCleared > 0 ? '${towerState.highestCleared}F' : '-'),
+              _StatItem(label: l.statArenaRating, value: '${arenaState.rating} (${arenaState.totalWins}W/${arenaState.totalLosses}L)'),
+              if (guildState.guild != null)
+                _StatItem(label: l.statGuildContrib, value: FormatUtils.formatNumber(guildState.guild!.playerContribution.round())),
+              _StatItem(label: l.statExpeditionGold, value: l.countUnit(expeditionState.expeditions.length.toString())),
             ],
           ),
 
