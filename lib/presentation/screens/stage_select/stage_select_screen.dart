@@ -37,10 +37,17 @@ class _StageSelectScreenState extends ConsumerState<StageSelectScreen>
   @override
   void initState() {
     super.initState();
-    // Default to the area of the player's current stage.
-    final player = ref.read(playerProvider).player;
-    final currentStageId = player?.currentStageId ?? '1-1';
-    final area = int.tryParse(currentStageId.split('-').first) ?? 1;
+    // Use area query param from map hub, or fallback to current stage area.
+    final uri = GoRouterState.of(context).uri;
+    final areaParam = uri.queryParameters['area'];
+    int area;
+    if (areaParam != null) {
+      area = int.tryParse(areaParam) ?? 1;
+    } else {
+      final player = ref.read(playerProvider).player;
+      final currentStageId = player?.currentStageId ?? '1-1';
+      area = int.tryParse(currentStageId.split('-').first) ?? 1;
+    }
     _tabController = TabController(
       length: StageDatabase.areaCount,
       initialIndex: (area - 1).clamp(0, StageDatabase.areaCount - 1),
