@@ -180,7 +180,7 @@ class _SkillGachaTab extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _CurrencyDisplay(
-            label: '보유 스킬 티켓',
+            label: l.ownedSkillTicket,
             amount: currency.skillTicket,
             icon: Icons.confirmation_number,
             color: Colors.purple,
@@ -257,7 +257,7 @@ class _RelicGachaTab extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _CurrencyDisplay(
-            label: '보유 장비 티켓',
+            label: l.ownedRelicTicket,
             amount: currency.relicTicket,
             icon: Icons.toll,
             color: Colors.blue,
@@ -334,7 +334,7 @@ class _MountGachaTab extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _CurrencyDisplay(
-            label: '보유 탈것 젬',
+            label: l.ownedMountGem,
             amount: currency.mountGem,
             icon: Icons.diamond,
             color: Colors.orange,
@@ -412,6 +412,7 @@ class _GenericPityBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final remaining = GameConfig.pityThreshold - pityCount;
     final progress = pityCount / GameConfig.pityThreshold;
 
@@ -427,7 +428,7 @@ class _GenericPityBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('천장까지', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              Text(l.pityUntil, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
               Text('$pityCount / ${GameConfig.pityThreshold}',
                   style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
             ],
@@ -445,7 +446,7 @@ class _GenericPityBar extends StatelessWidget {
           if (remaining > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text('$remaining회 남음',
+              child: Text(l.pityRemaining(remaining),
                   style: const TextStyle(color: AppColors.textTertiary, fontSize: 10)),
             ),
         ],

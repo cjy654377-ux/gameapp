@@ -843,5 +843,12 @@
   "statTowerHighest": "Tower Highest",
   "statArenaRating": "Arena Rating",
   "statGuildContrib": "Guild Contribution",
-  "statExpeditionGold": "Expedition Earnings"
+  "statExpeditionGold": "Expedition Earnings",
+
+  "ownedSkillTicket": "Skill Tickets",
+  "ownedRelicTicket": "Relic Tickets",
+  "ownedMountGem": "Mount Gems",
+  "pityUntil": "Until pity",
+  "pityRemaining": "{count} remaining",
+  "@pityRemaining": {"placeholders": {"count": {"type": "int"}}}
 }

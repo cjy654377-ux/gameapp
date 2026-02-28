@@ -919,5 +919,12 @@
   "statTowerHighest": "탑 최고층",
   "statArenaRating": "아레나 레이팅",
   "statGuildContrib": "길드 기여도",
-  "statExpeditionGold": "원정대 누적 수익"
+  "statExpeditionGold": "원정대 누적 수익",
+
+  "ownedSkillTicket": "보유 스킬 티켓",
+  "ownedRelicTicket": "보유 장비 티켓",
+  "ownedMountGem": "보유 탈것 젬",
+  "pityUntil": "천장까지",
+  "pityRemaining": "{count}회 남음",
+  "@pityRemaining": {"placeholders": {"count": {"type": "int"}}}
 }

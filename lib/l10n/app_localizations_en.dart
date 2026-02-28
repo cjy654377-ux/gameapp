@@ -2475,4 +2475,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statExpeditionGold => 'Expedition Earnings';
+
+  @override
+  String get ownedSkillTicket => 'Skill Tickets';
+
+  @override
+  String get ownedRelicTicket => 'Relic Tickets';
+
+  @override
+  String get ownedMountGem => 'Mount Gems';
+
+  @override
+  String get pityUntil => 'Until pity';
+
+  @override
+  String pityRemaining(int count) {
+    return '$count remaining';
+  }
 }

@@ -2463,4 +2463,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get statExpeditionGold => '원정대 누적 수익';
+
+  @override
+  String get ownedSkillTicket => '보유 스킬 티켓';
+
+  @override
+  String get ownedRelicTicket => '보유 장비 티켓';
+
+  @override
+  String get ownedMountGem => '보유 탈것 젬';
+
+  @override
+  String get pityUntil => '천장까지';
+
+  @override
+  String pityRemaining(int count) {
+    return '$count회 남음';
+  }
 }

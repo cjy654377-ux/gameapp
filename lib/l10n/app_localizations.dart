@@ -4453,6 +4453,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'원정대 누적 수익'**
   String get statExpeditionGold;
+
+  /// No description provided for @ownedSkillTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 스킬 티켓'**
+  String get ownedSkillTicket;
+
+  /// No description provided for @ownedRelicTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 장비 티켓'**
+  String get ownedRelicTicket;
+
+  /// No description provided for @ownedMountGem.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 탈것 젬'**
+  String get ownedMountGem;
+
+  /// No description provided for @pityUntil.
+  ///
+  /// In ko, this message translates to:
+  /// **'천장까지'**
+  String get pityUntil;
+
+  /// No description provided for @pityRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회 남음'**
+  String pityRemaining(int count);
 }
 
 class _AppLocalizationsDelegate
