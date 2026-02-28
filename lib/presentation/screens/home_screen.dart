@@ -18,9 +18,12 @@ import '../../domain/services/prestige_service.dart';
 import '../providers/quest_provider.dart';
 import '../providers/attendance_provider.dart';
 import 'package:gameapp/data/static/quest_database.dart';
+import '../providers/arena_provider.dart';
 import '../providers/relic_provider.dart';
 import '../providers/skin_provider.dart';
 import '../dialogs/attendance_dialog.dart';
+import '../../domain/services/arena_service.dart';
+import '../../domain/services/guild_service.dart';
 
 /// Tab configuration used by [HomeScreen].
 class _TabItem {
@@ -245,6 +248,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   // Tab index
   // ---------------------------------------------------------------------------
 
+  /// Returns badge count for bottom nav tab at [index].
+  /// 0 = battle, 4 = quest
+  int _badgeCount(int index, int questClaimable, int dailyTotal) {
+    switch (index) {
+      case 0: return dailyTotal;    // battle tab: daily content remaining
+      case 4: return questClaimable; // quest tab: claimable rewards
+      default: return 0;
+    }
+  }
+
   int _resolveIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     for (int i = 0; i < _tabs.length; i++) {
@@ -326,6 +339,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       l.shopTitle,
     ];
 
+    // Badge counts for bottom nav
+    final questClaimable = ref.watch(questProvider.select((s) => s.claimableCount));
+    final int expeditionReady = ref.watch(expeditionProvider.select((s) => s.completedCount));
+    final arenaUsed = ref.watch(arenaProvider.select((s) => s.attemptsUsed));
+    final int arenaLeft = (ArenaService.maxDailyAttempts - arenaUsed) > 0
+        ? ArenaService.maxDailyAttempts - arenaUsed : 0;
+    final guildGuild = ref.watch(guildProvider.select((s) => s.guild));
+    final int guildBossLeft = guildGuild != null && guildGuild.dailyBossAttempts < GuildService.maxDailyAttempts
+        ? GuildService.maxDailyAttempts - guildGuild.dailyBossAttempts : 0;
+    final int dailyTotal = arenaLeft + guildBossLeft + expeditionReady;
+
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
@@ -338,7 +362,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         items: [
           for (int i = 0; i < _tabs.length; i++)
             BottomNavigationBarItem(
-              icon: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
+              icon: Badge(
+                isLabelVisible: _badgeCount(i, questClaimable, dailyTotal) > 0,
+                label: Text('${_badgeCount(i, questClaimable, dailyTotal)}'),
+                child: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
+              ),
               label: tabLabels[i],
             ),
         ],
