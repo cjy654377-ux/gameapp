@@ -780,6 +780,7 @@ class _HeroStatsSection extends ConsumerWidget {
             baseValue: player.heroAtk, bonus: atkB,
             trainCount: atkCnt, cost: _trainCost(atkCnt), gold: gold,
             onTrain: () => _train(ref, 'atk', atkCnt),
+            onBulkTrain: () => _trainBulk(ref, 'atk', atkCnt, gold),
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -787,6 +788,7 @@ class _HeroStatsSection extends ConsumerWidget {
             baseValue: player.heroDef, bonus: defB,
             trainCount: defCnt, cost: _trainCost(defCnt), gold: gold,
             onTrain: () => _train(ref, 'def', defCnt),
+            onBulkTrain: () => _trainBulk(ref, 'def', defCnt, gold),
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -794,6 +796,7 @@ class _HeroStatsSection extends ConsumerWidget {
             baseValue: player.heroHp, bonus: hpB,
             trainCount: hpCnt, cost: _trainCost(hpCnt), gold: gold,
             onTrain: () => _train(ref, 'hp', hpCnt),
+            onBulkTrain: () => _trainBulk(ref, 'hp', hpCnt, gold),
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -801,6 +804,7 @@ class _HeroStatsSection extends ConsumerWidget {
             baseValue: player.heroSpd, bonus: spdB,
             trainCount: spdCnt, cost: _trainCost(spdCnt), gold: gold,
             onTrain: () => _train(ref, 'spd', spdCnt),
+            onBulkTrain: () => _trainBulk(ref, 'spd', spdCnt, gold),
           ),
         ],
       ),
@@ -821,6 +825,49 @@ class _HeroStatsSection extends ConsumerWidget {
       }
     });
   }
+
+  /// Train up to 10 times at once (or until gold runs out).
+  Future<void> _trainBulk(WidgetRef ref, String stat, int startCount, int availableGold) async {
+    int count = startCount;
+    int remaining = availableGold;
+    int trained = 0;
+    final incr = _incrForStat(stat);
+    for (int i = 0; i < 10; i++) {
+      final cost = _trainCost(count);
+      if (remaining < cost) break;
+      remaining -= cost;
+      count++;
+      trained++;
+    }
+    if (trained == 0) return;
+    // Calculate total cost
+    int totalCost = 0;
+    for (int i = 0; i < trained; i++) {
+      totalCost += _trainCost(startCount + i);
+    }
+    final ok = await ref.read(currencyProvider.notifier).spendGold(totalCost);
+    if (!ok) return;
+    final totalIncr = incr * trained;
+    await ref.read(playerProvider.notifier).updatePlayer((p) {
+      switch (stat) {
+        case 'atk': return p.copyWith(heroBaseAtk: p.heroBaseAtk + totalIncr);
+        case 'def': return p.copyWith(heroBaseDef: p.heroBaseDef + totalIncr);
+        case 'hp':  return p.copyWith(heroBaseHp: p.heroBaseHp + totalIncr);
+        case 'spd': return p.copyWith(heroBaseSpd: p.heroBaseSpd + totalIncr);
+        default: return p;
+      }
+    });
+  }
+
+  static double _incrForStat(String stat) {
+    switch (stat) {
+      case 'atk': return _incrAtk;
+      case 'def': return _incrDef;
+      case 'hp':  return _incrHp;
+      case 'spd': return _incrSpd;
+      default: return 0;
+    }
+  }
 }
 
 class _TrainableStatRow extends StatelessWidget {
@@ -828,7 +875,7 @@ class _TrainableStatRow extends StatelessWidget {
     required this.label, required this.icon, required this.color,
     required this.baseValue, this.bonus = 0,
     required this.trainCount, required this.cost, required this.gold,
-    required this.onTrain,
+    required this.onTrain, this.onBulkTrain,
   });
   final String label;
   final IconData icon;
@@ -839,6 +886,7 @@ class _TrainableStatRow extends StatelessWidget {
   final int cost;
   final int gold;
   final VoidCallback onTrain;
+  final VoidCallback? onBulkTrain;
 
   @override
   Widget build(BuildContext context) {
@@ -862,6 +910,7 @@ class _TrainableStatRow extends StatelessWidget {
         const Spacer(),
         GestureDetector(
           onTap: canAfford ? onTrain : null,
+          onLongPress: canAfford && onBulkTrain != null ? onBulkTrain : null,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
