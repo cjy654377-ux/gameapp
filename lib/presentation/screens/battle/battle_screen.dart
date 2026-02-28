@@ -32,11 +32,15 @@ class BattleScreen extends ConsumerStatefulWidget {
 }
 
 class _BattleScreenState extends ConsumerState<BattleScreen> {
+  bool _autoStarted = false;
+
   @override
   void initState() {
     super.initState();
-    // Auto-start battle after providers are ready.
+    // Auto-start battle once after providers are ready.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_autoStarted || !mounted) return;
+      _autoStarted = true;
       final phase = ref.read(battleProvider).phase;
       if (phase == BattlePhase.idle) {
         ref.read(battleProvider.notifier).startBattle();
