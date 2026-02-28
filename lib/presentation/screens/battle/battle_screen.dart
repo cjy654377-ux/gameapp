@@ -6,7 +6,6 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/battle_statistics_service.dart';
-import 'package:gameapp/domain/entities/synergy.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/damage_number.dart';
@@ -883,64 +882,3 @@ class _RewardChip extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// _SynergyBadge
-// =============================================================================
-
-class _SynergyBadge extends StatelessWidget {
-  const _SynergyBadge({required this.synergy});
-
-  final SynergyEffect synergy;
-
-  Color get _badgeColor {
-    switch (synergy.type) {
-      case SynergyType.element:
-        return const Color(0xFF42A5F5);
-      case SynergyType.size:
-        return const Color(0xFF66BB6A);
-      case SynergyType.rarity:
-        return const Color(0xFFFFB74D);
-      case SynergyType.special:
-        return const Color(0xFFCE93D8);
-    }
-  }
-
-  String get _icon {
-    switch (synergy.type) {
-      case SynergyType.element:
-        return '🔮';
-      case SynergyType.size:
-        return '📐';
-      case SynergyType.rarity:
-        return '⭐';
-      case SynergyType.special:
-        return '💎';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: synergy.description,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: _badgeColor.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: _badgeColor.withValues(alpha: 0.5),
-            width: 0.8,
-          ),
-        ),
-        child: Text(
-          '$_icon ${synergy.name}',
-          style: TextStyle(
-            color: _badgeColor,
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}

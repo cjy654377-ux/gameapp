@@ -4658,6 +4658,60 @@ abstract class AppLocalizations {
   /// **'일일'**
   String get sidebarDailyDungeon;
 
+  /// No description provided for @sidebarMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도'**
+  String get sidebarMap;
+
+  /// No description provided for @sidebarSeasonPass.
+  ///
+  /// In ko, this message translates to:
+  /// **'시즌'**
+  String get sidebarSeasonPass;
+
+  /// No description provided for @sidebarLeaderboard.
+  ///
+  /// In ko, this message translates to:
+  /// **'랭킹'**
+  String get sidebarLeaderboard;
+
+  /// No description provided for @sidebarTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'칭호'**
+  String get sidebarTitle;
+
+  /// No description provided for @sidebarMailbox.
+  ///
+  /// In ko, this message translates to:
+  /// **'우편'**
+  String get sidebarMailbox;
+
+  /// No description provided for @sidebarReplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'리플레이'**
+  String get sidebarReplay;
+
+  /// No description provided for @sidebarStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계'**
+  String get sidebarStats;
+
+  /// No description provided for @sidebarPrestige.
+  ///
+  /// In ko, this message translates to:
+  /// **'전생'**
+  String get sidebarPrestige;
+
+  /// No description provided for @sidebarCollection.
+  ///
+  /// In ko, this message translates to:
+  /// **'도감'**
+  String get sidebarCollection;
+
   /// No description provided for @stageProgress.
   ///
   /// In ko, this message translates to:

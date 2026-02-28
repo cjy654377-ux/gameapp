@@ -14,6 +14,7 @@ class BattleSidebar extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
 
     final items = [
+      // ── Combat content ──
       _SidebarItem(Icons.layers, l.sidebarDungeon, AppRoutes.dungeon, const Color(0xFFCE93D8)),
       _SidebarItem(Icons.castle, l.sidebarTower, AppRoutes.tower, Colors.amber),
       _SidebarItem(Icons.whatshot, l.sidebarWorldBoss, AppRoutes.worldBoss, Colors.red),
@@ -21,7 +22,18 @@ class BattleSidebar extends StatelessWidget {
       _SidebarItem(Icons.event, l.sidebarEvent, AppRoutes.eventDungeon, Colors.teal),
       _SidebarItem(Icons.groups, l.sidebarGuild, AppRoutes.guild, Colors.indigo),
       _SidebarItem(Icons.wb_sunny, l.sidebarDailyDungeon, AppRoutes.dailyDungeon, Colors.deepOrange),
+      // ── Navigation ──
+      _SidebarItem(Icons.map_rounded, l.sidebarMap, AppRoutes.stageSelect, Colors.cyan),
+      _SidebarItem(Icons.card_giftcard, l.sidebarSeasonPass, AppRoutes.seasonPass, const Color(0xFFFFD54F)),
+      _SidebarItem(Icons.leaderboard, l.sidebarLeaderboard, AppRoutes.leaderboard, const Color(0xFF4FC3F7)),
+      _SidebarItem(Icons.military_tech, l.sidebarTitle, AppRoutes.title, const Color(0xFFBA68C8)),
+      _SidebarItem(Icons.mail_rounded, l.sidebarMailbox, AppRoutes.mailbox, const Color(0xFF81C784)),
+      _SidebarItem(Icons.replay, l.sidebarReplay, AppRoutes.battleReplay, const Color(0xFF90A4AE)),
+      // ── Info / System ──
+      _SidebarItem(Icons.bar_chart, l.sidebarStats, AppRoutes.statistics, const Color(0xFF4DB6AC)),
+      _SidebarItem(Icons.auto_awesome, l.sidebarPrestige, AppRoutes.prestige, const Color(0xFFFF8A65)),
       _SidebarItem(Icons.inventory_2, l.sidebarRelic, AppRoutes.relic, Colors.orange),
+      _SidebarItem(Icons.catching_pokemon, l.sidebarCollection, AppRoutes.collection, const Color(0xFF7986CB)),
       _SidebarItem(Icons.assignment, l.sidebarQuest, AppRoutes.quest, Colors.green),
       _SidebarItem(Icons.settings, l.sidebarSettings, AppRoutes.settings, Colors.blueGrey),
     ];

@@ -2581,6 +2581,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sidebarDailyDungeon => '일일';
 
   @override
+  String get sidebarMap => '지도';
+
+  @override
+  String get sidebarSeasonPass => '시즌';
+
+  @override
+  String get sidebarLeaderboard => '랭킹';
+
+  @override
+  String get sidebarTitle => '칭호';
+
+  @override
+  String get sidebarMailbox => '우편';
+
+  @override
+  String get sidebarReplay => '리플레이';
+
+  @override
+  String get sidebarStats => '통계';
+
+  @override
+  String get sidebarPrestige => '전생';
+
+  @override
+  String get sidebarCollection => '도감';
+
+  @override
   String stageProgress(Object defeated, Object total) {
     return '$defeated/$total';
   }

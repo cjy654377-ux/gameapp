@@ -2594,6 +2594,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarDailyDungeon => 'Daily';
 
   @override
+  String get sidebarMap => 'Map';
+
+  @override
+  String get sidebarSeasonPass => '시즌';
+
+  @override
+  String get sidebarLeaderboard => 'Rank';
+
+  @override
+  String get sidebarTitle => 'Title';
+
+  @override
+  String get sidebarMailbox => 'Mail';
+
+  @override
+  String get sidebarReplay => 'Replay';
+
+  @override
+  String get sidebarStats => 'Stats';
+
+  @override
+  String get sidebarPrestige => 'Prestige';
+
+  @override
+  String get sidebarCollection => 'Collect';
+
+  @override
   String stageProgress(Object defeated, Object total) {
     return '$defeated/$total';
   }

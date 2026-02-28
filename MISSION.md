@@ -371,8 +371,9 @@
 - [x] app_router: ShellRoute 5탭 (battle/train/hero/gacha/shop)
 - [x] home_screen: 5탭 재구성 (전투/훈련/히어로/소환/상점)
 - [x] l10n: ~23개 키 추가 (sidebar/train/tab)
-- [ ] 추가 사이드바 아이콘: 지도/시즌패스/리더보드/칭호/우편/리플레이/통계/전생/도감
-- [ ] 시너지 배지를 프로그레스 바 하단에 표시
+- [x] 추가 사이드바 아이콘 9종: 지도/시즌패스/리더보드/칭호/우편/리플레이/통계/전생/도감
+- [x] 시너지 배지를 StageProgressBar 하단에 표시 (_SynergyChip)
+- [x] battle_screen 미사용 _SynergyBadge 제거, hero_screen unused import 제거
 
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
