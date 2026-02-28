@@ -44,10 +44,6 @@ class HeroScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                    onPressed: () => context.pop(),
-                  ),
                   const Icon(Icons.person, color: AppColors.primaryLight, size: 24),
                   const SizedBox(width: 8),
                   Text(l.heroHeader,
