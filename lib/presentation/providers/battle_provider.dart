@@ -96,7 +96,7 @@ class BattleState {
     this.battleLog        = const [],
     this.currentTurn      = 0,
     this.turnWithinRound  = 0,
-    this.battleSpeed      = 1.0,
+    this.battleSpeed      = 2.0,
     this.isAutoMode       = true,
     this.currentStageId   = 1,
     this.currentStageName = '',

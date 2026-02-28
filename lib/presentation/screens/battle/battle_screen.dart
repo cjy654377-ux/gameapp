@@ -118,6 +118,8 @@ class _StageHeader extends ConsumerWidget {
     final synergies =
         ref.watch(battleProvider.select((s) => s.activeSynergies));
 
+    final isFighting = phase == BattlePhase.fighting;
+
     return GestureDetector(
       onTap: phase == BattlePhase.idle
           ? () => context.push(AppRoutes.stageSelect)
@@ -130,28 +132,59 @@ class _StageHeader extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Flexible(
-                  child: Text(
-                    displayName,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
+                // 좌측 여백 (철수 버튼과 대칭)
+                SizedBox(width: isFighting ? 40 : 0),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          displayName,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      if (phase == BattlePhase.idle) ...[
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.map_outlined,
+                          color: AppColors.textSecondary,
+                          size: 16,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (phase == BattlePhase.idle) ...[
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.map_outlined,
-                    color: AppColors.textSecondary,
-                    size: 16,
-                  ),
-                ],
+                // 철수 버튼 (전투 중에만 표시)
+                if (isFighting)
+                  GestureDetector(
+                    onTap: () => _showRetreatDialog(context, ref, l),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.flag_rounded,
+                        color: AppColors.error,
+                        size: 18,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
               ],
             ),
             if (synergies.isNotEmpty) ...[
@@ -167,6 +200,33 @@ class _StageHeader extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _showRetreatDialog(BuildContext context, WidgetRef ref, AppLocalizations l) {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.retreatConfirmTitle),
+        content: Text(l.retreatConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l.retreatConfirmCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              l.battleRetreat,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true) {
+        ref.read(battleProvider.notifier).retreatBattle();
+      }
+    });
   }
 }
 
@@ -220,8 +280,31 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
       return const _IdleBanner();
     }
 
+    // area 계산: stageId 기반으로 area 번호 결정
+    final areaIndex = ((state.currentStageId - 1) ~/ 6 + 1).clamp(1, 5);
+    const areaNames = ['forest', 'volcano', 'dungeon', 'ocean', 'sky'];
+    final areaName = areaNames[areaIndex - 1];
+    final bgPath = 'assets/images/backgrounds/area_${areaIndex}_$areaName.png';
+
     return Stack(
       children: [
+        // ── 배경 이미지 레이어 ──────────────────────────────────────────
+        Positioned.fill(
+          child: Image.asset(
+            bgPath,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: AppColors.surface,
+            ),
+          ),
+        ),
+        // ── 반투명 다크 오버레이 ────────────────────────────────────────
+        Positioned.fill(
+          child: Container(
+            color: Colors.black.withValues(alpha: 0.45),
+          ),
+        ),
+        // ── 기존 전투 UI ────────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           child: Row(
@@ -658,8 +741,6 @@ class _ControlBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context)!;
-    final speed = ref.watch(battleProvider.select((s) => s.battleSpeed));
     final phase = ref.watch(battleProvider.select((s) => s.phase));
     final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
     final notifier = ref.read(battleProvider.notifier);
@@ -677,126 +758,10 @@ class _ControlBar extends ConsumerWidget {
           top: BorderSide(color: AppColors.border, width: 0.8),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Row 1: speed buttons + skip ──────────────────────────────
-          Row(
-            children: [
-              _SpeedButton(
-                label: '1x',
-                speed: 1.0,
-                currentSpeed: speed,
-                onTap: notifier.toggleSpeed,
-              ),
-              const SizedBox(width: 6),
-              _SpeedButton(
-                label: '2x',
-                speed: 2.0,
-                currentSpeed: speed,
-                onTap: notifier.toggleSpeed,
-              ),
-              const SizedBox(width: 6),
-              _SpeedButton(
-                label: '3x',
-                speed: 3.0,
-                currentSpeed: speed,
-                onTap: notifier.toggleSpeed,
-              ),
-              const Spacer(),
-              if (phase == BattlePhase.fighting)
-                GestureDetector(
-                  onTap: notifier.instantFinish,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.skip_next, color: AppColors.warning, size: 16),
-                        const SizedBox(width: 4),
-                        Text(l.battleSkip, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          // ── Row 2: primary action button ───────────────────────────────
-          _PrimaryActionButton(
-            phase: phase,
-            stageId: stageId,
-            notifier: notifier,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── _SpeedButton ──────────────────────────────────────────────────────────────
-
-class _SpeedButton extends StatelessWidget {
-  const _SpeedButton({
-    required this.label,
-    required this.speed,
-    required this.currentSpeed,
-    required this.onTap,
-  });
-
-  final String label;
-
-  /// The speed value this button represents (1.0, 2.0, or 3.0).
-  final double speed;
-
-  final double currentSpeed;
-  final VoidCallback onTap;
-
-  bool get _isActive => speed == currentSpeed;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: _isActive
-              ? AppColors.primary
-              : AppColors.card.withValues(alpha:0.8),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: _isActive ? AppColors.primaryLight : AppColors.border,
-            width: 1,
-          ),
-          boxShadow: _isActive
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha:0.35),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: _isActive
-                ? AppColors.textPrimary
-                : AppColors.textSecondary,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+      child: _PrimaryActionButton(
+        phase: phase,
+        stageId: stageId,
+        notifier: notifier,
       ),
     );
   }

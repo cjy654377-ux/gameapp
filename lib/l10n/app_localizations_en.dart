@@ -54,6 +54,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get battleRetreat => 'Retreat';
 
   @override
+  String get retreatConfirmTitle => 'Retreat Battle';
+
+  @override
+  String get retreatConfirmBody =>
+      'You will abandon the battle.\nNo rewards will be given.';
+
+  @override
+  String get retreatConfirmCancel => 'Continue';
+
+  @override
   String battleStageId(String id) {
     return 'Stage $id';
   }
@@ -2389,6 +2399,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get heroTraining => 'Training';
+
+  @override
+  String heroEnhanceComplete(String name, int level) {
+    return '$name Lv.$level enhanced!';
+  }
+
+  @override
+  String heroNextValue(String value) {
+    return 'Next: $value';
+  }
+
+  @override
+  String heroLevelHero(int level) {
+    return 'Lv.$level Hero';
+  }
+
+  @override
+  String heroFusionComplete(String name, int level) {
+    return '$name fused! Lv.$level';
+  }
+
+  @override
+  String heroDismantleComplete(String name, int gold, int shard) {
+    return '$name dismantled! +${gold}G, +$shard shards';
+  }
+
+  @override
+  String heroDismantleReward(int gold, int shard) {
+    return '+${gold}G · +$shard shards';
+  }
+
+  @override
+  String get heroSkillTypeHpRegen => 'HP Regen';
 
   @override
   String get heroUnequip => 'Unequip';

@@ -251,8 +251,8 @@ class _InventoryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    // Watch player to rebuild when equipment changes
-    ref.watch(playerProvider);
+    // Watch specific fields to rebuild when equipment changes
+    ref.watch(playerProvider.select((s) => (s.player?.equippedSkillId, s.player?.equippedMountId)));
 
     final skills = LocalStorage.instance.getAllSkills();
     final mounts = LocalStorage.instance.getAllMounts();
@@ -511,7 +511,8 @@ class _InventorySkillCard extends ConsumerWidget {
     }
     final upgraded = skill.copyWith(level: skill.level + 1);
     await LocalStorage.instance.saveSkill(upgraded);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final player = ref.read(playerProvider).player;
+    if (player != null) ref.read(playerProvider.notifier).forceUpdate(player);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${skill.name} Lv.${upgraded.level} 강화 완료!')));
   }
@@ -625,7 +626,8 @@ class _InventoryMountCard extends ConsumerWidget {
     }
     final upgraded = mount.copyWith(level: mount.level + 1);
     await LocalStorage.instance.saveMount(upgraded);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final player = ref.read(playerProvider).player;
+    if (player != null) ref.read(playerProvider.notifier).forceUpdate(player);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${mount.name} Lv.${upgraded.level} 강화 완료!')));
   }
@@ -739,9 +741,10 @@ class _HeroStatsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     double atkB = 0, defB = 0, hpB = 0, spdB = 0;
-    if (equippedMount != null) {
-      final v = equippedMount!.effectiveStatValue;
-      switch (equippedMount!.statType) {
+    final mount = equippedMount;
+    if (mount != null) {
+      final v = mount.effectiveStatValue;
+      switch (mount.statType) {
         case 'atk': atkB = v;
         case 'def': defB = v;
         case 'hp':  hpB = v;
@@ -1094,7 +1097,8 @@ class _SkillCard extends ConsumerWidget {
     }
     final upgraded = skill.copyWith(level: skill.level + 1);
     await LocalStorage.instance.saveSkill(upgraded);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final player = ref.read(playerProvider).player;
+    if (player != null) ref.read(playerProvider.notifier).forceUpdate(player);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${skill.name} Lv.${upgraded.level} 강화 완료!')));
   }
@@ -1180,7 +1184,8 @@ class _MountCard extends ConsumerWidget {
     }
     final upgraded = mount.copyWith(level: mount.level + 1);
     await LocalStorage.instance.saveMount(upgraded);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final player = ref.read(playerProvider).player;
+    if (player != null) ref.read(playerProvider.notifier).forceUpdate(player);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${mount.name} Lv.${upgraded.level} 강화 완료!')));
   }
@@ -1332,12 +1337,11 @@ class _FusionTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    ref.watch(playerProvider);
+    final equippedIds = ref.watch(playerProvider.select((s) => (s.player?.equippedSkillId, s.player?.equippedMountId)));
     ref.watch(currencyProvider);
 
     final skills = LocalStorage.instance.getAllSkills();
     final mounts = LocalStorage.instance.getAllMounts();
-    final player = ref.read(playerProvider).player;
 
     // Group skills by templateId for fusion
     final skillGroups = <String, List<EquippableSkillModel>>{};
@@ -1355,8 +1359,8 @@ class _FusionTab extends ConsumerWidget {
     final fusibleMounts = mountGroups.entries.where((e) => e.value.length >= 2).toList();
 
     // Dismantleable: all items except currently equipped
-    final dismantleSkills = skills.where((s) => s.id != player?.equippedSkillId).toList();
-    final dismantleMounts = mounts.where((m) => m.id != player?.equippedMountId).toList();
+    final dismantleSkills = skills.where((s) => s.id != equippedIds.$1).toList();
+    final dismantleMounts = mounts.where((m) => m.id != equippedIds.$2).toList();
 
     if (skills.isEmpty && mounts.isEmpty) {
       return Center(
@@ -1468,7 +1472,8 @@ class _FusionTab extends ConsumerWidget {
     final upgraded = keep.copyWith(level: keep.level + 1);
     await LocalStorage.instance.saveSkill(upgraded);
     await LocalStorage.instance.deleteSkill(consume.id);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final playerAfterFuse = ref.read(playerProvider).player;
+    if (playerAfterFuse != null) ref.read(playerProvider.notifier).forceUpdate(playerAfterFuse);
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1490,7 +1495,8 @@ class _FusionTab extends ConsumerWidget {
     final upgraded = keep.copyWith(level: keep.level + 1);
     await LocalStorage.instance.saveMount(upgraded);
     await LocalStorage.instance.deleteMount(consume.id);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final playerAfterFuse = ref.read(playerProvider).player;
+    if (playerAfterFuse != null) ref.read(playerProvider.notifier).forceUpdate(playerAfterFuse);
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1505,7 +1511,8 @@ class _FusionTab extends ConsumerWidget {
     await LocalStorage.instance.deleteSkill(skill.id);
     await ref.read(currencyProvider.notifier).addGold(gold);
     await ref.read(currencyProvider.notifier).addShard(shard);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final playerAfterDismantle = ref.read(playerProvider).player;
+    if (playerAfterDismantle != null) ref.read(playerProvider.notifier).forceUpdate(playerAfterDismantle);
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1520,7 +1527,8 @@ class _FusionTab extends ConsumerWidget {
     await LocalStorage.instance.deleteMount(mount.id);
     await ref.read(currencyProvider.notifier).addGold(gold);
     await ref.read(currencyProvider.notifier).addShard(shard);
-    ref.read(playerProvider.notifier).forceUpdate(ref.read(playerProvider).player!);
+    final playerAfterDismantle = ref.read(playerProvider).player;
+    if (playerAfterDismantle != null) ref.read(playerProvider.notifier).forceUpdate(playerAfterDismantle);
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1683,7 +1691,7 @@ String _skillTypeLabel(BuildContext context, String type) {
   switch (type) {
     case 'damage': return l.heroSkillTypeDamage;
     case 'def_buff': return l.heroSkillTypeDefBuff;
-    case 'hp_regen': return 'HP 회복';
+    case 'hp_regen': return l.heroSkillTypeHpRegen;
     case 'atk_buff': return l.heroSkillTypeAtkBuff;
     case 'speed_buff': return l.heroSkillTypeSpeedBuff;
     case 'crit_boost': return l.heroSkillTypeCritBoost;

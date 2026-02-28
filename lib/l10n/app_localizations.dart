@@ -185,8 +185,26 @@ abstract class AppLocalizations {
   /// No description provided for @battleRetreat.
   ///
   /// In ko, this message translates to:
-  /// **'후퇴'**
+  /// **'철수'**
   String get battleRetreat;
+
+  /// No description provided for @retreatConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 철수'**
+  String get retreatConfirmTitle;
+
+  /// No description provided for @retreatConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투를 포기하고 돌아갑니다.\n보상은 지급되지 않습니다.'**
+  String get retreatConfirmBody;
+
+  /// No description provided for @retreatConfirmCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속하기'**
+  String get retreatConfirmCancel;
 
   /// No description provided for @battleStageId.
   ///
@@ -4291,6 +4309,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'훈련'**
   String get heroTraining;
+
+  /// No description provided for @heroEnhanceComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} Lv.{level} 강화 완료!'**
+  String heroEnhanceComplete(String name, int level);
+
+  /// No description provided for @heroNextValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음: {value}'**
+  String heroNextValue(String value);
+
+  /// No description provided for @heroLevelHero.
+  ///
+  /// In ko, this message translates to:
+  /// **'Lv.{level} 영웅'**
+  String heroLevelHero(int level);
+
+  /// No description provided for @heroFusionComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 합성! Lv.{level}'**
+  String heroFusionComplete(String name, int level);
+
+  /// No description provided for @heroDismantleComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 분해! +{gold}G, +{shard}샤드'**
+  String heroDismantleComplete(String name, int gold, int shard);
+
+  /// No description provided for @heroDismantleReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'+{gold}G · +{shard}샤드'**
+  String heroDismantleReward(int gold, int shard);
+
+  /// No description provided for @heroSkillTypeHpRegen.
+  ///
+  /// In ko, this message translates to:
+  /// **'HP 회복'**
+  String get heroSkillTypeHpRegen;
 
   /// No description provided for @heroUnequip.
   ///

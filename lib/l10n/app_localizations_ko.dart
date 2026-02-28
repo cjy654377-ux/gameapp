@@ -51,7 +51,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get battleStart => '전투 시작';
 
   @override
-  String get battleRetreat => '후퇴';
+  String get battleRetreat => '철수';
+
+  @override
+  String get retreatConfirmTitle => '전투 철수';
+
+  @override
+  String get retreatConfirmBody => '전투를 포기하고 돌아갑니다.\n보상은 지급되지 않습니다.';
+
+  @override
+  String get retreatConfirmCancel => '계속하기';
 
   @override
   String battleStageId(String id) {
@@ -2378,6 +2387,39 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get heroTraining => '훈련';
+
+  @override
+  String heroEnhanceComplete(String name, int level) {
+    return '$name Lv.$level 강화 완료!';
+  }
+
+  @override
+  String heroNextValue(String value) {
+    return '다음: $value';
+  }
+
+  @override
+  String heroLevelHero(int level) {
+    return 'Lv.$level 영웅';
+  }
+
+  @override
+  String heroFusionComplete(String name, int level) {
+    return '$name 합성! Lv.$level';
+  }
+
+  @override
+  String heroDismantleComplete(String name, int gold, int shard) {
+    return '$name 분해! +${gold}G, +$shard샤드';
+  }
+
+  @override
+  String heroDismantleReward(int gold, int shard) {
+    return '+${gold}G · +$shard샤드';
+  }
+
+  @override
+  String get heroSkillTypeHpRegen => 'HP 회복';
 
   @override
   String get heroUnequip => '해제';

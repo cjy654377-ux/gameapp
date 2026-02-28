@@ -104,7 +104,7 @@ class MonsterBattleCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Avatar background with element/hero icon
+              // Avatar background with monster image or icon
               Container(
                 width: avatarSize,
                 height: avatarSize,
@@ -120,15 +120,25 @@ class MonsterBattleCard extends StatelessWidget {
                             : [_elementColor.withValues(alpha: 0.35), _elementColor.withValues(alpha: 0.12)],
                   ),
                 ),
-                child: Icon(
-                  _isHero ? Icons.person : _elementIcon,
-                  size: avatarSize * 0.45,
-                  color: isDead
-                      ? AppColors.disabledText
-                      : _isHero
-                          ? AppColors.gold
-                          : _elementColor,
-                ),
+                child: _isHero
+                    ? Icon(
+                        Icons.person,
+                        size: avatarSize * 0.45,
+                        color: isDead ? AppColors.disabledText : AppColors.gold,
+                      )
+                    : ClipOval(
+                        child: Image.asset(
+                          'assets/images/monsters/${monster.templateId}.png',
+                          width: avatarSize,
+                          height: avatarSize,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            _elementIcon,
+                            size: avatarSize * 0.45,
+                            color: isDead ? AppColors.disabledText : _elementColor,
+                          ),
+                        ),
+                      ),
               ),
               // Dead skull overlay on avatar
               if (isDead)
