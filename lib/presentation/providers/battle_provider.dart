@@ -89,6 +89,9 @@ class BattleState {
   /// Accumulated exp earned during the current repeat session.
   final int repeatTotalExp;
 
+  /// Total number of enemies at battle start (for progress bar).
+  final int initialEnemyCount;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -106,6 +109,7 @@ class BattleState {
     this.repeatCount      = 0,
     this.repeatTotalGold  = 0,
     this.repeatTotalExp   = 0,
+    this.initialEnemyCount = 0,
   });
 
   BattleState copyWith({
@@ -126,6 +130,7 @@ class BattleState {
     int?                repeatCount,
     int?                repeatTotalGold,
     int?                repeatTotalExp,
+    int?                initialEnemyCount,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -144,6 +149,7 @@ class BattleState {
       repeatCount:      repeatCount      ?? this.repeatCount,
       repeatTotalGold:  repeatTotalGold  ?? this.repeatTotalGold,
       repeatTotalExp:   repeatTotalExp   ?? this.repeatTotalExp,
+      initialEnemyCount: initialEnemyCount ?? this.initialEnemyCount,
     );
   }
 
@@ -277,6 +283,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
       currentStageId:   resolvedId,
       currentStageName: stageData.name,
       lastReward:       null,
+      initialEnemyCount: enemyTeam.length,
     );
 
     // Auto-battle: always start the timer (idle game).

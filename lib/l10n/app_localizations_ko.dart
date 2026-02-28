@@ -2522,4 +2522,69 @@ class AppLocalizationsKo extends AppLocalizations {
   String pityRemaining(int count) {
     return '$count회 남음';
   }
+
+  @override
+  String get tabTrain => '훈련/연구';
+
+  @override
+  String get tabHero => '히어로';
+
+  @override
+  String get trainTitle => '훈련/연구';
+
+  @override
+  String get trainUpgradeCard => '몬스터 강화';
+
+  @override
+  String get trainUpgradeDesc => '레벨업, 진화, 각성, 융합';
+
+  @override
+  String get trainTrainingCard => '트레이닝';
+
+  @override
+  String get trainTrainingDesc => '몬스터를 훈련시켜 경험치 획득';
+
+  @override
+  String get trainExpeditionCard => '원정대';
+
+  @override
+  String get trainExpeditionDesc => '몬스터를 파견하여 보상 획득';
+
+  @override
+  String get sidebarDungeon => '던전';
+
+  @override
+  String get sidebarTower => '타워';
+
+  @override
+  String get sidebarWorldBoss => '월보';
+
+  @override
+  String get sidebarArena => '아레나';
+
+  @override
+  String get sidebarEvent => '이벤트';
+
+  @override
+  String get sidebarGuild => '길드';
+
+  @override
+  String get sidebarQuest => '퀘스트';
+
+  @override
+  String get sidebarSettings => '설정';
+
+  @override
+  String get sidebarRelic => '유물';
+
+  @override
+  String get sidebarDailyDungeon => '일일';
+
+  @override
+  String stageProgress(Object defeated, Object total) {
+    return '$defeated/$total';
+  }
+
+  @override
+  String get autoRepeat => '자동 반복';
 }

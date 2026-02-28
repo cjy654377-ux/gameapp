@@ -360,6 +360,20 @@
 - [x] 총 ~60개 l10n 키 추가 (한국어/영어)
 - [x] 845개 테스트 전부 통과, flutter analyze 0 issues
 
+## 8차 UI 리뉴얼 (냥코대전쟁 스타일)
+- [x] battle_provider: initialEnemyCount 필드 추가 (프로그레스 바용)
+- [x] StageProgressBar 위젯 생성 (스테이지명+적 처치 프로그레스+철수)
+- [x] BattleSidebar 위젯 생성 (좌측 10개 아이콘 퀵 네비)
+- [x] battle_screen: _IdleBanner/_ControlBar/_StageHeader 삭제, 자동전투 시작
+- [x] battle_screen: StageProgressBar + BattleSidebar 오버레이 적용
+- [x] battle_screen: _DefeatBanner 추가 (패배시 재시도 오버레이)
+- [x] TrainScreen 생성 (강화/트레이닝/원정대 허브)
+- [x] app_router: ShellRoute 5탭 (battle/train/hero/gacha/shop)
+- [x] home_screen: 5탭 재구성 (전투/훈련/히어로/소환/상점)
+- [x] l10n: ~23개 키 추가 (sidebar/train/tab)
+- [ ] 추가 사이드바 아이콘: 지도/시즌패스/리더보드/칭호/우편/리플레이/통계/전생/도감
+- [ ] 시너지 배지를 프로그레스 바 하단에 표시
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart

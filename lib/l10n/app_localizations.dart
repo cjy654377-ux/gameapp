@@ -4543,6 +4543,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}회 남음'**
   String pityRemaining(int count);
+
+  /// No description provided for @tabTrain.
+  ///
+  /// In ko, this message translates to:
+  /// **'훈련/연구'**
+  String get tabTrain;
+
+  /// No description provided for @tabHero.
+  ///
+  /// In ko, this message translates to:
+  /// **'히어로'**
+  String get tabHero;
+
+  /// No description provided for @trainTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'훈련/연구'**
+  String get trainTitle;
+
+  /// No description provided for @trainUpgradeCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 강화'**
+  String get trainUpgradeCard;
+
+  /// No description provided for @trainUpgradeDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'레벨업, 진화, 각성, 융합'**
+  String get trainUpgradeDesc;
+
+  /// No description provided for @trainTrainingCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'트레이닝'**
+  String get trainTrainingCard;
+
+  /// No description provided for @trainTrainingDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터를 훈련시켜 경험치 획득'**
+  String get trainTrainingDesc;
+
+  /// No description provided for @trainExpeditionCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'원정대'**
+  String get trainExpeditionCard;
+
+  /// No description provided for @trainExpeditionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터를 파견하여 보상 획득'**
+  String get trainExpeditionDesc;
+
+  /// No description provided for @sidebarDungeon.
+  ///
+  /// In ko, this message translates to:
+  /// **'던전'**
+  String get sidebarDungeon;
+
+  /// No description provided for @sidebarTower.
+  ///
+  /// In ko, this message translates to:
+  /// **'타워'**
+  String get sidebarTower;
+
+  /// No description provided for @sidebarWorldBoss.
+  ///
+  /// In ko, this message translates to:
+  /// **'월보'**
+  String get sidebarWorldBoss;
+
+  /// No description provided for @sidebarArena.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나'**
+  String get sidebarArena;
+
+  /// No description provided for @sidebarEvent.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트'**
+  String get sidebarEvent;
+
+  /// No description provided for @sidebarGuild.
+  ///
+  /// In ko, this message translates to:
+  /// **'길드'**
+  String get sidebarGuild;
+
+  /// No description provided for @sidebarQuest.
+  ///
+  /// In ko, this message translates to:
+  /// **'퀘스트'**
+  String get sidebarQuest;
+
+  /// No description provided for @sidebarSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정'**
+  String get sidebarSettings;
+
+  /// No description provided for @sidebarRelic.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물'**
+  String get sidebarRelic;
+
+  /// No description provided for @sidebarDailyDungeon.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일'**
+  String get sidebarDailyDungeon;
+
+  /// No description provided for @stageProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'{defeated}/{total}'**
+  String stageProgress(Object defeated, Object total);
+
+  /// No description provided for @autoRepeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 반복'**
+  String get autoRepeat;
 }
 
 class _AppLocalizationsDelegate

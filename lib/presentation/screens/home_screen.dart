@@ -15,9 +15,9 @@ import '../providers/monster_provider.dart';
 import '../providers/offline_reward_provider.dart';
 import '../providers/player_provider.dart';
 import '../../domain/services/prestige_service.dart';
-import '../providers/quest_provider.dart';
 import '../providers/attendance_provider.dart';
 import 'package:gameapp/data/static/quest_database.dart';
+import '../providers/quest_provider.dart';
 import '../providers/arena_provider.dart';
 import '../providers/relic_provider.dart';
 import '../providers/skin_provider.dart';
@@ -45,24 +45,19 @@ const List<_TabItem> _tabs = [
     activeIcon: Icons.shield,
   ),
   _TabItem(
+    route: AppRoutes.train,
+    icon: Icons.fitness_center_outlined,
+    activeIcon: Icons.fitness_center,
+  ),
+  _TabItem(
+    route: AppRoutes.hero,
+    icon: Icons.person_outlined,
+    activeIcon: Icons.person,
+  ),
+  _TabItem(
     route: AppRoutes.gacha,
     icon: Icons.card_giftcard_outlined,
     activeIcon: Icons.card_giftcard,
-  ),
-  _TabItem(
-    route: AppRoutes.collection,
-    icon: Icons.collections_bookmark_outlined,
-    activeIcon: Icons.collections_bookmark,
-  ),
-  _TabItem(
-    route: AppRoutes.upgrade,
-    icon: Icons.upgrade_outlined,
-    activeIcon: Icons.upgrade,
-  ),
-  _TabItem(
-    route: AppRoutes.quest,
-    icon: Icons.assignment_outlined,
-    activeIcon: Icons.assignment,
   ),
   _TabItem(
     route: AppRoutes.shop,
@@ -249,11 +244,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   // ---------------------------------------------------------------------------
 
   /// Returns badge count for bottom nav tab at [index].
-  /// 0 = battle, 4 = quest
-  int _badgeCount(int index, int questClaimable, int dailyTotal) {
+  /// Tabs: 0=battle, 1=train, 2=hero, 3=gacha, 4=shop
+  int _badgeCount(int index, int dailyTotal) {
     switch (index) {
-      case 0: return dailyTotal;    // battle tab: daily content remaining
-      case 4: return questClaimable; // quest tab: claimable rewards
+      case 0: return dailyTotal; // battle tab: daily content remaining
       default: return 0;
     }
   }
@@ -332,15 +326,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final currentIndex = _resolveIndex(context);
     final tabLabels = [
       l.tabBattle,
+      l.tabTrain,
+      l.tabHero,
       l.tabGacha,
-      l.tabCollection,
-      l.tabUpgrade,
-      l.tabQuest,
       l.shopTitle,
     ];
 
     // Badge counts for bottom nav
-    final questClaimable = ref.watch(questProvider.select((s) => s.claimableCount));
     final int expeditionReady = ref.watch(expeditionProvider.select((s) => s.completedCount));
     final arenaUsed = ref.watch(arenaProvider.select((s) => s.attemptsUsed));
     final int arenaLeft = (ArenaService.maxDailyAttempts - arenaUsed) > 0
@@ -363,8 +355,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           for (int i = 0; i < _tabs.length; i++)
             BottomNavigationBarItem(
               icon: Badge(
-                isLabelVisible: _badgeCount(i, questClaimable, dailyTotal) > 0,
-                label: Text('${_badgeCount(i, questClaimable, dailyTotal)}'),
+                isLabelVisible: _badgeCount(i, dailyTotal) > 0,
+                label: Text('${_badgeCount(i, dailyTotal)}'),
                 child: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
               ),
               label: tabLabels[i],

@@ -37,6 +37,7 @@ import '../presentation/screens/monster_compare/monster_compare_screen.dart';
 import '../presentation/screens/gacha/gacha_history_screen.dart';
 import '../presentation/screens/hero/hero_screen.dart';
 import '../presentation/screens/map_hub/map_hub_screen.dart';
+import '../presentation/screens/train/train_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -77,6 +78,7 @@ class AppRoutes {
   static const gachaHistory = '/gacha-history';
   static const hero = '/hero';
   static const mapHub = '/map-hub';
+  static const train = '/train';
 }
 
 // ---------------------------------------------------------------------------
@@ -192,8 +194,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const GachaHistoryScreen(),
       ),
       GoRoute(
-        path: AppRoutes.hero,
-        builder: (context, state) => const HeroScreen(),
+        path: AppRoutes.collection,
+        builder: (context, state) => const CollectionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.upgrade,
+        builder: (context, state) => const UpgradeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.quest,
+        builder: (context, state) => const QuestScreen(),
       ),
       GoRoute(
         path: AppRoutes.mapHub,
@@ -221,27 +231,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ),
           GoRoute(
+            path: AppRoutes.train,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: TrainScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.hero,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: HeroScreen(),
+            ),
+          ),
+          GoRoute(
             path: AppRoutes.gacha,
             pageBuilder: (context, state) => const NoTransitionPage(
               child: GachaScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.collection,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: CollectionScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.upgrade,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: UpgradeScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.quest,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: QuestScreen(),
             ),
           ),
           GoRoute(

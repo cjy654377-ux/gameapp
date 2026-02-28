@@ -2535,4 +2535,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String pityRemaining(int count) {
     return '$count remaining';
   }
+
+  @override
+  String get tabTrain => 'Train';
+
+  @override
+  String get tabHero => 'Hero';
+
+  @override
+  String get trainTitle => 'Training & Research';
+
+  @override
+  String get trainUpgradeCard => 'Monster Upgrade';
+
+  @override
+  String get trainUpgradeDesc => 'Level up, Evolve, Awaken, Fuse';
+
+  @override
+  String get trainTrainingCard => 'Training';
+
+  @override
+  String get trainTrainingDesc => 'Train monsters to gain experience';
+
+  @override
+  String get trainExpeditionCard => 'Expedition';
+
+  @override
+  String get trainExpeditionDesc => 'Send monsters to earn rewards';
+
+  @override
+  String get sidebarDungeon => 'Dungeon';
+
+  @override
+  String get sidebarTower => 'Tower';
+
+  @override
+  String get sidebarWorldBoss => 'W.Boss';
+
+  @override
+  String get sidebarArena => 'Arena';
+
+  @override
+  String get sidebarEvent => 'Event';
+
+  @override
+  String get sidebarGuild => 'Guild';
+
+  @override
+  String get sidebarQuest => 'Quest';
+
+  @override
+  String get sidebarSettings => 'Settings';
+
+  @override
+  String get sidebarRelic => 'Relic';
+
+  @override
+  String get sidebarDailyDungeon => 'Daily';
+
+  @override
+  String stageProgress(Object defeated, Object total) {
+    return '$defeated/$total';
+  }
+
+  @override
+  String get autoRepeat => 'Auto Repeat';
 }

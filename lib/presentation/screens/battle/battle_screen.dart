@@ -1,45 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:go_router/go_router.dart';
-
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/domain/services/battle_statistics_service.dart';
 import 'package:gameapp/domain/entities/synergy.dart';
-import 'package:gameapp/presentation/providers/arena_provider.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
-import 'package:gameapp/presentation/providers/collection_provider.dart';
-import 'package:gameapp/presentation/providers/guild_provider.dart';
-import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
-import 'package:gameapp/presentation/providers/quest_provider.dart';
-import 'package:gameapp/presentation/providers/world_boss_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/damage_number.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
+import 'package:gameapp/presentation/widgets/battle/stage_progress_bar.dart';
+import 'package:gameapp/presentation/widgets/battle/battle_sidebar.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
-import 'package:gameapp/routing/app_router.dart';
-import 'package:gameapp/domain/services/guild_service.dart';
-import 'package:gameapp/data/static/event_database.dart';
 import 'package:gameapp/domain/services/prestige_service.dart';
 
 // =============================================================================
 // BattleScreen — root entry point
 // =============================================================================
 
-/// The main battle screen. Hosts all sub-sections from top to bottom:
-/// CurrencyBar -> StageHeader -> BattleArena -> BattleLog -> ControlBar.
-///
-/// A [_VictoryDialog] overlay is shown whenever [BattlePhase.victory] is
-/// active.
-class BattleScreen extends ConsumerWidget {
+/// The main battle screen. Auto-starts battle on init.
+/// Hosts: CurrencyBar -> StageProgressBar -> BattleArena.
+/// Overlays: BattleSidebar (left), RepeatCounter (top-right), VictoryDialog.
+class BattleScreen extends ConsumerStatefulWidget {
   const BattleScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BattleScreen> createState() => _BattleScreenState();
+}
+
+class _BattleScreenState extends ConsumerState<BattleScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Auto-start battle after providers are ready.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final phase = ref.read(battleProvider).phase;
+      if (phase == BattlePhase.idle) {
+        ref.read(battleProvider.notifier).startBattle();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final phase = ref.watch(battleProvider.select((s) => s.phase));
     final isRepeatMode = ref.watch(battleProvider.select((s) => s.isRepeatMode));
     final repeatCount = ref.watch(battleProvider.select((s) => s.repeatCount));
@@ -60,21 +66,32 @@ class BattleScreen extends ConsumerWidget {
                   // Currency bar — handles its own SafeArea top padding
                   const CurrencyBar(),
 
-                  // Stage header
-                  const _StageHeader(),
+                  // Stage progress bar (replaces old StageHeader)
+                  const StageProgressBar(),
 
                   // Battle arena
                   const Expanded(
                     child: _BattleArena(),
                   ),
 
-                  // Control bar — handles its own SafeArea bottom padding
-                  const _ControlBar(),
+                  // Bottom safe area padding
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
+              ),
+
+              // ── Battle sidebar (left) ──────────────────────────────────────
+              Positioned(
+                left: 0,
+                top: MediaQuery.of(context).padding.top + 100,
+                bottom: MediaQuery.of(context).padding.bottom + 60,
+                child: const BattleSidebar(),
               ),
 
               // ── Victory dialog overlay (skip in repeat mode) ─────────────
               if (phase == BattlePhase.victory && !isRepeatMode) const _VictoryDialog(),
+
+              // ── Defeat overlay with retry ─────────────────────────────────
+              if (phase == BattlePhase.defeat) const _DefeatBanner(),
 
               // ── Repeat mode counter overlay ────────────────────────────────
               if (isRepeatMode && repeatCount > 0)
@@ -96,139 +113,52 @@ class BattleScreen extends ConsumerWidget {
 }
 
 // =============================================================================
-// _StageHeader
+// _DefeatBanner — shown when battle is lost
 // =============================================================================
 
-class _StageHeader extends ConsumerWidget {
-  const _StageHeader();
+class _DefeatBanner extends ConsumerWidget {
+  const _DefeatBanner();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final stageName =
-        ref.watch(battleProvider.select((s) => s.currentStageName));
-    final stageId =
-        ref.watch(battleProvider.select((s) => s.currentStageId));
-    final phase = ref.watch(battleProvider.select((s) => s.phase));
+    final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
+    final notifier = ref.read(battleProvider.notifier);
 
-    final displayName = stageName.isNotEmpty
-        ? stageName
-        : (stageId > 0 ? l.battleStageId(stageId.toString()) : l.battleStandby);
-
-    final synergies =
-        ref.watch(battleProvider.select((s) => s.activeSynergies));
-
-    final isFighting = phase == BattlePhase.fighting;
-
-    return GestureDetector(
-      onTap: phase == BattlePhase.idle
-          ? () => context.push(AppRoutes.stageSelect)
-          : null,
+    return Positioned.fill(
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        color: AppColors.surfaceVariant,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                // 좌측 여백 (철수 버튼과 대칭)
-                SizedBox(width: isFighting ? 40 : 0),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          displayName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      if (phase == BattlePhase.idle) ...[
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.map_outlined,
-                          color: AppColors.textSecondary,
-                          size: 16,
-                        ),
-                      ],
-                    ],
-                  ),
+        color: Colors.black.withValues(alpha: 0.6),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.sentiment_very_dissatisfied, color: AppColors.error, size: 48),
+              const SizedBox(height: 8),
+              Text(
+                l.battleDefeat,
+                style: const TextStyle(color: AppColors.error, fontSize: 24, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => notifier.startBattle(stageId),
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: Text(l.retry, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error.withValues(alpha: 0.85),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                // 철수 버튼 (전투 중에만 표시)
-                if (isFighting)
-                  GestureDetector(
-                    onTap: () => _showRetreatDialog(context, ref, l),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColors.error.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.flag_rounded,
-                        color: AppColors.error,
-                        size: 18,
-                      ),
-                    ),
-                  )
-                else
-                  const SizedBox.shrink(),
-              ],
-            ),
-            if (synergies.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                alignment: WrapAlignment.center,
-                children: synergies.map((s) => _SynergyBadge(synergy: s)).toList(),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
-
-  void _showRetreatDialog(BuildContext context, WidgetRef ref, AppLocalizations l) {
-    showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.retreatConfirmTitle),
-        content: Text(l.retreatConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.retreatConfirmCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              l.battleRetreat,
-              style: const TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    ).then((confirmed) {
-      if (confirmed == true) {
-        ref.read(battleProvider.notifier).retreatBattle();
-      }
-    });
-  }
 }
+
+// (Old _StageHeader removed — replaced by StageProgressBar widget)
 
 // =============================================================================
 // _BattleArena
@@ -274,10 +204,27 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
       _lastLogLength = state.battleLog.length;
     }
 
-    // Reset on idle
+    // Reset on idle — auto-restart battle
     if (state.phase == BattlePhase.idle) {
       _lastLogLength = 0;
-      return const _IdleBanner();
+      // Auto-start next battle
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(battleProvider.notifier).startBattle();
+      });
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(color: AppColors.primary),
+            const SizedBox(height: 12),
+            Text(
+              l.preparingBattle,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            ),
+          ],
+        ),
+      );
     }
 
     // area 계산: stageId 기반으로 area 번호 결정
@@ -374,270 +321,9 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
   }
 }
 
-// ── _IdleBanner ───────────────────────────────────────────────────────────────
+// (Old _IdleBanner removed — battle auto-starts now)
 
-class _IdleBanner extends ConsumerWidget {
-  const _IdleBanner();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context)!;
-    final player = ref.watch(playerProvider.select((s) => s.player));
-    final arenaRemaining = ref.watch(arenaProvider.select((s) => s.remainingAttempts));
-    final wbRemaining = ref.watch(worldBossProvider.select((s) => s.remainingAttempts));
-    final guildBossAttempts = ref.watch(guildProvider.select((s) => s.guild?.dailyBossAttempts ?? 0));
-    final claimable = ref.watch(questProvider.select((s) => s.claimableCount));
-    final incompleteQuestCount = ref.watch(questProvider.select((s) => s.quests.where((q) => !q.isCompleted).length));
-    final collection = ref.watch(collectionStatsProvider);
-
-    // Team power
-    final team = ref.watch(teamMonstersProvider);
-    final teamPower = team.fold<double>(0, (s, m) => s + m.finalAtk + m.finalDef + m.finalHp + m.finalSpd);
-
-    // Guild remaining
-    final guildRemaining = (GuildService.maxDailyAttempts - guildBossAttempts).clamp(0, GuildService.maxDailyAttempts);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Event banners ──────────────────────────────────────────
-          const _EventBannerCarousel(),
-          const SizedBox(height: 10),
-
-          // ── Player info row ──────────────────────────────────────────
-          if (player != null)
-            GestureDetector(
-              onTap: () => context.push(AppRoutes.hero),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.person, color: AppColors.primary, size: 28, semanticLabel: l.semanticPlayer),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.playerLevelStage(player.playerLevel, player.currentStageId),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            l.teamSummary(FormatUtils.formatNumber(teamPower.round()), team.length, collection.owned, collection.total),
-                            style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (player.prestigeLevel > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          l.prestigeN(player.prestigeLevel),
-                          style: TextStyle(fontSize: 10, color: Colors.purple[300], fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right, color: AppColors.textTertiary, size: 20),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 10),
-
-          // ── Daily attempts ───────────────────────────────────────────
-          Text(
-            l.dailyStatus,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(child: _AttemptCard(
-                icon: Icons.emoji_events, color: Colors.amber,
-                label: l.arenaShort, remaining: arenaRemaining, max: 5,
-              )),
-              const SizedBox(width: 8),
-              Expanded(child: _AttemptCard(
-                icon: Icons.whatshot, color: Colors.red,
-                label: l.worldBoss, remaining: wbRemaining, max: 3,
-              )),
-              const SizedBox(width: 8),
-              Expanded(child: _AttemptCard(
-                icon: Icons.groups, color: Colors.indigo,
-                label: l.guild, remaining: guildRemaining, max: GuildService.maxDailyAttempts,
-              )),
-            ],
-          ),
-          const SizedBox(height: 6),
-          // Quest status
-          if (claimable > 0)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.card_giftcard, color: Colors.amber, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    l.questRewardAvailable(claimable),
-                    style: const TextStyle(fontSize: 12, color: Colors.amber, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            )
-          else
-            Text(
-              l.questInProgress(incompleteQuestCount),
-              style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
-            ),
-          const SizedBox(height: 14),
-
-          // ── Quick navigation ─────────────────────────────────────────
-          Text(
-            l.shortcut,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _QuickNavBtn(icon: Icons.person, label: l.quickNavHero, color: AppColors.primaryLight, route: AppRoutes.hero),
-              _QuickNavBtn(icon: Icons.map, label: l.quickNavWorldMap, color: Colors.green, route: AppRoutes.mapHub),
-              _QuickNavBtn(icon: Icons.layers, label: l.infiniteDungeon, color: const Color(0xFFCE93D8), route: AppRoutes.dungeon),
-              _QuickNavBtn(icon: Icons.castle, label: l.towerTitle, color: Colors.amber, route: AppRoutes.tower),
-              _QuickNavBtn(icon: Icons.whatshot, label: l.worldBoss, color: Colors.red, route: AppRoutes.worldBoss),
-              _QuickNavBtn(icon: Icons.emoji_events, label: l.arenaShort, color: Colors.amber, route: AppRoutes.arena),
-              _QuickNavBtn(icon: Icons.event, label: l.eventDungeonShort, color: Colors.teal, route: AppRoutes.eventDungeon),
-              _QuickNavBtn(icon: Icons.groups, label: l.guild, color: Colors.indigo, route: AppRoutes.guild),
-              _QuickNavBtn(icon: Icons.inventory_2, label: l.relic, color: Colors.orange, route: AppRoutes.relic),
-              _QuickNavBtn(icon: Icons.explore, label: l.expedition, color: Colors.lightBlue, route: AppRoutes.expedition),
-              _QuickNavBtn(icon: Icons.military_tech, label: l.seasonPassTitle, color: Colors.deepOrange, route: AppRoutes.seasonPass),
-              _QuickNavBtn(icon: Icons.fitness_center, label: l.trainingTitle, color: Colors.orange, route: AppRoutes.training),
-              _QuickNavBtn(icon: Icons.leaderboard, label: l.leaderboardTitle, color: Colors.cyan, route: AppRoutes.leaderboard),
-              _QuickNavBtn(icon: Icons.workspace_premium, label: l.titleScreenTitle, color: Colors.amber, route: AppRoutes.title),
-              _QuickNavBtn(icon: Icons.mail, label: l.mailboxTitle, color: Colors.pink, route: AppRoutes.mailbox),
-              _QuickNavBtn(icon: Icons.wb_sunny, label: l.dailyDungeonTitle, color: Colors.deepOrange, route: AppRoutes.dailyDungeon),
-              _QuickNavBtn(icon: Icons.store, label: l.shopTitle, color: Colors.green, route: AppRoutes.shop),
-              _QuickNavBtn(icon: Icons.history, label: l.replayTitle, color: Colors.indigo, route: AppRoutes.battleReplay),
-              _QuickNavBtn(icon: Icons.bar_chart, label: l.statistics, color: Colors.blueGrey, route: AppRoutes.statistics),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── _AttemptCard ─────────────────────────────────────────────────────────────
-
-class _AttemptCard extends StatelessWidget {
-  const _AttemptCard({
-    required this.icon,
-    required this.color,
-    required this.label,
-    required this.remaining,
-    required this.max,
-  });
-  final IconData icon;
-  final Color color;
-  final String label;
-  final int remaining;
-  final int max;
-
-  @override
-  Widget build(BuildContext context) {
-    final used = max - remaining;
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 10, color: AppColors.textTertiary)),
-          const SizedBox(height: 2),
-          Text(
-            '$used/$max',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: remaining > 0 ? color : AppColors.textTertiary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── _QuickNavBtn ─────────────────────────────────────────────────────────────
-
-class _QuickNavBtn extends StatelessWidget {
-  const _QuickNavBtn({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.route,
-  });
-  final IconData icon;
-  final String label;
-  final Color color;
-  final String route;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.push(route),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.4)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// (Old _IdleBanner, _AttemptCard, _QuickNavBtn removed — sidebar replaces them)
 
 // ── _MonsterGrid ──────────────────────────────────────────────────────────────
 
@@ -732,40 +418,7 @@ class _PhaseBadge extends StatelessWidget {
 }
 
 
-// =============================================================================
-// _ControlBar
-// =============================================================================
-
-class _ControlBar extends ConsumerWidget {
-  const _ControlBar();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final phase = ref.watch(battleProvider.select((s) => s.phase));
-    final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
-    final notifier = ref.read(battleProvider.notifier);
-
-    return Container(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: 10,
-        bottom: MediaQuery.of(context).padding.bottom + 10,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 0.8),
-        ),
-      ),
-      child: _PrimaryActionButton(
-        phase: phase,
-        stageId: stageId,
-        notifier: notifier,
-      ),
-    );
-  }
-}
+// (Old _ControlBar removed — auto-battle, no manual controls needed)
 
 // ── _RepeatCounter ────────────────────────────────────────────────────────────
 
@@ -813,105 +466,7 @@ class _RepeatCounter extends StatelessWidget {
   }
 }
 
-// ── _PrimaryActionButton ──────────────────────────────────────────────────────
-
-class _PrimaryActionButton extends StatelessWidget {
-  const _PrimaryActionButton({
-    required this.phase,
-    required this.stageId,
-    required this.notifier,
-  });
-
-  final BattlePhase phase;
-  final int stageId;
-  final BattleNotifier notifier;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return switch (phase) {
-      BattlePhase.idle => _ActionButton(
-          label: l.battleStart,
-          icon: Icons.play_arrow_rounded,
-          color: AppColors.success,
-          onPressed: () => notifier.startBattle(stageId),
-        ),
-      BattlePhase.preparing => _ActionButton(
-          label: l.preparingBattle,
-          icon: Icons.hourglass_top_rounded,
-          color: AppColors.warning,
-          onPressed: null,
-        ),
-      BattlePhase.fighting => _ActionButton(
-          label: l.battleFighting,
-          icon: Icons.bolt_rounded,
-          color: AppColors.textTertiary,
-          onPressed: null,
-        ),
-      BattlePhase.victory => _ActionButton(
-          label: l.reward,
-          icon: Icons.emoji_events_rounded,
-          color: AppColors.gold,
-          onPressed: () => notifier.collectReward(),
-        ),
-      BattlePhase.defeat => _ActionButton(
-          label: l.retry,
-          icon: Icons.refresh_rounded,
-          color: AppColors.error,
-          onPressed: () => notifier.startBattle(stageId),
-        ),
-    };
-  }
-}
-
-// ── _ActionButton ─────────────────────────────────────────────────────────────
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-  });
-
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDisabled = onPressed == null;
-
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-        label: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              isDisabled ? AppColors.disabled : color.withValues(alpha:0.85),
-          foregroundColor:
-              isDisabled ? AppColors.disabledText : AppColors.textPrimary,
-          padding: const EdgeInsets.symmetric(vertical: 13),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: isDisabled ? 0 : 4,
-          shadowColor:
-              isDisabled ? Colors.transparent : color.withValues(alpha:0.4),
-        ),
-      ),
-    );
-  }
-}
+// (Old _PrimaryActionButton, _ActionButton removed)
 
 // =============================================================================
 // _VictoryDialog — full-screen overlay shown on BattlePhase.victory
@@ -1320,106 +875,6 @@ class _RewardChip extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// =============================================================================
-// _SynergyBadge
-// =============================================================================
-
-class _EventBannerCarousel extends StatefulWidget {
-  const _EventBannerCarousel();
-
-  @override
-  State<_EventBannerCarousel> createState() => _EventBannerCarouselState();
-}
-
-class _EventBannerCarouselState extends State<_EventBannerCarousel> {
-  late final PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(viewportFraction: 0.92);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isKo = Localizations.localeOf(context).languageCode == 'ko';
-    final events = EventDatabase.activeEvents();
-    if (events.isEmpty) return const SizedBox.shrink();
-
-    return SizedBox(
-      height: 72,
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: events.length,
-        itemBuilder: (_, i) {
-          final e = events[i];
-          final color = Color(e.colorValue);
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.1)],
-              ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  IconData(e.iconCodePoint, fontFamily: 'MaterialIcons'),
-                  color: color,
-                  size: 28,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        isKo ? e.titleKo : e.titleEn,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
-                      ),
-                      Text(
-                        isKo ? e.descKo : e.descEn,
-                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    isKo ? e.rewardKo : e.rewardEn,
-                    style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
     );
   }
 }
