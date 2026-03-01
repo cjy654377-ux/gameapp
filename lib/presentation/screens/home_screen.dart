@@ -223,71 +223,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     // Show milestone dialog even if already checked in today
     if (!state.canCheckIn && state.claimableMilestones.isNotEmpty) {
       _showingDialog = true;
-      final l = AppLocalizations.of(context)!;
-      final claimedDays = await showMilestoneDialog(
-        context,
-        attendance: state,
-      );
-      for (final days in claimedDays) {
-        if (!state.claimedMilestones.contains(days)) {
-          await ref.read(attendanceProvider.notifier).claimMilestone(days);
-        }
+      try {
+        await _showAndClaimMilestones(state);
+      } finally {
+        _showingDialog = false;
       }
-      if (claimedDays.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l.milestoneClaimed),
-            backgroundColor: Colors.amber,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      _showingDialog = false;
       return;
     }
 
     if (!state.canCheckIn) return;
 
     _showingDialog = true;
-    final claimed = await showAttendanceDialog(context, attendance: state);
+    try {
+      final claimed = await showAttendanceDialog(context, attendance: state);
 
-    if (claimed && mounted) {
-      final reward = await ref.read(attendanceProvider.notifier).checkIn();
-      if (reward != null && mounted) {
-        final l = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l.attendanceClaimed),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-
-        // Show milestone dialog if any claimable
-        final updatedState = ref.read(attendanceProvider);
-        if (updatedState.claimableMilestones.isNotEmpty && mounted) {
-          final claimedDays = await showMilestoneDialog(
-            context,
-            attendance: updatedState,
+      if (claimed && mounted) {
+        final reward = await ref.read(attendanceProvider.notifier).checkIn();
+        if (reward != null && mounted) {
+          final l = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l.attendanceClaimed),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
           );
-          for (final days in claimedDays) {
-            if (!updatedState.claimedMilestones.contains(days)) {
-              await ref.read(attendanceProvider.notifier).claimMilestone(days);
-            }
-          }
-          if (claimedDays.isNotEmpty && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l.milestoneClaimed),
-                backgroundColor: Colors.amber,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
+
+          // Show milestone dialog if any claimable
+          final updatedState = ref.read(attendanceProvider);
+          if (updatedState.claimableMilestones.isNotEmpty && mounted) {
+            await _showAndClaimMilestones(updatedState);
           }
         }
       }
+    } finally {
+      _showingDialog = false;
     }
-    _showingDialog = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -311,6 +282,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       }
     }
     return 0;
+  }
+
+  Future<void> _showAndClaimMilestones(AttendanceState attendance) async {
+    final claimedDays = await showMilestoneDialog(
+      context,
+      attendance: attendance,
+    );
+    if (!mounted) return;
+    for (final days in claimedDays) {
+      await ref.read(attendanceProvider.notifier).claimMilestone(days);
+    }
+    if (claimedDays.isNotEmpty && mounted) {
+      final l = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.milestoneClaimed),
+          backgroundColor: Colors.amber,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -117,17 +117,26 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
 
   final Ref _ref;
   static const _milestoneKey = 'attendance_milestones';
+  Set<int>? _cachedMilestones;
 
   Set<int> _loadMilestones() {
+    if (_cachedMilestones != null) return _cachedMilestones!;
     final box = Hive.box('settings');
-    final raw = box.get(_milestoneKey, defaultValue: '') as String;
-    if (raw.isEmpty) return {};
-    return raw.split(',').map((e) => int.tryParse(e)).whereType<int>().toSet();
+    final raw = box.get(_milestoneKey);
+    if (raw is List) {
+      _cachedMilestones = raw.cast<int>().toSet();
+    } else if (raw is String && raw.isNotEmpty) {
+      _cachedMilestones = raw.split(',').map((e) => int.tryParse(e)).whereType<int>().toSet();
+    } else {
+      _cachedMilestones = {};
+    }
+    return _cachedMilestones!;
   }
 
   Future<void> _saveMilestones(Set<int> claimed) async {
+    _cachedMilestones = claimed;
     final box = Hive.box('settings');
-    await box.put(_milestoneKey, claimed.join(','));
+    await box.put(_milestoneKey, claimed.toList());
   }
 
   void refresh() {

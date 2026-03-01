@@ -324,8 +324,15 @@ class _MilestoneDialogState extends State<_MilestoneDialog> {
               ),
             ),
             const SizedBox(height: 14),
-            ...AttendanceMilestone.milestones.map((m) =>
-                _buildMilestoneRow(context, l, m)),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: AttendanceMilestone.milestones
+                      .map((m) => _buildMilestoneRow(context, l, m))
+                      .toList(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
