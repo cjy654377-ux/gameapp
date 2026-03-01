@@ -4777,6 +4777,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'최강 팀 추천'**
   String get teamRecommend;
+
+  /// No description provided for @relicFuse.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물 융합'**
+  String get relicFuse;
+
+  /// No description provided for @relicFuseDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 등급 유물 2개 → 상위 등급 랜덤 유물'**
+  String get relicFuseDesc;
+
+  /// No description provided for @relicFuseExecute.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합 실행'**
+  String get relicFuseExecute;
+
+  /// No description provided for @relicFuseSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'융합 성공!'**
+  String get relicFuseSuccess;
 }
 
 class _AppLocalizationsDelegate

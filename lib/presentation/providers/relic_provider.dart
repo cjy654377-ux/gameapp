@@ -173,6 +173,37 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
   }
 
   // ---------------------------------------------------------------------------
+  // Relic fusion
+  // ---------------------------------------------------------------------------
+
+  /// Fuse two relics of the same rarity into a random higher-rarity relic.
+  /// Returns the new relic if successful, null otherwise.
+  Future<RelicModel?> fuseRelics(String relicId1, String relicId2) async {
+    final r1 = state.cast<RelicModel?>().firstWhere(
+          (r) => r!.id == relicId1, orElse: () => null);
+    final r2 = state.cast<RelicModel?>().firstWhere(
+          (r) => r!.id == relicId2, orElse: () => null);
+    if (r1 == null || r2 == null) return null;
+    if (r1.rarity != r2.rarity) return null;
+    if (r1.rarity >= 5) return null; // can't fuse 5-star
+    if (r1.isEquipped || r2.isEquipped) return null;
+
+    // Remove both relics.
+    await removeRelic(relicId1);
+    await removeRelic(relicId2);
+
+    // Generate new relic at next rarity.
+    final targetRarity = r1.rarity + 1;
+    final candidates = RelicDatabase.byRarity(targetRarity);
+    if (candidates.isEmpty) return null;
+    final random = math.Random();
+    final template = candidates[random.nextInt(candidates.length)];
+    final newRelic = _createFromTemplate(template);
+    await addRelic(newRelic);
+    return newRelic;
+  }
+
+  // ---------------------------------------------------------------------------
   // Query helpers
   // ---------------------------------------------------------------------------
 

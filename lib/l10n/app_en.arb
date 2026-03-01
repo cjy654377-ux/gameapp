@@ -911,5 +911,9 @@
   "@fusionPreviewTitle": {"placeholders": {"stars": {}}},
   "fusionPreviewDesc": "Random from {count} monsters",
   "@fusionPreviewDesc": {"placeholders": {"count": {}}},
-  "teamRecommend": "Best Team"
+  "teamRecommend": "Best Team",
+  "relicFuse": "Relic Fusion",
+  "relicFuseDesc": "Combine 2 same-rarity relics → random higher rarity",
+  "relicFuseExecute": "Fuse",
+  "relicFuseSuccess": "Fusion Success!"
 }

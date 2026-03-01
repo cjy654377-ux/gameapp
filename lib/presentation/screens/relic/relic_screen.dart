@@ -60,6 +60,13 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.merge_type_rounded, size: 22),
+            tooltip: l.relicFuse,
+            onPressed: () => _showFusionSheet(context, ref, relics, l),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -624,5 +631,176 @@ class _EnhanceButton extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+// =============================================================================
+// Relic fusion bottom sheet
+// =============================================================================
+
+void _showFusionSheet(BuildContext context, WidgetRef ref,
+    List<RelicModel> relics, AppLocalizations l) {
+  final fusable = relics
+      .where((r) => !r.isEquipped && r.rarity < 5)
+      .toList()
+    ..sort((a, b) {
+      final cmp = b.rarity.compareTo(a.rarity);
+      return cmp != 0 ? cmp : a.name.compareTo(b.name);
+    });
+
+  String? selectedId1;
+  String? selectedId2;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setSheetState) {
+        final canFuse = selectedId1 != null &&
+            selectedId2 != null &&
+            selectedId1 != selectedId2;
+
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16, right: 16, top: 16,
+            bottom: MediaQuery.of(ctx).padding.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l.relicFuse,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text(l.relicFuseDesc,
+                  style: const TextStyle(
+                      color: AppColors.textSecondary, fontSize: 12)),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 200,
+                child: GridView.builder(
+                  itemCount: fusable.length,
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                  ),
+                  itemBuilder: (_, i) {
+                    final r = fusable[i];
+                    final isA = r.id == selectedId1;
+                    final isB = r.id == selectedId2;
+                    final selected = isA || isB;
+                    return GestureDetector(
+                      onTap: () {
+                        setSheetState(() {
+                          if (isA) {
+                            selectedId1 = null;
+                          } else if (isB) {
+                            selectedId2 = null;
+                          } else if (selectedId1 == null) {
+                            selectedId1 = r.id;
+                          } else if (selectedId2 == null) {
+                            final r1 = fusable.firstWhere(
+                                (x) => x.id == selectedId1);
+                            if (r.rarity == r1.rarity) {
+                              selectedId2 = r.id;
+                            }
+                          }
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: selected
+                              ? Colors.purple.withValues(alpha: 0.2)
+                              : AppColors.card,
+                          border: Border.all(
+                            color: selected
+                                ? Colors.purple
+                                : AppColors.border,
+                            width: selected ? 2 : 1,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(_relicIcon(r.type),
+                                color: _rarityColor(r.rarity), size: 18),
+                            const SizedBox(height: 2),
+                            Text(r.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 8,
+                                    color: _rarityColor(r.rarity),
+                                    fontWeight: FontWeight.w600)),
+                            Text('⭐' * r.rarity,
+                                style: const TextStyle(fontSize: 7)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: canFuse
+                      ? () async {
+                          final result = await ref
+                              .read(relicProvider.notifier)
+                              .fuseRelics(selectedId1!, selectedId2!);
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                            if (result != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      '${l.relicFuseSuccess} ${result.name} ${'⭐' * result.rarity}'),
+                                  backgroundColor: Colors.purple,
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      : null,
+                  icon: const Icon(Icons.merge_type_rounded, size: 18),
+                  label: Text(l.relicFuseExecute),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        AppColors.disabled.withValues(alpha: 0.3),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
+
+IconData _relicIcon(String type) {
+  switch (type) {
+    case 'weapon':
+      return Icons.gavel_rounded;
+    case 'armor':
+      return Icons.shield_rounded;
+    case 'accessory':
+      return Icons.auto_awesome;
+    default:
+      return Icons.inventory_2;
   }
 }

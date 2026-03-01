@@ -2662,4 +2662,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamRecommend => 'Best Team';
+
+  @override
+  String get relicFuse => 'Relic Fusion';
+
+  @override
+  String get relicFuseDesc =>
+      'Combine 2 same-rarity relics → random higher rarity';
+
+  @override
+  String get relicFuseExecute => 'Fuse';
+
+  @override
+  String get relicFuseSuccess => 'Fusion Success!';
 }

@@ -987,5 +987,9 @@
   "@fusionPreviewTitle": {"placeholders": {"stars": {}}},
   "fusionPreviewDesc": "총 {count}종의 몬스터 중 랜덤",
   "@fusionPreviewDesc": {"placeholders": {"count": {}}},
-  "teamRecommend": "최강 팀 추천"
+  "teamRecommend": "최강 팀 추천",
+  "relicFuse": "유물 융합",
+  "relicFuseDesc": "같은 등급 유물 2개 → 상위 등급 랜덤 유물",
+  "relicFuseExecute": "융합 실행",
+  "relicFuseSuccess": "융합 성공!"
 }

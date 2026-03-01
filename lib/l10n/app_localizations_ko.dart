@@ -2649,4 +2649,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get teamRecommend => '최강 팀 추천';
+
+  @override
+  String get relicFuse => '유물 융합';
+
+  @override
+  String get relicFuseDesc => '같은 등급 유물 2개 → 상위 등급 랜덤 유물';
+
+  @override
+  String get relicFuseExecute => '융합 실행';
+
+  @override
+  String get relicFuseSuccess => '융합 성공!';
 }
