@@ -437,6 +437,21 @@
 - [x] Row → Wrap (오버플로 방지)
 - [x] rarity 별표 '★N' 축약
 
+## 14차 고도화
+- [x] 일일 럭키박스 시스템
+  - LuckyBoxProvider: 일일 1회 무료, 10종 확률 보상 (금화/다이아/포션/소환권)
+  - 연속 스트릭 (7일 주기 마일스톤 보너스)
+  - LuckyBoxScreen: 스핀 애니메이션 + 글로우 효과 + 결과 표시
+  - 사이드바 바로가기 + /lucky-box 라우트
+
+## 코드 리뷰 15차
+- [x] copyWith currentReward sentinel 패턴 (null 초기화)
+- [x] roll() 확률 정규화 + 폴백 rewards.last
+- [x] isSpinning 버튼 가드 (중복 입력 방지)
+- [x] _onSpin 애니메이션 순서 수정
+- [x] _dateToInt 단일 호출 (날짜 경계 안전)
+- [x] sidebarSeasonPass 영문 번역 수정
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
