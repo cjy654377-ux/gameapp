@@ -389,6 +389,37 @@
 - [x] O4: 도감 카드 전투력 표시
 - [x] O5: 팀 자동 추천 (전투력 기반 최강 팀 구성)
 
+## 코드 리뷰 11차
+- [x] tower: Future.delayed → Timer + dispose
+- [x] tower_provider: firstWhere orElse null guard
+- [x] training_screen: .select() 최적화
+
+## 10차 고도화
+- [x] 하드 모드 스테이지 (2x 적스탯, 1.5x 보상, maxHardClearedStageId)
+- [x] 렐릭 합성 시스템 (같은 등급 2개 → 상위 등급)
+
+## 코드 리뷰 12차
+- [x] battle_screen: build() 부수효과 → ref.listenManual
+- [x] gacha_screen: Future.delayed → Timer (메모리 누수 방지)
+- [x] world_boss: 'NEW RECORD!'/'HP:' l10n + _formatDamage → FormatUtils
+- [x] home_screen: _badgeCount 캐싱 + _onPaused mounted
+- [x] guild/battle_screen: 하드코딩 문자열 l10n
+
+## 11차 고도화
+- [x] 몬스터 스탯 분해 UI (기본/레벨/진화/각성/친밀도/렐릭 분해 표시)
+- [x] 프리셋 파워스코어 + 멤버 이모지 미리보기
+- [x] 전투 도전 시스템 (ChallengeModifier: 턴제한×1.5/회복불가×1.3/보스러쉬×2.0/스피드런×1.4)
+
+## 코드 리뷰 13차
+- [x] battle_provider: Future.delayed → Timer (dispose 안전) + hardMode×bossRush 정규화
+- [x] battle_provider: noHealing 챌린지 패시브 힐 실제 차단
+- [x] stage_select: 챌린지 이중 pop 수정
+- [x] onboarding: markNeedsBuild → ValueListenableBuilder
+- [x] battle_service: 한국어 격조사 이(가) 이중출력 수정
+
+## 12차 고도화
+- [x] 렐릭 일괄 분해 (settings: 1~3성 이하 미장착 유물 → 골드 변환)
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
