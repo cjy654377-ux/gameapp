@@ -37,7 +37,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final state = ref.watch(trainingProvider);
+    final slots = ref.watch(trainingProvider.select((s) => s.slots));
 
     // Show snackbar for messages
     ref.listen<TrainingState>(trainingProvider, (prev, next) {
@@ -50,7 +50,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> {
     });
 
     // Build slot cards (always show 3 slots)
-    final activeSlots = state.slots.where((s) => !s.isCollected).toList();
+    final activeSlots = slots.where((s) => !s.isCollected).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,

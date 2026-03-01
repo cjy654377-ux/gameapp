@@ -242,15 +242,18 @@ class TowerNotifier extends StateNotifier<TowerState> {
       final opposingTeam = isPlayerMonster ? enemyTeam : playerTeam;
       final target = BattleService.selectTarget(opposingTeam);
       if (target != null) {
-        final targetInList = opposingTeam.firstWhere(
-          (m) => m.monsterId == target.monsterId,
+        final targetInList = opposingTeam.cast<BattleMonster?>().firstWhere(
+          (m) => m!.monsterId == target.monsterId,
+          orElse: () => null,
         );
-        final entry = BattleService.processSingleAttack(
-          attacker: attacker,
-          target: targetInList,
-        );
-        log.add(entry);
-        AudioService.instance.playHit();
+        if (targetInList != null) {
+          final entry = BattleService.processSingleAttack(
+            attacker: attacker,
+            target: targetInList,
+          );
+          log.add(entry);
+          AudioService.instance.playHit();
+        }
       }
     }
 
