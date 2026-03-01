@@ -1139,5 +1139,33 @@
   "eventGachaBoost": "가챠 확률 {mult}배",
   "@eventGachaBoost": {"placeholders": {"mult": {"type": "String"}}},
   "eventExpBoost": "경험치 {mult}배",
-  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}}
+  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}},
+
+  "bossRageNormal": "평온",
+  "bossRageAngry": "분노",
+  "bossRageBerserk": "폭주",
+  "bossRageLabel": "상태: {rage}",
+  "@bossRageLabel": {"placeholders": {"rage": {"type": "String"}}},
+  "bossHealMsg": "{name}이(가) 체력을 회복했다! (+{amount})",
+  "@bossHealMsg": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "int"}}},
+
+  "relicSetWarrior": "전사의 의지",
+  "relicSetWarriorDesc": "무기 2★↑ 2개 장착 시 ATK +15",
+  "relicSetGuardian": "수호자의 맹세",
+  "relicSetGuardianDesc": "방어구 2★↑ 2개 장착 시 DEF +15",
+  "relicSetDestroyer": "파괴자의 힘",
+  "relicSetDestroyerDesc": "무기+장신구 3★↑ 장착 시 ATK +10, SPD +5",
+  "relicSetActive": "활성 세트 효과",
+  "relicSetNone": "세트 효과 없음",
+
+  "statusBurn": "화상",
+  "statusFreeze": "빙결",
+  "statusPoison": "독",
+  "statusStun": "기절",
+  "statusShield": "보호막",
+  "statusTurnsN": "{n}턴",
+  "@statusTurnsN": {"placeholders": {"n": {"type": "int"}}},
+
+  "offlineExpPotion": "경험치 포션",
+  "offlineSummonStone": "소환석"
 }

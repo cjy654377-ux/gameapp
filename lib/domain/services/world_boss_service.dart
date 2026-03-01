@@ -4,11 +4,67 @@ import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/data/static/skill_database.dart';
 
 // =============================================================================
+// BossRageLevel — rage state based on boss HP percentage
+// =============================================================================
+
+enum BossRageLevel { normal, angry, berserk }
+
+// =============================================================================
 // WorldBossService — static utility for world boss encounters
 // =============================================================================
 
 class WorldBossService {
   WorldBossService._();
+
+  // ---------------------------------------------------------------------------
+  // Rage system
+  // ---------------------------------------------------------------------------
+
+  static final Set<String> _healedBosses = {};
+
+  static void resetHealTracker() => _healedBosses.clear();
+
+  static BossRageLevel getRageLevel(int currentHp, int maxHp) {
+    if (maxHp <= 0) return BossRageLevel.normal;
+    final pct = currentHp / maxHp;
+    if (pct >= 0.70) return BossRageLevel.normal;
+    if (pct >= 0.40) return BossRageLevel.angry;
+    return BossRageLevel.berserk;
+  }
+
+  static double getRageAtkMultiplier(BossRageLevel level) {
+    return switch (level) {
+      BossRageLevel.normal => 1.0,
+      BossRageLevel.angry => 1.3,
+      BossRageLevel.berserk => 1.6,
+    };
+  }
+
+  static double getRageDefMultiplier(BossRageLevel level) {
+    return switch (level) {
+      BossRageLevel.normal => 1.0,
+      BossRageLevel.angry => 1.0,
+      BossRageLevel.berserk => 0.8,
+    };
+  }
+
+  static BattleLogEntry? processBossHeal(BattleMonster boss) {
+    final rage = getRageLevel(boss.currentHp.toInt(), boss.maxHp.toInt());
+    if (rage != BossRageLevel.berserk) return null;
+    if (_healedBosses.contains(boss.monsterId)) return null;
+    _healedBosses.add(boss.monsterId);
+    final healAmount = boss.maxHp * 0.10;
+    boss.currentHp = (boss.currentHp + healAmount).clamp(0, boss.maxHp);
+    return BattleLogEntry(
+      attackerName: boss.name,
+      targetName: boss.name,
+      damage: 0,
+      isCritical: false,
+      isElementAdvantage: false,
+      description: '${boss.name}이(가) 분노하여 HP ${healAmount.toInt()}를 회복했다!',
+      timestamp: DateTime.now(),
+    );
+  }
 
   /// Maximum turns allowed per boss fight.
   static const int maxTurns = 30;
@@ -160,8 +216,10 @@ class WorldBossService {
     final random = math.Random();
     final target = alive[random.nextInt(alive.length)];
 
-    // Damage formula (same as BattleService).
-    final rawDamage = (boss.atk * 1.0 - target.def * 0.5).clamp(1.0, 999999.0);
+    // Damage formula (same as BattleService) with rage multiplier.
+    final rage = getRageLevel(boss.currentHp.toInt(), boss.maxHp.toInt());
+    final atkMult = getRageAtkMultiplier(rage);
+    final rawDamage = (boss.atk * atkMult - target.def * 0.5).clamp(1.0, 999999.0);
     final variance = 0.85 + random.nextDouble() * 0.30;
     final isCrit = random.nextDouble() < 0.1;
     final critMult = isCrit ? 1.5 : 1.0;

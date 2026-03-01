@@ -560,3 +560,11 @@
 - [x] Step 4: 상점 일일 특가 (날짜시드 7종중3종, 1회 구매제한, 자정리셋)
 - [x] Step 5: 아레나 시즌 (28일, 소프트리셋, 5랭크, 시즌보상, 카운트다운)
 - [x] Step 6: 길드 채팅 (AI 20개 템플릿, 시드기반 로그, 보스/레벨업 알림, 2탭)
+
+## 22차 고도화 - 월드보스 강화 + 유물 세트 + 전투 UI + 콘텐츠 확장
+- [x] Step 1: 월드보스 분노 시스템 (BossRageLevel enum, HP 70%/40% 단계, ATK 1.3x/1.6x, berserk DEF 0.8x, 1회 자가회복)
+- [x] Step 2: 유물 세트 효과 (RelicSetBonus 3종: 전사ATK+15/수호자DEF+15/파괴자ATK+10,SPD+5, relicBonuses 합산)
+- [x] Step 3: 전투 상태 아이콘 표시 (🔥burn/❄️freeze/☠️poison/⚡stun/🛡️shield, 아군/적군 분리, 턴수 배지)
+- [x] Step 4: 도전의탑 50층 확장 (maxFloor 30→50, 31~40 coeff 0.08, 41~50 coeff 0.10, 50층 마일스톤)
+- [x] Step 5: 월드맵 Area 6 노드 (심연 보라+검정, 결정+어둠파티클 장식)
+- [x] Step 6: 오프라인 보상 확장 (expPotion/summonStone, stageIndex≥12 포션, ≥24 소환석)

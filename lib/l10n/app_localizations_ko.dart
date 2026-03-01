@@ -2964,4 +2964,141 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsAutoLabel => '자동전투';
+
+  @override
+  String get areaAbyss => '심연의 동굴';
+
+  @override
+  String get mapArea6 => '심연의 동굴';
+
+  @override
+  String tagFreeze(int turns) {
+    return '빙결 $turns턴';
+  }
+
+  @override
+  String tagPoison(int turns) {
+    return '독 $turns턴';
+  }
+
+  @override
+  String get shopTabDailyDeal => '일일 특가';
+
+  @override
+  String get shopDailyDealReset => '매일 자정에 갱신됩니다';
+
+  @override
+  String get shopDailyDealPurchased => '구매 완료';
+
+  @override
+  String arenaSeasonN(int n) {
+    return '시즌 $n';
+  }
+
+  @override
+  String arenaSeasonDaysLeft(int days) {
+    return '$days일 남음';
+  }
+
+  @override
+  String get arenaSeasonReward => '시즌 보상';
+
+  @override
+  String get arenaRankPlatinum => '플래티넘';
+
+  @override
+  String get guildTabInfo => '정보';
+
+  @override
+  String get guildTabChat => '채팅';
+
+  @override
+  String get guildChatRefreshNote => '채팅 기록은 매일 갱신됩니다';
+
+  @override
+  String get eventEffectActive => '이벤트 효과 적용 중';
+
+  @override
+  String eventBattleRewardBoost(String mult) {
+    return '전투 보상 $mult배';
+  }
+
+  @override
+  String eventGachaBoost(String mult) {
+    return '가챠 확률 $mult배';
+  }
+
+  @override
+  String eventExpBoost(String mult) {
+    return '경험치 $mult배';
+  }
+
+  @override
+  String get bossRageNormal => '평온';
+
+  @override
+  String get bossRageAngry => '분노';
+
+  @override
+  String get bossRageBerserk => '폭주';
+
+  @override
+  String bossRageLabel(String rage) {
+    return '상태: $rage';
+  }
+
+  @override
+  String bossHealMsg(String name, int amount) {
+    return '$name이(가) 체력을 회복했다! (+$amount)';
+  }
+
+  @override
+  String get relicSetWarrior => '전사의 의지';
+
+  @override
+  String get relicSetWarriorDesc => '무기 2★↑ 2개 장착 시 ATK +15';
+
+  @override
+  String get relicSetGuardian => '수호자의 맹세';
+
+  @override
+  String get relicSetGuardianDesc => '방어구 2★↑ 2개 장착 시 DEF +15';
+
+  @override
+  String get relicSetDestroyer => '파괴자의 힘';
+
+  @override
+  String get relicSetDestroyerDesc => '무기+장신구 3★↑ 장착 시 ATK +10, SPD +5';
+
+  @override
+  String get relicSetActive => '활성 세트 효과';
+
+  @override
+  String get relicSetNone => '세트 효과 없음';
+
+  @override
+  String get statusBurn => '화상';
+
+  @override
+  String get statusFreeze => '빙결';
+
+  @override
+  String get statusPoison => '독';
+
+  @override
+  String get statusStun => '기절';
+
+  @override
+  String get statusShield => '보호막';
+
+  @override
+  String statusTurnsN(int n) {
+    return '$n턴';
+  }
+
+  @override
+  String get offlineExpPotion => '경험치 포션';
+
+  @override
+  String get offlineSummonStone => '소환석';
 }

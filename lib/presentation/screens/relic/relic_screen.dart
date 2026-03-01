@@ -6,6 +6,7 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/core/constants/app_colors.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/data/models/relic_model.dart';
+import 'package:gameapp/data/static/relic_database.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
@@ -124,6 +125,43 @@ class _RelicScreenState extends ConsumerState<RelicScreen> {
                       );
                     },
                   ),
+          ),
+
+          // Set bonus info card
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.purple.withValues(alpha: 0.08),
+              border: Border(top: BorderSide(color: Colors.purple.withValues(alpha: 0.3))),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.auto_awesome, color: Colors.purple, size: 16),
+                    const SizedBox(width: 6),
+                    Text(l.relicSetActive, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.purple)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ...RelicSetDatabase.all.map((set) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.circle, size: 6, color: Colors.purple.withValues(alpha: 0.5)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${set.name}: ${set.bonuses.map((b) => '${_statLabel(l, b.statType)} +${b.statValue.toInt()}').join(', ')}',
+                          style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
           ),
         ],
       ),

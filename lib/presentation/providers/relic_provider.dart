@@ -252,7 +252,44 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
           spdBonus += val;
       }
     }
+
+    // Add set bonuses
+    final setBonuses = activeSetBonuses(monsterId);
+    for (final set in setBonuses) {
+      for (final bonus in set.bonuses) {
+        switch (bonus.statType) {
+          case 'atk': atkBonus += bonus.statValue;
+          case 'def': defBonus += bonus.statValue;
+          case 'hp': hpBonus += bonus.statValue;
+          case 'spd': spdBonus += bonus.statValue;
+        }
+      }
+    }
+
     return (atk: atkBonus, def: defBonus, hp: hpBonus, spd: spdBonus);
+  }
+
+  /// Returns active set bonuses for a specific monster.
+  List<RelicSetBonus> activeSetBonuses(String monsterId) {
+    final equipped = relicsForMonster(monsterId);
+    if (equipped.isEmpty) return [];
+
+    final active = <RelicSetBonus>[];
+    for (final set in RelicSetDatabase.all) {
+      if (set.requiredType == 'mixed') {
+        // Destroyer: needs 1 weapon + 1 accessory, both >= requiredMinRarity
+        final hasWeapon = equipped.any((r) => r.type == 'weapon' && r.rarity >= set.requiredMinRarity);
+        final hasAccessory = equipped.any((r) => r.type == 'accessory' && r.rarity >= set.requiredMinRarity);
+        if (hasWeapon && hasAccessory) active.add(set);
+      } else {
+        // Count matching type with sufficient rarity
+        final matching = equipped.where(
+          (r) => r.type == set.requiredType && r.rarity >= set.requiredMinRarity,
+        ).length;
+        if (matching >= set.requiredPieces) active.add(set);
+      }
+    }
+    return active;
   }
 }
 

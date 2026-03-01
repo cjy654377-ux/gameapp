@@ -174,6 +174,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       final bonusExp = (reward.exp * multiplier).round();
       await ref.read(currencyProvider.notifier).addGold(bonusGold);
       await ref.read(playerProvider.notifier).addPlayerExp(bonusExp);
+      if (reward.expPotion > 0) {
+        await ref.read(currencyProvider.notifier).addExpPotion(reward.expPotion);
+      }
+      if (reward.summonStone > 0) {
+        await ref.read(currencyProvider.notifier).addGachaTicket(reward.summonStone);
+      }
       ref.read(offlineRewardProvider.notifier).markClaimed();
     }
 

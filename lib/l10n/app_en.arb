@@ -1063,5 +1063,33 @@
   "eventGachaBoost": "Gacha Rate {mult}x",
   "@eventGachaBoost": {"placeholders": {"mult": {"type": "String"}}},
   "eventExpBoost": "EXP {mult}x",
-  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}}
+  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}},
+
+  "bossRageNormal": "Calm",
+  "bossRageAngry": "Angry",
+  "bossRageBerserk": "Berserk",
+  "bossRageLabel": "State: {rage}",
+  "@bossRageLabel": {"placeholders": {"rage": {"type": "String"}}},
+  "bossHealMsg": "{name} healed! (+{amount})",
+  "@bossHealMsg": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "int"}}},
+
+  "relicSetWarrior": "Warrior's Will",
+  "relicSetWarriorDesc": "2 weapons 2★+ equipped → ATK +15",
+  "relicSetGuardian": "Guardian's Oath",
+  "relicSetGuardianDesc": "2 armors 2★+ equipped → DEF +15",
+  "relicSetDestroyer": "Destroyer's Might",
+  "relicSetDestroyerDesc": "Weapon+Accessory 3★+ → ATK +10, SPD +5",
+  "relicSetActive": "Active Set Bonuses",
+  "relicSetNone": "No set bonuses",
+
+  "statusBurn": "Burn",
+  "statusFreeze": "Freeze",
+  "statusPoison": "Poison",
+  "statusStun": "Stun",
+  "statusShield": "Shield",
+  "statusTurnsN": "{n}t",
+  "@statusTurnsN": {"placeholders": {"n": {"type": "int"}}},
+
+  "offlineExpPotion": "EXP Potion",
+  "offlineSummonStone": "Summon Stone"
 }

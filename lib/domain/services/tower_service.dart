@@ -6,14 +6,14 @@ import 'package:gameapp/domain/entities/battle_entity.dart';
 
 /// Static service for the Tower of Challenge (도전의 탑).
 ///
-/// 30 floors total, weekly reset, no healing between floors,
+/// 50 floors total, weekly reset, no healing between floors,
 /// harder scaling than infinite dungeon, boss floors every 10.
 class TowerService {
   TowerService._();
 
   static final math.Random _random = math.Random();
 
-  static const int maxFloor = 30;
+  static const int maxFloor = 50;
   static const int maxWeeklyAttempts = 3;
 
   // ---------------------------------------------------------------------------
@@ -24,8 +24,11 @@ class TowerService {
     final bool isBoss = floor % 10 == 0;
     final int enemyCount = isBoss ? 1 : (floor <= 10 ? 2 : 3);
     final int enemyLevel = (8 + floor * 2.5).round();
-    final double levelMult = 1.0 + (enemyLevel - 1) * 0.06;
-    final double bossMult = isBoss ? 3.0 : 1.0;
+    final double levelCoeff = floor <= 30 ? 0.06 : (floor <= 40 ? 0.08 : 0.10);
+    final double levelMult = 1.0 + (enemyLevel - 1) * levelCoeff;
+    final double bossMult = isBoss
+        ? (floor <= 30 ? 3.0 : (floor <= 40 ? 3.5 : 4.0))
+        : 1.0;
 
     final templates = MonsterDatabase.all;
     final enemies = <BattleMonster>[];
@@ -70,6 +73,12 @@ class TowerService {
 
   static TowerFloorReward getFloorReward(int floor) {
     // Milestone floors give better rewards
+    if (floor == 50) {
+      return const TowerFloorReward(gold: 10000, diamond: 50, gachaTicket: 3);
+    }
+    if (floor == 40) {
+      return const TowerFloorReward(gold: 7000, diamond: 25, gachaTicket: 2);
+    }
     if (floor == 30) {
       return const TowerFloorReward(gold: 5000, diamond: 30, gachaTicket: 3);
     }
@@ -80,9 +89,11 @@ class TowerService {
       return const TowerFloorReward(gold: 2000, diamond: 10);
     }
     if (floor % 5 == 0) {
-      return TowerFloorReward(gold: 500 * (floor ~/ 5), diamond: 5);
+      final scale = floor > 30 ? 1.5 : 1.0;
+      return TowerFloorReward(gold: (500 * (floor ~/ 5) * scale).round(), diamond: floor > 30 ? 8 : 5);
     }
-    return TowerFloorReward(gold: 100 * floor, exp: 50 * floor);
+    final defaultScale = floor > 40 ? 2.0 : (floor > 30 ? 1.5 : 1.0);
+    return TowerFloorReward(gold: (100 * floor * defaultScale).round(), exp: (50 * floor * defaultScale).round());
   }
 
   // ---------------------------------------------------------------------------

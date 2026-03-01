@@ -101,3 +101,59 @@ class RelicDatabase {
   static List<RelicTemplate> byType(String type) =>
       all.where((r) => r.type == type).toList();
 }
+
+// =============================================================================
+// Relic Set Bonuses
+// =============================================================================
+
+class RelicSetBonus {
+  final String id;
+  final String name;
+  final int requiredPieces;
+  final String requiredType; // 'weapon', 'armor', 'accessory', or 'mixed'
+  final int requiredMinRarity;
+  final List<({String statType, double statValue})> bonuses;
+
+  const RelicSetBonus({
+    required this.id,
+    required this.name,
+    required this.requiredPieces,
+    required this.requiredType,
+    required this.requiredMinRarity,
+    required this.bonuses,
+  });
+}
+
+class RelicSetDatabase {
+  RelicSetDatabase._();
+
+  static const List<RelicSetBonus> all = [
+    // Warrior set: 2 weapons of 2★+
+    RelicSetBonus(
+      id: 'set_warrior',
+      name: '전사의 의지',
+      requiredPieces: 2,
+      requiredType: 'weapon',
+      requiredMinRarity: 2,
+      bonuses: [(statType: 'atk', statValue: 15.0)],
+    ),
+    // Guardian set: 2 armors of 2★+
+    RelicSetBonus(
+      id: 'set_guardian',
+      name: '수호자의 맹세',
+      requiredPieces: 2,
+      requiredType: 'armor',
+      requiredMinRarity: 2,
+      bonuses: [(statType: 'def', statValue: 15.0)],
+    ),
+    // Destroyer set: 1 weapon + 1 accessory of 3★+
+    RelicSetBonus(
+      id: 'set_destroyer',
+      name: '파괴자의 힘',
+      requiredPieces: 2,
+      requiredType: 'mixed', // weapon + accessory
+      requiredMinRarity: 3,
+      bonuses: [(statType: 'atk', statValue: 10.0), (statType: 'spd', statValue: 5.0)],
+    ),
+  ];
+}

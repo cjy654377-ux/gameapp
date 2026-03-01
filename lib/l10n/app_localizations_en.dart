@@ -2978,4 +2978,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAutoLabel => 'Auto Battle';
+
+  @override
+  String get areaAbyss => 'Abyss Cave';
+
+  @override
+  String get mapArea6 => 'Abyss Cave';
+
+  @override
+  String tagFreeze(int turns) {
+    return 'Freeze ${turns}t';
+  }
+
+  @override
+  String tagPoison(int turns) {
+    return 'Poison ${turns}t';
+  }
+
+  @override
+  String get shopTabDailyDeal => 'Daily Deal';
+
+  @override
+  String get shopDailyDealReset => 'Resets daily at midnight';
+
+  @override
+  String get shopDailyDealPurchased => 'Purchased';
+
+  @override
+  String arenaSeasonN(int n) {
+    return 'Season $n';
+  }
+
+  @override
+  String arenaSeasonDaysLeft(int days) {
+    return '$days days left';
+  }
+
+  @override
+  String get arenaSeasonReward => 'Season Reward';
+
+  @override
+  String get arenaRankPlatinum => 'Platinum';
+
+  @override
+  String get guildTabInfo => 'Info';
+
+  @override
+  String get guildTabChat => 'Chat';
+
+  @override
+  String get guildChatRefreshNote => 'Chat log refreshes daily';
+
+  @override
+  String get eventEffectActive => 'Event Effect Active';
+
+  @override
+  String eventBattleRewardBoost(String mult) {
+    return 'Battle Reward ${mult}x';
+  }
+
+  @override
+  String eventGachaBoost(String mult) {
+    return 'Gacha Rate ${mult}x';
+  }
+
+  @override
+  String eventExpBoost(String mult) {
+    return 'EXP ${mult}x';
+  }
+
+  @override
+  String get bossRageNormal => 'Calm';
+
+  @override
+  String get bossRageAngry => 'Angry';
+
+  @override
+  String get bossRageBerserk => 'Berserk';
+
+  @override
+  String bossRageLabel(String rage) {
+    return 'State: $rage';
+  }
+
+  @override
+  String bossHealMsg(String name, int amount) {
+    return '$name healed! (+$amount)';
+  }
+
+  @override
+  String get relicSetWarrior => 'Warrior\'s Will';
+
+  @override
+  String get relicSetWarriorDesc => '2 weapons 2★+ equipped → ATK +15';
+
+  @override
+  String get relicSetGuardian => 'Guardian\'s Oath';
+
+  @override
+  String get relicSetGuardianDesc => '2 armors 2★+ equipped → DEF +15';
+
+  @override
+  String get relicSetDestroyer => 'Destroyer\'s Might';
+
+  @override
+  String get relicSetDestroyerDesc => 'Weapon+Accessory 3★+ → ATK +10, SPD +5';
+
+  @override
+  String get relicSetActive => 'Active Set Bonuses';
+
+  @override
+  String get relicSetNone => 'No set bonuses';
+
+  @override
+  String get statusBurn => 'Burn';
+
+  @override
+  String get statusFreeze => 'Freeze';
+
+  @override
+  String get statusPoison => 'Poison';
+
+  @override
+  String get statusStun => 'Stun';
+
+  @override
+  String get statusShield => 'Shield';
+
+  @override
+  String statusTurnsN(int n) {
+    return '${n}t';
+  }
+
+  @override
+  String get offlineExpPotion => 'EXP Potion';
+
+  @override
+  String get offlineSummonStone => 'Summon Stone';
 }

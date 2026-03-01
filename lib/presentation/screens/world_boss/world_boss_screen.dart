@@ -251,6 +251,32 @@ class _FightingView extends ConsumerWidget {
                 l.hpDisplay(boss.currentHp.toInt().toString(), boss.maxHp.toInt().toString()),
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
+              const SizedBox(height: 4),
+              Builder(builder: (context) {
+                final rage = WorldBossService.getRageLevel(
+                    boss.currentHp.toInt(), boss.maxHp.toInt());
+                final rageColor = switch (rage) {
+                  BossRageLevel.normal => Colors.green,
+                  BossRageLevel.angry => Colors.orange,
+                  BossRageLevel.berserk => Colors.red,
+                };
+                final rageName = switch (rage) {
+                  BossRageLevel.normal => l.bossRageNormal,
+                  BossRageLevel.angry => l.bossRageAngry,
+                  BossRageLevel.berserk => l.bossRageBerserk,
+                };
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.local_fire_department, color: rageColor, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      l.bossRageLabel(rageName),
+                      style: TextStyle(fontSize: 12, color: rageColor, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),

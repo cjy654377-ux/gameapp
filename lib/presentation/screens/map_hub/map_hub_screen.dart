@@ -59,6 +59,12 @@ const _areas = [
     gradient: [Color(0xFFF57F17), Color(0xFFFFF176)],
     emoji: '☁️',
   ),
+  _AreaTheme(
+    icon: Icons.volcano,
+    color: Color(0xFF9C27B0),
+    gradient: [Color(0xFF4A148C), Color(0xFFCE93D8)],
+    emoji: '🕳️',
+  ),
 ];
 
 // =============================================================================
@@ -72,6 +78,7 @@ const _nodePositions = [
   Offset(0.30, 0.45), // area 3: left
   Offset(0.70, 0.60), // area 4: right
   Offset(0.30, 0.75), // area 5: left,  near top
+  Offset(0.70, 0.90), // area 6: right, near top
 ];
 
 const double _nodeRadius = 32.0;
@@ -162,6 +169,7 @@ class _MapHubScreenState extends ConsumerState<MapHubScreen>
       l.mapArea3,
       l.mapArea4,
       l.mapArea5,
+      l.mapArea6,
     ];
 
     // Per-area cleared counts
@@ -597,6 +605,8 @@ class _WorldMapPainter extends CustomPainter {
         _drawOceanDecoration(canvas, nodePos);
       case 4:
         _drawSkyDecoration(canvas, nodePos);
+      case 5:
+        _drawAbyssDecoration(canvas, nodePos);
     }
   }
 
@@ -731,6 +741,45 @@ class _WorldMapPainter extends CustomPainter {
             width: 22,
             height: 14),
         cloudPaint);
+  }
+
+  void _drawAbyssDecoration(Canvas canvas, Offset center) {
+    // Purple crystals
+    final crystalPaint = Paint()
+      ..style = PaintingStyle.fill;
+    final offsets = [
+      Offset(center.dx + 55, center.dy - 15),
+      Offset(center.dx + 68, center.dy + 5),
+      Offset(center.dx + 48, center.dy + 12),
+    ];
+    for (int i = 0; i < offsets.length; i++) {
+      crystalPaint.color = Color.lerp(
+        const Color(0xFF9C27B0),
+        const Color(0xFF4A148C),
+        i / 3.0,
+      )!.withValues(alpha: 0.6);
+      // Diamond shape
+      final pos = offsets[i];
+      final h = 12.0 - i * 2;
+      final w = 6.0 - i * 0.5;
+      final path = Path()
+        ..moveTo(pos.dx, pos.dy - h / 2)
+        ..lineTo(pos.dx + w / 2, pos.dy)
+        ..lineTo(pos.dx, pos.dy + h / 2)
+        ..lineTo(pos.dx - w / 2, pos.dy)
+        ..close();
+      canvas.drawPath(path, crystalPaint);
+    }
+    // Dark particles
+    final darkPaint = Paint()
+      ..color = const Color(0xFF1A0A2E).withValues(alpha: 0.5)
+      ..style = PaintingStyle.fill;
+    final rng = math.Random(77);
+    for (int i = 0; i < 5; i++) {
+      final dx = center.dx + 45 + rng.nextDouble() * 35;
+      final dy = center.dy - 20 + rng.nextDouble() * 40;
+      canvas.drawCircle(Offset(dx, dy), 2.0 + rng.nextDouble() * 1.5, darkPaint);
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -135,6 +135,26 @@ class _OfflineRewardContent extends StatelessWidget {
                         value: '+${FormatUtils.formatNumberWithComma(reward.exp)}',
                         valueColor: AppColors.experience,
                       ),
+                      if (reward.expPotion > 0) ...[
+                        const SizedBox(height: 16),
+                        _RewardRow(
+                          icon: Icons.science_rounded,
+                          iconColor: const Color(0xFF00BCD4),
+                          label: l.offlineExpPotion,
+                          value: '+${reward.expPotion}',
+                          valueColor: const Color(0xFF00BCD4),
+                        ),
+                      ],
+                      if (reward.summonStone > 0) ...[
+                        const SizedBox(height: 16),
+                        _RewardRow(
+                          icon: Icons.diamond_rounded,
+                          iconColor: const Color(0xFF9C27B0),
+                          label: l.offlineSummonStone,
+                          value: '+${reward.summonStone}',
+                          valueColor: const Color(0xFF9C27B0),
+                        ),
+                      ],
                       if (reward.cappedHours >=
                           GameConfig.maxOfflineHours) ...[
                         const SizedBox(height: 12),

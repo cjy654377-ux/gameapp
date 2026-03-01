@@ -97,6 +97,9 @@ class _BattleViewState extends ConsumerState<BattleView> {
                   ),
                 ),
 
+              // Status icons overlay (top-right area)
+              const _StatusIconOverlay(),
+
               // Battle effects overlay
               const _BattleEffectsOverlay(),
             ],
@@ -590,6 +593,140 @@ class _RewardChip extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// _StatusIconOverlay — shows active status effects for both teams
+// =============================================================================
+
+class _StatusIconOverlay extends ConsumerWidget {
+  const _StatusIconOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playerTeam = ref.watch(battleProvider.select((s) => s.playerTeam));
+    final enemyTeam = ref.watch(battleProvider.select((s) => s.enemyTeam));
+    final phase = ref.watch(battleProvider.select((s) => s.phase));
+
+    if (phase != BattlePhase.fighting) return const SizedBox.shrink();
+
+    final playerStatuses = _collectStatuses(playerTeam);
+    final enemyStatuses = _collectStatuses(enemyTeam);
+
+    if (playerStatuses.isEmpty && enemyStatuses.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      right: 8,
+      top: MediaQuery.of(context).padding.top + 140,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (playerStatuses.isNotEmpty)
+            _StatusRow(label: '아군', statuses: playerStatuses, color: Colors.blue),
+          if (playerStatuses.isNotEmpty && enemyStatuses.isNotEmpty)
+            const SizedBox(height: 4),
+          if (enemyStatuses.isNotEmpty)
+            _StatusRow(label: '적군', statuses: enemyStatuses, color: Colors.red),
+        ],
+      ),
+    );
+  }
+
+  List<_StatusInfo> _collectStatuses(List<BattleMonster> team) {
+    final Map<String, int> statusCounts = {};
+    for (final m in team) {
+      if (!m.isAlive) continue;
+      if (m.burnTurns > 0) {
+        statusCounts['burn'] = (statusCounts['burn'] ?? 0) + m.burnTurns;
+      }
+      if (m.freezeTurns > 0) {
+        statusCounts['freeze'] = (statusCounts['freeze'] ?? 0) + m.freezeTurns;
+      }
+      if (m.poisonTurns > 0) {
+        statusCounts['poison'] = (statusCounts['poison'] ?? 0) + m.poisonTurns;
+      }
+      if (m.stunTurns > 0) {
+        statusCounts['stun'] = (statusCounts['stun'] ?? 0) + m.stunTurns;
+      }
+      if (m.shieldHp > 0) {
+        statusCounts['shield'] = (statusCounts['shield'] ?? 0) + 1;
+      }
+    }
+    return statusCounts.entries.map((e) => _StatusInfo(e.key, e.value)).toList();
+  }
+}
+
+class _StatusInfo {
+  final String type;
+  final int value;
+  const _StatusInfo(this.type, this.value);
+}
+
+class _StatusRow extends StatelessWidget {
+  const _StatusRow({required this.label, required this.statuses, required this.color});
+  final String label;
+  final List<_StatusInfo> statuses;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.bold)),
+          const SizedBox(width: 4),
+          ...statuses.map((s) => Padding(
+            padding: const EdgeInsets.only(right: 3),
+            child: _StatusBadge(status: s),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status});
+  final _StatusInfo status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, color) = switch (status.type) {
+      'burn' => ('🔥', Colors.orange),
+      'freeze' => ('❄️', Colors.cyan),
+      'poison' => ('☠️', Colors.green),
+      'stun' => ('⚡', Colors.yellow),
+      'shield' => ('🛡️', Colors.blue),
+      _ => ('❓', Colors.grey),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 1),
+          Text(
+            '${status.value}',
+            style: TextStyle(fontSize: 8, color: color, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }

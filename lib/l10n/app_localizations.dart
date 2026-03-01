@@ -5305,6 +5305,240 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'자동전투'**
   String get settingsAutoLabel;
+
+  /// No description provided for @areaAbyss.
+  ///
+  /// In ko, this message translates to:
+  /// **'심연의 동굴'**
+  String get areaAbyss;
+
+  /// No description provided for @mapArea6.
+  ///
+  /// In ko, this message translates to:
+  /// **'심연의 동굴'**
+  String get mapArea6;
+
+  /// No description provided for @tagFreeze.
+  ///
+  /// In ko, this message translates to:
+  /// **'빙결 {turns}턴'**
+  String tagFreeze(int turns);
+
+  /// No description provided for @tagPoison.
+  ///
+  /// In ko, this message translates to:
+  /// **'독 {turns}턴'**
+  String tagPoison(int turns);
+
+  /// No description provided for @shopTabDailyDeal.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 특가'**
+  String get shopTabDailyDeal;
+
+  /// No description provided for @shopDailyDealReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 자정에 갱신됩니다'**
+  String get shopDailyDealReset;
+
+  /// No description provided for @shopDailyDealPurchased.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 완료'**
+  String get shopDailyDealPurchased;
+
+  /// No description provided for @arenaSeasonN.
+  ///
+  /// In ko, this message translates to:
+  /// **'시즌 {n}'**
+  String arenaSeasonN(int n);
+
+  /// No description provided for @arenaSeasonDaysLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 남음'**
+  String arenaSeasonDaysLeft(int days);
+
+  /// No description provided for @arenaSeasonReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'시즌 보상'**
+  String get arenaSeasonReward;
+
+  /// No description provided for @arenaRankPlatinum.
+  ///
+  /// In ko, this message translates to:
+  /// **'플래티넘'**
+  String get arenaRankPlatinum;
+
+  /// No description provided for @guildTabInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'정보'**
+  String get guildTabInfo;
+
+  /// No description provided for @guildTabChat.
+  ///
+  /// In ko, this message translates to:
+  /// **'채팅'**
+  String get guildTabChat;
+
+  /// No description provided for @guildChatRefreshNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'채팅 기록은 매일 갱신됩니다'**
+  String get guildChatRefreshNote;
+
+  /// No description provided for @eventEffectActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트 효과 적용 중'**
+  String get eventEffectActive;
+
+  /// No description provided for @eventBattleRewardBoost.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투 보상 {mult}배'**
+  String eventBattleRewardBoost(String mult);
+
+  /// No description provided for @eventGachaBoost.
+  ///
+  /// In ko, this message translates to:
+  /// **'가챠 확률 {mult}배'**
+  String eventGachaBoost(String mult);
+
+  /// No description provided for @eventExpBoost.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 {mult}배'**
+  String eventExpBoost(String mult);
+
+  /// No description provided for @bossRageNormal.
+  ///
+  /// In ko, this message translates to:
+  /// **'평온'**
+  String get bossRageNormal;
+
+  /// No description provided for @bossRageAngry.
+  ///
+  /// In ko, this message translates to:
+  /// **'분노'**
+  String get bossRageAngry;
+
+  /// No description provided for @bossRageBerserk.
+  ///
+  /// In ko, this message translates to:
+  /// **'폭주'**
+  String get bossRageBerserk;
+
+  /// No description provided for @bossRageLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태: {rage}'**
+  String bossRageLabel(String rage);
+
+  /// No description provided for @bossHealMsg.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}이(가) 체력을 회복했다! (+{amount})'**
+  String bossHealMsg(String name, int amount);
+
+  /// No description provided for @relicSetWarrior.
+  ///
+  /// In ko, this message translates to:
+  /// **'전사의 의지'**
+  String get relicSetWarrior;
+
+  /// No description provided for @relicSetWarriorDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'무기 2★↑ 2개 장착 시 ATK +15'**
+  String get relicSetWarriorDesc;
+
+  /// No description provided for @relicSetGuardian.
+  ///
+  /// In ko, this message translates to:
+  /// **'수호자의 맹세'**
+  String get relicSetGuardian;
+
+  /// No description provided for @relicSetGuardianDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'방어구 2★↑ 2개 장착 시 DEF +15'**
+  String get relicSetGuardianDesc;
+
+  /// No description provided for @relicSetDestroyer.
+  ///
+  /// In ko, this message translates to:
+  /// **'파괴자의 힘'**
+  String get relicSetDestroyer;
+
+  /// No description provided for @relicSetDestroyerDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'무기+장신구 3★↑ 장착 시 ATK +10, SPD +5'**
+  String get relicSetDestroyerDesc;
+
+  /// No description provided for @relicSetActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'활성 세트 효과'**
+  String get relicSetActive;
+
+  /// No description provided for @relicSetNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'세트 효과 없음'**
+  String get relicSetNone;
+
+  /// No description provided for @statusBurn.
+  ///
+  /// In ko, this message translates to:
+  /// **'화상'**
+  String get statusBurn;
+
+  /// No description provided for @statusFreeze.
+  ///
+  /// In ko, this message translates to:
+  /// **'빙결'**
+  String get statusFreeze;
+
+  /// No description provided for @statusPoison.
+  ///
+  /// In ko, this message translates to:
+  /// **'독'**
+  String get statusPoison;
+
+  /// No description provided for @statusStun.
+  ///
+  /// In ko, this message translates to:
+  /// **'기절'**
+  String get statusStun;
+
+  /// No description provided for @statusShield.
+  ///
+  /// In ko, this message translates to:
+  /// **'보호막'**
+  String get statusShield;
+
+  /// No description provided for @statusTurnsN.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}턴'**
+  String statusTurnsN(int n);
+
+  /// No description provided for @offlineExpPotion.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험치 포션'**
+  String get offlineExpPotion;
+
+  /// No description provided for @offlineSummonStone.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석'**
+  String get offlineSummonStone;
 }
 
 class _AppLocalizationsDelegate

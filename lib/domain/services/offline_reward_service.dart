@@ -6,15 +6,19 @@ import '../../core/constants/game_config.dart';
 class OfflineReward {
   final int gold;
   final int exp;
+  final int expPotion;
+  final int summonStone;
   final Duration elapsed;
 
   const OfflineReward({
     required this.gold,
     required this.exp,
+    this.expPotion = 0,
+    this.summonStone = 0,
     required this.elapsed,
   });
 
-  bool get hasReward => gold > 0 || exp > 0;
+  bool get hasReward => gold > 0 || exp > 0 || expPotion > 0 || summonStone > 0;
 
   /// Elapsed time capped at [GameConfig.maxOfflineHours].
   double get cappedHours =>
@@ -41,7 +45,7 @@ class OfflineRewardService {
 
     // No reward for very short absences.
     if (elapsed.inMinutes < GameConfig.minOfflineMinutes) {
-      return OfflineReward(gold: 0, exp: 0, elapsed: elapsed);
+      return OfflineReward(gold: 0, exp: 0, expPotion: 0, summonStone: 0, elapsed: elapsed);
     }
 
     // Cap at max offline hours.
@@ -53,7 +57,7 @@ class OfflineRewardService {
     // Stage-based reward scaling.
     final stageIndex = _linearIndex(stageId);
     if (stageIndex <= 0) {
-      return OfflineReward(gold: 0, exp: 0, elapsed: elapsed);
+      return OfflineReward(gold: 0, exp: 0, expPotion: 0, summonStone: 0, elapsed: elapsed);
     }
 
     final scaling = pow(GameConfig.stageScalingFactor, stageIndex - 1);
@@ -73,9 +77,21 @@ class OfflineRewardService {
             GameConfig.offlineExpEfficiency)
         .round();
 
+    // Bonus items for high stages
+    int expPotion = 0;
+    int summonStone = 0;
+    if (stageIndex >= 12) {
+      expPotion = (hours * 0.5).floor();
+    }
+    if (stageIndex >= 24) {
+      summonStone = (hours * 0.2).floor();
+    }
+
     return OfflineReward(
       gold: totalGold,
       exp: totalExp,
+      expPotion: expPotion,
+      summonStone: summonStone,
       elapsed: elapsed,
     );
   }
