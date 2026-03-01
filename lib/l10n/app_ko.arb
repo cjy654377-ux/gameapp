@@ -999,5 +999,17 @@
   "mvpLabel": "MVP: {name}",
   "@mvpLabel": {"placeholders": {"name": {"type": "String"}}},
   "guildExpDisplay": "EXP: {current}/{max}",
-  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}}
+  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}},
+
+  "challengeTitle": "도전 모드",
+  "challengeDesc": "특별 조건으로 추가 보상을 획득하세요",
+  "challengeName_turnLimit": "턴 제한",
+  "challengeName_noHealing": "회복 불가",
+  "challengeName_bossRush": "보스 러쉬",
+  "challengeName_speedRun": "스피드 런",
+  "challengeName": "{name}",
+  "@challengeName": {"placeholders": {"name": {"type": "String"}}},
+  "challengeReward": "+{percent}% 보상",
+  "@challengeReward": {"placeholders": {"percent": {"type": "int"}}},
+  "challengeTurnLimit": "15턴 내에 클리어"
 }

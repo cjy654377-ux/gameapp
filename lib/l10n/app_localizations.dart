@@ -4825,6 +4825,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'EXP: {current}/{max}'**
   String guildExpDisplay(int current, int max);
+
+  /// No description provided for @challengeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도전 모드'**
+  String get challengeTitle;
+
+  /// No description provided for @challengeDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'특별 조건으로 추가 보상을 획득하세요'**
+  String get challengeDesc;
+
+  /// No description provided for @challengeName_turnLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 제한'**
+  String get challengeName_turnLimit;
+
+  /// No description provided for @challengeName_noHealing.
+  ///
+  /// In ko, this message translates to:
+  /// **'회복 불가'**
+  String get challengeName_noHealing;
+
+  /// No description provided for @challengeName_bossRush.
+  ///
+  /// In ko, this message translates to:
+  /// **'보스 러쉬'**
+  String get challengeName_bossRush;
+
+  /// No description provided for @challengeName_speedRun.
+  ///
+  /// In ko, this message translates to:
+  /// **'스피드 런'**
+  String get challengeName_speedRun;
+
+  /// No description provided for @challengeName.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}'**
+  String challengeName(String name);
+
+  /// No description provided for @challengeReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'+{percent}% 보상'**
+  String challengeReward(int percent);
+
+  /// No description provided for @challengeTurnLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'15턴 내에 클리어'**
+  String get challengeTurnLimit;
 }
 
 class _AppLocalizationsDelegate

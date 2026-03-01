@@ -161,30 +161,34 @@ class MonsterDetailScreen extends ConsumerWidget {
                   _StatRadarChart(monster: monster, relicBonus: relicBonus),
                   const SizedBox(height: 8),
 
-                  // Stat details
+                  // Stat details (tap to expand breakdown)
                   _StatDetailRow(
                     label: 'HP',
                     base: monster.finalHp,
                     bonus: relicBonus.hp,
                     color: Colors.green,
+                    monster: monster,
                   ),
                   _StatDetailRow(
                     label: 'ATK',
                     base: monster.finalAtk,
                     bonus: relicBonus.atk,
                     color: Colors.red,
+                    monster: monster,
                   ),
                   _StatDetailRow(
                     label: 'DEF',
                     base: monster.finalDef,
                     bonus: relicBonus.def,
                     color: Colors.blue,
+                    monster: monster,
                   ),
                   _StatDetailRow(
                     label: 'SPD',
                     base: monster.finalSpd,
                     bonus: relicBonus.spd,
                     color: Colors.amber,
+                    monster: monster,
                   ),
                   const SizedBox(height: 20),
 
@@ -536,60 +540,160 @@ class _RadarPainter extends CustomPainter {
 // Stat detail row
 // =============================================================================
 
-class _StatDetailRow extends StatelessWidget {
+class _StatDetailRow extends StatefulWidget {
   const _StatDetailRow({
     required this.label,
     required this.base,
     required this.bonus,
     required this.color,
+    this.monster,
   });
   final String label;
   final double base;
   final double bonus;
   final Color color;
+  final MonsterModel? monster;
+
+  @override
+  State<_StatDetailRow> createState() => _StatDetailRowState();
+}
+
+class _StatDetailRowState extends State<_StatDetailRow> {
+  bool _expanded = false;
+
+  double _getBaseStat() {
+    final m = widget.monster;
+    if (m == null) return widget.base;
+    return switch (widget.label) {
+      'ATK' => m.baseAtk,
+      'DEF' => m.baseDef,
+      'HP' => m.baseHp,
+      'SPD' => m.baseSpd,
+      _ => widget.base,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    final total = base + bonus;
+    final total = widget.base + widget.bonus;
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: widget.monster != null ? () => setState(() => _expanded = !_expanded) : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 36,
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: widget.color,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: (total / 2000).clamp(0.0, 1.0),
+                      backgroundColor: AppColors.surfaceVariant,
+                      color: widget.color.withValues(alpha: 0.7),
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                if (widget.monster != null)
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    size: 14,
+                    color: AppColors.textTertiary,
+                  ),
+                SizedBox(
+                  width: 70,
+                  child: Text(
+                    widget.bonus > 0
+                        ? '${total.round()} (+${widget.bonus.round()})'
+                        : '${total.round()}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: widget.bonus > 0 ? Colors.amber : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_expanded && widget.monster != null)
+          _buildBreakdown(),
+      ],
+    );
+  }
+
+  Widget _buildBreakdown() {
+    final m = widget.monster!;
+    final baseStat = _getBaseStat();
+    final lvlMult = 1.0 + (m.level - 1) * 0.05;
+    final evoMult = switch (m.evolutionStage) { 1 => 1.25, 2 => 1.60, _ => 1.0 };
+    final awkMult = 1.0 + m.awakeningStars * 0.10;
+    final affMult = 1.0 + m.affinityLevel * 0.02;
+
+    final afterLvl = baseStat * lvlMult;
+    final afterEvo = afterLvl * evoMult;
+    final afterAwk = afterEvo * awkMult;
+    final afterAff = afterAwk * affMult;
+
+    return Container(
+      margin: const EdgeInsets.only(left: 36, bottom: 6),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          _breakdownLine('Base', baseStat, null),
+          _breakdownLine('Lv.${m.level}', afterLvl, lvlMult),
+          if (m.evolutionStage > 0) _breakdownLine('Evo ${m.evolutionStage}', afterEvo, evoMult),
+          if (m.awakeningStars > 0) _breakdownLine('Awaken ★${m.awakeningStars}', afterAwk, awkMult),
+          if (m.affinityLevel > 0) _breakdownLine('Bond Lv.${m.affinityLevel}', afterAff, affMult),
+          if (widget.bonus > 0) _breakdownLine('Relic', afterAff + widget.bonus, null, isBonus: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _breakdownLine(String label, double value, double? mult, {bool isBonus = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: Row(
         children: [
           SizedBox(
-            width: 36,
+            width: 80,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: TextStyle(fontSize: 10, color: isBonus ? Colors.amber : AppColors.textSecondary),
             ),
           ),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: (total / 2000).clamp(0.0, 1.0),
-                backgroundColor: AppColors.surfaceVariant,
-                color: color.withValues(alpha: 0.7),
-                minHeight: 8,
-              ),
+          if (mult != null)
+            Text(
+              '×${mult.toStringAsFixed(2)}  ',
+              style: TextStyle(fontSize: 10, color: AppColors.textTertiary),
             ),
-          ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 70,
-            child: Text(
-              bonus > 0
-                  ? '${total.round()} (+${bonus.round()})'
-                  : '${total.round()}',
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: bonus > 0 ? Colors.amber : AppColors.textPrimary,
-              ),
+          const Spacer(),
+          Text(
+            '${value.round()}',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: isBonus ? Colors.amber : AppColors.textPrimary,
             ),
           ),
         ],

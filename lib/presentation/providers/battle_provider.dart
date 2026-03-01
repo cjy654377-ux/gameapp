@@ -27,6 +27,42 @@ int _stageStringToIndex(String stageId) =>
     StageDatabase.linearIndex(stageId, defaultValue: 1);
 
 // =============================================================================
+// Challenge Modifier
+// =============================================================================
+
+/// A special battle modifier that applies extra constraints for bonus rewards.
+enum ChallengeModifier {
+  /// No challenge — normal battle.
+  none,
+  /// Turn limit: must win within 15 turns.
+  turnLimit,
+  /// No healing: passive HP regen disabled, shield HP capped.
+  noHealing,
+  /// Boss rush: all enemies have +50% stats.
+  bossRush,
+  /// Speed run: enemies have +30% SPD.
+  speedRun;
+
+  /// Bonus reward multiplier for this challenge.
+  double get rewardMultiplier => switch (this) {
+    ChallengeModifier.none => 1.0,
+    ChallengeModifier.turnLimit => 1.5,
+    ChallengeModifier.noHealing => 1.3,
+    ChallengeModifier.bossRush => 2.0,
+    ChallengeModifier.speedRun => 1.4,
+  };
+
+  /// Display icon for the challenge.
+  String get icon => switch (this) {
+    ChallengeModifier.none => '',
+    ChallengeModifier.turnLimit => '⏱️',
+    ChallengeModifier.noHealing => '💔',
+    ChallengeModifier.bossRush => '👹',
+    ChallengeModifier.speedRun => '💨',
+  };
+}
+
+// =============================================================================
 // BattleState
 // =============================================================================
 
@@ -95,6 +131,9 @@ class BattleState {
   /// Whether this battle is in hard mode (2x enemy stats, 1.5x rewards).
   final bool isHardMode;
 
+  /// Optional challenge modifier for bonus rewards.
+  final ChallengeModifier challengeModifier;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -114,6 +153,7 @@ class BattleState {
     this.repeatTotalExp   = 0,
     this.initialEnemyCount = 0,
     this.isHardMode = false,
+    this.challengeModifier = ChallengeModifier.none,
   });
 
   BattleState copyWith({
@@ -136,6 +176,7 @@ class BattleState {
     int?                repeatTotalExp,
     int?                initialEnemyCount,
     bool?               isHardMode,
+    ChallengeModifier?  challengeModifier,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -156,6 +197,7 @@ class BattleState {
       repeatTotalExp:   repeatTotalExp   ?? this.repeatTotalExp,
       initialEnemyCount: initialEnemyCount ?? this.initialEnemyCount,
       isHardMode:       isHardMode       ?? this.isHardMode,
+      challengeModifier: challengeModifier ?? this.challengeModifier,
     );
   }
 
@@ -222,7 +264,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
   /// [BattleService], and transitions to [BattlePhase.fighting].
   ///
   /// Does nothing when the player has no monsters in their team.
-  void startBattle([int stageId = 0, bool hardMode = false]) {
+  void startBattle([int stageId = 0, bool hardMode = false, ChallengeModifier challenge = ChallengeModifier.none]) {
     // Resolve the stage index — fall back to current state or player stage.
     int resolvedId = stageId;
     if (resolvedId <= 0) {
@@ -272,18 +314,28 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Prepend hero to team (hero is always slot 0).
     final fullTeam = [heroMonster, ...teamWithRelics];
 
-    // Build enemy team (hard mode = 2x stats).
+    // Build enemy team (hard mode = 2x stats, challenge modifiers).
     final rawEnemyTeam = BattleService.createEnemiesForStage(resolvedId);
-    final enemyTeam = hardMode
-        ? rawEnemyTeam.map((m) => m.copyWith(
-            atk: m.atk * 2,
-            def: m.def * 2,
-            maxHp: m.maxHp * 2,
-            currentHp: m.maxHp * 2,
-          )).toList()
-        : rawEnemyTeam;
+    var enemyTeam = rawEnemyTeam;
+    if (hardMode) {
+      enemyTeam = enemyTeam.map((m) => m.copyWith(
+          atk: m.atk * 2, def: m.def * 2,
+          maxHp: m.maxHp * 2, currentHp: m.maxHp * 2,
+        )).toList();
+    }
+    if (challenge == ChallengeModifier.bossRush) {
+      enemyTeam = enemyTeam.map((m) => m.copyWith(
+          atk: m.atk * 1.5, def: m.def * 1.5,
+          maxHp: m.maxHp * 1.5, currentHp: m.maxHp * 1.5,
+        )).toList();
+    } else if (challenge == ChallengeModifier.speedRun) {
+      enemyTeam = enemyTeam.map((m) => m.copyWith(
+          spd: m.spd * 1.3,
+        )).toList();
+    }
 
-    final stageSuffix = hardMode ? ' [HARD]' : '';
+    final challengeIcon = challenge.icon;
+    final stageSuffix = '${hardMode ? ' [HARD]' : ''}${challengeIcon.isNotEmpty ? ' $challengeIcon' : ''}';
 
     state = BattleState(
       phase:            BattlePhase.fighting,
@@ -301,6 +353,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
       lastReward:       null,
       initialEnemyCount: enemyTeam.length,
       isHardMode:       hardMode,
+      challengeModifier: challenge,
     );
 
     // Auto-battle: always start the timer (idle game).
@@ -432,7 +485,14 @@ class BattleNotifier extends StateNotifier<BattleState> {
     int roundSize,
   ) {
     // Check end conditions.
-    final endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
+    var endPhase = BattleService.checkBattleEnd(playerTeam, enemyTeam);
+
+    // Turn limit challenge: exceed 15 turns → defeat.
+    if (endPhase == BattlePhase.fighting &&
+        state.challengeModifier == ChallengeModifier.turnLimit &&
+        state.currentTurn > 15) {
+      endPhase = BattlePhase.defeat;
+    }
 
     if (endPhase == BattlePhase.victory) {
       AudioService.instance.playVictory();
@@ -584,8 +644,9 @@ class BattleNotifier extends StateNotifier<BattleState> {
         ? PrestigeService.bonusMultiplier(playerData)
         : 1.0;
     final hardMultiplier = state.isHardMode ? 1.5 : 1.0;
-    final bonusGold = (reward.gold * multiplier * hardMultiplier).round();
-    final bonusExp = (reward.exp * multiplier * hardMultiplier).round();
+    final challengeMultiplier = state.challengeModifier.rewardMultiplier;
+    final bonusGold = (reward.gold * multiplier * hardMultiplier * challengeMultiplier).round();
+    final bonusExp = (reward.exp * multiplier * hardMultiplier * challengeMultiplier).round();
 
     // Award gold (with prestige + hard mode bonus).
     await currency.addGold(bonusGold);

@@ -923,5 +923,17 @@
   "mvpLabel": "MVP: {name}",
   "@mvpLabel": {"placeholders": {"name": {"type": "String"}}},
   "guildExpDisplay": "EXP: {current}/{max}",
-  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}}
+  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}},
+
+  "challengeTitle": "Challenge Mode",
+  "challengeDesc": "Complete special conditions for bonus rewards",
+  "challengeName_turnLimit": "Turn Limit",
+  "challengeName_noHealing": "No Healing",
+  "challengeName_bossRush": "Boss Rush",
+  "challengeName_speedRun": "Speed Run",
+  "challengeName": "{name}",
+  "@challengeName": {"placeholders": {"name": {"type": "String"}}},
+  "challengeReward": "+{percent}% Rewards",
+  "@challengeReward": {"placeholders": {"percent": {"type": "int"}}},
+  "challengeTurnLimit": "Clear within 15 turns"
 }

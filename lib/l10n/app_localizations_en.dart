@@ -2693,4 +2693,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String guildExpDisplay(int current, int max) {
     return 'EXP: $current/$max';
   }
+
+  @override
+  String get challengeTitle => 'Challenge Mode';
+
+  @override
+  String get challengeDesc => 'Complete special conditions for bonus rewards';
+
+  @override
+  String get challengeName_turnLimit => 'Turn Limit';
+
+  @override
+  String get challengeName_noHealing => 'No Healing';
+
+  @override
+  String get challengeName_bossRush => 'Boss Rush';
+
+  @override
+  String get challengeName_speedRun => 'Speed Run';
+
+  @override
+  String challengeName(String name) {
+    return '$name';
+  }
+
+  @override
+  String challengeReward(int percent) {
+    return '+$percent% Rewards';
+  }
+
+  @override
+  String get challengeTurnLimit => 'Clear within 15 turns';
 }

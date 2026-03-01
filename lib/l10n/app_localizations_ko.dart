@@ -2679,4 +2679,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String guildExpDisplay(int current, int max) {
     return 'EXP: $current/$max';
   }
+
+  @override
+  String get challengeTitle => '도전 모드';
+
+  @override
+  String get challengeDesc => '특별 조건으로 추가 보상을 획득하세요';
+
+  @override
+  String get challengeName_turnLimit => '턴 제한';
+
+  @override
+  String get challengeName_noHealing => '회복 불가';
+
+  @override
+  String get challengeName_bossRush => '보스 러쉬';
+
+  @override
+  String get challengeName_speedRun => '스피드 런';
+
+  @override
+  String challengeName(String name) {
+    return '$name';
+  }
+
+  @override
+  String challengeReward(int percent) {
+    return '+$percent% 보상';
+  }
+
+  @override
+  String get challengeTurnLimit => '15턴 내에 클리어';
 }

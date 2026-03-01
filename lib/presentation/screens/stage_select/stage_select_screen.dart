@@ -185,6 +185,9 @@ class _AreaStageGrid extends ConsumerWidget {
                     context.pop();
                   }
                 : null,
+            onChallenge: isCleared
+                ? () => _showChallengeSheet(context, ref, stageIdx)
+                : null,
             onSkip: isCleared
                 ? () async {
                     final reward = await ref
@@ -213,6 +216,78 @@ class _AreaStageGrid extends ConsumerWidget {
       ),
           ),
         ],
+      ),
+    );
+  }
+
+  String _challengeDisplayName(AppLocalizations l, ChallengeModifier ch) {
+    return switch (ch) {
+      ChallengeModifier.turnLimit => l.challengeName_turnLimit,
+      ChallengeModifier.noHealing => l.challengeName_noHealing,
+      ChallengeModifier.bossRush => l.challengeName_bossRush,
+      ChallengeModifier.speedRun => l.challengeName_speedRun,
+      ChallengeModifier.none => '',
+    };
+  }
+
+  void _showChallengeSheet(BuildContext context, WidgetRef ref, int stageIdx) {
+    final l = AppLocalizations.of(context)!;
+    final challenges = ChallengeModifier.values.where((c) => c != ChallengeModifier.none);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textTertiary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l.challengeTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l.challengeDesc,
+              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+            ),
+            const SizedBox(height: 12),
+            ...challenges.map((ch) {
+              final name = _challengeDisplayName(l, ch);
+              return Card(
+                color: AppColors.surfaceVariant,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: Text(ch.icon, style: const TextStyle(fontSize: 24)),
+                  title: Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    l.challengeReward(((ch.rewardMultiplier - 1) * 100).round()),
+                    style: const TextStyle(fontSize: 12, color: Colors.amber),
+                  ),
+                  trailing: const Icon(Icons.play_arrow, color: AppColors.primary),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ref.read(battleProvider.notifier).startBattle(stageIdx, false, ch);
+                    context.pop();
+                  },
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -293,6 +368,7 @@ class _StageCard extends StatelessWidget {
     this.onTap,
     this.onSkip,
     this.onHardTap,
+    this.onChallenge,
   });
 
   final StageData stage;
@@ -303,6 +379,7 @@ class _StageCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onSkip;
   final VoidCallback? onHardTap;
+  final VoidCallback? onChallenge;
 
   @override
   Widget build(BuildContext context) {
@@ -398,6 +475,25 @@ class _StageCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
+                // Challenge mode button for cleared stages
+                if (onChallenge != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: GestureDetector(
+                      onTap: onChallenge,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.purple.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: const Text('🏆', style: TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                  ),
                 // Hard mode button for cleared stages
                 if (onHardTap != null)
                   Padding(

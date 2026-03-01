@@ -413,10 +413,7 @@ class _PresetSlotTile extends ConsumerWidget {
         ),
         subtitle: isEmpty
             ? null
-            : Text(
-                '${preset!.monsterIds.length} monsters',
-                style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
-              ),
+            : _buildPresetSubtitle(ref),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -461,6 +458,24 @@ class _PresetSlotTile extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPresetSubtitle(WidgetRef ref) {
+    final roster = ref.watch(monsterListProvider);
+    final rosterMap = {for (final m in roster) m.id: m};
+    final members = preset!.monsterIds
+        .map((id) => rosterMap[id])
+        .where((m) => m != null)
+        .toList();
+    final totalPower = members.fold<int>(0, (sum, m) => sum + m!.powerScore);
+    final emojis = members.map((m) {
+      final elem = MonsterElement.fromName(m!.element);
+      return elem?.emoji ?? '?';
+    }).join(' ');
+    return Text(
+      '$emojis  ⚔$totalPower',
+      style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
     );
   }
 
