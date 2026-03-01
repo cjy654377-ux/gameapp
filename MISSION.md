@@ -375,6 +375,20 @@
 - [x] 시너지 배지를 StageProgressBar 하단에 표시 (_SynergyChip)
 - [x] battle_screen 미사용 _SynergyBadge 제거, hero_screen unused import 제거
 
+## 코드 리뷰 최적화 (10차)
+- [x] arena_screen: opponent index 상한 바운드 체크 (HIGH 버그)
+- [x] arena_screen: List → List<BattleMonster> 타입 안전성
+- [x] dungeon_screen: Future.delayed → Timer + dispose (메모리릭 방지)
+- [x] daily_dungeon_screen: 동일 Timer 패턴 적용 (메모리릭 방지)
+- [x] shop_screen: 4개 하드코딩 한국어 → l10n 전환
+
+## 9차 고도화
+- [x] O1: 멀티 스테이지 소탕 (전체 소탕 버튼, sweepStages 메서드)
+- [x] O2: 융합 미리보기 (결과 "?" 탭 → 가능한 몬스터 바텀시트)
+- [x] O3: 전투력(Power Score) 시스템 (ATK×1.5+DEF×1.2+HP×0.5+SPD×2.0)
+- [x] O4: 도감 카드 전투력 표시
+- [x] O5: 팀 자동 추천 (전투력 기반 최강 팀 구성)
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
