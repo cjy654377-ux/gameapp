@@ -2570,6 +2570,42 @@ abstract class AppLocalizations {
   /// **'오늘은 이미 출석했습니다'**
   String get attendanceAlreadyClaimed;
 
+  /// No description provided for @milestoneTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 출석 보상'**
+  String get milestoneTitle;
+
+  /// No description provided for @milestoneDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 {days}일 출석 달성'**
+  String milestoneDesc(int days);
+
+  /// No description provided for @milestoneDayLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 달성'**
+  String milestoneDayLabel(int days);
+
+  /// No description provided for @milestoneClaim.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령'**
+  String get milestoneClaim;
+
+  /// No description provided for @milestonePending.
+  ///
+  /// In ko, this message translates to:
+  /// **'수령 가능한 마일스톤 {count}개!'**
+  String milestonePending(int count);
+
+  /// No description provided for @milestoneClaimed.
+  ///
+  /// In ko, this message translates to:
+  /// **'마일스톤 보상을 수령했습니다!'**
+  String get milestoneClaimed;
+
   /// No description provided for @towerTitle.
   ///
   /// In ko, this message translates to:

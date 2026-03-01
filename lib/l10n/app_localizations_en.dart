@@ -1420,6 +1420,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attendanceAlreadyClaimed => 'Already checked in today';
 
   @override
+  String get milestoneTitle => 'Attendance Milestones';
+
+  @override
+  String milestoneDesc(int days) {
+    return '$days total days checked in';
+  }
+
+  @override
+  String milestoneDayLabel(int days) {
+    return '$days-day milestone';
+  }
+
+  @override
+  String get milestoneClaim => 'Claim';
+
+  @override
+  String milestonePending(int count) {
+    return '$count milestone(s) ready to claim!';
+  }
+
+  @override
+  String get milestoneClaimed => 'Milestone reward claimed!';
+
+  @override
   String get towerTitle => 'Tower of Challenge';
 
   @override

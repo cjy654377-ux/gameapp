@@ -443,6 +443,16 @@
   "attendanceClaimed": "Check-in reward claimed!",
   "attendanceAlreadyClaimed": "Already checked in today",
 
+  "milestoneTitle": "Attendance Milestones",
+  "milestoneDesc": "{days} total days checked in",
+  "@milestoneDesc": {"placeholders": {"days": {"type": "int"}}},
+  "milestoneDayLabel": "{days}-day milestone",
+  "@milestoneDayLabel": {"placeholders": {"days": {"type": "int"}}},
+  "milestoneClaim": "Claim",
+  "milestonePending": "{count} milestone(s) ready to claim!",
+  "@milestonePending": {"placeholders": {"count": {"type": "int"}}},
+  "milestoneClaimed": "Milestone reward claimed!",
+
   "towerTitle": "Tower of Challenge",
   "towerStart": "Start Challenge",
   "towerReady": "Ready to challenge!",

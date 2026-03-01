@@ -519,6 +519,16 @@
   "attendanceClaimed": "출석 보상을 받았습니다!",
   "attendanceAlreadyClaimed": "오늘은 이미 출석했습니다",
 
+  "milestoneTitle": "누적 출석 보상",
+  "milestoneDesc": "누적 {days}일 출석 달성",
+  "@milestoneDesc": {"placeholders": {"days": {"type": "int"}}},
+  "milestoneDayLabel": "{days}일 달성",
+  "@milestoneDayLabel": {"placeholders": {"days": {"type": "int"}}},
+  "milestoneClaim": "수령",
+  "milestonePending": "수령 가능한 마일스톤 {count}개!",
+  "@milestonePending": {"placeholders": {"count": {"type": "int"}}},
+  "milestoneClaimed": "마일스톤 보상을 수령했습니다!",
+
   "towerTitle": "도전의 탑",
   "towerStart": "도전 시작",
   "towerReady": "도전 준비 완료!",

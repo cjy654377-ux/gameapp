@@ -219,6 +219,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final attendance = ref.read(attendanceProvider.notifier);
     attendance.refresh();
     final state = ref.read(attendanceProvider);
+
+    // Show milestone dialog even if already checked in today
+    if (!state.canCheckIn && state.claimableMilestones.isNotEmpty) {
+      _showingDialog = true;
+      final l = AppLocalizations.of(context)!;
+      final claimedDays = await showMilestoneDialog(
+        context,
+        attendance: state,
+      );
+      for (final days in claimedDays) {
+        if (!state.claimedMilestones.contains(days)) {
+          await ref.read(attendanceProvider.notifier).claimMilestone(days);
+        }
+      }
+      if (claimedDays.isNotEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.milestoneClaimed),
+            backgroundColor: Colors.amber,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      _showingDialog = false;
+      return;
+    }
+
     if (!state.canCheckIn) return;
 
     _showingDialog = true;
@@ -235,6 +262,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             behavior: SnackBarBehavior.floating,
           ),
         );
+
+        // Show milestone dialog if any claimable
+        final updatedState = ref.read(attendanceProvider);
+        if (updatedState.claimableMilestones.isNotEmpty && mounted) {
+          final claimedDays = await showMilestoneDialog(
+            context,
+            attendance: updatedState,
+          );
+          for (final days in claimedDays) {
+            if (!updatedState.claimedMilestones.contains(days)) {
+              await ref.read(attendanceProvider.notifier).claimMilestone(days);
+            }
+          }
+          if (claimedDays.isNotEmpty && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l.milestoneClaimed),
+                backgroundColor: Colors.amber,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
       }
     }
     _showingDialog = false;

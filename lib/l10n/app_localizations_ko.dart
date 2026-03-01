@@ -1415,6 +1415,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get attendanceAlreadyClaimed => '오늘은 이미 출석했습니다';
 
   @override
+  String get milestoneTitle => '누적 출석 보상';
+
+  @override
+  String milestoneDesc(int days) {
+    return '누적 $days일 출석 달성';
+  }
+
+  @override
+  String milestoneDayLabel(int days) {
+    return '$days일 달성';
+  }
+
+  @override
+  String get milestoneClaim => '수령';
+
+  @override
+  String milestonePending(int count) {
+    return '수령 가능한 마일스톤 $count개!';
+  }
+
+  @override
+  String get milestoneClaimed => '마일스톤 보상을 수령했습니다!';
+
+  @override
   String get towerTitle => '도전의 탑';
 
   @override
