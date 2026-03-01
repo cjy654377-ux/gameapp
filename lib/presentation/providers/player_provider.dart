@@ -101,6 +101,20 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(player: updated);
   }
 
+  /// Updates [PlayerModel.maxHardClearedStageId] for hard-mode clears.
+  Future<void> updateHardStage(String stageId) async {
+    final current = state.player;
+    if (current == null) return;
+
+    final isNewMax = _linearIndex(stageId) >
+        _linearIndex(current.maxHardClearedStageId);
+    if (!isNewMax) return;
+
+    final updated = current.copyWith(maxHardClearedStageId: stageId);
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
+  }
+
   // ---------------------------------------------------------------------------
   // Battle statistics
   // ---------------------------------------------------------------------------

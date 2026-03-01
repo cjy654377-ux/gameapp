@@ -98,6 +98,10 @@ class PlayerModel extends HiveObject {
   @HiveField(25)
   String? equippedMountId;
 
+  /// Hard-mode max cleared stage ID (e.g. '3-2' = cleared up to hard 3-2).
+  @HiveField(26)
+  String maxHardClearedStageId;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -125,6 +129,7 @@ class PlayerModel extends HiveObject {
     this.heroBaseSpd = 12.0,
     this.equippedSkillId,
     this.equippedMountId,
+    this.maxHardClearedStageId = '',
   });
 
   // -------------------------------------------------------------------------
@@ -213,6 +218,7 @@ class PlayerModel extends HiveObject {
     bool clearEquippedSkill = false,
     String? equippedMountId,
     bool clearEquippedMount = false,
+    String? maxHardClearedStageId,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -242,6 +248,7 @@ class PlayerModel extends HiveObject {
       heroBaseSpd: heroBaseSpd ?? this.heroBaseSpd,
       equippedSkillId: clearEquippedSkill ? null : (equippedSkillId ?? this.equippedSkillId),
       equippedMountId: clearEquippedMount ? null : (equippedMountId ?? this.equippedMountId),
+      maxHardClearedStageId: maxHardClearedStageId ?? this.maxHardClearedStageId,
     );
   }
 

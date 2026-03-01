@@ -123,8 +123,10 @@ class _AreaStageGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider).player;
     final maxClearedStr = player?.maxClearedStageId ?? '';
+    final maxHardClearedStr = player?.maxHardClearedStageId ?? '';
     final currentStr = player?.currentStageId ?? '1-1';
     final maxClearedIdx = _linearIndex(maxClearedStr);
+    final maxHardClearedIdx = _linearIndex(maxHardClearedStr);
     final currentIdx = _linearIndex(currentStr);
     final stages = StageDatabase.byArea(area);
 
@@ -163,15 +165,23 @@ class _AreaStageGrid extends ConsumerWidget {
           // Unlocked if cleared or is the next stage after max cleared
           final isUnlocked = stageIdx <= maxClearedIdx + 1;
 
+          final isHardCleared = stageIdx <= maxHardClearedIdx;
+
           return _StageCard(
             stage: stage,
             isCleared: isCleared,
             isCurrent: isCurrent,
             isUnlocked: isUnlocked,
+            isHardCleared: isHardCleared,
             onTap: isUnlocked
                 ? () {
-                    // Start battle at this stage and go back.
                     ref.read(battleProvider.notifier).startBattle(stageIdx);
+                    context.pop();
+                  }
+                : null,
+            onHardTap: isCleared
+                ? () {
+                    ref.read(battleProvider.notifier).startBattle(stageIdx, true);
                     context.pop();
                   }
                 : null,
@@ -279,16 +289,20 @@ class _StageCard extends StatelessWidget {
     required this.isCleared,
     required this.isCurrent,
     required this.isUnlocked,
+    this.isHardCleared = false,
     this.onTap,
     this.onSkip,
+    this.onHardTap,
   });
 
   final StageData stage;
   final bool isCleared;
   final bool isCurrent;
   final bool isUnlocked;
+  final bool isHardCleared;
   final VoidCallback? onTap;
   final VoidCallback? onSkip;
+  final VoidCallback? onHardTap;
 
   @override
   Widget build(BuildContext context) {
@@ -384,6 +398,30 @@ class _StageCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
+                // Hard mode button for cleared stages
+                if (onHardTap != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: GestureDetector(
+                      onTap: onHardTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isHardCleared
+                              ? Colors.red.withValues(alpha: 0.15)
+                              : Colors.red.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Text(
+                          isHardCleared ? '🔥✓' : '🔥',
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                    ),
+                  ),
                 // Skip button for cleared stages
                 if (onSkip != null)
                   GestureDetector(

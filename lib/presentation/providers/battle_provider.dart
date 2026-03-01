@@ -92,6 +92,9 @@ class BattleState {
   /// Total number of enemies at battle start (for progress bar).
   final int initialEnemyCount;
 
+  /// Whether this battle is in hard mode (2x enemy stats, 1.5x rewards).
+  final bool isHardMode;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -110,6 +113,7 @@ class BattleState {
     this.repeatTotalGold  = 0,
     this.repeatTotalExp   = 0,
     this.initialEnemyCount = 0,
+    this.isHardMode = false,
   });
 
   BattleState copyWith({
@@ -131,6 +135,7 @@ class BattleState {
     int?                repeatTotalGold,
     int?                repeatTotalExp,
     int?                initialEnemyCount,
+    bool?               isHardMode,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -150,6 +155,7 @@ class BattleState {
       repeatTotalGold:  repeatTotalGold  ?? this.repeatTotalGold,
       repeatTotalExp:   repeatTotalExp   ?? this.repeatTotalExp,
       initialEnemyCount: initialEnemyCount ?? this.initialEnemyCount,
+      isHardMode:       isHardMode       ?? this.isHardMode,
     );
   }
 
@@ -216,7 +222,7 @@ class BattleNotifier extends StateNotifier<BattleState> {
   /// [BattleService], and transitions to [BattlePhase.fighting].
   ///
   /// Does nothing when the player has no monsters in their team.
-  void startBattle([int stageId = 0]) {
+  void startBattle([int stageId = 0, bool hardMode = false]) {
     // Resolve the stage index — fall back to current state or player stage.
     int resolvedId = stageId;
     if (resolvedId <= 0) {
@@ -266,8 +272,18 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Prepend hero to team (hero is always slot 0).
     final fullTeam = [heroMonster, ...teamWithRelics];
 
-    // Build enemy team.
-    final enemyTeam = BattleService.createEnemiesForStage(resolvedId);
+    // Build enemy team (hard mode = 2x stats).
+    final rawEnemyTeam = BattleService.createEnemiesForStage(resolvedId);
+    final enemyTeam = hardMode
+        ? rawEnemyTeam.map((m) => m.copyWith(
+            atk: m.atk * 2,
+            def: m.def * 2,
+            maxHp: m.maxHp * 2,
+            currentHp: m.maxHp * 2,
+          )).toList()
+        : rawEnemyTeam;
+
+    final stageSuffix = hardMode ? ' [HARD]' : '';
 
     state = BattleState(
       phase:            BattlePhase.fighting,
@@ -281,9 +297,10 @@ class BattleNotifier extends StateNotifier<BattleState> {
       isAutoMode:       state.isAutoMode,
       isRepeatMode:     state.isRepeatMode,
       currentStageId:   resolvedId,
-      currentStageName: stageData.name,
+      currentStageName: '${stageData.name}$stageSuffix',
       lastReward:       null,
       initialEnemyCount: enemyTeam.length,
+      isHardMode:       hardMode,
     );
 
     // Auto-battle: always start the timer (idle game).
@@ -561,15 +578,16 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final currency = ref.read(currencyProvider.notifier);
     final player   = ref.read(playerProvider.notifier);
 
-    // Apply prestige bonus multiplier to gold and exp.
+    // Apply prestige bonus multiplier + hard mode bonus to gold and exp.
     final playerData = ref.read(playerProvider).player;
     final multiplier = playerData != null
         ? PrestigeService.bonusMultiplier(playerData)
         : 1.0;
-    final bonusGold = (reward.gold * multiplier).round();
-    final bonusExp = (reward.exp * multiplier).round();
+    final hardMultiplier = state.isHardMode ? 1.5 : 1.0;
+    final bonusGold = (reward.gold * multiplier * hardMultiplier).round();
+    final bonusExp = (reward.exp * multiplier * hardMultiplier).round();
 
-    // Award gold (with prestige bonus).
+    // Award gold (with prestige + hard mode bonus).
     await currency.addGold(bonusGold);
 
     // Award bonus shard (if any).
@@ -586,7 +604,11 @@ class BattleNotifier extends StateNotifier<BattleState> {
     final wasNewClear = currentPlayer != null &&
         _stageStringToIndex(clearedStageKey) >
             _stageStringToIndex(currentPlayer.maxClearedStageId);
-    await player.updateStage(clearedStageKey);
+    if (state.isHardMode) {
+      await player.updateHardStage(clearedStageKey);
+    } else {
+      await player.updateStage(clearedStageKey);
+    }
     await player.addBattleCount();
 
     // Increment affinity (battle count) for team monsters.
