@@ -420,6 +420,23 @@
 ## 12차 고도화
 - [x] 렐릭 일괄 분해 (settings: 1~3성 이하 미장착 유물 → 골드 변환)
 
+## 13차 고도화
+- [x] 가챠 픽업 배너 시스템
+  - PickupBanner 모델 + 4종 배너 로테이션 (3일 주기, epochDay 기반)
+  - 피처드 몬스터 확률 5배 부스트 (_buildBoostedPool 캐싱)
+  - 피티 보상 시 피처드 전설 우선 선택
+  - 배너 UI: 그라데이션 + 타이머 + 피처드 몬스터 카드
+  - 결과 카드/히스토리: PICK UP + 확정 뱃지 동시 표시
+
+## 코드 리뷰 14차
+- [x] weight=0 몬스터 배너 제외 (shadow_dragon/crystal_phoenix → dark_knight/ice_queen)
+- [x] performTenPull 파라미터화 (featuredIds/rateUpMultiplier)
+- [x] _buildBoostedPool 캐싱 (배너 변경 시만 재빌드)
+- [x] hoursRemaining epochDay 기반 연도 경계 안전
+- [x] wasPickup+wasPity 동시 표시 (else if → 독립 if)
+- [x] Row → Wrap (오버플로 방지)
+- [x] rarity 별표 '★N' 축약
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
