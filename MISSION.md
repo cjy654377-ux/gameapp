@@ -526,3 +526,29 @@
 - lib/data/static/relic_database.dart
 - lib/presentation/providers/relic_provider.dart
 - lib/presentation/screens/relic/relic_screen.dart
+
+## 20차 고도화 - 그래픽 강화 + UX 개선
+- [x] Step 1: 프로시저럴 전투 배경 (Forest/Volcano/Dungeon/Ocean/Sky 5종 CustomPainter)
+- [x] Step 2: 진화 애니메이션 (3 Phase 2초, 스케일+플래시+별폭발, 탭 스킵)
+- [x] Step 3: 스킨 비주얼 통합 (overrideColor, 오라링, 회전 다이아, 보석뱃지)
+- [x] Step 4: 전투 화면 이펙트 (크리티컬 플래시, 대데미지 셰이크)
+- [x] Step 5: 도감 검색 (TextField + 300ms 디바운스, 이름 필터링)
+- [x] Step 6: 설정 확장 (기본속도, 자동전투, 데이터사용량, 크레딧)
+
+### 신규
+- lib/presentation/widgets/procedural_background_painter.dart
+- lib/presentation/widgets/evolution_animation_overlay.dart
+
+### 수정
+- lib/presentation/flame/battle_arena_widget.dart (Image.asset→ProceduralBackgroundPainter)
+- lib/presentation/screens/upgrade/upgrade_screen.dart (진화 애니메이션 연결)
+- lib/presentation/widgets/monster_portrait_painter.dart (overrideColor, skinRarity 이펙트)
+- lib/presentation/widgets/monster_avatar.dart (equippedSkinId, 보석뱃지)
+- lib/presentation/flame/components/monster_sprite.dart (overrideColor)
+- lib/presentation/providers/battle_provider.dart (effectTrigger, lastWasCritical, lastWasBigDamage)
+- lib/presentation/screens/battle/battle_view.dart (_BattleEffectsOverlay)
+- lib/presentation/providers/collection_provider.dart (searchQuery)
+- lib/presentation/screens/collection/collection_screen.dart (검색바)
+- lib/presentation/screens/settings/settings_screen.dart (4 섹션 추가)
+- lib/data/datasources/local_storage.dart (getSetting/setSetting)
+- lib/l10n/app_ko.arb, app_en.arb (searchMonster, settings* 11개 키)

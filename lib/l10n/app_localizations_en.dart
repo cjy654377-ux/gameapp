@@ -2944,4 +2944,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarLuckyBox => 'Lucky Box';
+
+  @override
+  String get searchMonster => 'Search monsters...';
+
+  @override
+  String get settingsDefaultSpeed => 'Default Battle Speed';
+
+  @override
+  String get settingsAutoDefault => 'Auto Battle Default';
+
+  @override
+  String get settingsDataUsage => 'Data Usage';
+
+  @override
+  String get settingsMonsterCount => 'Owned Monsters';
+
+  @override
+  String get settingsRelicCount => 'Owned Relics';
+
+  @override
+  String get settingsCredits => 'Info';
+
+  @override
+  String get settingsCreditsTitle => 'Monster Collector v1.0';
+
+  @override
+  String get settingsCreditsBody =>
+      'Procedural Graphics Idle RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp';
+
+  @override
+  String get settingsSpeedLabel => 'Battle Speed';
+
+  @override
+  String get settingsAutoLabel => 'Auto Battle';
 }

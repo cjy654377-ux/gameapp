@@ -135,6 +135,15 @@ class BattleState {
   /// Optional challenge modifier for bonus rewards.
   final ChallengeModifier challengeModifier;
 
+  /// Incremented each time a visual effect should trigger.
+  final int effectTrigger;
+
+  /// Whether the last hit was a critical.
+  final bool lastWasCritical;
+
+  /// Whether the last hit dealt big damage (>15% of target maxHp).
+  final bool lastWasBigDamage;
+
   const BattleState({
     this.phase            = BattlePhase.idle,
     this.playerTeam       = const [],
@@ -155,6 +164,9 @@ class BattleState {
     this.initialEnemyCount = 0,
     this.isHardMode = false,
     this.challengeModifier = ChallengeModifier.none,
+    this.effectTrigger = 0,
+    this.lastWasCritical = false,
+    this.lastWasBigDamage = false,
   });
 
   BattleState copyWith({
@@ -178,6 +190,9 @@ class BattleState {
     int?                initialEnemyCount,
     bool?               isHardMode,
     ChallengeModifier?  challengeModifier,
+    int?                effectTrigger,
+    bool?               lastWasCritical,
+    bool?               lastWasBigDamage,
   }) {
     return BattleState(
       phase:            phase            ?? this.phase,
@@ -199,6 +214,9 @@ class BattleState {
       initialEnemyCount: initialEnemyCount ?? this.initialEnemyCount,
       isHardMode:       isHardMode       ?? this.isHardMode,
       challengeModifier: challengeModifier ?? this.challengeModifier,
+      effectTrigger:    effectTrigger    ?? this.effectTrigger,
+      lastWasCritical:  lastWasCritical  ?? this.lastWasCritical,
+      lastWasBigDamage: lastWasBigDamage ?? this.lastWasBigDamage,
     );
   }
 
@@ -472,6 +490,20 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
     // -- 4. Emit new state & check end conditions -----------------------------
     _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+
+    // Detect and trigger visual effects
+    if (log.isNotEmpty && isPlayerMonster) {
+      final lastEntry = log.last;
+      final wasCrit = lastEntry.isCritical;
+      // Big damage: > 50 raw damage from player
+      if (wasCrit || lastEntry.damage > 50) {
+        state = state.copyWith(
+          effectTrigger: state.effectTrigger + 1,
+          lastWasCritical: wasCrit,
+          lastWasBigDamage: lastEntry.damage > 50,
+        );
+      }
+    }
   }
 
   /// Shared helper to emit a new state after a turn action, checking end

@@ -16,6 +16,8 @@ class MonsterPortraitPainter extends CustomPainter {
     this.isDead = false,
     this.evolutionStage = 0,
     this.glowPhase = 0,
+    this.overrideColor,
+    this.skinRarity = 0,
   }) {
     // Cache seed-derived values — stable per templateId, avoids
     // allocating Random on every paint() call.
@@ -29,6 +31,10 @@ class MonsterPortraitPainter extends CustomPainter {
     final elemEnum = MonsterElement.fromName(element);
     _baseColor = elemEnum?.color ?? Colors.grey;
     _accentColor = Color.lerp(_baseColor, Colors.white, 0.3)!;
+    if (overrideColor != null) {
+      _baseColor = overrideColor!;
+      _accentColor = Color.lerp(_baseColor, Colors.white, 0.3)!;
+    }
   }
 
   final String templateId;
@@ -37,14 +43,16 @@ class MonsterPortraitPainter extends CustomPainter {
   final bool isDead;
   final int evolutionStage;
   final double glowPhase;
+  final Color? overrideColor;
+  final int skinRarity;
 
   // Cached seed-derived values
   late final int _bodyType;
   late final int _eyeCount;
   late final int _spikeCount;
   late final int _patternType;
-  late final Color _baseColor;
-  late final Color _accentColor;
+  late Color _baseColor;
+  late Color _accentColor;
 
   // Reusable Paint objects
   static final _fillPaint = Paint()..style = PaintingStyle.fill;
@@ -79,6 +87,38 @@ class MonsterPortraitPainter extends CustomPainter {
   }
 
   void _renderMonster(Canvas canvas, double bodyRadius) {
+    // Skin rarity 3+: outer aura ring
+    if (skinRarity >= 3) {
+      canvas.drawCircle(
+        Offset.zero,
+        bodyRadius + 8,
+        Paint()
+          ..color = _baseColor.withValues(alpha: 0.25)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+      );
+    }
+
+    // Skin rarity 4+: rotating diamonds (3)
+    if (skinRarity >= 4) {
+      final diamondPaint = Paint()
+        ..color = _accentColor.withValues(alpha: 0.6)
+        ..style = PaintingStyle.fill;
+      for (int i = 0; i < 3; i++) {
+        final angle = glowPhase + i * pi * 2 / 3;
+        final dx = cos(angle) * (bodyRadius + 14);
+        final dy = sin(angle) * (bodyRadius + 14);
+        final path = Path()
+          ..moveTo(dx, dy - 4)
+          ..lineTo(dx + 3, dy)
+          ..lineTo(dx, dy + 4)
+          ..lineTo(dx - 3, dy)
+          ..close();
+        canvas.drawPath(path, diamondPaint);
+      }
+    }
+
     // Glow ring for rarity 3+
     if (rarity >= 3) {
       final glowAlpha = (0.3 + 0.2 * sin(glowPhase)).clamp(0.0, 1.0);
@@ -278,6 +318,8 @@ class MonsterPortraitPainter extends CustomPainter {
         oldDelegate.rarity != rarity ||
         oldDelegate.isDead != isDead ||
         oldDelegate.evolutionStage != evolutionStage ||
-        oldDelegate.glowPhase != glowPhase;
+        oldDelegate.glowPhase != glowPhase ||
+        oldDelegate.overrideColor != overrideColor ||
+        oldDelegate.skinRarity != skinRarity;
   }
 }

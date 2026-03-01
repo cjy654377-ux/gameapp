@@ -12,10 +12,11 @@ import 'package:gameapp/presentation/flame/components/status_indicator.dart';
 class MonsterSpriteComponent extends PositionComponent {
   final BattleMonster monster;
   final bool isPlayerSide;
+  final Color? overrideColor;
 
   late final int _seed;
-  late final Color _baseColor;
-  late final Color _accentColor;
+  late Color _baseColor;
+  late Color _accentColor;
   late final int _bodyType; // 0=circle, 1=triangle, 2=square, 3=diamond
   late final int _eyeCount;
   late final int _spikeCount;
@@ -33,6 +34,7 @@ class MonsterSpriteComponent extends PositionComponent {
   MonsterSpriteComponent({
     required this.monster,
     required this.isPlayerSide,
+    this.overrideColor,
     super.position,
   }) : super(anchor: Anchor.center);
 
@@ -45,6 +47,10 @@ class MonsterSpriteComponent extends PositionComponent {
     final elem = MonsterElement.fromName(monster.element);
     _baseColor = elem?.color ?? Colors.grey;
     _accentColor = Color.lerp(_baseColor, Colors.white, 0.3)!;
+    if (overrideColor != null) {
+      _baseColor = overrideColor!;
+      _accentColor = Color.lerp(_baseColor, Colors.white, 0.3)!;
+    }
 
     // Body type from seed
     _bodyType = rng.nextInt(4);

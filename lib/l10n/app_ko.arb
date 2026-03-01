@@ -1096,5 +1096,17 @@
   "@luckyBoxNextBonus": {"placeholders": {"days": {"type": "int"}}},
   "luckyBoxStreakBonus": "★ 연속 보너스 지급! ★",
   "luckyBoxRewardTable": "보상 확률표",
-  "sidebarLuckyBox": "럭키박스"
+  "sidebarLuckyBox": "럭키박스",
+  "searchMonster": "몬스터 검색...",
+
+  "settingsDefaultSpeed": "기본 전투속도",
+  "settingsAutoDefault": "자동전투 기본값",
+  "settingsDataUsage": "데이터 사용량",
+  "settingsMonsterCount": "보유 몬스터 수",
+  "settingsRelicCount": "보유 유물 수",
+  "settingsCredits": "정보",
+  "settingsCreditsTitle": "몬스터 수집가 v1.0",
+  "settingsCreditsBody": "프로시저럴 그래픽 방치형 RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp",
+  "settingsSpeedLabel": "전투속도",
+  "settingsAutoLabel": "자동전투"
 }

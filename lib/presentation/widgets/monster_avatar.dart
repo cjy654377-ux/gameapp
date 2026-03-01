@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
+import 'package:gameapp/data/static/skin_database.dart';
 import 'package:gameapp/presentation/widgets/monster_portrait_painter.dart';
 
 // =============================================================================
@@ -27,6 +28,7 @@ class MonsterAvatar extends StatefulWidget {
     this.level = 1,
     this.isDead = false,
     this.showRarityGlow = false,
+    this.equippedSkinId,
   });
 
   final String name;
@@ -40,6 +42,7 @@ class MonsterAvatar extends StatefulWidget {
   final int level;
   final bool isDead;
   final bool showRarityGlow;
+  final String? equippedSkinId;
 
   @override
   State<MonsterAvatar> createState() => _MonsterAvatarState();
@@ -86,13 +89,23 @@ class _MonsterAvatarState extends State<MonsterAvatar>
     final rarityEnum = MonsterRarity.fromRarity(widget.rarity);
     final rarColor = rarityEnum.color;
 
+    Color? skinColor;
+    int skinRarity = 0;
+    if (widget.equippedSkinId != null) {
+      final skin = SkinDatabase.findById(widget.equippedSkinId!);
+      if (skin != null) {
+        skinColor = skin.overrideColor;
+        skinRarity = skin.rarity;
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Procedural avatar
         RepaintBoundary(
           child: widget.templateId != null
-              ? _buildProceduralAvatar(rarColor)
+              ? _buildProceduralAvatar(rarColor, skinColor, skinRarity)
               : _buildFallbackAvatar(rarColor),
         ),
         // Name
@@ -127,9 +140,10 @@ class _MonsterAvatarState extends State<MonsterAvatar>
     );
   }
 
-  Widget _buildProceduralAvatar(Color rarColor) {
+  Widget _buildProceduralAvatar(Color rarColor, Color? skinColor, int skinRarity) {
+    Widget paintWidget;
     if (_glowController != null) {
-      return AnimatedBuilder(
+      paintWidget = AnimatedBuilder(
         animation: _glowController!,
         builder: (context, _) {
           return CustomPaint(
@@ -141,20 +155,51 @@ class _MonsterAvatarState extends State<MonsterAvatar>
               isDead: widget.isDead,
               evolutionStage: widget.evolutionStage,
               glowPhase: _glowController!.value * 6.283,
+              overrideColor: skinColor,
+              skinRarity: skinRarity,
             ),
           );
         },
       );
+    } else {
+      paintWidget = CustomPaint(
+        size: Size(widget.size, widget.size),
+        painter: MonsterPortraitPainter(
+          templateId: widget.templateId!,
+          element: widget.element,
+          rarity: widget.rarity,
+          isDead: widget.isDead,
+          evolutionStage: widget.evolutionStage,
+          overrideColor: skinColor,
+          skinRarity: skinRarity,
+        ),
+      );
     }
-    return CustomPaint(
-      size: Size(widget.size, widget.size),
-      painter: MonsterPortraitPainter(
-        templateId: widget.templateId!,
-        element: widget.element,
-        rarity: widget.rarity,
-        isDead: widget.isDead,
-        evolutionStage: widget.evolutionStage,
-      ),
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        paintWidget,
+        if (widget.equippedSkinId != null)
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              width: widget.size * 0.22,
+              height: widget.size * 0.22,
+              decoration: BoxDecoration(
+                color: skinRarity >= 4 ? Colors.purple : Colors.cyan,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: Icon(
+                Icons.diamond,
+                size: widget.size * 0.13,
+                color: Colors.white,
+              ),
+            ),
+          ),
+      ],
     );
   }
 

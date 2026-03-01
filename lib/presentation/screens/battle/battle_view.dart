@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -94,6 +96,9 @@ class _BattleViewState extends ConsumerState<BattleView> {
                     totalExp: repeatExp,
                   ),
                 ),
+
+              // Battle effects overlay
+              const _BattleEffectsOverlay(),
             ],
           ),
         ),
@@ -583,6 +588,98 @@ class _RewardChip extends StatelessWidget {
             color: AppColors.textSecondary,
             fontSize: 11,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// _BattleEffectsOverlay — screen flash + shake
+// =============================================================================
+
+class _BattleEffectsOverlay extends ConsumerStatefulWidget {
+  const _BattleEffectsOverlay();
+
+  @override
+  ConsumerState<_BattleEffectsOverlay> createState() => _BattleEffectsOverlayState();
+}
+
+class _BattleEffectsOverlayState extends ConsumerState<_BattleEffectsOverlay>
+    with TickerProviderStateMixin {
+  AnimationController? _flashController;
+  AnimationController? _shakeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _flashController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+  }
+
+  @override
+  void dispose() {
+    _flashController?.dispose();
+    _shakeController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(
+      battleProvider.select((s) => s.effectTrigger),
+      (prev, next) {
+        if (prev == null || next <= prev) return;
+        final state = ref.read(battleProvider);
+        if (state.lastWasCritical) {
+          _flashController?.forward(from: 0);
+        }
+        if (state.lastWasBigDamage) {
+          _shakeController?.forward(from: 0);
+        }
+      },
+    );
+
+    return Stack(
+      children: [
+        // Screen shake wrapper
+        AnimatedBuilder(
+          animation: _shakeController!,
+          builder: (context, child) {
+            if (!_shakeController!.isAnimating) return const SizedBox.shrink();
+            final progress = _shakeController!.value;
+            final dx = sin(progress * pi * 6) * 4 * (1 - progress);
+            final dy = cos(progress * pi * 4) * 3 * (1 - progress);
+            return Positioned.fill(
+              child: IgnorePointer(
+                child: Transform.translate(
+                  offset: Offset(dx, dy),
+                  child: const SizedBox.shrink(),
+                ),
+              ),
+            );
+          },
+        ),
+        // Screen flash
+        AnimatedBuilder(
+          animation: _flashController!,
+          builder: (context, child) {
+            if (!_flashController!.isAnimating) return const SizedBox.shrink();
+            final opacity = (1 - _flashController!.value) * 0.4;
+            return Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  color: Colors.white.withValues(alpha: opacity.clamp(0.0, 1.0)),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

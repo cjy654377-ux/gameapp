@@ -5239,6 +5239,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'럭키박스'**
   String get sidebarLuckyBox;
+
+  /// No description provided for @searchMonster.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 검색...'**
+  String get searchMonster;
+
+  /// No description provided for @settingsDefaultSpeed.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 전투속도'**
+  String get settingsDefaultSpeed;
+
+  /// No description provided for @settingsAutoDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동전투 기본값'**
+  String get settingsAutoDefault;
+
+  /// No description provided for @settingsDataUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 사용량'**
+  String get settingsDataUsage;
+
+  /// No description provided for @settingsMonsterCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 몬스터 수'**
+  String get settingsMonsterCount;
+
+  /// No description provided for @settingsRelicCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 유물 수'**
+  String get settingsRelicCount;
+
+  /// No description provided for @settingsCredits.
+  ///
+  /// In ko, this message translates to:
+  /// **'정보'**
+  String get settingsCredits;
+
+  /// No description provided for @settingsCreditsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'몬스터 수집가 v1.0'**
+  String get settingsCreditsTitle;
+
+  /// No description provided for @settingsCreditsBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로시저럴 그래픽 방치형 RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp'**
+  String get settingsCreditsBody;
+
+  /// No description provided for @settingsSpeedLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투속도'**
+  String get settingsSpeedLabel;
+
+  /// No description provided for @settingsAutoLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동전투'**
+  String get settingsAutoLabel;
 }
 
 class _AppLocalizationsDelegate

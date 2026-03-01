@@ -89,6 +89,28 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
+            // Default battle speed
+            _SectionHeader(title: l.settingsDefaultSpeed),
+            _DefaultSpeedTile(),
+            const SizedBox(height: 24),
+
+            // Auto battle default
+            _SectionHeader(title: l.settingsAutoDefault),
+            _AutoBattleDefaultTile(),
+            const SizedBox(height: 24),
+
+            // Data usage
+            _SectionHeader(title: l.settingsDataUsage),
+            _InfoTile(
+              label: l.settingsMonsterCount,
+              value: '${ref.watch(monsterListProvider.select((list) => list.length))}',
+            ),
+            _InfoTile(
+              label: l.settingsRelicCount,
+              value: '${ref.watch(relicProvider.select((list) => list.length))}',
+            ),
+            const SizedBox(height: 24),
+
             // Relic
             _SectionHeader(title: l.settingsRelicEquip),
             const SizedBox(height: 8),
@@ -202,6 +224,36 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+
+            // Credits
+            _SectionHeader(title: l.settingsCredits),
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: AppColors.surface,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.settingsCreditsTitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l.settingsCreditsBody,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -624,6 +676,113 @@ class _RelicDismantleTile extends ConsumerWidget {
               }
             },
             child: Text(l.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Default speed tile
+// =============================================================================
+
+class _DefaultSpeedTile extends StatefulWidget {
+  @override
+  State<_DefaultSpeedTile> createState() => _DefaultSpeedTileState();
+}
+
+class _DefaultSpeedTileState extends State<_DefaultSpeedTile> {
+  double _speed = 2.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _speed = LocalStorage.instance.getSetting('defaultBattleSpeed') ?? 2.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(Icons.speed, color: Colors.orange, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            l.settingsSpeedLabel,
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          SegmentedButton<double>(
+            segments: const [
+              ButtonSegment(value: 1.0, label: Text('1x')),
+              ButtonSegment(value: 2.0, label: Text('2x')),
+              ButtonSegment(value: 3.0, label: Text('3x')),
+            ],
+            selected: {_speed},
+            onSelectionChanged: (v) {
+              setState(() => _speed = v.first);
+              LocalStorage.instance.setSetting('defaultBattleSpeed', _speed);
+            },
+            style: ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Auto battle default tile
+// =============================================================================
+
+class _AutoBattleDefaultTile extends StatefulWidget {
+  @override
+  State<_AutoBattleDefaultTile> createState() => _AutoBattleDefaultTileState();
+}
+
+class _AutoBattleDefaultTileState extends State<_AutoBattleDefaultTile> {
+  bool _autoDefault = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _autoDefault = LocalStorage.instance.getSetting('defaultAutoMode') ?? true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          Icon(
+            _autoDefault ? Icons.autorenew : Icons.touch_app,
+            color: _autoDefault ? Colors.green : AppColors.textTertiary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            l.settingsAutoLabel,
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          ),
+          const Spacer(),
+          Switch(
+            value: _autoDefault,
+            activeTrackColor: Colors.green.withValues(alpha: 0.5),
+            activeThumbColor: Colors.green,
+            onChanged: (v) {
+              setState(() => _autoDefault = v);
+              LocalStorage.instance.setSetting('defaultAutoMode', v);
+            },
           ),
         ],
       ),

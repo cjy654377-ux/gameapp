@@ -20,6 +20,7 @@ class CollectionFilter {
   final bool showOnlyOwned;
   final bool showOnlyFavorites;
   final CollectionSort sort;
+  final String searchQuery;
 
   const CollectionFilter({
     this.rarity,
@@ -27,6 +28,7 @@ class CollectionFilter {
     this.showOnlyOwned = false,
     this.showOnlyFavorites = false,
     this.sort = CollectionSort.defaultOrder,
+    this.searchQuery = '',
   });
 
   CollectionFilter copyWith({
@@ -37,6 +39,7 @@ class CollectionFilter {
     CollectionSort? sort,
     bool clearRarity = false,
     bool clearElement = false,
+    String? searchQuery,
   }) {
     return CollectionFilter(
       rarity: clearRarity ? null : (rarity ?? this.rarity),
@@ -44,6 +47,7 @@ class CollectionFilter {
       showOnlyOwned: showOnlyOwned ?? this.showOnlyOwned,
       showOnlyFavorites: showOnlyFavorites ?? this.showOnlyFavorites,
       sort: sort ?? this.sort,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 
@@ -52,7 +56,8 @@ class CollectionFilter {
       element != null ||
       showOnlyOwned ||
       showOnlyFavorites ||
-      sort != CollectionSort.defaultOrder;
+      sort != CollectionSort.defaultOrder ||
+      searchQuery.isNotEmpty;
 }
 
 class CollectionFilterNotifier extends StateNotifier<CollectionFilter> {
@@ -84,6 +89,10 @@ class CollectionFilterNotifier extends StateNotifier<CollectionFilter> {
 
   void setSort(CollectionSort sort) {
     state = state.copyWith(sort: sort);
+  }
+
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query.trim().toLowerCase());
   }
 
   void clearAll() {
@@ -133,6 +142,12 @@ final collectionEntriesProvider = Provider<List<CollectionEntry>>((ref) {
   }
 
   Iterable<MonsterTemplate> templates = MonsterDatabase.all;
+
+  // Apply search filter
+  if (filter.searchQuery.isNotEmpty) {
+    templates = templates.where((t) =>
+        t.name.toLowerCase().contains(filter.searchQuery));
+  }
 
   // Apply filters lazily (single pass).
   if (filter.rarity != null) {

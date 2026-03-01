@@ -2930,4 +2930,38 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get sidebarLuckyBox => '럭키박스';
+
+  @override
+  String get searchMonster => '몬스터 검색...';
+
+  @override
+  String get settingsDefaultSpeed => '기본 전투속도';
+
+  @override
+  String get settingsAutoDefault => '자동전투 기본값';
+
+  @override
+  String get settingsDataUsage => '데이터 사용량';
+
+  @override
+  String get settingsMonsterCount => '보유 몬스터 수';
+
+  @override
+  String get settingsRelicCount => '보유 유물 수';
+
+  @override
+  String get settingsCredits => '정보';
+
+  @override
+  String get settingsCreditsTitle => '몬스터 수집가 v1.0';
+
+  @override
+  String get settingsCreditsBody =>
+      '프로시저럴 그래픽 방치형 RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp';
+
+  @override
+  String get settingsSpeedLabel => '전투속도';
+
+  @override
+  String get settingsAutoLabel => '자동전투';
 }

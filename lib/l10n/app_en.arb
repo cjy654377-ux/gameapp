@@ -1020,5 +1020,17 @@
   "@luckyBoxNextBonus": {"placeholders": {"days": {"type": "int"}}},
   "luckyBoxStreakBonus": "★ Streak Bonus! ★",
   "luckyBoxRewardTable": "Reward Rates",
-  "sidebarLuckyBox": "Lucky Box"
+  "sidebarLuckyBox": "Lucky Box",
+  "searchMonster": "Search monsters...",
+
+  "settingsDefaultSpeed": "Default Battle Speed",
+  "settingsAutoDefault": "Auto Battle Default",
+  "settingsDataUsage": "Data Usage",
+  "settingsMonsterCount": "Owned Monsters",
+  "settingsRelicCount": "Owned Relics",
+  "settingsCredits": "Info",
+  "settingsCreditsTitle": "Monster Collector v1.0",
+  "settingsCreditsBody": "Procedural Graphics Idle RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp",
+  "settingsSpeedLabel": "Battle Speed",
+  "settingsAutoLabel": "Auto Battle"
 }

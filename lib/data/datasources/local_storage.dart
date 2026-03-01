@@ -605,6 +605,18 @@ class LocalStorage {
     }
   }
 
+  /// Generic setting getter from the settings box.
+  T? getSetting<T>(String key) {
+    final box = Hive.box('settings');
+    return box.get(key) as T?;
+  }
+
+  /// Generic setting setter to the settings box.
+  Future<void> setSetting<T>(String key, T value) async {
+    final box = Hive.box('settings');
+    await box.put(key, value);
+  }
+
   /// Closes all open Hive boxes (call this during app teardown).
   Future<void> dispose() async {
     await Future.wait([

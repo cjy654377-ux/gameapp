@@ -14,6 +14,8 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/providers/upgrade_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/presentation/widgets/evolution_animation_overlay.dart';
+import 'package:gameapp/presentation/widgets/monster_avatar.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 
 class UpgradeScreen extends ConsumerWidget {
@@ -656,10 +658,43 @@ class _EvolutionPanel extends ConsumerWidget {
               iconColor: AppColors.rarityEpic,
               enabled: canAfford && !isProcessing,
               onTap: () async {
-                final ok =
-                    await ref.read(upgradeProvider.notifier).evolve();
+                // Capture old monster widget before evolution
+                final oldMon = ref.read(upgradeProvider).selectedMonsterId;
+                final monsters = ref.read(monsterListProvider);
+                final beforeMonster = oldMon != null
+                    ? monsters.firstWhere((m) => m.id == oldMon, orElse: () => monsters.first)
+                    : null;
+
+                final ok = await ref.read(upgradeProvider.notifier).evolve();
                 if (!ok && context.mounted) {
                   _showError(context, l.materialShort);
+                  return;
+                }
+                if (ok && context.mounted && beforeMonster != null) {
+                  final afterMonsters = ref.read(monsterListProvider);
+                  final afterMonster = afterMonsters.firstWhere(
+                    (m) => m.id == beforeMonster.id,
+                    orElse: () => beforeMonster,
+                  );
+                  await EvolutionAnimationOverlay.show(
+                    context,
+                    oldMonster: MonsterAvatar(
+                      name: beforeMonster.name,
+                      element: beforeMonster.element,
+                      rarity: beforeMonster.rarity,
+                      templateId: beforeMonster.templateId,
+                      size: 120,
+                      evolutionStage: beforeMonster.evolutionStage,
+                    ),
+                    newMonster: MonsterAvatar(
+                      name: afterMonster.name,
+                      element: afterMonster.element,
+                      rarity: afterMonster.rarity,
+                      templateId: afterMonster.templateId,
+                      size: 120,
+                      evolutionStage: afterMonster.evolutionStage,
+                    ),
+                  );
                 }
               },
             );

@@ -6,6 +6,7 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/flame/battle_game.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
+import 'package:gameapp/presentation/widgets/procedural_background_painter.dart';
 
 /// Bridge widget: Riverpod state → BattleGame (Flame).
 /// Renders Flutter background image underneath transparent Flame canvas.
@@ -72,16 +73,13 @@ class _BattleArenaWidgetState extends ConsumerState<BattleArenaWidget> {
     final areaIndex = ((stageId - 1) ~/ 6 + 1).clamp(1, 5);
     const areaNames = ['forest', 'volcano', 'dungeon', 'ocean', 'sky'];
     final areaName = areaNames[areaIndex - 1];
-    final bgPath = 'assets/images/backgrounds/area_${areaIndex}_$areaName.png';
 
     return Stack(
       children: [
-        // Background image (Flutter layer)
+        // Procedural background (Flutter layer)
         Positioned.fill(
-          child: Image.asset(
-            bgPath,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(color: AppColors.surface),
+          child: CustomPaint(
+            painter: ProceduralBackgroundPainter(areaName: areaName),
           ),
         ),
         // Dark overlay

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,6 +44,7 @@ class CollectionScreen extends ConsumerWidget {
               _buildHeader(context, stats),
               _buildMilestoneBar(context, ref),
               _buildChallengeBar(context, ref),
+              _buildSearchBar(context, ref),
               _buildFilterBar(context, ref, filter),
               Expanded(
                 child: entries.isEmpty
@@ -263,6 +266,19 @@ class CollectionScreen extends ConsumerWidget {
               ],
             ),
           );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: _SearchField(
+        hintText: l.searchMonster,
+        onChanged: (query) {
+          ref.read(collectionFilterProvider.notifier).setSearchQuery(query);
         },
       ),
     );
@@ -785,6 +801,79 @@ class _StatRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Search field with debounce
+// =============================================================================
+
+class _SearchField extends StatefulWidget {
+  const _SearchField({required this.hintText, required this.onChanged});
+  final String hintText;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<_SearchField> {
+  final _controller = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: TextField(
+        controller: _controller,
+        style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          hintStyle: TextStyle(fontSize: 13, color: AppColors.textTertiary),
+          prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.textTertiary),
+          suffixIcon: _controller.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () {
+                    _controller.clear();
+                    widget.onChanged('');
+                    setState(() {});
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: AppColors.surface,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.primary),
+          ),
+        ),
+        onChanged: (value) {
+          setState(() {});
+          _debounce?.cancel();
+          _debounce = Timer(const Duration(milliseconds: 300), () {
+            widget.onChanged(value);
+          });
+        },
       ),
     );
   }
