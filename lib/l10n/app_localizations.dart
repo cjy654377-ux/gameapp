@@ -4879,6 +4879,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'15턴 내에 클리어'**
   String get challengeTurnLimit;
+
+  /// No description provided for @relicDismantle.
+  ///
+  /// In ko, this message translates to:
+  /// **'유물 일괄 분해'**
+  String get relicDismantle;
+
+  /// No description provided for @relicDismantleDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'미장착 유물 {count}개'**
+  String relicDismantleDesc(int count);
+
+  /// No description provided for @relicDismantleConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{rarity}성 이하 미장착 유물을 모두 분해하시겠습니까?'**
+  String relicDismantleConfirm(int rarity);
+
+  /// No description provided for @relicDismantleResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'분해 완료! +{gold} G'**
+  String relicDismantleResult(int gold);
 }
 
 class _AppLocalizationsDelegate

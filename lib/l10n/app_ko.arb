@@ -1011,5 +1011,13 @@
   "@challengeName": {"placeholders": {"name": {"type": "String"}}},
   "challengeReward": "+{percent}% 보상",
   "@challengeReward": {"placeholders": {"percent": {"type": "int"}}},
-  "challengeTurnLimit": "15턴 내에 클리어"
+  "challengeTurnLimit": "15턴 내에 클리어",
+
+  "relicDismantle": "유물 일괄 분해",
+  "relicDismantleDesc": "미장착 유물 {count}개",
+  "@relicDismantleDesc": {"placeholders": {"count": {"type": "int"}}},
+  "relicDismantleConfirm": "{rarity}성 이하 미장착 유물을 모두 분해하시겠습니까?",
+  "@relicDismantleConfirm": {"placeholders": {"rarity": {"type": "int"}}},
+  "relicDismantleResult": "분해 완료! +{gold} G",
+  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}}
 }

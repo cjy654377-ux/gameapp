@@ -281,7 +281,7 @@ class _AreaStageGrid extends ConsumerWidget {
                   onTap: () {
                     Navigator.pop(context);
                     ref.read(battleProvider.notifier).startBattle(stageIdx, false, ch);
-                    context.pop();
+                    if (context.mounted) context.pop();
                   },
                 ),
               );

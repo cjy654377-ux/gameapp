@@ -935,5 +935,13 @@
   "@challengeName": {"placeholders": {"name": {"type": "String"}}},
   "challengeReward": "+{percent}% Rewards",
   "@challengeReward": {"placeholders": {"percent": {"type": "int"}}},
-  "challengeTurnLimit": "Clear within 15 turns"
+  "challengeTurnLimit": "Clear within 15 turns",
+
+  "relicDismantle": "Bulk Dismantle",
+  "relicDismantleDesc": "{count} unequipped relics",
+  "@relicDismantleDesc": {"placeholders": {"count": {"type": "int"}}},
+  "relicDismantleConfirm": "Dismantle all unequipped relics of {rarity}-star or below?",
+  "@relicDismantleConfirm": {"placeholders": {"rarity": {"type": "int"}}},
+  "relicDismantleResult": "Dismantled! +{gold} G",
+  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}}
 }

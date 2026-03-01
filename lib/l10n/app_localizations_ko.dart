@@ -2710,4 +2710,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get challengeTurnLimit => '15턴 내에 클리어';
+
+  @override
+  String get relicDismantle => '유물 일괄 분해';
+
+  @override
+  String relicDismantleDesc(int count) {
+    return '미장착 유물 $count개';
+  }
+
+  @override
+  String relicDismantleConfirm(int rarity) {
+    return '$rarity성 이하 미장착 유물을 모두 분해하시겠습니까?';
+  }
+
+  @override
+  String relicDismantleResult(int gold) {
+    return '분해 완료! +$gold G';
+  }
 }

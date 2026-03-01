@@ -14,6 +14,7 @@ import '../../providers/theme_provider.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
+import '../../providers/relic_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -110,6 +111,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+
+            // Relic auto-dismantle
+            _RelicDismantleTile(),
             const SizedBox(height: 24),
 
             // Prestige
@@ -524,6 +529,101 @@ class _InfoTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Relic dismantle tile
+// =============================================================================
+
+class _RelicDismantleTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final relics = ref.watch(relicProvider);
+    final unequippedCount = relics.where((r) => !r.isEquipped).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(title: l.relicDismantle),
+        const SizedBox(height: 8),
+        Text(
+          l.relicDismantleDesc(unequippedCount),
+          style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            for (int rarity = 1; rarity <= 3; rarity++)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: rarity < 3 ? 8 : 0),
+                  child: ElevatedButton(
+                    onPressed: () => _dismantle(context, ref, rarity),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _rarityColor(rarity).withValues(alpha: 0.2),
+                      foregroundColor: _rarityColor(rarity),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: _rarityColor(rarity).withValues(alpha: 0.4)),
+                      ),
+                    ),
+                    child: Text(
+                      '${'⭐' * rarity}↓',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Color _rarityColor(int rarity) => switch (rarity) {
+    1 => Colors.grey,
+    2 => Colors.green,
+    3 => Colors.blue,
+    _ => Colors.white,
+  };
+
+  void _dismantle(BuildContext context, WidgetRef ref, int maxRarity) {
+    final l = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.relicDismantle),
+        content: Text(l.relicDismantleConfirm(maxRarity)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              final gold = ref.read(relicProvider.notifier).dismantleByRarity(maxRarity);
+              if (gold > 0) {
+                ref.read(currencyProvider.notifier).addGold(gold);
+              }
+              Navigator.pop(ctx);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l.relicDismantleResult(gold)),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: Text(l.confirm),
           ),
         ],
       ),

@@ -169,7 +169,7 @@ class BattleService {
     final String subjectMarker = _endsWithConsonant(attacker.name) ? '이' : '가';
     final int displayDamage = damage.round();
     final StringBuffer sb = StringBuffer();
-    sb.write('${attacker.name}$subjectMarker(가) ${target.name}에게 '
+    sb.write('${attacker.name}$subjectMarker ${target.name}에게 '
         '$displayDamage 데미지!');
     if (isCrit) sb.write(' (치명타!)');
     if (isAdvantage) sb.write(' (효과가 뛰어나다!)');
@@ -225,7 +225,7 @@ class BattleService {
         _applyDamage(target, damage);
 
         final sb = StringBuffer();
-        sb.write('[${skill.name}] ${caster.name}$sm(가) ${target.name}에게 '
+        sb.write('[${skill.name}] ${caster.name}$sm ${target.name}에게 '
             '${damage.round()} 데미지!');
 
         // Apply burn
@@ -280,7 +280,7 @@ class BattleService {
         isCritical: false,
         isElementAdvantage: false,
         isSkillActivation: true,
-        description: '[${skill.name}] ${caster.name}$sm(가) $targetDesc에게 '
+        description: '[${skill.name}] ${caster.name}$sm $targetDesc에게 '
             '보호막 ${shieldAmount.round()} 부여!',
         timestamp: now,
       ));
@@ -305,7 +305,7 @@ class BattleService {
         isCritical: false,
         isElementAdvantage: false,
         isSkillActivation: true,
-        description: '[${skill.name}] ${caster.name}$sm(가) $targetDesc '
+        description: '[${skill.name}] ${caster.name}$sm $targetDesc '
             '체력 ${healAmount.round()} 회복!',
         timestamp: now,
       ));
@@ -477,7 +477,7 @@ class BattleService {
         _applyDamage(target, damage);
 
         final sb = StringBuffer();
-        sb.write('★[${ult.name}] ${caster.name}$sm(가) ${target.name}에게 '
+        sb.write('★[${ult.name}] ${caster.name}$sm ${target.name}에게 '
             '${damage.round()} 데미지!');
 
         if (ult.stunChance > 0 && _random.nextDouble() < ult.stunChance) {
@@ -515,7 +515,7 @@ class BattleService {
         isCritical: false,
         isElementAdvantage: false,
         isSkillActivation: true,
-        description: '★[${ult.name}] ${caster.name}$sm(가) $targetDesc '
+        description: '★[${ult.name}] ${caster.name}$sm $targetDesc '
             '체력 ${healAmount.round()} 회복!',
         timestamp: now,
       ));

@@ -259,14 +259,16 @@ class _NicknameStep extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),
-            onChanged: (_) => (context as Element).markNeedsBuild(),
+            onChanged: (_) {},
           ),
           const SizedBox(height: 24),
-          SizedBox(
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, _) => SizedBox(
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: controller.text.trim().length >= 2 ? onNext : null,
+              onPressed: value.text.trim().length >= 2 ? onNext : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 disabledBackgroundColor: AppColors.disabled,
@@ -284,6 +286,7 @@ class _NicknameStep extends StatelessWidget {
                 ),
               ),
             ),
+          ),
           ),
         ],
       ),

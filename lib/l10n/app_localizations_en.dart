@@ -2724,4 +2724,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get challengeTurnLimit => 'Clear within 15 turns';
+
+  @override
+  String get relicDismantle => 'Bulk Dismantle';
+
+  @override
+  String relicDismantleDesc(int count) {
+    return '$count unequipped relics';
+  }
+
+  @override
+  String relicDismantleConfirm(int rarity) {
+    return 'Dismantle all unequipped relics of $rarity-star or below?';
+  }
+
+  @override
+  String relicDismantleResult(int gold) {
+    return 'Dismantled! +$gold G';
+  }
 }

@@ -225,10 +225,12 @@ class BattleNotifier extends StateNotifier<BattleState> {
   final Ref ref;
 
   Timer? _autoTimer;
+  Timer? _autoCollectTimer;
 
   @override
   void dispose() {
     _stopAutoTimer();
+    _autoCollectTimer?.cancel();
     super.dispose();
   }
 
@@ -314,25 +316,19 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Prepend hero to team (hero is always slot 0).
     final fullTeam = [heroMonster, ...teamWithRelics];
 
-    // Build enemy team (hard mode = 2x stats, challenge modifiers).
+    // Build enemy team with modifiers applied from base stats.
     final rawEnemyTeam = BattleService.createEnemiesForStage(resolvedId);
-    var enemyTeam = rawEnemyTeam;
-    if (hardMode) {
-      enemyTeam = enemyTeam.map((m) => m.copyWith(
-          atk: m.atk * 2, def: m.def * 2,
-          maxHp: m.maxHp * 2, currentHp: m.maxHp * 2,
-        )).toList();
-    }
-    if (challenge == ChallengeModifier.bossRush) {
-      enemyTeam = enemyTeam.map((m) => m.copyWith(
-          atk: m.atk * 1.5, def: m.def * 1.5,
-          maxHp: m.maxHp * 1.5, currentHp: m.maxHp * 1.5,
-        )).toList();
-    } else if (challenge == ChallengeModifier.speedRun) {
-      enemyTeam = enemyTeam.map((m) => m.copyWith(
-          spd: m.spd * 1.3,
-        )).toList();
-    }
+    // Calculate combined stat multiplier (hard mode and challenge are independent).
+    final double statMult = (hardMode ? 2.0 : 1.0) *
+        (challenge == ChallengeModifier.bossRush ? 1.5 : 1.0);
+    final double spdMult = challenge == ChallengeModifier.speedRun ? 1.3 : 1.0;
+    final enemyTeam = (statMult != 1.0 || spdMult != 1.0)
+        ? rawEnemyTeam.map((m) => m.copyWith(
+            atk: m.atk * statMult, def: m.def * statMult,
+            maxHp: m.maxHp * statMult, currentHp: m.maxHp * statMult,
+            spd: m.spd * spdMult,
+          )).toList()
+        : rawEnemyTeam;
 
     final challengeIcon = challenge.icon;
     final stageSuffix = '${hardMode ? ' [HARD]' : ''}${challengeIcon.isNotEmpty ? ' $challengeIcon' : ''}';
@@ -399,9 +395,11 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Trim log to prevent unbounded memory growth.
     if (log.length > 50) log.removeRange(0, log.length - 50);
 
-    // -- 1. Passive: turn-start (HP regen) ------------------------------------
-    final passiveEntry = BattleService.processPassiveTurnStart(attacker);
-    if (passiveEntry != null) log.add(passiveEntry);
+    // -- 1. Passive: turn-start (HP regen) — skipped for noHealing challenge --
+    if (state.challengeModifier != ChallengeModifier.noHealing) {
+      final passiveEntry = BattleService.processPassiveTurnStart(attacker);
+      if (passiveEntry != null) log.add(passiveEntry);
+    }
 
     // -- 2. Burn damage (DoT) at turn start -----------------------------------
     final burnEntry = BattleService.processBurn(attacker);
@@ -510,8 +508,10 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
       // Auto-collect and restart in repeat mode.
       if (state.isRepeatMode) {
-        Future.delayed(const Duration(milliseconds: 300), () {
+        _autoCollectTimer?.cancel();
+        _autoCollectTimer = Timer(const Duration(milliseconds: 300), () {
           // Guard: only auto-collect if still in victory with uncollected reward.
+          if (!mounted) return;
           if (state.phase == BattlePhase.victory &&
               state.isRepeatMode &&
               state.lastReward != null) {

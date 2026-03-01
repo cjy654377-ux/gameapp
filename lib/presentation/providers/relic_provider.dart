@@ -204,6 +204,28 @@ class RelicNotifier extends StateNotifier<List<RelicModel>> {
   }
 
   // ---------------------------------------------------------------------------
+  // Bulk dismantle
+  // ---------------------------------------------------------------------------
+
+  /// Dismantles all unequipped relics at or below [maxRarity].
+  /// Returns the total gold earned.
+  int dismantleByRarity(int maxRarity) {
+    final targets = state.where(
+      (r) => !r.isEquipped && r.rarity <= maxRarity,
+    ).toList();
+    if (targets.isEmpty) return 0;
+
+    int totalGold = 0;
+    for (final relic in targets) {
+      // Gold value: 100 * rarity * (1 + enhanceLevel)
+      totalGold += 100 * relic.rarity * (1 + relic.enhanceLevel);
+      _storage.deleteRelic(relic.id);
+    }
+    state = state.where((r) => !targets.any((t) => t.id == r.id)).toList();
+    return totalGold;
+  }
+
+  // ---------------------------------------------------------------------------
   // Query helpers
   // ---------------------------------------------------------------------------
 
