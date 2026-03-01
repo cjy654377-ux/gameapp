@@ -31,6 +31,7 @@ class GuildState {
   final double battleSpeed;
   final bool isAutoMode;
   final int lastRewardCoins;
+  final List<String> chatLog;
 
   const GuildState({
     this.phase = GuildPhase.noGuild,
@@ -44,6 +45,7 @@ class GuildState {
     this.battleSpeed = 1.0,
     this.isAutoMode = false,
     this.lastRewardCoins = 0,
+    this.chatLog = const [],
   });
 
   GuildState copyWith({
@@ -58,6 +60,7 @@ class GuildState {
     double? battleSpeed,
     bool? isAutoMode,
     int? lastRewardCoins,
+    List<String>? chatLog,
     bool clearGuild = false,
     bool clearBoss = false,
   }) {
@@ -73,6 +76,7 @@ class GuildState {
       battleSpeed: battleSpeed ?? this.battleSpeed,
       isAutoMode: isAutoMode ?? this.isAutoMode,
       lastRewardCoins: lastRewardCoins ?? this.lastRewardCoins,
+      chatLog: chatLog ?? this.chatLog,
     );
   }
 }
@@ -134,7 +138,8 @@ class GuildNotifier extends StateNotifier<GuildState> {
     if (updated != guild) {
       LocalStorage.instance.saveGuild(updated);
     }
-    state = GuildState(phase: GuildPhase.lobby, guild: updated);
+    final chatLog = GuildService.generateDailyChatLog(updated.memberNames);
+    state = GuildState(phase: GuildPhase.lobby, guild: updated, chatLog: chatLog);
   }
 
   // ---------------------------------------------------------------------------
@@ -152,7 +157,8 @@ class GuildNotifier extends StateNotifier<GuildState> {
       lastDailyResetDate: GuildService.todayString(),
     );
     await LocalStorage.instance.saveGuild(guild);
-    state = GuildState(phase: GuildPhase.lobby, guild: guild);
+    final chatLog = GuildService.generateDailyChatLog(guild.memberNames);
+    state = GuildState(phase: GuildPhase.lobby, guild: guild, chatLog: chatLog);
   }
 
   // ---------------------------------------------------------------------------
@@ -348,6 +354,7 @@ class GuildNotifier extends StateNotifier<GuildState> {
       guild: state.guild,
       battleSpeed: state.battleSpeed,
       isAutoMode: state.isAutoMode,
+      chatLog: state.chatLog,
     );
   }
 

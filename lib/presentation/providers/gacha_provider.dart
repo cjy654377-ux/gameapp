@@ -14,6 +14,7 @@ import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/presentation/providers/quest_provider.dart';
 import 'package:gameapp/presentation/providers/gacha_history_provider.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
+import 'package:gameapp/data/static/event_database.dart';
 
 // =============================================================================
 // GachaState
@@ -164,10 +165,20 @@ class GachaNotifier extends StateNotifier<GachaState> {
     AudioService.instance.playGachaPull();
 
     final banner = PickupBannerSchedule.current;
+    final eventGachaMultiplier = EventDatabase.getMultiplier('gachaBoost');
+    // When gachaBoost event is active, treat all 4★+ as boosted.
+    final List<String> featuredIds = eventGachaMultiplier > 1.0
+        ? [
+            ...banner.featuredMonsterIds,
+            ...MonsterDatabase.all
+                .where((t) => t.rarity >= 4 && t.gachaWeight > 0)
+                .map((t) => t.id),
+          ]
+        : banner.featuredMonsterIds;
     final pull = GachaService.performSinglePull(
       state.pityCount,
-      featuredIds: banner.featuredMonsterIds,
-      rateUpMultiplier: banner.rateUpMultiplier,
+      featuredIds: featuredIds,
+      rateUpMultiplier: banner.rateUpMultiplier * eventGachaMultiplier,
     );
     final monster = _createMonsterFromTemplate(pull.result.template);
 
@@ -209,10 +220,20 @@ class GachaNotifier extends StateNotifier<GachaState> {
     AudioService.instance.playGachaPull();
 
     final banner = PickupBannerSchedule.current;
+    final eventGachaMultiplier = EventDatabase.getMultiplier('gachaBoost');
+    // When gachaBoost event is active, treat all 4★+ as boosted.
+    final List<String> featuredIds = eventGachaMultiplier > 1.0
+        ? [
+            ...banner.featuredMonsterIds,
+            ...MonsterDatabase.all
+                .where((t) => t.rarity >= 4 && t.gachaWeight > 0)
+                .map((t) => t.id),
+          ]
+        : banner.featuredMonsterIds;
     final pull = GachaService.performTenPull(
       state.pityCount,
-      featuredIds: banner.featuredMonsterIds,
-      rateUpMultiplier: banner.rateUpMultiplier,
+      featuredIds: featuredIds,
+      rateUpMultiplier: banner.rateUpMultiplier * eventGachaMultiplier,
     );
 
     // Create all monsters first, then batch-add to roster (single Hive write).

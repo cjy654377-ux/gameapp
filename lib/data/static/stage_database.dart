@@ -18,7 +18,7 @@ class StageData {
   /// Player experience rewarded upon stage clear.
   final int expReward;
 
-  /// Area number (1–5). Derived from the stage ID.
+  /// Area number (1–6). Derived from the stage ID.
   int get area => int.parse(id.split('-').first);
 
   /// Stage number within the area (1–6). Derived from the stage ID.
@@ -38,7 +38,7 @@ class StageData {
 // Stage Database
 // =============================================================================
 
-/// All 30 stages, organised as 5 areas × 6 stages each.
+/// All 36 stages, organised as 6 areas × 6 stages each.
 ///
 /// Reward scaling: each successive stage multiplies the previous stage's
 /// rewards by 1.15 (rounded to the nearest integer).
@@ -344,10 +344,50 @@ class StageDatabase {
   );
 
   // ---------------------------------------------------------------------------
+  // Area 6 — 심연의 동굴 (Abyss Cave)
+  // ---------------------------------------------------------------------------
+
+  static const StageData stage6_1 = StageData(
+    id: '6-1', name: '6-1 심연의 입구',
+    enemyTemplateIds: ['abyss_slug', 'abyss_slug'],
+    enemyLevels: [30, 30], goldReward: 3290, expReward: 2010,
+  );
+
+  static const StageData stage6_2 = StageData(
+    id: '6-2', name: '6-2 어둠의 수정 동굴',
+    enemyTemplateIds: ['abyss_slug', 'crystal_bat', 'abyss_slug'],
+    enemyLevels: [32, 31, 31], goldReward: 3784, expReward: 2312,
+  );
+
+  static const StageData stage6_3 = StageData(
+    id: '6-3', name: '6-3 독안개 통로',
+    enemyTemplateIds: ['crystal_bat', 'crystal_bat', 'abyss_slug'],
+    enemyLevels: [34, 33, 33], goldReward: 4351, expReward: 2659,
+  );
+
+  static const StageData stage6_4 = StageData(
+    id: '6-4', name: '6-4 심연의 제단',
+    enemyTemplateIds: ['shadow_serpent', 'crystal_bat', 'abyss_slug'],
+    enemyLevels: [36, 34, 34], goldReward: 5004, expReward: 3058,
+  );
+
+  static const StageData stage6_5 = StageData(
+    id: '6-5', name: '6-5 암흑의 심장부',
+    enemyTemplateIds: ['shadow_serpent', 'shadow_serpent', 'crystal_bat'],
+    enemyLevels: [38, 37, 36], goldReward: 5754, expReward: 3517,
+  );
+
+  static const StageData stage6_6 = StageData(
+    id: '6-6', name: '6-6 심연의 군주 (보스)',
+    enemyTemplateIds: ['abyss_titan', 'shadow_serpent', 'crystal_bat'],
+    enemyLevels: [40, 38, 36], goldReward: 6618, expReward: 4044,
+  );
+
+  // ---------------------------------------------------------------------------
   // Master list and lookup helpers
   // ---------------------------------------------------------------------------
 
-  /// All 30 stages in order.
+  /// All 36 stages in order.
   static const List<StageData> all = [
     // Area 1
     stage1_1, stage1_2, stage1_3, stage1_4, stage1_5, stage1_6,
@@ -359,9 +399,11 @@ class StageDatabase {
     stage4_1, stage4_2, stage4_3, stage4_4, stage4_5, stage4_6,
     // Area 5
     stage5_1, stage5_2, stage5_3, stage5_4, stage5_5, stage5_6,
+    // Area 6
+    stage6_1, stage6_2, stage6_3, stage6_4, stage6_5, stage6_6,
   ];
 
-  /// Returns all stages in a given [area] (1–5).
+  /// Returns all stages in a given [area] (1–6).
   static List<StageData> byArea(int area) =>
       all.where((s) => s.area == area).toList();
 
@@ -386,15 +428,15 @@ class StageDatabase {
   static int get count => all.length;
 
   /// Number of distinct areas.
-  static int get areaCount => 5;
+  static int get areaCount => 6;
 
   /// Number of stages per area.
   static int get stagesPerArea => 6;
 
   /// Converts a 1-based linear stage index to the `'area-num'` key.
-  /// Stage layout: 5 areas × 6 stages (index 1 → '1-1', index 30 → '5-6').
+  /// Stage layout: 6 areas × 6 stages (index 1 → '1-1', index 36 → '6-6').
   static String linearIdToKey(int stageId) {
-    final int idx  = (stageId - 1).clamp(0, 29);
+    final int idx  = (stageId - 1).clamp(0, 35);
     final int area = idx ~/ 6 + 1;
     final int num  = idx % 6 + 1;
     return '$area-$num';

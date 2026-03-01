@@ -361,6 +361,66 @@ class MonsterDatabase {
   );
 
   // ---------------------------------------------------------------------------
+  // Area 6 — 심연의 동굴 monsters (4 total)
+  // ---------------------------------------------------------------------------
+
+  static const MonsterTemplate abyssSlug = MonsterTemplate(
+    id:          'abyss_slug',
+    name:        '심연 슬러그',
+    rarity:      3,
+    element:     'dark',
+    size:        'medium',
+    description: '심연의 어둠 속에 서식하는 끈적한 슬러그. 강력한 독성 점액을 분비한다.',
+    baseAtk:     85.0,
+    baseDef:     70.0,
+    baseHp:      950.0,
+    baseSpd:     55.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate crystalBat = MonsterTemplate(
+    id:          'crystal_bat',
+    name:        '수정 박쥐',
+    rarity:      3,
+    element:     'ghost',
+    size:        'small',
+    description: '수정 동굴에 서식하는 박쥐. 수정 날개에서 발사하는 초음파가 적을 기절시킨다.',
+    baseAtk:     100.0,
+    baseDef:     55.0,
+    baseHp:      800.0,
+    baseSpd:     90.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate shadowSerpent = MonsterTemplate(
+    id:          'shadow_serpent',
+    name:        '그림자 뱀',
+    rarity:      4,
+    element:     'dark',
+    size:        'large',
+    description: '심연의 어둠에서 태어난 거대한 뱀. 독이 든 송곳니로 적의 생명력을 서서히 빼앗는다.',
+    baseAtk:     130.0,
+    baseDef:     90.0,
+    baseHp:      1400.0,
+    baseSpd:     70.0,
+    gachaWeight: 0,
+  );
+
+  static const MonsterTemplate abyssTitan = MonsterTemplate(
+    id:          'abyss_titan',
+    name:        '심연 타이탄',
+    rarity:      4,
+    element:     'stone',
+    size:        'extraLarge',
+    description: '심연의 군주. 압도적인 방어력과 심연의 포효로 적 전체를 공포에 빠뜨린다.',
+    baseAtk:     110.0,
+    baseDef:     160.0,
+    baseHp:      2200.0,
+    baseSpd:     35.0,
+    gachaWeight: 0,
+  );
+
+  // ---------------------------------------------------------------------------
   // Hidden monsters (recipe-only, not in gacha)
   // ---------------------------------------------------------------------------
 
@@ -465,6 +525,11 @@ class MonsterDatabase {
     // 5성 전설
     flameDragon,
     archangel,
+    // Area 6 — 심연의 동굴
+    abyssSlug,
+    crystalBat,
+    shadowSerpent,
+    abyssTitan,
     // Hidden (recipe-only)
     flameGolem,
     forestGuardian,

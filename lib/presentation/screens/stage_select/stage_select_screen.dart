@@ -9,7 +9,7 @@ import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
 import 'package:gameapp/presentation/providers/player_provider.dart';
 
-const _areaEmojis = ['🌲', '🌋', '🏚️', '🌊', '☁️'];
+const _areaEmojis = ['🌲', '🌋', '🏚️', '🌊', '☁️', '🕳️'];
 
 List<String> _areaNames(AppLocalizations l) => [
   l.areaForest,
@@ -17,6 +17,7 @@ List<String> _areaNames(AppLocalizations l) => [
   l.areaDungeon,
   l.areaTemple,
   l.areaSky,
+  '심연의 동굴',
 ];
 
 // =============================================================================

@@ -552,3 +552,11 @@
 - lib/presentation/screens/settings/settings_screen.dart (4 섹션 추가)
 - lib/data/datasources/local_storage.dart (getSetting/setSetting)
 - lib/l10n/app_ko.arb, app_en.arb (searchMonster, settings* 11개 키)
+
+## 21차 고도화 - 이벤트 효과 + 상태이상 + 콘텐츠 확장
+- [x] Step 1: 이벤트 효과 적용 (effectType/effectValue, 전투골드1.5x, 경험치2x, 가챠부스트2x)
+- [x] Step 2: 상태이상 빙결+독 (freezeTurns/poisonTurns, 빙결=행동불가+피격1.5배, 독=턴당HP5%)
+- [x] Step 3: Area 6 심연의 동굴 (6스테이지, 몬스터4종, abyss배경, 36스테이지 확장)
+- [x] Step 4: 상점 일일 특가 (날짜시드 7종중3종, 1회 구매제한, 자정리셋)
+- [x] Step 5: 아레나 시즌 (28일, 소프트리셋, 5랭크, 시즌보상, 카운트다운)
+- [x] Step 6: 길드 채팅 (AI 20개 템플릿, 시드기반 로그, 보스/레벨업 알림, 2탭)

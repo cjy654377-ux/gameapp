@@ -18,6 +18,7 @@ import 'package:gameapp/presentation/providers/relic_provider.dart';
 import 'package:gameapp/presentation/providers/season_pass_provider.dart';
 import 'package:gameapp/presentation/providers/battle_replay_provider.dart';
 import 'package:gameapp/domain/services/battle_statistics_service.dart';
+import 'package:gameapp/data/static/event_database.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helpers — delegate to StageDatabase shared utilities.
@@ -430,11 +431,30 @@ class BattleNotifier extends StateNotifier<BattleState> {
       return;
     }
 
-    // -- 3. Stun check --------------------------------------------------------
+    // -- 2b. Poison damage (DoT) ----------------------------------------------
+    final poisonEntry = BattleService.processPoison(attacker);
+    if (poisonEntry != null) log.add(poisonEntry);
+
+    // Check if poison killed the monster before it can act.
+    if (!attacker.isAlive) {
+      _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+      return;
+    }
+
+    // -- 3. Stun / Freeze check -----------------------------------------------
     final stunEntry = BattleService.processStun(attacker);
     if (stunEntry != null) {
       log.add(stunEntry);
       // Tick cooldown even when stunned.
+      BattleService.tickSkillCooldown(attacker);
+      _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
+      return;
+    }
+
+    final freezeEntry = BattleService.processFreeze(attacker);
+    if (freezeEntry != null) {
+      log.add(freezeEntry);
+      // Tick cooldown even when frozen.
       BattleService.tickSkillCooldown(attacker);
       _emitState(playerTeam, enemyTeam, log, slot, allAlive.length);
       return;
@@ -678,8 +698,10 @@ class BattleNotifier extends StateNotifier<BattleState> {
         : 1.0;
     final hardMultiplier = state.isHardMode ? 1.5 : 1.0;
     final challengeMultiplier = state.challengeModifier.rewardMultiplier;
-    final bonusGold = (reward.gold * multiplier * hardMultiplier * challengeMultiplier).round();
-    final bonusExp = (reward.exp * multiplier * hardMultiplier * challengeMultiplier).round();
+    final eventGoldMultiplier = EventDatabase.getMultiplier('battleReward');
+    final eventExpMultiplier = EventDatabase.getMultiplier('expBoost');
+    final bonusGold = (reward.gold * multiplier * hardMultiplier * challengeMultiplier * eventGoldMultiplier).round();
+    final bonusExp = (reward.exp * multiplier * hardMultiplier * challengeMultiplier * eventExpMultiplier).round();
 
     // Award gold (with prestige + hard mode bonus).
     await currency.addGold(bonusGold);

@@ -97,6 +97,15 @@ class BattleMonster {
   /// Remaining stun turns. When > 0, the monster skips its action.
   int stunTurns;
 
+  /// Remaining freeze turns. When > 0, skips action + takes 1.5x damage.
+  int freezeTurns;
+
+  /// Remaining poison turns.
+  int poisonTurns;
+
+  /// Poison damage per turn (maxHp * 0.05).
+  double poisonDamagePerTurn;
+
   // -- Passive / Ultimate fields --------------------------------------------
 
   /// Passive skill ID (null = no passive).
@@ -153,6 +162,9 @@ class BattleMonster {
     this.burnTurns = 0,
     this.burnDamagePerTurn = 0.0,
     this.stunTurns = 0,
+    this.freezeTurns = 0,
+    this.poisonTurns = 0,
+    this.poisonDamagePerTurn = 0.0,
     this.passiveId,
     this.passiveName,
     this.passiveCritBoost = 0.0,
@@ -184,6 +196,9 @@ class BattleMonster {
     int? burnTurns,
     double? burnDamagePerTurn,
     int? stunTurns,
+    int? freezeTurns,
+    int? poisonTurns,
+    double? poisonDamagePerTurn,
     String? passiveId,
     String? passiveName,
     double? passiveCritBoost,
@@ -213,6 +228,9 @@ class BattleMonster {
       burnTurns:        burnTurns        ?? this.burnTurns,
       burnDamagePerTurn: burnDamagePerTurn ?? this.burnDamagePerTurn,
       stunTurns:        stunTurns        ?? this.stunTurns,
+      freezeTurns:      freezeTurns      ?? this.freezeTurns,
+      poisonTurns:      poisonTurns      ?? this.poisonTurns,
+      poisonDamagePerTurn: poisonDamagePerTurn ?? this.poisonDamagePerTurn,
       passiveId:        passiveId        ?? this.passiveId,
       passiveName:      passiveName      ?? this.passiveName,
       passiveCritBoost: passiveCritBoost ?? this.passiveCritBoost,

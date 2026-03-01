@@ -241,6 +241,19 @@ class BattleService {
           sb.write(' (기절!)');
         }
 
+        // Apply freeze
+        if (skill.freezeTurns > 0) {
+          target.freezeTurns = skill.freezeTurns;
+          sb.write(' (빙결 ${skill.freezeTurns}턴!)');
+        }
+
+        // Apply poison
+        if (skill.poisonTurns > 0) {
+          target.poisonTurns = skill.poisonTurns;
+          target.poisonDamagePerTurn = target.maxHp * skill.poisonDamagePercent;
+          sb.write(' (독 ${skill.poisonTurns}턴!)');
+        }
+
         logs.add(BattleLogEntry(
           attackerName: caster.name,
           targetName: target.name,
@@ -354,6 +367,46 @@ class BattleService {
       isElementAdvantage: false,
       isSkillActivation: true,
       description: '${monster.name} 기절 상태! (행동 불가)',
+      timestamp: DateTime.now(),
+    );
+  }
+
+  /// Checks and consumes freeze at the start of a monster's turn.
+  /// Returns a [BattleLogEntry] if the monster is frozen, null otherwise.
+  static BattleLogEntry? processFreeze(BattleMonster monster) {
+    if (monster.freezeTurns <= 0 || !monster.isAlive) return null;
+
+    monster.freezeTurns--;
+
+    return BattleLogEntry(
+      attackerName: '빙결',
+      targetName: monster.name,
+      damage: 0,
+      isCritical: false,
+      isElementAdvantage: false,
+      isSkillActivation: true,
+      description: '${monster.name} 빙결 상태! (행동 불가, 피격 1.5배)',
+      timestamp: DateTime.now(),
+    );
+  }
+
+  /// Applies poison damage at the start of a monster's turn.
+  /// Returns a [BattleLogEntry] if poison damage was applied, null otherwise.
+  static BattleLogEntry? processPoison(BattleMonster monster) {
+    if (monster.poisonTurns <= 0 || !monster.isAlive) return null;
+
+    final damage = monster.poisonDamagePerTurn;
+    monster.currentHp = math.max(0.0, monster.currentHp - damage);
+    monster.poisonTurns--;
+
+    return BattleLogEntry(
+      attackerName: '독',
+      targetName: monster.name,
+      damage: damage,
+      isCritical: false,
+      isElementAdvantage: false,
+      isSkillActivation: true,
+      description: '${monster.name} 독 피해 ${damage.round()}! (남은 ${monster.poisonTurns}턴)',
       timestamp: DateTime.now(),
     );
   }
@@ -528,19 +581,24 @@ class BattleService {
   }
 
   /// Applies damage to a monster, with shield absorbing first.
+  /// Frozen targets take 1.5x damage.
   static void _applyDamage(BattleMonster target, double damage) {
+    double finalDamage = damage;
+    if (target.freezeTurns > 0) {
+      finalDamage *= 1.5;
+    }
     if (target.shieldHp > 0) {
-      if (target.shieldHp >= damage) {
-        target.shieldHp -= damage;
+      if (target.shieldHp >= finalDamage) {
+        target.shieldHp -= finalDamage;
         return;
       } else {
-        final remaining = damage - target.shieldHp;
+        final remaining = finalDamage - target.shieldHp;
         target.shieldHp = 0;
         target.currentHp = math.max(0.0, target.currentHp - remaining);
         return;
       }
     }
-    target.currentHp = math.max(0.0, target.currentHp - damage);
+    target.currentHp = math.max(0.0, target.currentHp - finalDamage);
   }
 
   // ---------------------------------------------------------------------------

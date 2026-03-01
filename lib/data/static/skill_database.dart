@@ -185,6 +185,15 @@ class SkillDefinition {
   /// Probability (0.0–1.0) of stunning the target for 1 turn.
   final double stunChance;
 
+  /// Freeze duration in turns. 0 = no freeze.
+  final int freezeTurns;
+
+  /// Poison duration in turns. 0 = no poison.
+  final int poisonTurns;
+
+  /// Poison damage per tick as fraction of target's maxHp.
+  final double poisonDamagePercent;
+
   const SkillDefinition({
     required this.id,
     required this.name,
@@ -200,6 +209,9 @@ class SkillDefinition {
     this.burnTurns = 0,
     this.burnDamagePercent = 0.0,
     this.stunChance = 0.0,
+    this.freezeTurns = 0,
+    this.poisonTurns = 0,
+    this.poisonDamagePercent = 0.0,
   });
 }
 
@@ -332,9 +344,11 @@ class SkillDatabase {
   static const SkillDefinition shadowCat = SkillDefinition(
     id: 'shadow_cat',
     name: '그림자 습격',
-    description: '그림자에서 나타나 적에게 치명적인 일격을 가한다.',
+    description: '그림자에서 나타나 적에게 치명적인 일격을 가하고 독을 주입한다.',
     cooldown: 3,
     damageMultiplier: 2.5,
+    poisonTurns: 3,
+    poisonDamagePercent: 0.05,
   );
 
   static const SkillDefinition crystalTurtle = SkillDefinition(
@@ -373,11 +387,11 @@ class SkillDatabase {
   static const SkillDefinition iceQueen = SkillDefinition(
     id: 'ice_queen',
     name: '절대영도',
-    description: '모든 적을 냉기로 얼려 피해를 주고 기절시킨다.',
+    description: '모든 적을 냉기로 얼려 피해를 주고 빙결시킨다.',
     cooldown: 4,
     damageMultiplier: 1.3,
     damageTarget: SkillTargetType.allEnemies,
-    stunChance: 0.45,
+    freezeTurns: 2,
   );
 
   static const SkillDefinition darkKnight = SkillDefinition(
@@ -415,6 +429,49 @@ class SkillDatabase {
   );
 
   // ---------------------------------------------------------------------------
+  // Area 6 심연 monsters
+  // ---------------------------------------------------------------------------
+
+  static const SkillDefinition abyssSlug = SkillDefinition(
+    id: 'abyss_slug',
+    name: '심연의 점액',
+    description: '심연의 독으로 적을 감싸 피해와 화상을 준다.',
+    cooldown: 3,
+    damageMultiplier: 1.6,
+    burnTurns: 2,
+    burnDamagePercent: 0.04,
+  );
+
+  static const SkillDefinition crystalBat = SkillDefinition(
+    id: 'crystal_bat',
+    name: '수정 초음파',
+    description: '수정의 힘을 담은 초음파로 적에게 피해를 주고 기절시킨다.',
+    cooldown: 3,
+    damageMultiplier: 1.7,
+    stunChance: 0.5,
+  );
+
+  static const SkillDefinition shadowSerpent = SkillDefinition(
+    id: 'shadow_serpent',
+    name: '독아 일격',
+    description: '독이 묻은 송곳니로 적에게 큰 피해와 독을 준다.',
+    cooldown: 3,
+    damageMultiplier: 2.2,
+    poisonTurns: 3,
+    poisonDamagePercent: 0.05,
+  );
+
+  static const SkillDefinition abyssTitan = SkillDefinition(
+    id: 'abyss_titan',
+    name: '심연의 포효',
+    description: '심연의 힘으로 모든 적을 압도한다.',
+    cooldown: 4,
+    damageMultiplier: 1.5,
+    damageTarget: SkillTargetType.allEnemies,
+    stunChance: 0.35,
+  );
+
+  // ---------------------------------------------------------------------------
   // Lookup
   // ---------------------------------------------------------------------------
 
@@ -440,6 +497,10 @@ class SkillDatabase {
     'dark_knight': darkKnight,
     'flame_dragon': flameDragon,
     'archangel': archangel,
+    'abyss_slug': abyssSlug,
+    'crystal_bat': crystalBat,
+    'shadow_serpent': shadowSerpent,
+    'abyss_titan': abyssTitan,
   };
 
   /// Returns the [SkillDefinition] for a given monster template ID,
@@ -536,6 +597,23 @@ class SkillDatabase {
     'archangel': PassiveDefinition(
       id: 'archangel_p', name: '신의 가호', description: '매 턴 HP 5% 회복',
       trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.05,
+    ),
+    // Area 6 passives
+    'abyss_slug': PassiveDefinition(
+      id: 'abyss_slug_p', name: '심연의 재생', description: '매 턴 HP 3% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.03,
+    ),
+    'crystal_bat': PassiveDefinition(
+      id: 'crystal_bat_p', name: '수정 반사', description: '피격 시 20% 확률 반격',
+      trigger: PassiveTrigger.onDamaged, counterChance: 0.20, counterMultiplier: 0.6,
+    ),
+    'shadow_serpent': PassiveDefinition(
+      id: 'shadow_serpent_p', name: '독의 기운', description: '공격력 +12%',
+      trigger: PassiveTrigger.battleStart, atkBoost: 0.12,
+    ),
+    'abyss_titan': PassiveDefinition(
+      id: 'abyss_titan_p', name: '심연의 갑옷', description: '방어력 +18%',
+      trigger: PassiveTrigger.battleStart, defBoost: 0.18,
     ),
   };
 

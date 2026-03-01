@@ -11,6 +11,12 @@ class EventDefinition {
   final int colorValue; // ARGB hex
   final int iconCodePoint; // Material icon
 
+  /// Effect type: 'battleReward', 'gachaBoost', 'expBoost', or null for no effect.
+  final String? effectType;
+
+  /// Effect multiplier value (e.g. 1.5 = 50% bonus).
+  final double effectValue;
+
   const EventDefinition({
     required this.id,
     required this.titleKo,
@@ -21,6 +27,8 @@ class EventDefinition {
     required this.rewardEn,
     required this.colorValue,
     required this.iconCodePoint,
+    this.effectType,
+    this.effectValue = 1.0,
   });
 }
 
@@ -41,6 +49,8 @@ class EventDatabase {
       rewardEn: '2x Gold, 1 Ticket',
       colorValue: 0xFF4CAF50,
       iconCodePoint: 0xe559, // Icons.celebration
+      effectType: null,
+      effectValue: 1.0,
     ),
     // Weekend bonus
     EventDefinition(
@@ -53,6 +63,8 @@ class EventDatabase {
       rewardEn: '1.5x Battle Rewards',
       colorValue: 0xFFFF9800,
       iconCodePoint: 0xe6e1, // Icons.local_fire_department
+      effectType: 'battleReward',
+      effectValue: 1.5,
     ),
     // Monday-Wednesday gacha boost
     EventDefinition(
@@ -65,6 +77,8 @@ class EventDatabase {
       rewardEn: '2x 4★+ Rate',
       colorValue: 0xFF9C27B0,
       iconCodePoint: 0xe25b, // Icons.auto_awesome
+      effectType: 'gachaBoost',
+      effectValue: 2.0,
     ),
     // Thursday exp boost
     EventDefinition(
@@ -77,8 +91,20 @@ class EventDatabase {
       rewardEn: '2x EXP',
       colorValue: 0xFF2196F3,
       iconCodePoint: 0xe1db, // Icons.trending_up
+      effectType: 'expBoost',
+      effectValue: 2.0,
     ),
   ];
+
+  /// Returns the multiplier for the given [effectType] from active events.
+  /// Returns 1.0 if no active event matches the effect type.
+  static double getMultiplier(String effectType) {
+    final active = activeEvents();
+    for (final e in active) {
+      if (e.effectType == effectType) return e.effectValue;
+    }
+    return 1.0;
+  }
 
   /// Returns currently active events based on weekday.
   static List<EventDefinition> activeEvents() {

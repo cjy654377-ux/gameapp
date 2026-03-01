@@ -195,4 +195,54 @@ class ArenaService {
         1 => -10,
         _ => -5,
       };
+
+  // ---------------------------------------------------------------------------
+  // Season system
+  // ---------------------------------------------------------------------------
+
+  /// 28일 시즌 번호 (epoch 기준)
+  static int currentSeason() {
+    final daysSinceEpoch =
+        DateTime.now().difference(DateTime(2024, 1, 1)).inDays;
+    return (daysSinceEpoch ~/ 28) + 1;
+  }
+
+  /// 시즌 남은 일수
+  static int daysRemainingInSeason() {
+    final daysSinceEpoch =
+        DateTime.now().difference(DateTime(2024, 1, 1)).inDays;
+    return 28 - (daysSinceEpoch % 28);
+  }
+
+  /// 시즌 종료 시 소프트 리셋 (1000으로 50% 수렴)
+  static int softResetRating(int currentRating) {
+    return ((currentRating + 1000) / 2).round();
+  }
+
+  /// 랭크 계산
+  static String getRankName(int rating) {
+    if (rating >= 2500) return '챔피언';
+    if (rating >= 2000) return '다이아몬드';
+    if (rating >= 1500) return '플래티넘';
+    if (rating >= 1200) return '골드';
+    return '실버';
+  }
+
+  /// 랭크 아이콘 코드포인트
+  static int getRankIconCodePoint(int rating) {
+    if (rating >= 2500) return 0xe30f; // crown
+    if (rating >= 2000) return 0xe3aa; // diamond
+    if (rating >= 1500) return 0xe838; // star
+    if (rating >= 1200) return 0xe834; // grade
+    return 0xf05be; // shield
+  }
+
+  /// 시즌 보상 계산 (골드, 다이아)
+  static ({int gold, int diamond}) seasonReward(int rating) {
+    if (rating >= 2500) return (gold: 10000, diamond: 200);
+    if (rating >= 2000) return (gold: 7000, diamond: 150);
+    if (rating >= 1500) return (gold: 5000, diamond: 100);
+    if (rating >= 1200) return (gold: 3000, diamond: 50);
+    return (gold: 1000, diamond: 20);
+  }
 }

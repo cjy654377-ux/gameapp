@@ -1108,5 +1108,36 @@
   "settingsCreditsTitle": "몬스터 수집가 v1.0",
   "settingsCreditsBody": "프로시저럴 그래픽 방치형 RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp",
   "settingsSpeedLabel": "전투속도",
-  "settingsAutoLabel": "자동전투"
+  "settingsAutoLabel": "자동전투",
+
+  "areaAbyss": "심연의 동굴",
+  "mapArea6": "심연의 동굴",
+
+  "tagFreeze": "빙결 {turns}턴",
+  "@tagFreeze": {"placeholders": {"turns": {"type": "int"}}},
+  "tagPoison": "독 {turns}턴",
+  "@tagPoison": {"placeholders": {"turns": {"type": "int"}}},
+
+  "shopTabDailyDeal": "일일 특가",
+  "shopDailyDealReset": "매일 자정에 갱신됩니다",
+  "shopDailyDealPurchased": "구매 완료",
+
+  "arenaSeasonN": "시즌 {n}",
+  "@arenaSeasonN": {"placeholders": {"n": {"type": "int"}}},
+  "arenaSeasonDaysLeft": "{days}일 남음",
+  "@arenaSeasonDaysLeft": {"placeholders": {"days": {"type": "int"}}},
+  "arenaSeasonReward": "시즌 보상",
+  "arenaRankPlatinum": "플래티넘",
+
+  "guildTabInfo": "정보",
+  "guildTabChat": "채팅",
+  "guildChatRefreshNote": "채팅 기록은 매일 갱신됩니다",
+
+  "eventEffectActive": "이벤트 효과 적용 중",
+  "eventBattleRewardBoost": "전투 보상 {mult}배",
+  "@eventBattleRewardBoost": {"placeholders": {"mult": {"type": "String"}}},
+  "eventGachaBoost": "가챠 확률 {mult}배",
+  "@eventGachaBoost": {"placeholders": {"mult": {"type": "String"}}},
+  "eventExpBoost": "경험치 {mult}배",
+  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}}
 }

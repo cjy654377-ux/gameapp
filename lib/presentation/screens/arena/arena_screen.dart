@@ -107,6 +107,10 @@ class _LobbyView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Season info card.
+        _SeasonInfoCard(rating: arena.rating),
+        const SizedBox(height: 12),
+
         // Rating & stats bar.
         _RatingBar(
           rating: arena.rating,
@@ -147,6 +151,153 @@ class _LobbyView extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+// =============================================================================
+// _SeasonInfoCard — shows current season, rank, days remaining, reward preview
+// =============================================================================
+
+class _SeasonInfoCard extends StatelessWidget {
+  const _SeasonInfoCard({required this.rating});
+
+  final int rating;
+
+  @override
+  Widget build(BuildContext context) {
+    final season = ArenaService.currentSeason();
+    final daysLeft = ArenaService.daysRemainingInSeason();
+    final rankName = ArenaService.getRankName(rating);
+    final rankIconCode = ArenaService.getRankIconCodePoint(rating);
+    final reward = ArenaService.seasonReward(rating);
+
+    final rankColor = _rankColorFor(rating);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            rankColor.withValues(alpha: 0.18),
+            AppColors.surface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: rankColor.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Season number & days remaining
+          Row(
+            children: [
+              Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                'Season $season',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: daysLeft <= 3
+                      ? AppColors.error.withValues(alpha: 0.2)
+                      : AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$daysLeft일 남음',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: daysLeft <= 3 ? AppColors.error : AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Current rank
+          Row(
+            children: [
+              Icon(
+                IconData(rankIconCode, fontFamily: 'MaterialIcons'),
+                color: rankColor,
+                size: 22,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                rankName,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: rankColor,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '($rating RP)',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Season reward preview
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Text(
+                  '시즌 보상: ',
+                  style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                ),
+                const Icon(Icons.monetization_on, size: 13, color: Colors.amber),
+                Text(
+                  ' ${reward.gold}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.amber,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.diamond, size: 13, color: Colors.cyan),
+                Text(
+                  ' ${reward.diamond}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.cyan,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _rankColorFor(int r) {
+    if (r >= 2500) return Colors.red;
+    if (r >= 2000) return Colors.cyan;
+    if (r >= 1500) return Colors.purpleAccent;
+    if (r >= 1200) return Colors.amber;
+    return Colors.blueGrey;
   }
 }
 

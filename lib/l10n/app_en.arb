@@ -1032,5 +1032,36 @@
   "settingsCreditsTitle": "Monster Collector v1.0",
   "settingsCreditsBody": "Procedural Graphics Idle RPG\n\nFlutter + Riverpod + Flame\n\n© 2024 GameApp",
   "settingsSpeedLabel": "Battle Speed",
-  "settingsAutoLabel": "Auto Battle"
+  "settingsAutoLabel": "Auto Battle",
+
+  "areaAbyss": "Abyss Cave",
+  "mapArea6": "Abyss Cave",
+
+  "tagFreeze": "Freeze {turns}t",
+  "@tagFreeze": {"placeholders": {"turns": {"type": "int"}}},
+  "tagPoison": "Poison {turns}t",
+  "@tagPoison": {"placeholders": {"turns": {"type": "int"}}},
+
+  "shopTabDailyDeal": "Daily Deal",
+  "shopDailyDealReset": "Resets daily at midnight",
+  "shopDailyDealPurchased": "Purchased",
+
+  "arenaSeasonN": "Season {n}",
+  "@arenaSeasonN": {"placeholders": {"n": {"type": "int"}}},
+  "arenaSeasonDaysLeft": "{days} days left",
+  "@arenaSeasonDaysLeft": {"placeholders": {"days": {"type": "int"}}},
+  "arenaSeasonReward": "Season Reward",
+  "arenaRankPlatinum": "Platinum",
+
+  "guildTabInfo": "Info",
+  "guildTabChat": "Chat",
+  "guildChatRefreshNote": "Chat log refreshes daily",
+
+  "eventEffectActive": "Event Effect Active",
+  "eventBattleRewardBoost": "Battle Reward {mult}x",
+  "@eventBattleRewardBoost": {"placeholders": {"mult": {"type": "String"}}},
+  "eventGachaBoost": "Gacha Rate {mult}x",
+  "@eventGachaBoost": {"placeholders": {"mult": {"type": "String"}}},
+  "eventExpBoost": "EXP {mult}x",
+  "@eventExpBoost": {"placeholders": {"mult": {"type": "String"}}}
 }

@@ -16,12 +16,21 @@ class GuildScreen extends ConsumerStatefulWidget {
   ConsumerState<GuildScreen> createState() => _GuildScreenState();
 }
 
-class _GuildScreenState extends ConsumerState<GuildScreen> {
+class _GuildScreenState extends ConsumerState<GuildScreen>
+    with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -30,6 +39,8 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
     final guildState = ref.watch(guildProvider);
     final l = AppLocalizations.of(context)!;
 
+    final isLobby = guildState.phase == GuildPhase.lobby;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l.guild),
@@ -37,10 +48,22 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        bottom: isLobby
+            ? TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(icon: Icon(Icons.info_outline), text: '정보'),
+                  Tab(icon: Icon(Icons.chat_bubble_outline), text: '채팅'),
+                ],
+                indicatorColor: Colors.amber,
+                labelColor: Colors.amber,
+                unselectedLabelColor: Colors.grey,
+              )
+            : null,
       ),
       body: switch (guildState.phase) {
         GuildPhase.noGuild => _buildCreateGuild(context),
-        GuildPhase.lobby => _buildLobby(context, guildState),
+        GuildPhase.lobby => _buildLobbyTabs(context, guildState),
         GuildPhase.fighting => _buildFight(context, guildState),
         GuildPhase.victory || GuildPhase.defeat => _buildResult(context, guildState),
         GuildPhase.shop => _buildShop(context, guildState),
@@ -110,6 +133,84 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lobby tabs wrapper
+  // ---------------------------------------------------------------------------
+
+  Widget _buildLobbyTabs(BuildContext context, GuildState guildState) {
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildLobby(context, guildState),
+        _buildChatTab(context, guildState),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Chat tab
+  // ---------------------------------------------------------------------------
+
+  Widget _buildChatTab(BuildContext context, GuildState guildState) {
+    final chatLog = guildState.chatLog;
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            itemCount: chatLog.length,
+            itemBuilder: (ctx, i) {
+              final message = chatLog[i];
+              final isSystem =
+                  message.startsWith('⚔️') || message.startsWith('🎉');
+              return Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSystem
+                      ? Colors.amber.withValues(alpha: 0.15)
+                      : AppColors.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSystem
+                        ? Colors.amber.withValues(alpha: 0.4)
+                        : AppColors.border,
+                  ),
+                ),
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isSystem
+                        ? Colors.amber[300]
+                        : AppColors.textPrimary,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          color: AppColors.surface,
+          child: Text(
+            '채팅 기록은 매일 갱신됩니다',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textTertiary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

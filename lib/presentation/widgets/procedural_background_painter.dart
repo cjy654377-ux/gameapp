@@ -21,6 +21,8 @@ class ProceduralBackgroundPainter extends CustomPainter {
         _paintOcean(canvas, size);
       case 'sky':
         _paintSky(canvas, size);
+      case 'abyss':
+        _paintAbyss(canvas, size);
       default:
         _paintForest(canvas, size);
     }
@@ -319,5 +321,84 @@ class ProceduralBackgroundPainter extends CustomPainter {
       size.width, size.height * 0.38,
     );
     canvas.drawPath(auroraPath, auroraPaint);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Abyss
+  // ---------------------------------------------------------------------------
+  void _paintAbyss(Canvas canvas, Size size) {
+    // Very dark purple/black gradient background
+    final bgPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: const [Color(0xFF0A000F), Color(0xFF1A0028)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
+
+    // Abyss fog: dark purple semi-transparent circles
+    final rng = Random(77);
+    final fogPaint = Paint()
+      ..color = const Color(0xFF3D0066).withValues(alpha: 0.25)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30);
+    for (int i = 0; i < 8; i++) {
+      final fx = rng.nextDouble() * size.width;
+      final fy = size.height * 0.3 + rng.nextDouble() * size.height * 0.6;
+      final fr = size.width * (0.1 + rng.nextDouble() * 0.15);
+      canvas.drawCircle(Offset(fx, fy), fr, fogPaint);
+    }
+
+    // Dark crystals: purple diamond shapes scattered across scene
+    final crystalPaints = [
+      Paint()..color = const Color(0xFF6A0DAD).withValues(alpha: 0.8),
+      Paint()..color = const Color(0xFF4B0082).withValues(alpha: 0.7),
+      Paint()..color = const Color(0xFF8B00FF).withValues(alpha: 0.6),
+    ];
+    final crystalRng = Random(33);
+    for (int i = 0; i < 10; i++) {
+      final cx = crystalRng.nextDouble() * size.width;
+      final cy = size.height * 0.4 + crystalRng.nextDouble() * size.height * 0.5;
+      final cw = 6.0 + crystalRng.nextDouble() * 14.0;
+      final ch = cw * (1.8 + crystalRng.nextDouble() * 1.2);
+      final crystalPath = Path()
+        ..moveTo(cx, cy - ch / 2)
+        ..lineTo(cx + cw / 2, cy)
+        ..lineTo(cx, cy + ch / 2)
+        ..lineTo(cx - cw / 2, cy)
+        ..close();
+      canvas.drawPath(crystalPath, crystalPaints[i % crystalPaints.length]);
+    }
+
+    // Floor cracks pattern
+    final crackPaint = Paint()
+      ..color = const Color(0xFF6A0DAD).withValues(alpha: 0.5)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    final crackRng = Random(55);
+    final floorY = size.height * 0.82;
+    for (int i = 0; i < 6; i++) {
+      final startX = crackRng.nextDouble() * size.width;
+      final crackPath = Path()
+        ..moveTo(startX, floorY);
+      double curX = startX;
+      double curY = floorY;
+      for (int j = 0; j < 4; j++) {
+        curX += (crackRng.nextDouble() - 0.5) * size.width * 0.12;
+        curY += crackRng.nextDouble() * size.height * 0.04;
+        crackPath.lineTo(curX, curY);
+      }
+      canvas.drawPath(crackPath, crackPaint);
+    }
+
+    // Glow accents: small bright purple circles at crystal tips
+    final glowPaint = Paint()
+      ..color = const Color(0xFFBF00FF).withValues(alpha: 0.4)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    final glowRng = Random(11);
+    for (int i = 0; i < 12; i++) {
+      final gx = glowRng.nextDouble() * size.width;
+      final gy = size.height * 0.35 + glowRng.nextDouble() * size.height * 0.5;
+      canvas.drawCircle(Offset(gx, gy), 3.0 + glowRng.nextDouble() * 3.0, glowPaint);
+    }
   }
 }

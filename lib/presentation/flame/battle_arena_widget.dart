@@ -70,8 +70,8 @@ class _BattleArenaWidgetState extends ConsumerState<BattleArenaWidget> {
 
     // Compute background path from stageId
     final stageId = ref.watch(battleProvider.select((s) => s.currentStageId));
-    final areaIndex = ((stageId - 1) ~/ 6 + 1).clamp(1, 5);
-    const areaNames = ['forest', 'volcano', 'dungeon', 'ocean', 'sky'];
+    final areaIndex = ((stageId - 1) ~/ 6 + 1).clamp(1, 6);
+    const areaNames = ['forest', 'volcano', 'dungeon', 'ocean', 'sky', 'abyss'];
     final areaName = areaNames[areaIndex - 1];
 
     return Stack(

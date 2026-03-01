@@ -217,6 +217,59 @@ class GuildService {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
+
+  // ---------------------------------------------------------------------------
+  // Guild chat
+  // ---------------------------------------------------------------------------
+
+  static const List<String> _chatTemplates = [
+    '{name}: 오늘 보스전 누가 같이 하실?',
+    '{name}: 레벨업했다! 드디어 {level}레벨!',
+    '{name}: 5성 몬스터 뽑았다 ㅋㅋㅋ 럭키',
+    '{name}: 가챠 10연차 했는데 전부 1성 ㅠㅠ',
+    '{name}: 오늘 아레나 10연승 중!',
+    '{name}: 누가 팀 추천 좀 해주세요',
+    '{name}: 불사조 강화 어디까지 했어요?',
+    '{name}: 심연 던전 6-6 깰 수 있는 사람?',
+    '{name}: 오늘 이벤트 보상 받으셨나요?',
+    '{name}: 길드 보스 HP 얼마 남았어요?',
+    '{name}: gg 오늘 너무 재밌었다',
+    '{name}: 새 스킨 나왔으면 좋겠다',
+    '{name}: 다크나이트 진화시키는 중...',
+    '{name}: 타워 50층 클리어 했습니다!',
+    '{name}: 일일 던전 보상 좋네요',
+    '{name}: 오프라인 보상이 장난 아니네',
+    '{name}: PVP에서 빙결이 너무 강함 ㅋㅋ',
+    '{name}: 골드가 부족해요 ㅠ 파밍 가자',
+    '{name}: 이번 시즌 다이아 목표!',
+    '{name}: 수고하셨습니다~ 내일 또 해요!',
+  ];
+
+  /// 오늘 날짜 시드 기반으로 채팅 로그 생성 (8~12개)
+  static List<String> generateDailyChatLog(List<String> memberNames) {
+    final seed = DateTime.now().day * 31 + DateTime.now().month * 373;
+    final rng = math.Random(seed);
+    final count = 8 + rng.nextInt(5); // 8~12개
+    final logs = <String>[];
+    for (int i = 0; i < count; i++) {
+      final template = _chatTemplates[rng.nextInt(_chatTemplates.length)];
+      final name = memberNames[rng.nextInt(memberNames.length)];
+      final level = 10 + rng.nextInt(40);
+      logs.add(template
+          .replaceAll('{name}', name)
+          .replaceAll('{level}', '$level'));
+    }
+    return logs;
+  }
+
+  /// 시스템 알림 메시지 생성
+  static String bossAlertMessage(String bossName, double hpPercent) {
+    return '⚔️ [시스템] $bossName의 체력이 ${(hpPercent * 100).toStringAsFixed(0)}% 남았습니다!';
+  }
+
+  static String levelUpAlertMessage(String memberName, int newLevel) {
+    return '🎉 [시스템] $memberName님이 레벨 $newLevel을 달성했습니다!';
+  }
 }
 
 // =============================================================================
