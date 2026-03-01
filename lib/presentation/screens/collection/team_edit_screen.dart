@@ -40,13 +40,13 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
     return a.containsAll(b);
   }
 
-  double get _totalPower {
+  int get _totalPower {
     final monsters = ref.read(monsterListProvider);
     final selectedSet = _selectedIds.toSet();
-    double total = 0;
+    int total = 0;
     for (final m in monsters) {
       if (selectedSet.contains(m.id)) {
-        total += m.finalAtk + m.finalDef + m.finalHp + m.finalSpd;
+        total += m.powerScore;
       }
     }
     return total;
@@ -135,7 +135,7 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              l.totalPower(_totalPower.round().toString()),
+              l.totalPower(_totalPower.toString()),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

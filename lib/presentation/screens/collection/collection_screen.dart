@@ -559,6 +559,16 @@ class _MonsterCard extends ConsumerWidget {
                         color: AppColors.textTertiary,
                       ),
                     ),
+                  // Power score
+                  if (entry.isOwned && entry.best != null)
+                    Text(
+                      '⚔${entry.best!.powerScore}',
+                      style: TextStyle(
+                        fontSize: 8,
+                        color: AppColors.textTertiary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ],
               ),
             ),

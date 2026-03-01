@@ -173,6 +173,10 @@ class MonsterModel extends HiveObject {
   double get finalHp  => baseHp  * _compositeMultiplier;
   double get finalSpd => baseSpd * _compositeMultiplier;
 
+  /// Overall power score (weighted sum of final stats).
+  int get powerScore =>
+      (finalAtk * 1.5 + finalDef * 1.2 + finalHp * 0.5 + finalSpd * 2.0).round();
+
   // -------------------------------------------------------------------------
   // Experience system
   // -------------------------------------------------------------------------
