@@ -71,15 +71,21 @@ class BattleRecord {
       };
 
   factory BattleRecord.fromJson(Map<String, dynamic> json) => BattleRecord(
-        id: json['id'] as String,
-        timestamp:
-            DateTime.fromMillisecondsSinceEpoch(json['ts'] as int),
-        label: json['label'] as String,
-        isVictory: json['victory'] as bool,
+        id: json['id'] as String? ?? '',
+        timestamp: DateTime.fromMillisecondsSinceEpoch(
+            json['ts'] as int? ?? 0),
+        label: json['label'] as String? ?? 'Unknown',
+        isVictory: json['victory'] as bool? ?? false,
         totalTurns: json['turns'] as int? ?? 0,
-        playerNames: (json['players'] as List).cast<String>(),
-        enemyNames: (json['enemies'] as List).cast<String>(),
-        logLines: (json['logs'] as List).cast<String>(),
+        playerNames: (json['players'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .toList() ?? const [],
+        enemyNames: (json['enemies'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .toList() ?? const [],
+        logLines: (json['logs'] as List?)
+            ?.map((e) => e?.toString() ?? '')
+            .toList() ?? const [],
         stats: json['stats'] != null
             ? BattleRecordStats.fromJson(json['stats'] as Map<String, dynamic>)
             : const BattleRecordStats(),
@@ -142,13 +148,17 @@ class BattleReplayNotifier extends StateNotifier<BattleReplayState> {
   static const _maxRecords = 20;
 
   void _load() {
-    final box = Hive.box('settings');
-    final raw = box.get(_key) as String?;
-    if (raw == null) return;
-    final list = (jsonDecode(raw) as List)
-        .map((e) => BattleRecord.fromJson(e as Map<String, dynamic>))
-        .toList();
-    state = BattleReplayState(records: list);
+    try {
+      final box = Hive.box('settings');
+      final raw = box.get(_key) as String?;
+      if (raw == null) return;
+      final list = (jsonDecode(raw) as List)
+          .map((e) => BattleRecord.fromJson(e as Map<String, dynamic>))
+          .toList();
+      state = BattleReplayState(records: list);
+    } catch (_) {
+      state = const BattleReplayState();
+    }
   }
 
   Future<void> _save() async {

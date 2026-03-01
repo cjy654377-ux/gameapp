@@ -38,7 +38,7 @@ class BattleReplayScreen extends ConsumerWidget {
           : Column(
               children: [
                 // Summary + Filter bar
-                _SummaryBar(state: state, l: l, ref: ref),
+                _SummaryBar(state: state, l: l),
                 // List
                 Expanded(
                   child: filtered.isEmpty
@@ -135,7 +135,7 @@ class BattleReplayScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => _ReplayDetailSheet(record: record, l: l, ref: ref),
+      builder: (_) => _ReplayDetailSheet(record: record, l: l),
     );
   }
 }
@@ -144,14 +144,13 @@ class BattleReplayScreen extends ConsumerWidget {
 // Summary Bar with Filter
 // =============================================================================
 
-class _SummaryBar extends StatelessWidget {
-  const _SummaryBar({required this.state, required this.l, required this.ref});
+class _SummaryBar extends ConsumerWidget {
+  const _SummaryBar({required this.state, required this.l});
   final BattleReplayState state;
   final AppLocalizations l;
-  final WidgetRef ref;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final winRate = state.records.isNotEmpty
         ? (state.victoryCount / state.records.length * 100).toStringAsFixed(0)
         : '0';
@@ -344,7 +343,7 @@ class _RecordCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   _MiniStat('CRIT', '${record.stats.totalCriticals}', Colors.orange),
                   const SizedBox(width: 12),
-                  _MiniStat('MVP', record.stats.mvpName, AppColors.primary),
+                  Flexible(child: _MiniStat('MVP', record.stats.mvpName, AppColors.primary)),
                 ],
               ),
             ],
@@ -370,10 +369,12 @@ class _MiniStat extends StatelessWidget {
           '$label ',
           style: TextStyle(fontSize: 9, color: AppColors.textTertiary, fontWeight: FontWeight.w600),
         ),
-        Text(
-          value,
-          style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w700),
-          overflow: TextOverflow.ellipsis,
+        Flexible(
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w700),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
@@ -385,10 +386,9 @@ class _MiniStat extends StatelessWidget {
 // =============================================================================
 
 class _ReplayDetailSheet extends StatefulWidget {
-  const _ReplayDetailSheet({required this.record, required this.l, required this.ref});
+  const _ReplayDetailSheet({required this.record, required this.l});
   final BattleRecord record;
   final AppLocalizations l;
-  final WidgetRef ref;
 
   @override
   State<_ReplayDetailSheet> createState() => _ReplayDetailSheetState();
@@ -499,7 +499,7 @@ class _ReplayDetailSheetState extends State<_ReplayDetailSheet> {
           const Divider(height: 1, color: AppColors.border),
           // Content
           if (hasStats && _showStats)
-            _StatsPanel(stats: record.stats, l: l)
+            Expanded(child: _StatsPanel(stats: record.stats, l: l))
           else
             Expanded(
               child: ListView.builder(
@@ -550,43 +550,41 @@ class _StatsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Summary stats
-            Row(
-              children: [
-                Expanded(child: _StatBox(l.replayTotalDmg, FormatUtils.compact(stats.totalDamage), Colors.red)),
-                const SizedBox(width: 8),
-                Expanded(child: _StatBox(l.replayCritCount, '${stats.totalCriticals}', Colors.orange)),
-                const SizedBox(width: 8),
-                Expanded(child: _StatBox(l.replaySkillCount, '${stats.totalSkillUses}', Colors.purple)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // MVP
-            if (stats.mvpName.isNotEmpty)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.amber.withValues(alpha: 0.15),
-                      Colors.amber.withValues(alpha: 0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: _StatBox(l.replayTotalDmg, FormatUtils.compact(stats.totalDamage), Colors.red)),
+              const SizedBox(width: 8),
+              Expanded(child: _StatBox(l.replayCritCount, '${stats.totalCriticals}', Colors.orange)),
+              const SizedBox(width: 8),
+              Expanded(child: _StatBox(l.replaySkillCount, '${stats.totalSkillUses}', Colors.purple)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (stats.mvpName.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.amber.withValues(alpha: 0.15),
+                    Colors.amber.withValues(alpha: 0.05),
+                  ],
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 24),
-                    const SizedBox(width: 8),
-                    Column(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 24),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -604,14 +602,15 @@ class _StatsPanel extends StatelessWidget {
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w900,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
