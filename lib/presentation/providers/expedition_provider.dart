@@ -103,13 +103,13 @@ class ExpeditionNotifier extends StateNotifier<ExpeditionState> {
     return true;
   }
 
-  /// Collect rewards from a completed expedition.
-  Future<bool> collectReward(String expeditionId) async {
+  /// Collect rewards from a completed expedition. Returns reward or null.
+  Future<ExpeditionReward?> collectReward(String expeditionId) async {
     final idx = state.expeditions.indexWhere((e) => e.id == expeditionId);
-    if (idx < 0) return false;
+    if (idx < 0) return null;
 
     final expedition = state.expeditions[idx];
-    if (!expedition.isComplete || expedition.isCollected) return false;
+    if (!expedition.isComplete || expedition.isCollected) return null;
 
     final reward = ExpeditionService.calculateReward(
       durationSeconds: expedition.durationSeconds,
@@ -132,16 +132,51 @@ class ExpeditionNotifier extends StateNotifier<ExpeditionState> {
 
     AudioService.instance.playRewardCollect();
 
-    state = state.copyWith(
-      expeditions: updated,
-      successMessage: AppMessage.rewardSummary(
-        gold: reward.gold,
-        expPotions: reward.expPotions,
-        shards: reward.shards,
-        diamonds: reward.diamonds,
-      ),
+    state = state.copyWith(expeditions: updated);
+    return reward;
+  }
+
+  /// Collect all completed expeditions. Returns combined reward.
+  Future<ExpeditionReward?> collectAll() async {
+    final completed = state.expeditions
+        .where((e) => e.isComplete && !e.isCollected)
+        .toList();
+    if (completed.isEmpty) return null;
+
+    int totalGold = 0, totalExp = 0, totalShards = 0, totalDiamonds = 0;
+    final updated = List<ExpeditionModel>.from(state.expeditions);
+
+    for (final expedition in completed) {
+      final reward = ExpeditionService.calculateReward(
+        durationSeconds: expedition.durationSeconds,
+        totalMonsterLevel: expedition.totalMonsterLevel,
+      );
+      totalGold += reward.gold;
+      totalExp += reward.expPotions;
+      totalShards += reward.shards;
+      totalDiamonds += reward.diamonds;
+
+      final currency = _ref.read(currencyProvider.notifier);
+      if (reward.gold > 0) await currency.addGold(reward.gold);
+      if (reward.expPotions > 0) await currency.addExpPotion(reward.expPotions);
+      if (reward.shards > 0) await currency.addShard(reward.shards);
+      if (reward.diamonds > 0) await currency.addDiamond(reward.diamonds);
+
+      final collected = expedition.copyWith(isCollected: true);
+      await LocalStorage.instance.saveExpedition(collected);
+      final idx = updated.indexWhere((e) => e.id == expedition.id);
+      if (idx >= 0) updated[idx] = collected;
+    }
+
+    AudioService.instance.playRewardCollect();
+    state = state.copyWith(expeditions: updated);
+
+    return ExpeditionReward(
+      gold: totalGold,
+      expPotions: totalExp,
+      shards: totalShards,
+      diamonds: totalDiamonds,
     );
-    return true;
   }
 
   /// Remove a collected expedition from the list.
