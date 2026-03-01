@@ -991,5 +991,13 @@
   "relicFuse": "유물 융합",
   "relicFuseDesc": "같은 등급 유물 2개 → 상위 등급 랜덤 유물",
   "relicFuseExecute": "융합 실행",
-  "relicFuseSuccess": "융합 성공!"
+  "relicFuseSuccess": "융합 성공!",
+
+  "newRecord": "신기록!",
+  "hpDisplay": "HP: {current} / {max}",
+  "@hpDisplay": {"placeholders": {"current": {"type": "String"}, "max": {"type": "String"}}},
+  "mvpLabel": "MVP: {name}",
+  "@mvpLabel": {"placeholders": {"name": {"type": "String"}}},
+  "guildExpDisplay": "EXP: {current}/{max}",
+  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}}
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -1064,6 +1065,8 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
   late AnimationController _entranceController;
   late Animation<double> _entranceFade;
   late Animation<double> _entranceScale;
+  Timer? _revealTimer;
+  int _revealIndex = 0;
 
   @override
   void initState() {
@@ -1081,24 +1084,28 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
     );
     _entranceController.forward();
 
-    // Auto-reveal cards one by one.
-    _autoReveal();
+    // Auto-reveal cards one by one after initial delay.
+    _revealTimer = Timer(const Duration(milliseconds: 500), _revealNext);
   }
 
-  Future<void> _autoReveal() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  void _revealNext() {
+    if (!mounted) return;
     final results = ref.read(gachaProvider).lastResults;
-    for (int i = 0; i < results.length; i++) {
-      if (!mounted) return;
-      ref.read(gachaProvider.notifier).revealNext();
-      // Longer pause for higher rarity.
-      final rarity = results[i].template.rarity;
-      await Future.delayed(Duration(milliseconds: rarity >= 4 ? 600 : 300));
+    if (_revealIndex >= results.length) return;
+    ref.read(gachaProvider.notifier).revealNext();
+    final rarity = results[_revealIndex].template.rarity;
+    _revealIndex++;
+    if (_revealIndex < results.length) {
+      _revealTimer = Timer(
+        Duration(milliseconds: rarity >= 4 ? 600 : 300),
+        _revealNext,
+      );
     }
   }
 
   @override
   void dispose() {
+    _revealTimer?.cancel();
     _entranceController.dispose();
     super.dispose();
   }

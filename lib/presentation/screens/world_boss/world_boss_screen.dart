@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/domain/services/world_boss_service.dart';
 import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/presentation/providers/world_boss_provider.dart';
@@ -157,7 +158,7 @@ class _IdleView extends ConsumerWidget {
                   const SizedBox(height: 8),
                   _InfoRow(
                     label: l.bestDamage,
-                    value: _formatDamage(wbState.bestDamage),
+                    value: FormatUtils.formatCompact(wbState.bestDamage.toInt()),
                   ),
                 ],
               ),
@@ -247,7 +248,7 @@ class _FightingView extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'HP: ${boss.currentHp.toInt()} / ${boss.maxHp.toInt()}',
+                l.hpDisplay(boss.currentHp.toInt().toString(), boss.maxHp.toInt().toString()),
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
             ],
@@ -265,7 +266,7 @@ class _FightingView extends ConsumerWidget {
                   color: Colors.amber, size: 20),
               const SizedBox(width: 8),
               Text(
-                l.totalDamageAmount(_formatDamage(wbState.totalDamageDealt)),
+                l.totalDamageAmount(FormatUtils.formatCompact(wbState.totalDamageDealt.toInt())),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -425,7 +426,7 @@ class _FinishedView extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _formatDamage(wbState.totalDamageDealt),
+                    FormatUtils.formatCompact(wbState.totalDamageDealt.toInt()),
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -434,11 +435,11 @@ class _FinishedView extends ConsumerWidget {
                   ),
                   if (wbState.totalDamageDealt >= wbState.bestDamage &&
                       wbState.totalDamageDealt > 0)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'NEW RECORD!',
-                        style: TextStyle(
+                        l.newRecord,
+                        style: const TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -554,16 +555,6 @@ class _InfoRow extends StatelessWidget {
 // =============================================================================
 // Helpers
 // =============================================================================
-
-String _formatDamage(double damage) {
-  if (damage >= 1000000) {
-    return '${(damage / 1000000).toStringAsFixed(1)}M';
-  }
-  if (damage >= 1000) {
-    return '${(damage / 1000).toStringAsFixed(1)}K';
-  }
-  return damage.toInt().toString();
-}
 
 String _elementName(BuildContext context, String element) {
   final l = AppLocalizations.of(context)!;

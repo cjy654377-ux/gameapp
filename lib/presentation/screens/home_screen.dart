@@ -135,6 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Future<void> _onPaused() async {
+    if (!mounted) return;
     final l = AppLocalizations.of(context)!;
     // Update lastOnlineAt (saves player internally), then save currency.
     await ref.read(playerProvider.notifier).updateLastOnline();
@@ -353,14 +354,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         },
         items: [
           for (int i = 0; i < _tabs.length; i++)
-            BottomNavigationBarItem(
-              icon: Badge(
-                isLabelVisible: _badgeCount(i, dailyTotal) > 0,
-                label: Text('${_badgeCount(i, dailyTotal)}'),
-                child: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
-              ),
-              label: tabLabels[i],
-            ),
+            () {
+              final count = _badgeCount(i, dailyTotal);
+              return BottomNavigationBarItem(
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  label: Text('$count'),
+                  child: Icon(i == currentIndex ? _tabs[i].activeIcon : _tabs[i].icon),
+                ),
+                label: tabLabels[i],
+              );
+            }(),
         ],
       ),
     );

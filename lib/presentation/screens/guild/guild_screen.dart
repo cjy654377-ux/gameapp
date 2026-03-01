@@ -183,7 +183,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'EXP: ${guild.exp}/${guild.expToNextLevel}',
+                l.guildExpDisplay(guild.exp, guild.expToNextLevel),
                 style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
               ),
             ],

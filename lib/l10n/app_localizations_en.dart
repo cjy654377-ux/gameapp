@@ -2675,4 +2675,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relicFuseSuccess => 'Fusion Success!';
+
+  @override
+  String get newRecord => 'NEW RECORD!';
+
+  @override
+  String hpDisplay(String current, String max) {
+    return 'HP: $current / $max';
+  }
+
+  @override
+  String mvpLabel(String name) {
+    return 'MVP: $name';
+  }
+
+  @override
+  String guildExpDisplay(int current, int max) {
+    return 'EXP: $current/$max';
+  }
 }

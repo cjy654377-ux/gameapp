@@ -915,5 +915,13 @@
   "relicFuse": "Relic Fusion",
   "relicFuseDesc": "Combine 2 same-rarity relics → random higher rarity",
   "relicFuseExecute": "Fuse",
-  "relicFuseSuccess": "Fusion Success!"
+  "relicFuseSuccess": "Fusion Success!",
+
+  "newRecord": "NEW RECORD!",
+  "hpDisplay": "HP: {current} / {max}",
+  "@hpDisplay": {"placeholders": {"current": {"type": "String"}, "max": {"type": "String"}}},
+  "mvpLabel": "MVP: {name}",
+  "@mvpLabel": {"placeholders": {"name": {"type": "String"}}},
+  "guildExpDisplay": "EXP: {current}/{max}",
+  "@guildExpDisplay": {"placeholders": {"current": {"type": "int"}, "max": {"type": "int"}}}
 }

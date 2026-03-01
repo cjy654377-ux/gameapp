@@ -4801,6 +4801,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'융합 성공!'**
   String get relicFuseSuccess;
+
+  /// No description provided for @newRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'신기록!'**
+  String get newRecord;
+
+  /// No description provided for @hpDisplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'HP: {current} / {max}'**
+  String hpDisplay(String current, String max);
+
+  /// No description provided for @mvpLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'MVP: {name}'**
+  String mvpLabel(String name);
+
+  /// No description provided for @guildExpDisplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'EXP: {current}/{max}'**
+  String guildExpDisplay(int current, int max);
 }
 
 class _AppLocalizationsDelegate

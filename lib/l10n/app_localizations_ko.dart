@@ -2661,4 +2661,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get relicFuseSuccess => '융합 성공!';
+
+  @override
+  String get newRecord => '신기록!';
+
+  @override
+  String hpDisplay(String current, String max) {
+    return 'HP: $current / $max';
+  }
+
+  @override
+  String mvpLabel(String name) {
+    return 'MVP: $name';
+  }
+
+  @override
+  String guildExpDisplay(int current, int max) {
+    return 'EXP: $current/$max';
+  }
 }

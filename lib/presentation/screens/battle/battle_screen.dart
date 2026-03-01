@@ -177,18 +177,19 @@ class _BattleArena extends ConsumerStatefulWidget {
 class _BattleArenaState extends ConsumerState<_BattleArena> {
   final _overlayKey = GlobalKey<DamageNumberOverlayState>();
   int _lastLogLength = 0;
+  bool _autoStarted = false;
 
   @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final state = ref.watch(battleProvider);
-
-    // Trigger damage numbers when new log entries appear
-    if (state.battleLog.length > _lastLogLength && state.phase == BattlePhase.fighting) {
-      final oldLen = _lastLogLength;
-      _lastLogLength = state.battleLog.length;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+  void initState() {
+    super.initState();
+    // Listen for battle log changes to trigger damage numbers.
+    ref.listenManual(battleProvider.select((s) => s.battleLog.length), (prev, next) {
+      if (!mounted) return;
+      final state = ref.read(battleProvider);
+      if (state.phase != BattlePhase.fighting) return;
+      if (next > _lastLogLength) {
+        final oldLen = _lastLogLength;
+        _lastLogLength = next;
         final overlay = _overlayKey.currentState;
         if (overlay == null) return;
         for (int i = oldLen; i < state.battleLog.length; i++) {
@@ -202,19 +203,32 @@ class _BattleArenaState extends ConsumerState<_BattleArena> {
             isEnemy: !isEnemy,
           );
         }
-      });
-    } else {
-      _lastLogLength = state.battleLog.length;
-    }
+      } else {
+        _lastLogLength = next;
+      }
+    });
+    // Listen for idle phase to auto-restart battle.
+    ref.listenManual(battleProvider.select((s) => s.phase), (prev, next) {
+      if (!mounted) return;
+      if (next == BattlePhase.idle && !_autoStarted) {
+        _autoStarted = true;
+        _lastLogLength = 0;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _autoStarted = false;
+          ref.read(battleProvider.notifier).startBattle();
+        });
+      }
+    });
+  }
 
-    // Reset on idle — auto-restart battle
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final state = ref.watch(battleProvider);
+
+    // Show loading when idle (auto-restart handled by listener above)
     if (state.phase == BattlePhase.idle) {
-      _lastLogLength = 0;
-      // Auto-start next battle
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ref.read(battleProvider.notifier).startBattle();
-      });
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -738,7 +752,7 @@ class _BattleStatsPanel extends StatelessWidget {
                 const Icon(Icons.star, color: AppColors.gold, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  'MVP: ${stats.mvpName}',
+                  l.mvpLabel(stats.mvpName),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
