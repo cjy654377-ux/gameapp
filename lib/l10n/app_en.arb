@@ -957,5 +957,16 @@
   "bannerRateUp": "Rate UP",
   "bannerTimeRemaining": "{hours}h left",
   "@bannerTimeRemaining": {"placeholders": {"hours": {"type": "int"}}},
-  "bannerPickupTag": "PICK UP!"
+  "bannerPickupTag": "PICK UP!",
+
+  "luckyBoxTitle": "Daily Lucky Box",
+  "luckyBoxOpen": "Open!",
+  "luckyBoxClaimed": "Claimed Today",
+  "luckyBoxStreak": "{days} Day Streak",
+  "@luckyBoxStreak": {"placeholders": {"days": {"type": "int"}}},
+  "luckyBoxNextBonus": "Next Bonus: Day {days}",
+  "@luckyBoxNextBonus": {"placeholders": {"days": {"type": "int"}}},
+  "luckyBoxStreakBonus": "★ Streak Bonus! ★",
+  "luckyBoxRewardTable": "Reward Rates",
+  "sidebarLuckyBox": "Lucky Box"
 }

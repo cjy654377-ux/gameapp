@@ -4975,6 +4975,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'PICK UP!'**
   String get bannerPickupTag;
+
+  /// No description provided for @luckyBoxTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'일일 럭키박스'**
+  String get luckyBoxTitle;
+
+  /// No description provided for @luckyBoxOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'열기!'**
+  String get luckyBoxOpen;
+
+  /// No description provided for @luckyBoxClaimed.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 수령 완료'**
+  String get luckyBoxClaimed;
+
+  /// No description provided for @luckyBoxStreak.
+  ///
+  /// In ko, this message translates to:
+  /// **'연속 {days}일'**
+  String luckyBoxStreak(int days);
+
+  /// No description provided for @luckyBoxNextBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 보너스: {days}일'**
+  String luckyBoxNextBonus(int days);
+
+  /// No description provided for @luckyBoxStreakBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'★ 연속 보너스 지급! ★'**
+  String get luckyBoxStreakBonus;
+
+  /// No description provided for @luckyBoxRewardTable.
+  ///
+  /// In ko, this message translates to:
+  /// **'보상 확률표'**
+  String get luckyBoxRewardTable;
+
+  /// No description provided for @sidebarLuckyBox.
+  ///
+  /// In ko, this message translates to:
+  /// **'럭키박스'**
+  String get sidebarLuckyBox;
 }
 
 class _AppLocalizationsDelegate

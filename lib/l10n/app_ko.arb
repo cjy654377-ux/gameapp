@@ -1033,5 +1033,16 @@
   "bannerRateUp": "확률UP",
   "bannerTimeRemaining": "{hours}시간 남음",
   "@bannerTimeRemaining": {"placeholders": {"hours": {"type": "int"}}},
-  "bannerPickupTag": "PICK UP!"
+  "bannerPickupTag": "PICK UP!",
+
+  "luckyBoxTitle": "일일 럭키박스",
+  "luckyBoxOpen": "열기!",
+  "luckyBoxClaimed": "오늘 수령 완료",
+  "luckyBoxStreak": "연속 {days}일",
+  "@luckyBoxStreak": {"placeholders": {"days": {"type": "int"}}},
+  "luckyBoxNextBonus": "다음 보너스: {days}일",
+  "@luckyBoxNextBonus": {"placeholders": {"days": {"type": "int"}}},
+  "luckyBoxStreakBonus": "★ 연속 보너스 지급! ★",
+  "luckyBoxRewardTable": "보상 확률표",
+  "sidebarLuckyBox": "럭키박스"
 }

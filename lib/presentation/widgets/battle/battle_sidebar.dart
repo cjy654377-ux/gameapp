@@ -28,6 +28,7 @@ class BattleSidebar extends StatelessWidget {
       _SidebarItem(Icons.leaderboard, l.sidebarLeaderboard, AppRoutes.leaderboard, const Color(0xFF4FC3F7)),
       _SidebarItem(Icons.military_tech, l.sidebarTitle, AppRoutes.title, const Color(0xFFBA68C8)),
       _SidebarItem(Icons.mail_rounded, l.sidebarMailbox, AppRoutes.mailbox, const Color(0xFF81C784)),
+      _SidebarItem(Icons.redeem, l.sidebarLuckyBox, AppRoutes.luckyBox, const Color(0xFFFFB300)),
       _SidebarItem(Icons.replay, l.sidebarReplay, AppRoutes.battleReplay, const Color(0xFF90A4AE)),
       // ── Info / System ──
       _SidebarItem(Icons.bar_chart, l.sidebarStats, AppRoutes.statistics, const Color(0xFF4DB6AC)),

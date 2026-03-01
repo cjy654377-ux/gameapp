@@ -2766,4 +2766,32 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get bannerPickupTag => 'PICK UP!';
+
+  @override
+  String get luckyBoxTitle => '일일 럭키박스';
+
+  @override
+  String get luckyBoxOpen => '열기!';
+
+  @override
+  String get luckyBoxClaimed => '오늘 수령 완료';
+
+  @override
+  String luckyBoxStreak(int days) {
+    return '연속 $days일';
+  }
+
+  @override
+  String luckyBoxNextBonus(int days) {
+    return '다음 보너스: $days일';
+  }
+
+  @override
+  String get luckyBoxStreakBonus => '★ 연속 보너스 지급! ★';
+
+  @override
+  String get luckyBoxRewardTable => '보상 확률표';
+
+  @override
+  String get sidebarLuckyBox => '럭키박스';
 }

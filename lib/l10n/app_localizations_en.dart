@@ -2780,4 +2780,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bannerPickupTag => 'PICK UP!';
+
+  @override
+  String get luckyBoxTitle => 'Daily Lucky Box';
+
+  @override
+  String get luckyBoxOpen => 'Open!';
+
+  @override
+  String get luckyBoxClaimed => 'Claimed Today';
+
+  @override
+  String luckyBoxStreak(int days) {
+    return '$days Day Streak';
+  }
+
+  @override
+  String luckyBoxNextBonus(int days) {
+    return 'Next Bonus: Day $days';
+  }
+
+  @override
+  String get luckyBoxStreakBonus => '★ Streak Bonus! ★';
+
+  @override
+  String get luckyBoxRewardTable => 'Reward Rates';
+
+  @override
+  String get sidebarLuckyBox => 'Lucky Box';
 }

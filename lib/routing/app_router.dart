@@ -38,6 +38,7 @@ import '../presentation/screens/gacha/gacha_history_screen.dart';
 import '../presentation/screens/hero/hero_screen.dart';
 import '../presentation/screens/map_hub/map_hub_screen.dart';
 import '../presentation/screens/train/train_screen.dart';
+import '../presentation/screens/lucky_box/lucky_box_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -79,6 +80,7 @@ class AppRoutes {
   static const hero = '/hero';
   static const mapHub = '/map-hub';
   static const train = '/train';
+  static const luckyBox = '/lucky-box';
 }
 
 // ---------------------------------------------------------------------------
@@ -192,6 +194,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.gachaHistory,
         builder: (context, state) => const GachaHistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.luckyBox,
+        builder: (context, state) => const LuckyBoxScreen(),
       ),
       GoRoute(
         path: AppRoutes.collection,
