@@ -19,7 +19,7 @@ enum LuckyBoxRewardType {
 class LuckyBoxReward {
   final LuckyBoxRewardType type;
   final int amount;
-  /// Display weight for the spin animation (not actual probability).
+  /// Actual probability (0.0–1.0) used for random selection.
   final double probability;
 
   const LuckyBoxReward({
@@ -69,14 +69,14 @@ class LuckyBoxState {
   LuckyBoxState copyWith({
     bool? claimedToday,
     int? lastClaimDate,
-    LuckyBoxReward? currentReward,
+    LuckyBoxReward? Function()? currentReward,
     bool? isSpinning,
     int? streak,
   }) {
     return LuckyBoxState(
       claimedToday: claimedToday ?? this.claimedToday,
       lastClaimDate: lastClaimDate ?? this.lastClaimDate,
-      currentReward: currentReward ?? this.currentReward,
+      currentReward: currentReward != null ? currentReward() : this.currentReward,
       isSpinning: isSpinning ?? this.isSpinning,
       streak: streak ?? this.streak,
     );
@@ -134,13 +134,14 @@ class LuckyBoxDatabase {
 
   static LuckyBoxReward roll() {
     final rng = math.Random();
-    final roll = rng.nextDouble();
+    final total = rewards.fold<double>(0, (s, r) => s + r.probability);
+    final roll = rng.nextDouble() * total;
     double cumulative = 0;
     for (final reward in rewards) {
       cumulative += reward.probability;
       if (roll < cumulative) return reward;
     }
-    return rewards.first;
+    return rewards.last;
   }
 }
 
@@ -160,7 +161,7 @@ class LuckyBoxNotifier extends StateNotifier<LuckyBoxState> {
     final box = Hive.box('settings');
     final lastDate = box.get('${_boxKey}_lastDate', defaultValue: 0) as int;
     final streak = box.get('${_boxKey}_streak', defaultValue: 0) as int;
-    final today = _todayInt();
+    final today = _dateToInt(DateTime.now());
     final claimedToday = lastDate == today;
 
     state = LuckyBoxState(
@@ -183,8 +184,9 @@ class LuckyBoxNotifier extends StateNotifier<LuckyBoxState> {
     state = state.copyWith(isSpinning: true);
 
     final reward = LuckyBoxDatabase.roll();
-    final today = _todayInt();
-    final yesterday = _yesterdayInt();
+    final now = DateTime.now();
+    final today = _dateToInt(now);
+    final yesterday = _dateToInt(now.subtract(const Duration(days: 1)));
 
     // Calculate streak
     int newStreak;
@@ -197,7 +199,7 @@ class LuckyBoxNotifier extends StateNotifier<LuckyBoxState> {
     }
 
     state = state.copyWith(
-      currentReward: reward,
+      currentReward: () => reward,
       claimedToday: true,
       lastClaimDate: today,
       streak: newStreak,
@@ -239,7 +241,8 @@ class LuckyBoxNotifier extends StateNotifier<LuckyBoxState> {
   /// Check if streak bonus is available this spin.
   bool get isStreakBonusSpin {
     if (state.claimedToday) return false;
-    final yesterday = _yesterdayInt();
+    final now = DateTime.now();
+    final yesterday = _dateToInt(now.subtract(const Duration(days: 1)));
     final potentialStreak = state.lastClaimDate == yesterday
         ? state.streak + 1
         : 1;
@@ -252,15 +255,8 @@ class LuckyBoxNotifier extends StateNotifier<LuckyBoxState> {
     return ((current ~/ 7) + 1) * 7;
   }
 
-  static int _todayInt() {
-    final now = DateTime.now();
-    return now.year * 10000 + now.month * 100 + now.day;
-  }
-
-  static int _yesterdayInt() {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return yesterday.year * 10000 + yesterday.month * 100 + yesterday.day;
-  }
+  static int _dateToInt(DateTime date) =>
+      date.year * 10000 + date.month * 100 + date.day;
 }
 
 // =============================================================================

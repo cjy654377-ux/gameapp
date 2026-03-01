@@ -2597,7 +2597,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarMap => 'Map';
 
   @override
-  String get sidebarSeasonPass => '시즌';
+  String get sidebarSeasonPass => 'Season';
 
   @override
   String get sidebarLeaderboard => 'Rank';

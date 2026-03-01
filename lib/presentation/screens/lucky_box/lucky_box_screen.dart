@@ -49,17 +49,15 @@ class _LuckyBoxScreenState extends ConsumerState<LuckyBoxScreen>
 
   Future<void> _onSpin() async {
     final notifier = ref.read(luckyBoxProvider.notifier);
-    if (ref.read(luckyBoxProvider).claimedToday) return;
+    final currentState = ref.read(luckyBoxProvider);
+    if (currentState.claimedToday || currentState.isSpinning) return;
 
-    // Start spin animation
-    _spinController.forward(from: 0);
-
-    // Get result
+    // Get result first
     final reward = await notifier.spin();
     if (reward == null) return;
 
-    // Wait for spin animation to finish
-    await _spinController.forward(from: _spinController.value);
+    // Then play spin animation
+    await _spinController.forward(from: 0);
 
     if (!mounted) return;
     setState(() {
@@ -108,15 +106,15 @@ class _LuckyBoxScreenState extends ConsumerState<LuckyBoxScreen>
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: state.claimedToday ? null : _onSpin,
+                onPressed: (state.claimedToday || state.isSpinning) ? null : _onSpin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: state.claimedToday
+                  backgroundColor: (state.claimedToday || state.isSpinning)
                       ? AppColors.disabled
                       : const Color(0xFFFFB300),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  elevation: state.claimedToday ? 0 : 8,
+                  elevation: (state.claimedToday || state.isSpinning) ? 0 : 8,
                 ),
                 child: Text(
                   state.claimedToday ? l.luckyBoxClaimed : l.luckyBoxOpen,
