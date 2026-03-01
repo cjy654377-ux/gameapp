@@ -977,5 +977,14 @@
   "autoRepeat": "자동 반복",
   "shopBulkDiscount": "17% 할인",
   "shopExchangeGoldDesc": "10 💎 → 1,000 골드",
-  "shopExchangeBulkGoldDesc": "90 💎 → 10,000 골드"
+  "shopExchangeBulkGoldDesc": "90 💎 → 10,000 골드",
+  "sweepAll": "⚡ 전체 소탕 ({count}스테이지)",
+  "@sweepAll": {"placeholders": {"count": {}}},
+  "sweepComplete": "{count}스테이지 소탕 완료!",
+  "@sweepComplete": {"placeholders": {"count": {}}},
+  "fusionPreviewHint": "탭하여 미리보기",
+  "fusionPreviewTitle": "{stars} 가능한 결과",
+  "@fusionPreviewTitle": {"placeholders": {"stars": {}}},
+  "fusionPreviewDesc": "총 {count}종의 몬스터 중 랜덤",
+  "@fusionPreviewDesc": {"placeholders": {"count": {}}}
 }

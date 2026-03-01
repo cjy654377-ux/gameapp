@@ -8,6 +8,7 @@ import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
 import 'package:gameapp/core/utils/format_utils.dart';
 import 'package:gameapp/data/models/monster_model.dart';
+import 'package:gameapp/data/static/monster_database.dart';
 import 'package:gameapp/domain/services/upgrade_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/providers/monster_provider.dart';
@@ -822,30 +823,40 @@ class _FusionPanel extends ConsumerWidget {
                 child: Icon(Icons.arrow_forward_rounded,
                     color: AppColors.textTertiary, size: 20),
               ),
-              // Result
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: nextRarity.color.withValues(alpha: 0.15),
-                  border: Border.all(
-                    color: nextRarity.color.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.help_outline_rounded,
-                        color: nextRarity.color, size: 20),
-                    Text(
-                      nextRarity.starsDisplay,
-                      style: TextStyle(
-                        color: nextRarity.color,
-                        fontSize: 10,
-                      ),
+              // Result (tap to preview possible outcomes)
+              GestureDetector(
+                onTap: () => _showFusionPreview(context, monster.rarity + 1, l),
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: nextRarity.color.withValues(alpha: 0.15),
+                    border: Border.all(
+                      color: nextRarity.color.withValues(alpha: 0.4),
                     ),
-                  ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.help_outline_rounded,
+                          color: nextRarity.color, size: 20),
+                      Text(
+                        nextRarity.starsDisplay,
+                        style: TextStyle(
+                          color: nextRarity.color,
+                          fontSize: 10,
+                        ),
+                      ),
+                      Text(
+                        l.fusionPreviewHint,
+                        style: TextStyle(
+                          color: nextRarity.color.withValues(alpha: 0.7),
+                          fontSize: 7,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -981,6 +992,83 @@ class _FusionPanel extends ConsumerWidget {
           ),
         ],
       ],
+    );
+  }
+
+  void _showFusionPreview(BuildContext context, int targetRarity, AppLocalizations l) {
+    final candidates = MonsterDatabase.byRarity(targetRarity)
+        .where((t) => t.gachaWeight > 0) // exclude hidden monsters
+        .toList();
+    final rarityEnum = MonsterRarity.fromRarity(targetRarity);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l.fusionPreviewTitle(rarityEnum.starsDisplay),
+              style: TextStyle(
+                color: rarityEnum.color,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l.fusionPreviewDesc(candidates.length),
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: candidates.map((t) {
+                final elem = MonsterElement.fromName(t.element);
+                return Container(
+                  width: 72,
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: rarityEnum.color.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: rarityEnum.color.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(elem?.icon ?? Icons.help_outline, color: elem?.color ?? Colors.grey, size: 20),
+                      const SizedBox(height: 3),
+                      Text(
+                        t.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: rarityEnum.color,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 }

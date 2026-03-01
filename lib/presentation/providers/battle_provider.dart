@@ -688,6 +688,25 @@ class BattleNotifier extends StateNotifier<BattleState> {
     );
   }
 
+  /// Sweep multiple cleared stages at once and return cumulative rewards.
+  Future<BattleReward?> sweepStages(int fromIdx, int toIdx) async {
+    if (fromIdx > toIdx || fromIdx <= 0) return null;
+    int totalGold = 0;
+    int totalExp = 0;
+    int? totalShard;
+    for (int i = fromIdx; i <= toIdx; i++) {
+      final r = await skipBattle(i);
+      if (r == null) break;
+      totalGold += r.gold;
+      totalExp += r.exp;
+      if (r.bonusShard != null) {
+        totalShard = (totalShard ?? 0) + r.bonusShard!;
+      }
+    }
+    if (totalGold == 0 && totalExp == 0) return null;
+    return BattleReward(gold: totalGold, exp: totalExp, bonusShard: totalShard);
+  }
+
   // ---------------------------------------------------------------------------
   // Retreat
   // ---------------------------------------------------------------------------

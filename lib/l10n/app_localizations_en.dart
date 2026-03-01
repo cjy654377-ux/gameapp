@@ -2636,4 +2636,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopExchangeBulkGoldDesc => '90 💎 → 10,000 Gold';
+
+  @override
+  String sweepAll(Object count) {
+    return '⚡ Sweep All ($count stages)';
+  }
+
+  @override
+  String sweepComplete(Object count) {
+    return '$count stages swept!';
+  }
+
+  @override
+  String get fusionPreviewHint => 'Tap to preview';
+
+  @override
+  String fusionPreviewTitle(Object stars) {
+    return '$stars Possible Results';
+  }
+
+  @override
+  String fusionPreviewDesc(Object count) {
+    return 'Random from $count monsters';
+  }
 }

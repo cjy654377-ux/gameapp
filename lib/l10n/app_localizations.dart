@@ -4741,6 +4741,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'90 💎 → 10,000 골드'**
   String get shopExchangeBulkGoldDesc;
+
+  /// No description provided for @sweepAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'⚡ 전체 소탕 ({count}스테이지)'**
+  String sweepAll(Object count);
+
+  /// No description provided for @sweepComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}스테이지 소탕 완료!'**
+  String sweepComplete(Object count);
+
+  /// No description provided for @fusionPreviewHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 미리보기'**
+  String get fusionPreviewHint;
+
+  /// No description provided for @fusionPreviewTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{stars} 가능한 결과'**
+  String fusionPreviewTitle(Object stars);
+
+  /// No description provided for @fusionPreviewDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}종의 몬스터 중 랜덤'**
+  String fusionPreviewDesc(Object count);
 }
 
 class _AppLocalizationsDelegate

@@ -2623,4 +2623,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get shopExchangeBulkGoldDesc => '90 💎 → 10,000 골드';
+
+  @override
+  String sweepAll(Object count) {
+    return '⚡ 전체 소탕 ($count스테이지)';
+  }
+
+  @override
+  String sweepComplete(Object count) {
+    return '$count스테이지 소탕 완료!';
+  }
+
+  @override
+  String get fusionPreviewHint => '탭하여 미리보기';
+
+  @override
+  String fusionPreviewTitle(Object stars) {
+    return '$stars 가능한 결과';
+  }
+
+  @override
+  String fusionPreviewDesc(Object count) {
+    return '총 $count종의 몬스터 중 랜덤';
+  }
 }

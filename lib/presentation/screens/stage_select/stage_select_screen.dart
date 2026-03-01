@@ -128,9 +128,26 @@ class _AreaStageGrid extends ConsumerWidget {
     final currentIdx = _linearIndex(currentStr);
     final stages = StageDatabase.byArea(area);
 
+    // Number of cleared stages in this area.
+    final clearedCount = stages.where((s) => _linearIndex(s.id) <= maxClearedIdx).length;
+
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: GridView.builder(
+      child: Column(
+        children: [
+          // Sweep all button (only if there are cleared stages).
+          if (clearedCount > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _SweepButton(
+                area: area,
+                clearedCount: clearedCount,
+                stages: stages,
+                linearIndex: _linearIndex,
+              ),
+            ),
+          Expanded(
+            child: GridView.builder(
         itemCount: stages.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -183,6 +200,70 @@ class _AreaStageGrid extends ConsumerWidget {
                 : null,
           );
         },
+      ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _SweepButton — sweep all cleared stages in an area
+// =============================================================================
+
+class _SweepButton extends ConsumerWidget {
+  const _SweepButton({
+    required this.area,
+    required this.clearedCount,
+    required this.stages,
+    required this.linearIndex,
+  });
+
+  final int area;
+  final int clearedCount;
+  final List<StageData> stages;
+  final int Function(String) linearIndex;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          final fromIdx = linearIndex(stages.first.id);
+          final toIdx = linearIndex(stages[clearedCount - 1].id);
+          final reward = await ref
+              .read(battleProvider.notifier)
+              .sweepStages(fromIdx, toIdx);
+          if (reward != null && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${l.sweepComplete(clearedCount)}  ${l.stageSkipGold(reward.gold)}  ${l.stageSkipExp(reward.exp)}',
+                ),
+                backgroundColor: AppColors.primary,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
+        icon: const Icon(Icons.fast_forward_rounded, size: 18),
+        label: Text(
+          l.sweepAll(clearedCount),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary.withValues(alpha: 0.85),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
       ),
     );
   }
