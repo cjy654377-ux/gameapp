@@ -4771,6 +4771,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'총 {count}종의 몬스터 중 랜덤'**
   String fusionPreviewDesc(Object count);
+
+  /// No description provided for @teamRecommend.
+  ///
+  /// In ko, this message translates to:
+  /// **'최강 팀 추천'**
+  String get teamRecommend;
 }
 
 class _AppLocalizationsDelegate

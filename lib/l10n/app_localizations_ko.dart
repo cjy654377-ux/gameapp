@@ -2646,4 +2646,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String fusionPreviewDesc(Object count) {
     return '총 $count종의 몬스터 중 랜덤';
   }
+
+  @override
+  String get teamRecommend => '최강 팀 추천';
 }

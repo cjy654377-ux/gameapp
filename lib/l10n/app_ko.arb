@@ -986,5 +986,6 @@
   "fusionPreviewTitle": "{stars} 가능한 결과",
   "@fusionPreviewTitle": {"placeholders": {"stars": {}}},
   "fusionPreviewDesc": "총 {count}종의 몬스터 중 랜덤",
-  "@fusionPreviewDesc": {"placeholders": {"count": {}}}
+  "@fusionPreviewDesc": {"placeholders": {"count": {}}},
+  "teamRecommend": "최강 팀 추천"
 }

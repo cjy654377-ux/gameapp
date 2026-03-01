@@ -68,6 +68,16 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
     if (mounted) context.pop();
   }
 
+  /// Auto-recommend the strongest team by power score.
+  void _autoRecommend(List<MonsterModel> roster) {
+    final sorted = List<MonsterModel>.from(roster)
+      ..sort((a, b) => b.powerScore.compareTo(a.powerScore));
+    final best = sorted.take(GameConfig.maxTeamSize).map((m) => m.id).toList();
+    setState(() {
+      _selectedIds = best;
+    });
+  }
+
   void _showPresetSheet() {
     showModalBottomSheet(
       context: context,
@@ -109,6 +119,11 @@ class _TeamEditScreenState extends ConsumerState<TeamEditScreen> {
       appBar: AppBar(
         title: Text(l.teamEdit),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_fix_high, size: 22),
+            tooltip: l.teamRecommend,
+            onPressed: () => _autoRecommend(roster),
+          ),
           IconButton(
             icon: const Icon(Icons.bookmark_outline, size: 22),
             tooltip: l.teamPreset,

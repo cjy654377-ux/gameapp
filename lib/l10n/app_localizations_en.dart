@@ -2659,4 +2659,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String fusionPreviewDesc(Object count) {
     return 'Random from $count monsters';
   }
+
+  @override
+  String get teamRecommend => 'Best Team';
 }

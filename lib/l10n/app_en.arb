@@ -910,5 +910,6 @@
   "fusionPreviewTitle": "{stars} Possible Results",
   "@fusionPreviewTitle": {"placeholders": {"stars": {}}},
   "fusionPreviewDesc": "Random from {count} monsters",
-  "@fusionPreviewDesc": {"placeholders": {"count": {}}}
+  "@fusionPreviewDesc": {"placeholders": {"count": {}}},
+  "teamRecommend": "Best Team"
 }
