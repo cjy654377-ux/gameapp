@@ -452,6 +452,38 @@
 - [x] _dateToInt 단일 호출 (날짜 경계 안전)
 - [x] sidebarSeasonPass 영문 번역 수정
 
+## 15차 고도화
+- [x] 출석 마일스톤 보상 시스템
+  - 7/14/30/60/100/200/365일 누적 마일스톤 + 보상 (골드/다이아/소환권/포션)
+  - Hive 영속 클레임 기록, 캐싱
+  - 마일스톤 다이얼로그 UI (진행률 바, 수령 버튼)
+  - 출석 체크 후 자동 마일스톤 팝업
+
+## 코드 리뷰 16차
+- [x] 마일스톤 Hive 로딩 캐싱 + List<int> 네이티브 저장
+- [x] mounted 체크 추가 (마일스톤 다이얼로그 후)
+- [x] Flexible+ScrollView 오버플로우 방지
+- [x] try/finally로 _showingDialog 플래그 누출 방지
+
+## 16차 고도화
+- [x] 전투 리플레이 강화
+  - BattleRecordStats (데미지/치명타/스킬/MVP) 저장
+  - 승/패 필터링 + 승률 표시
+  - 개별 기록 삭제 (롱프레스) + 통계/로그 토글
+  - 최대 기록 수 20으로 확장
+
+## 코드 리뷰 17차
+- [x] WidgetRef 자식 위젯 저장 → ConsumerWidget 전환
+- [x] _StatsPanel Expanded 리팩터
+- [x] fromJson null-safe 역직렬화
+- [x] _load() try-catch 크래시 방지
+- [x] MVP 이름 Flexible+ellipsis 오버플로우 수정
+
+## 17차 고도화
+- [x] 사이드바 카테고리 그룹핑 + 뱃지
+  - 전투/컨텐츠/성장/시스템 4개 카테고리
+  - 퀘스트 수령가능/럭키박스 미수령 뱃지
+
 ## 핵심 파일 (고도화에서 추가/수정)
 ### 추가
 - lib/presentation/screens/stage_select/stage_select_screen.dart
