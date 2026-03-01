@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,14 +20,19 @@ class DailyDungeonScreen extends ConsumerStatefulWidget {
 }
 
 class _DailyDungeonScreenState extends ConsumerState<DailyDungeonScreen> {
-  bool _scheduled = false;
+  Timer? _autoTimer;
+
+  @override
+  void dispose() {
+    _autoTimer?.cancel();
+    super.dispose();
+  }
 
   void _scheduleAutoTurn(double speed, bool isAuto) {
-    if (_scheduled || !isAuto) return;
-    _scheduled = true;
+    if (_autoTimer?.isActive == true || !isAuto) return;
     final ms = (800 / speed).round();
-    Future.delayed(Duration(milliseconds: ms), () {
-      _scheduled = false;
+    _autoTimer = Timer(Duration(milliseconds: ms), () {
+      _autoTimer = null;
       if (!mounted) return;
       final current = ref.read(dailyDungeonProvider);
       if (current.phase == DailyDungeonPhase.fighting && current.isAutoMode) {

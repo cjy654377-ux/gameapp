@@ -243,7 +243,7 @@ class _SummonShopTab extends ConsumerWidget {
           icon: Icons.confirmation_number,
           iconColor: Colors.deepPurple,
           title: l.shopSkillTicket10,
-          subtitle: '17% 할인',
+          subtitle: l.shopBulkDiscount,
           cost: '170 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -282,7 +282,7 @@ class _SummonShopTab extends ConsumerWidget {
           icon: Icons.toll,
           iconColor: Colors.blueAccent,
           title: l.shopRelicTicket10,
-          subtitle: '17% 할인',
+          subtitle: l.shopBulkDiscount,
           cost: '170 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -360,7 +360,7 @@ class _CurrencyShopTab extends ConsumerWidget {
           icon: Icons.monetization_on,
           iconColor: Colors.amber,
           title: l.shopBuyGold,
-          subtitle: '10 다이아 → 1,000 골드',
+          subtitle: l.shopExchangeGoldDesc,
           cost: '10 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);
@@ -378,7 +378,7 @@ class _CurrencyShopTab extends ConsumerWidget {
           icon: Icons.monetization_on,
           iconColor: Colors.amberAccent,
           title: l.shopBulkGold,
-          subtitle: '90 다이아 → 10,000 골드',
+          subtitle: l.shopExchangeBulkGoldDesc,
           cost: '90 💎',
           onBuy: () async {
             final n = ref.read(currencyProvider.notifier);

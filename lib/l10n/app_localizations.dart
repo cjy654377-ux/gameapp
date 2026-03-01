@@ -4723,6 +4723,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'자동 반복'**
   String get autoRepeat;
+
+  /// No description provided for @shopBulkDiscount.
+  ///
+  /// In ko, this message translates to:
+  /// **'17% 할인'**
+  String get shopBulkDiscount;
+
+  /// No description provided for @shopExchangeGoldDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'10 💎 → 1,000 골드'**
+  String get shopExchangeGoldDesc;
+
+  /// No description provided for @shopExchangeBulkGoldDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'90 💎 → 10,000 골드'**
+  String get shopExchangeBulkGoldDesc;
 }
 
 class _AppLocalizationsDelegate

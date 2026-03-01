@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -72,16 +74,21 @@ class _DungeonScreenState extends ConsumerState<DungeonScreen> {
     );
   }
 
-  // Auto-turn scheduling.
-  bool _scheduled = false;
+  // Auto-turn scheduling (cancellable timer).
+  Timer? _autoTimer;
+
+  @override
+  void dispose() {
+    _autoTimer?.cancel();
+    super.dispose();
+  }
 
   void _scheduleAutoTurn(double speed, bool isAuto) {
-    if (_scheduled || !isAuto) return;
-    _scheduled = true;
+    if (_autoTimer?.isActive == true || !isAuto) return;
 
     final ms = (800 / speed).round();
-    Future.delayed(Duration(milliseconds: ms), () {
-      _scheduled = false;
+    _autoTimer = Timer(Duration(milliseconds: ms), () {
+      _autoTimer = null;
       if (!mounted) return;
       final current = ref.read(dungeonProvider);
       if (current.phase == DungeonPhase.fighting && current.isAutoMode) {

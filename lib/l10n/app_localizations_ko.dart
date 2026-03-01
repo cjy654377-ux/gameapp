@@ -2614,4 +2614,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get autoRepeat => '자동 반복';
+
+  @override
+  String get shopBulkDiscount => '17% 할인';
+
+  @override
+  String get shopExchangeGoldDesc => '10 💎 → 1,000 골드';
+
+  @override
+  String get shopExchangeBulkGoldDesc => '90 💎 → 10,000 골드';
 }

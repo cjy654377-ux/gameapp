@@ -2627,4 +2627,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoRepeat => 'Auto Repeat';
+
+  @override
+  String get shopBulkDiscount => '17% OFF';
+
+  @override
+  String get shopExchangeGoldDesc => '10 💎 → 1,000 Gold';
+
+  @override
+  String get shopExchangeBulkGoldDesc => '90 💎 → 10,000 Gold';
 }

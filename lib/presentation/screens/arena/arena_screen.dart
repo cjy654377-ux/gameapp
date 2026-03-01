@@ -426,9 +426,11 @@ class _FightViewState extends ConsumerState<_FightView> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final arena = ref.watch(arenaProvider);
+    final idx = arena.selectedOpponentIndex;
     final opponent = arena.opponents.isNotEmpty &&
-            arena.selectedOpponentIndex >= 0
-        ? arena.opponents[arena.selectedOpponentIndex]
+            idx >= 0 &&
+            idx < arena.opponents.length
+        ? arena.opponents[idx]
         : null;
 
     return Column(
@@ -536,7 +538,7 @@ class _TeamGrid extends StatelessWidget {
     required this.color,
   });
 
-  final List team;
+  final List<BattleMonster> team;
   final String label;
   final Color color;
 
