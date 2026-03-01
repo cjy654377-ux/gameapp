@@ -17,12 +17,17 @@ import 'package:gameapp/presentation/providers/skill_gacha_provider.dart';
 import 'package:gameapp/presentation/providers/relic_gacha_provider.dart';
 import 'package:gameapp/presentation/providers/mount_gacha_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
+import 'package:gameapp/presentation/widgets/monster_avatar.dart';
+import 'package:gameapp/presentation/widgets/rarity_frame.dart';
 import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 import 'package:gameapp/routing/app_router.dart';
 import 'package:go_router/go_router.dart';
 
 class GachaScreen extends ConsumerWidget {
-  const GachaScreen({super.key});
+  const GachaScreen({super.key, this.embedded = false});
+
+  /// When true, renders without Scaffold/CurrencyBar for bottom sheet embedding.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,55 +37,67 @@ class GachaScreen extends ConsumerWidget {
     final showRelicResults = ref.watch(relicGachaProvider.select((s) => s.showResults));
     final showMountResults = ref.watch(mountGachaProvider.select((s) => s.showResults));
 
+    final body = Stack(
+      children: [
+        Column(
+          children: [
+            if (!embedded) const CurrencyBar(),
+            Container(
+              color: AppColors.surface,
+              child: TabBar(
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.textSecondary,
+                indicatorColor: AppColors.primary,
+                indicatorWeight: 3,
+                labelStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+                unselectedLabelStyle: const TextStyle(fontSize: 13),
+                tabs: [
+                  Tab(text: l.tabMonster),
+                  Tab(text: l.tabSkillSummon),
+                  Tab(text: l.tabRelicSummon),
+                  Tab(text: l.tabMountSummon),
+                ],
+              ),
+            ),
+            const Expanded(
+              child: TabBarView(
+                children: [
+                  _MonsterGachaTab(),
+                  _SkillGachaTab(),
+                  _RelicGachaTab(),
+                  _MountGachaTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (showMonsterResults) const _ResultOverlay(),
+        if (showSkillResults) const _SkillResultOverlay(),
+        if (showRelicResults) const _RelicResultOverlay(),
+        if (showMountResults) const _MountResultOverlay(),
+      ],
+    );
+
+    if (embedded) {
+      return TutorialOverlay(
+        forStep: TutorialSteps.gachaIntro,
+        child: DefaultTabController(
+          length: 4,
+          child: body,
+        ),
+      );
+    }
+
     return TutorialOverlay(
       forStep: TutorialSteps.gachaIntro,
       child: DefaultTabController(
         length: 4,
         child: Scaffold(
           backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
-              Column(
-                children: [
-                  const CurrencyBar(),
-                  Container(
-                    color: AppColors.surface,
-                    child: TabBar(
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: AppColors.textSecondary,
-                      indicatorColor: AppColors.primary,
-                      indicatorWeight: 3,
-                      labelStyle: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      unselectedLabelStyle: const TextStyle(fontSize: 13),
-                      tabs: [
-                        Tab(text: l.tabMonster),
-                        Tab(text: l.tabSkillSummon),
-                        Tab(text: l.tabRelicSummon),
-                        Tab(text: l.tabMountSummon),
-                      ],
-                    ),
-                  ),
-                  const Expanded(
-                    child: TabBarView(
-                      children: [
-                        _MonsterGachaTab(),
-                        _SkillGachaTab(),
-                        _RelicGachaTab(),
-                        _MountGachaTab(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (showMonsterResults) const _ResultOverlay(),
-              if (showSkillResults) const _SkillResultOverlay(),
-              if (showRelicResults) const _RelicResultOverlay(),
-              if (showMountResults) const _MountResultOverlay(),
-            ],
-          ),
+          body: body,
         ),
       ),
     );
@@ -688,7 +705,7 @@ class _GachaBanner extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(element.emoji, style: const TextStyle(fontSize: 18)),
+                          MonsterAvatar(name: t.name, element: t.element, rarity: t.rarity, templateId: t.id, size: 28),
                           const SizedBox(width: 6),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1308,137 +1325,353 @@ class _ResultOverlayState extends ConsumerState<_ResultOverlay>
 }
 
 // =============================================================================
-// _ResultCard — individual card in results
+// _ResultCard — 3D flip card with rarity burst effects
 // =============================================================================
 
-class _ResultCard extends StatelessWidget {
+class _ResultCard extends StatefulWidget {
   const _ResultCard({required this.result, required this.revealed});
 
   final GachaPullResult result;
   final bool revealed;
 
   @override
+  State<_ResultCard> createState() => _ResultCardState();
+}
+
+class _ResultCardState extends State<_ResultCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _flipController;
+  late Animation<double> _flipAnimation;
+  bool _showFront = false;
+  bool _burstTriggered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _flipController, curve: Curves.easeInOutBack),
+    );
+    _flipAnimation.addListener(() {
+      // Switch face at halfway point
+      if (_flipAnimation.value >= 0.5 && !_showFront) {
+        setState(() => _showFront = true);
+      }
+    });
+
+    if (widget.revealed) {
+      _showFront = true;
+      _flipController.value = 1.0;
+      _burstTriggered = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(_ResultCard old) {
+    super.didUpdateWidget(old);
+    if (widget.revealed && !old.revealed) {
+      _flipController.forward();
+      // Trigger burst after flip completes
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (mounted) setState(() => _burstTriggered = true);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _flipController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final template = result.template;
+    final template = widget.result.template;
     final rarityEnum = MonsterRarity.fromRarity(template.rarity);
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      transitionBuilder: (child, animation) {
-        return ScaleTransition(scale: animation, child: child);
+    return AnimatedBuilder(
+      animation: _flipAnimation,
+      builder: (context, _) {
+        final angle = _flipAnimation.value * math.pi;
+        final isBack = _flipAnimation.value < 0.5;
+
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.001)
+            ..rotateY(angle),
+          child: Stack(
+            children: [
+              // Card content
+              isBack ? _buildBack() : Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()..rotateY(math.pi),
+                child: _buildFront(l, template, rarityEnum),
+              ),
+              // Rarity burst overlay
+              if (_burstTriggered && _showFront && template.rarity >= 3)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: RepaintBoundary(
+                      child: _RarityBurstOverlay(rarity: template.rarity),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
       },
-      child: revealed
-          ? Container(
-              key: const ValueKey('revealed'),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    rarityEnum.color.withValues(alpha:0.3),
-                    AppColors.surface,
-                  ],
-                ),
-                border: Border.all(
-                  color: rarityEnum.color.withValues(alpha:0.6),
-                  width: template.rarity >= 4 ? 2 : 1,
-                ),
-                boxShadow: template.rarity >= 4
-                    ? [
-                        BoxShadow(
-                          color: rarityEnum.color.withValues(alpha:0.3),
-                          blurRadius: 12,
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Rarity stars
-                  Text(
-                    rarityEnum.starsDisplay,
-                    style: TextStyle(
-                      color: rarityEnum.color,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Monster icon placeholder
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: rarityEnum.color.withValues(alpha:0.2),
-                    ),
-                    child: Icon(
-                      _getElementIcon(template.element),
-                      color: rarityEnum.color,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Monster name
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      template.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: rarityEnum.color,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  if (result.wasPickup)
-                    Text(
-                      l.bannerPickupTag,
-                      style: const TextStyle(
-                        color: AppColors.rarityLegendary,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  if (result.wasPity)
-                    Text(
-                      l.gachaGuaranteed,
-                      style: const TextStyle(
-                        color: AppColors.rarityLegendary,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                ],
-              ),
-            )
-          // Unrevealed card back
-          : Container(
-              key: const ValueKey('hidden'),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.card,
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.help_outline_rounded,
-                  color: AppColors.textTertiary,
-                  size: 28,
-                ),
-              ),
-            ),
     );
   }
 
-  IconData _getElementIcon(String element) {
-    return MonsterElement.fromName(element)?.icon ?? Icons.pets_rounded;
+  Widget _buildBack() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: AppColors.card,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.help_outline_rounded,
+          color: AppColors.textTertiary,
+          size: 28,
+        ),
+      ),
+    );
   }
+
+  Widget _buildFront(AppLocalizations l, MonsterTemplate template, MonsterRarity rarityEnum) {
+    Widget card = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            rarityEnum.color.withValues(alpha: 0.3),
+            AppColors.surface,
+          ],
+        ),
+        border: Border.all(
+          color: rarityEnum.color.withValues(alpha: 0.6),
+          width: template.rarity >= 4 ? 2 : 1,
+        ),
+        boxShadow: template.rarity >= 4
+            ? [
+                BoxShadow(
+                  color: rarityEnum.color.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                ),
+              ]
+            : null,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            rarityEnum.starsDisplay,
+            style: TextStyle(color: rarityEnum.color, fontSize: 10),
+          ),
+          const SizedBox(height: 4),
+          MonsterAvatar(
+            name: template.name,
+            element: template.element,
+            rarity: template.rarity,
+            templateId: template.id,
+            size: 36,
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              template.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: rarityEnum.color,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          if (widget.result.wasPickup)
+            Text(
+              l.bannerPickupTag,
+              style: const TextStyle(
+                color: AppColors.rarityLegendary,
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          if (widget.result.wasPity)
+            Text(
+              l.gachaGuaranteed,
+              style: const TextStyle(
+                color: AppColors.rarityLegendary,
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+        ],
+      ),
+    );
+
+    // Wrap with RarityFrame for 3+ star
+    if (template.rarity >= 3) {
+      card = RarityFrame(
+        rarity: template.rarity,
+        size: 60,
+        child: card,
+      );
+    }
+
+    return card;
+  }
+}
+
+// =============================================================================
+// _RarityBurstOverlay — one-shot burst effect on card reveal
+// =============================================================================
+
+class _RarityBurstOverlay extends StatefulWidget {
+  const _RarityBurstOverlay({required this.rarity});
+  final int rarity;
+
+  @override
+  State<_RarityBurstOverlay> createState() => _RarityBurstOverlayState();
+}
+
+class _RarityBurstOverlayState extends State<_RarityBurstOverlay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return CustomPaint(
+          painter: _BurstPainter(
+            rarity: widget.rarity,
+            progress: _controller.value,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BurstPainter extends CustomPainter {
+  _BurstPainter({required this.rarity, required this.progress});
+  final int rarity;
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final maxR = size.width * 0.8;
+    final alpha = (1.0 - progress).clamp(0.0, 1.0);
+
+    if (rarity >= 5) {
+      // Legendary: gold radial rays + rainbow border
+      _drawRadialRays(canvas, cx, cy, maxR, const Color(0xFFFFD700), alpha, 12);
+      _drawStarBurst(canvas, cx, cy, maxR * progress, const Color(0xFFFFD700), alpha, 8);
+    } else if (rarity >= 4) {
+      // Epic: purple concentric rings
+      for (var i = 0; i < 3; i++) {
+        final ringProgress = (progress - i * 0.1).clamp(0.0, 1.0);
+        final r = maxR * ringProgress * 0.5 * (i + 1);
+        final ringAlpha = (alpha * (1.0 - ringProgress)).clamp(0.0, 1.0);
+        canvas.drawCircle(
+          Offset(cx, cy),
+          r,
+          Paint()
+            ..color = const Color(0xFF9C27B0).withValues(alpha: ringAlpha * 0.5)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.5
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+        );
+      }
+    } else if (rarity >= 3) {
+      // Rare: blue star sparks
+      _drawStarBurst(canvas, cx, cy, maxR * progress, const Color(0xFF42A5F5), alpha, 8);
+    }
+  }
+
+  void _drawRadialRays(Canvas canvas, double cx, double cy, double maxR,
+      Color color, double alpha, int count) {
+    final rayPaint = Paint()
+      ..color = color.withValues(alpha: alpha * 0.4)
+      ..strokeWidth = 2
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+
+    for (var i = 0; i < count; i++) {
+      final angle = (i * math.pi * 2 / count) + progress * 0.5;
+      final r = maxR * progress;
+      canvas.drawLine(
+        Offset(cx, cy),
+        Offset(cx + math.cos(angle) * r, cy + math.sin(angle) * r),
+        rayPaint,
+      );
+    }
+  }
+
+  void _drawStarBurst(Canvas canvas, double cx, double cy, double radius,
+      Color color, double alpha, int count) {
+    final rng = math.Random(42);
+    for (var i = 0; i < count; i++) {
+      final angle = rng.nextDouble() * math.pi * 2;
+      final dist = radius * (0.5 + rng.nextDouble() * 0.5);
+      final starR = 2.0 + rng.nextDouble() * 3.0;
+      final x = cx + math.cos(angle) * dist;
+      final y = cy + math.sin(angle) * dist;
+      _drawStar(canvas, x, y, starR * alpha, color.withValues(alpha: alpha * 0.7));
+    }
+  }
+
+  void _drawStar(Canvas canvas, double x, double y, double r, Color color) {
+    if (r <= 0) return;
+    final path = Path();
+    for (var i = 0; i < 4; i++) {
+      final angle = i * math.pi / 2;
+      final ox = math.cos(angle) * r;
+      final oy = math.sin(angle) * r;
+      if (i == 0) {
+        path.moveTo(x + ox, y + oy);
+      } else {
+        path.lineTo(x + ox, y + oy);
+      }
+      final midAngle = angle + math.pi / 4;
+      path.lineTo(x + math.cos(midAngle) * r * 0.3, y + math.sin(midAngle) * r * 0.3);
+    }
+    path.close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_BurstPainter old) => old.progress != progress;
 }
 
 // =============================================================================

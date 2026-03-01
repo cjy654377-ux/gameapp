@@ -991,6 +991,7 @@
   "pityRemaining": "{count}회 남음",
   "@pityRemaining": {"placeholders": {"count": {"type": "int"}}},
 
+  "tabTeam": "팀",
   "tabTrain": "훈련/연구",
   "tabHero": "히어로",
   "trainTitle": "훈련/연구",

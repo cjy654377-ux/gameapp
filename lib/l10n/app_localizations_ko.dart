@@ -2279,6 +2279,69 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get expeditionCollectAll => '전체 수령';
+
+  @override
+  String get expeditionRewardPreview => '예상 보상';
+
+  @override
+  String expeditionTeamLevel(int level) {
+    return '팀 레벨 합계: $level';
+  }
+
+  @override
+  String get expeditionRewardTitle => '탐사 보상 획득!';
+
+  @override
+  String expeditionRewardGold(String amount) {
+    return '골드 +$amount';
+  }
+
+  @override
+  String expeditionRewardExp(int amount) {
+    return '경험의 물약 +$amount';
+  }
+
+  @override
+  String expeditionRewardShard(int amount) {
+    return '소환석 +$amount';
+  }
+
+  @override
+  String expeditionRewardDiamond(int amount) {
+    return '다이아 +$amount';
+  }
+
+  @override
+  String expeditionGoldRange(String min, String max) {
+    return '골드 $min~$max';
+  }
+
+  @override
+  String expeditionExpRange(int min, int max) {
+    return '물약 $min~$max';
+  }
+
+  @override
+  String expeditionShardChance(int pct) {
+    return '소환석 $pct%';
+  }
+
+  @override
+  String expeditionDiamondChance(int pct) {
+    return '다이아 $pct%';
+  }
+
+  @override
+  String get expeditionHour1 => '단기 탐사';
+
+  @override
+  String get expeditionHour4 => '중기 탐사';
+
+  @override
+  String get expeditionHour8 => '장기 탐사';
+
+  @override
   String get synergyNone => '활성 시너지 없음';
 
   @override
@@ -2580,6 +2643,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String pityRemaining(int count) {
     return '$count회 남음';
   }
+
+  @override
+  String get tabTeam => '팀';
 
   @override
   String get tabTrain => '훈련/연구';

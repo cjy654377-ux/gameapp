@@ -9,6 +9,7 @@ import '../../../data/models/monster_model.dart';
 import '../../../data/static/monster_database.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/currency_provider.dart';
+import '../../widgets/monster_avatar.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
 
@@ -440,21 +441,8 @@ class _StarterCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Element circle
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: element.color.withValues(alpha: 0.2),
-                border: Border.all(
-                  color: element.color.withValues(alpha: 0.5),
-                ),
-              ),
-              child: Center(
-                child: Text(element.emoji, style: const TextStyle(fontSize: 24)),
-              ),
-            ),
+            // Monster avatar
+            MonsterAvatar(name: template.name, element: template.element, rarity: template.rarity, templateId: template.id, size: 48),
             const SizedBox(height: 6),
             // Name
             Text(

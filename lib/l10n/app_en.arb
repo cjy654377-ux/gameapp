@@ -915,6 +915,7 @@
   "pityRemaining": "{count} remaining",
   "@pityRemaining": {"placeholders": {"count": {"type": "int"}}},
 
+  "tabTeam": "Team",
   "tabTrain": "Train",
   "tabHero": "Hero",
   "trainTitle": "Training & Research",

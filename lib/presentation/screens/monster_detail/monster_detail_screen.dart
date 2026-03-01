@@ -17,6 +17,7 @@ import '../../../data/static/skill_database.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/relic_provider.dart';
 import '../../providers/skin_provider.dart';
+import '../../widgets/monster_avatar.dart';
 
 /// Full-screen monster detail profile.
 class MonsterDetailScreen extends ConsumerWidget {
@@ -30,7 +31,6 @@ class MonsterDetailScreen extends ConsumerWidget {
     final rarity = MonsterRarity.fromRarity(monster.rarity);
     final element =
         MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
-    final displayEmoji = SkinResolver.emoji(monster);
     final displayColor = SkinResolver.color(monster);
     final skill = SkillDatabase.findByTemplateId(monster.templateId);
     final relicNotifier = ref.read(relicProvider.notifier);
@@ -65,18 +65,14 @@ class MonsterDetailScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: displayColor.withValues(alpha: 0.25),
-                          border: Border.all(color: rarity.color, width: 3),
-                        ),
-                        child: Center(
-                          child: Text(displayEmoji,
-                              style: const TextStyle(fontSize: 40)),
-                        ),
+                      MonsterAvatar(
+                        name: monster.displayName,
+                        element: monster.element,
+                        rarity: monster.rarity,
+                        templateId: monster.templateId,
+                        size: 80,
+                        evolutionStage: monster.evolutionStage,
+                        showRarityGlow: true,
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(

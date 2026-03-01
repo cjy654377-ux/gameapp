@@ -4070,6 +4070,96 @@ abstract class AppLocalizations {
   /// **'{h}시간 원정'**
   String expeditionOptionLabel(int h);
 
+  /// No description provided for @expeditionCollectAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 수령'**
+  String get expeditionCollectAll;
+
+  /// No description provided for @expeditionRewardPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'예상 보상'**
+  String get expeditionRewardPreview;
+
+  /// No description provided for @expeditionTeamLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀 레벨 합계: {level}'**
+  String expeditionTeamLevel(int level);
+
+  /// No description provided for @expeditionRewardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'탐사 보상 획득!'**
+  String get expeditionRewardTitle;
+
+  /// No description provided for @expeditionRewardGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 +{amount}'**
+  String expeditionRewardGold(String amount);
+
+  /// No description provided for @expeditionRewardExp.
+  ///
+  /// In ko, this message translates to:
+  /// **'경험의 물약 +{amount}'**
+  String expeditionRewardExp(int amount);
+
+  /// No description provided for @expeditionRewardShard.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석 +{amount}'**
+  String expeditionRewardShard(int amount);
+
+  /// No description provided for @expeditionRewardDiamond.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 +{amount}'**
+  String expeditionRewardDiamond(int amount);
+
+  /// No description provided for @expeditionGoldRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'골드 {min}~{max}'**
+  String expeditionGoldRange(String min, String max);
+
+  /// No description provided for @expeditionExpRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'물약 {min}~{max}'**
+  String expeditionExpRange(int min, int max);
+
+  /// No description provided for @expeditionShardChance.
+  ///
+  /// In ko, this message translates to:
+  /// **'소환석 {pct}%'**
+  String expeditionShardChance(int pct);
+
+  /// No description provided for @expeditionDiamondChance.
+  ///
+  /// In ko, this message translates to:
+  /// **'다이아 {pct}%'**
+  String expeditionDiamondChance(int pct);
+
+  /// No description provided for @expeditionHour1.
+  ///
+  /// In ko, this message translates to:
+  /// **'단기 탐사'**
+  String get expeditionHour1;
+
+  /// No description provided for @expeditionHour4.
+  ///
+  /// In ko, this message translates to:
+  /// **'중기 탐사'**
+  String get expeditionHour4;
+
+  /// No description provided for @expeditionHour8.
+  ///
+  /// In ko, this message translates to:
+  /// **'장기 탐사'**
+  String get expeditionHour8;
+
   /// No description provided for @synergyNone.
   ///
   /// In ko, this message translates to:
@@ -4639,6 +4729,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}회 남음'**
   String pityRemaining(int count);
+
+  /// No description provided for @tabTeam.
+  ///
+  /// In ko, this message translates to:
+  /// **'팀'**
+  String get tabTeam;
 
   /// No description provided for @tabTrain.
   ///

@@ -2291,6 +2291,69 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expeditionCollectAll => 'Collect All';
+
+  @override
+  String get expeditionRewardPreview => 'Expected Rewards';
+
+  @override
+  String expeditionTeamLevel(int level) {
+    return 'Team Level Total: $level';
+  }
+
+  @override
+  String get expeditionRewardTitle => 'Expedition Rewards!';
+
+  @override
+  String expeditionRewardGold(String amount) {
+    return 'Gold +$amount';
+  }
+
+  @override
+  String expeditionRewardExp(int amount) {
+    return 'EXP Potion +$amount';
+  }
+
+  @override
+  String expeditionRewardShard(int amount) {
+    return 'Shard +$amount';
+  }
+
+  @override
+  String expeditionRewardDiamond(int amount) {
+    return 'Diamond +$amount';
+  }
+
+  @override
+  String expeditionGoldRange(String min, String max) {
+    return 'Gold $min~$max';
+  }
+
+  @override
+  String expeditionExpRange(int min, int max) {
+    return 'Potion $min~$max';
+  }
+
+  @override
+  String expeditionShardChance(int pct) {
+    return 'Shard $pct%';
+  }
+
+  @override
+  String expeditionDiamondChance(int pct) {
+    return 'Diamond $pct%';
+  }
+
+  @override
+  String get expeditionHour1 => 'Quick Expedition';
+
+  @override
+  String get expeditionHour4 => 'Medium Expedition';
+
+  @override
+  String get expeditionHour8 => 'Long Expedition';
+
+  @override
   String get synergyNone => 'No active synergies';
 
   @override
@@ -2593,6 +2656,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String pityRemaining(int count) {
     return '$count remaining';
   }
+
+  @override
+  String get tabTeam => 'Team';
 
   @override
   String get tabTrain => 'Train';

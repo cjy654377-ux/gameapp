@@ -9,68 +9,81 @@ import 'package:gameapp/presentation/providers/currency_provider.dart';
 import 'package:gameapp/presentation/widgets/common/currency_bar.dart';
 
 class ShopScreen extends ConsumerWidget {
-  const ShopScreen({super.key});
+  const ShopScreen({super.key, this.embedded = false});
+
+  /// When true, renders without Scaffold/CurrencyBar for bottom sheet embedding.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+
+    final body = Column(
+      children: [
+        if (!embedded) const CurrencyBar(),
+        // Header with settings gear
+        Container(
+          color: AppColors.surface,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.store, color: AppColors.primary, size: 24),
+              const SizedBox(width: 8),
+              Text(l.shopHeader,
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary)),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.settings, color: AppColors.textSecondary),
+                onPressed: () => context.push(AppRoutes.settings),
+              ),
+            ],
+          ),
+        ),
+        // Tabs
+        Container(
+          color: AppColors.surface,
+          child: TabBar(
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: AppColors.primary,
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            unselectedLabelStyle: const TextStyle(fontSize: 13),
+            tabs: [
+              Tab(text: l.shopTabGeneral),
+              Tab(text: l.shopTabSummon),
+              Tab(text: l.shopTabCurrency),
+            ],
+          ),
+        ),
+        // Tab content
+        const Expanded(
+          child: TabBarView(
+            children: [
+              _GeneralShopTab(),
+              _SummonShopTab(),
+              _CurrencyShopTab(),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    if (embedded) {
+      return DefaultTabController(
+        length: 3,
+        child: body,
+      );
+    }
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: Column(
-          children: [
-            const CurrencyBar(),
-            // Header with settings gear
-            Container(
-              color: AppColors.surface,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.store, color: AppColors.primary, size: 24),
-                  const SizedBox(width: 8),
-                  Text(l.shopHeader,
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary)),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: AppColors.textSecondary),
-                    onPressed: () => context.push(AppRoutes.settings),
-                  ),
-                ],
-              ),
-            ),
-            // Tabs
-            Container(
-              color: AppColors.surface,
-              child: TabBar(
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.textSecondary,
-                indicatorColor: AppColors.primary,
-                indicatorWeight: 3,
-                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                unselectedLabelStyle: const TextStyle(fontSize: 13),
-                tabs: [
-                  Tab(text: l.shopTabGeneral),
-                  Tab(text: l.shopTabSummon),
-                  Tab(text: l.shopTabCurrency),
-                ],
-              ),
-            ),
-            // Tab content
-            const Expanded(
-              child: TabBarView(
-                children: [
-                  _GeneralShopTab(),
-                  _SummonShopTab(),
-                  _CurrencyShopTab(),
-                ],
-              ),
-            ),
-          ],
-        ),
+        body: body,
       ),
     );
   }

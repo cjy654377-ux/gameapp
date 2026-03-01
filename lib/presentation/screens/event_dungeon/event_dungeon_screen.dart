@@ -11,6 +11,7 @@ import 'package:gameapp/domain/services/event_dungeon_service.dart';
 import 'package:gameapp/presentation/providers/event_dungeon_provider.dart';
 import 'package:gameapp/presentation/widgets/battle/monster_battle_card.dart';
 import 'package:gameapp/presentation/widgets/common/battle_log_list.dart';
+import 'package:gameapp/presentation/widgets/monster_avatar.dart';
 
 class EventDungeonScreen extends ConsumerStatefulWidget {
   const EventDungeonScreen({super.key});
@@ -190,16 +191,11 @@ class _EventCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: element.color.withValues(alpha: 0.2),
-                ),
-                child: Center(
-                  child: Text(element.emoji, style: const TextStyle(fontSize: 20)),
-                ),
+              MonsterAvatar(
+                name: event.name,
+                element: event.element,
+                rarity: 1,
+                size: 40,
               ),
               const SizedBox(width: 12),
               Expanded(

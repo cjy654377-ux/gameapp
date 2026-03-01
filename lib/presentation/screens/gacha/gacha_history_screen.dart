@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/enums/monster_element.dart';
 import '../../../core/enums/monster_rarity.dart';
 import '../../../core/utils/format_utils.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../providers/gacha_history_provider.dart';
+import '../../widgets/monster_avatar.dart';
 
 class GachaHistoryScreen extends ConsumerWidget {
   const GachaHistoryScreen({super.key});
@@ -160,8 +160,6 @@ class _HistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final rarity = MonsterRarity.fromRarity(entry.rarity);
-    final element =
-        MonsterElement.fromName(entry.element) ?? MonsterElement.fire;
 
     return Card(
       color: entry.rarity >= 4
@@ -170,7 +168,13 @@ class _HistoryTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
       child: ListTile(
         dense: true,
-        leading: Text(element.emoji, style: const TextStyle(fontSize: 24)),
+        leading: MonsterAvatar(
+          name: entry.monsterName,
+          element: entry.element,
+          rarity: entry.rarity,
+          templateId: entry.monsterName,
+          size: 40,
+        ),
         title: Text(
           entry.monsterName,
           style: TextStyle(

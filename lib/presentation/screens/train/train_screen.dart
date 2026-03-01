@@ -7,7 +7,10 @@ import 'package:gameapp/routing/app_router.dart';
 import 'package:gameapp/presentation/providers/expedition_provider.dart';
 
 class TrainScreen extends ConsumerWidget {
-  const TrainScreen({super.key});
+  const TrainScreen({super.key, this.embedded = false});
+
+  /// When true, renders without Scaffold/AppBar for bottom sheet embedding.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,6 +18,52 @@ class TrainScreen extends ConsumerWidget {
     final expeditionCompleted = ref.watch(
       expeditionProvider.select((s) => s.completedCount),
     );
+
+    final content = ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (embedded)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              l10n.trainTitle,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        _NavCard(
+          icon: Icons.upgrade,
+          iconColor: AppColors.primary,
+          title: l10n.trainUpgradeCard,
+          description: l10n.trainUpgradeDesc,
+          badge: null,
+          onTap: () => context.push(AppRoutes.upgrade),
+        ),
+        const SizedBox(height: 12),
+        _NavCard(
+          icon: Icons.fitness_center,
+          iconColor: Colors.orange,
+          title: l10n.trainTrainingCard,
+          description: l10n.trainTrainingDesc,
+          badge: null,
+          onTap: () => context.push(AppRoutes.training),
+        ),
+        const SizedBox(height: 12),
+        _NavCard(
+          icon: Icons.explore,
+          iconColor: Colors.lightBlue,
+          title: l10n.trainExpeditionCard,
+          description: l10n.trainExpeditionDesc,
+          badge: expeditionCompleted > 0 ? expeditionCompleted : null,
+          onTap: () => context.push(AppRoutes.expedition),
+        ),
+      ],
+    );
+
+    if (embedded) return content;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -31,37 +80,7 @@ class TrainScreen extends ConsumerWidget {
         ),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _NavCard(
-            icon: Icons.upgrade,
-            iconColor: AppColors.primary,
-            title: l10n.trainUpgradeCard,
-            description: l10n.trainUpgradeDesc,
-            badge: null,
-            onTap: () => context.push(AppRoutes.upgrade),
-          ),
-          const SizedBox(height: 12),
-          _NavCard(
-            icon: Icons.fitness_center,
-            iconColor: Colors.orange,
-            title: l10n.trainTrainingCard,
-            description: l10n.trainTrainingDesc,
-            badge: null,
-            onTap: () => context.push(AppRoutes.training),
-          ),
-          const SizedBox(height: 12),
-          _NavCard(
-            icon: Icons.explore,
-            iconColor: Colors.lightBlue,
-            title: l10n.trainExpeditionCard,
-            description: l10n.trainExpeditionDesc,
-            badge: expeditionCompleted > 0 ? expeditionCompleted : null,
-            onTap: () => context.push(AppRoutes.expedition),
-          ),
-        ],
-      ),
+      body: content,
     );
   }
 }

@@ -7,6 +7,7 @@ import '../../../core/enums/monster_rarity.dart';
 import '../../../data/models/monster_model.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../providers/monster_provider.dart';
+import '../../widgets/monster_avatar.dart';
 
 // =============================================================================
 // MonsterCompareScreen
@@ -124,9 +125,6 @@ class _SlotCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = monster;
-    final element = m != null
-        ? MonsterElement.fromName(m.element) ?? MonsterElement.fire
-        : null;
     final rarity = m != null ? MonsterRarity.fromRarity(m.rarity) : null;
 
     return GestureDetector(
@@ -155,7 +153,7 @@ class _SlotCard extends StatelessWidget {
               )
             : Column(
                 children: [
-                  Text(element!.emoji, style: const TextStyle(fontSize: 28)),
+                  MonsterAvatar(name: m.displayName, element: m.element, rarity: m.rarity, templateId: m.templateId, size: 48),
                   const SizedBox(height: 4),
                   Text(
                     m.displayName,
@@ -619,8 +617,6 @@ class _MonsterPicker extends StatelessWidget {
               itemCount: sorted.length,
               itemBuilder: (context, index) {
                 final m = sorted[index];
-                final element =
-                    MonsterElement.fromName(m.element) ?? MonsterElement.fire;
                 final rarity = MonsterRarity.fromRarity(m.rarity);
                 return GestureDetector(
                   onTap: () => onSelect(m),
@@ -633,8 +629,7 @@ class _MonsterPicker extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(element.emoji,
-                            style: const TextStyle(fontSize: 22)),
+                        MonsterAvatar(name: m.displayName, element: m.element, rarity: m.rarity, templateId: m.templateId, size: 36),
                         const SizedBox(height: 2),
                         Text(
                           m.displayName,

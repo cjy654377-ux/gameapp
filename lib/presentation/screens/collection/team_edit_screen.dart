@@ -11,6 +11,7 @@ import '../../../data/models/monster_model.dart';
 import '../../providers/monster_provider.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/team_preset_provider.dart';
+import '../../widgets/monster_avatar.dart';
 
 /// Full-screen team editor opened from CollectionScreen or battle.
 class TeamEditScreen extends ConsumerStatefulWidget {
@@ -261,8 +262,6 @@ class _TeamSlot extends StatelessWidget {
     }
 
     final rarity = MonsterRarity.fromRarity(monster!.rarity);
-    final element =
-        MonsterElement.fromName(monster!.element) ?? MonsterElement.fire;
 
     return GestureDetector(
       onTap: onRemove,
@@ -277,7 +276,13 @@ class _TeamSlot extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(element.emoji, style: const TextStyle(fontSize: 22)),
+            MonsterAvatar(
+              name: monster!.name,
+              element: monster!.element,
+              rarity: monster!.rarity,
+              templateId: monster!.templateId,
+              size: 36,
+            ),
             const SizedBox(height: 2),
             Text(
               monster!.name,
@@ -574,8 +579,6 @@ class _RosterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rarity = MonsterRarity.fromRarity(monster.rarity);
-    final element =
-        MonsterElement.fromName(monster.element) ?? MonsterElement.fire;
 
     return GestureDetector(
       onTap: onTap,
@@ -596,7 +599,13 @@ class _RosterCard extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(element.emoji, style: const TextStyle(fontSize: 24)),
+                  MonsterAvatar(
+                    name: monster.name,
+                    element: monster.element,
+                    rarity: monster.rarity,
+                    templateId: monster.templateId,
+                    size: 36,
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     monster.name,

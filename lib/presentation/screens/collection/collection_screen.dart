@@ -7,12 +7,12 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/enums/monster_element.dart';
 import '../../../core/enums/monster_rarity.dart';
-import '../../../core/utils/skin_resolver.dart';
 import '../../../routing/app_router.dart';
 import '../../providers/collection_provider.dart';
 import '../../providers/collection_challenge_provider.dart';
 import '../../providers/monster_provider.dart';
 import '../../widgets/common/currency_bar.dart';
+import '../../widgets/monster_avatar.dart';
 import '../../widgets/tutorial_overlay.dart';
 
 class CollectionScreen extends ConsumerWidget {
@@ -605,22 +605,12 @@ class _MonsterCard extends ConsumerWidget {
         semanticLabel: l.collectionUnknownMonster,
       );
     }
-    final best = entry.best;
-    final displayEmoji = best != null ? SkinResolver.emoji(best) : element.emoji;
-    final displayColor = best != null ? SkinResolver.color(best) : element.color;
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: displayColor.withValues(alpha: 0.2),
-      ),
-      child: Center(
-        child: Text(
-          displayEmoji,
-          style: const TextStyle(fontSize: 22),
-        ),
-      ),
+    return MonsterAvatar(
+      name: entry.template.name,
+      element: entry.template.element,
+      rarity: entry.template.rarity,
+      templateId: entry.template.id,
+      size: 40,
     );
   }
 }
@@ -642,8 +632,6 @@ class _MonsterDetailSheet extends StatelessWidget {
     final element =
         MonsterElement.fromName(t.element) ?? MonsterElement.fire;
     final best = entry.best;
-    final displayEmoji = best != null ? SkinResolver.emoji(best) : element.emoji;
-    final displayColor = best != null ? SkinResolver.color(best) : element.color;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -654,17 +642,13 @@ class _MonsterDetailSheet extends StatelessWidget {
           // Header
           Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: displayColor.withValues(alpha: 0.2),
-                  border: Border.all(color: rarity.color, width: 2),
-                ),
-                child: Center(
-                  child: Text(displayEmoji, style: const TextStyle(fontSize: 28)),
-                ),
+              MonsterAvatar(
+                name: t.name,
+                element: t.element,
+                rarity: t.rarity,
+                templateId: t.id,
+                size: 56,
+                showRarityGlow: true,
               ),
               const SizedBox(width: 16),
               Expanded(

@@ -2,21 +2,24 @@ import 'package:flutter/material.dart';
 
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/core/enums/monster_rarity.dart';
+import 'package:gameapp/presentation/widgets/monster_portrait_painter.dart';
 
 // =============================================================================
-// MonsterAvatar — unified monster visual widget
+// MonsterAvatar — procedural monster visual widget
 // =============================================================================
 
 /// A reusable, consistent monster avatar widget used across all screens.
 ///
-/// Shows an element-based icon with rarity-colored border and optional
-/// decorators (evolution badge, level text, dead overlay).
-class MonsterAvatar extends StatelessWidget {
+/// Renders a procedurally generated monster using [MonsterPortraitPainter]
+/// based on [templateId] seed. Falls back to element icon if no templateId.
+/// Rarity 3+ gets animated glow ring.
+class MonsterAvatar extends StatefulWidget {
   const MonsterAvatar({
     super.key,
     required this.name,
     required this.element,
     required this.rarity,
+    this.templateId,
     this.size = 48,
     this.evolutionStage = 0,
     this.showName = false,
@@ -29,6 +32,7 @@ class MonsterAvatar extends StatelessWidget {
   final String name;
   final String element;
   final int rarity;
+  final String? templateId;
   final double size;
   final int evolutionStage;
   final bool showName;
@@ -38,110 +42,69 @@ class MonsterAvatar extends StatelessWidget {
   final bool showRarityGlow;
 
   @override
+  State<MonsterAvatar> createState() => _MonsterAvatarState();
+}
+
+class _MonsterAvatarState extends State<MonsterAvatar>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _glowController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initGlow();
+  }
+
+  @override
+  void didUpdateWidget(MonsterAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.rarity != widget.rarity || oldWidget.isDead != widget.isDead) {
+      _initGlow();
+    }
+  }
+
+  void _initGlow() {
+    if (widget.rarity >= 3 && !widget.isDead) {
+      _glowController ??= AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 3),
+      )..repeat();
+    } else {
+      _glowController?.dispose();
+      _glowController = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _glowController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final elemEnum = MonsterElement.fromName(element);
-    final elemColor = elemEnum?.color ?? Colors.grey;
-    final rarityEnum = MonsterRarity.fromRarity(rarity);
+    final rarityEnum = MonsterRarity.fromRarity(widget.rarity);
     final rarColor = rarityEnum.color;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Avatar circle
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                elemColor.withValues(alpha: 0.3),
-                elemColor.withValues(alpha: 0.1),
-              ],
-            ),
-            border: Border.all(
-              color: isDead ? Colors.grey.withValues(alpha: 0.3) : rarColor,
-              width: rarity >= 4 ? 2.5 : 2.0,
-            ),
-            boxShadow: showRarityGlow && rarity >= 3 && !isDead
-                ? [
-                    BoxShadow(
-                      color: rarColor.withValues(alpha: 0.4),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Element icon
-              Icon(
-                _elementIcon(element),
-                color: isDead ? Colors.grey : elemColor,
-                size: size * 0.45,
-              ),
-              // Evolution badge
-              if (evolutionStage > 0)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: size * 0.3,
-                    height: size * 0.3,
-                    decoration: BoxDecoration(
-                      color: evolutionStage >= 2
-                          ? Colors.amber
-                          : Colors.orange,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.black54,
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$evolutionStage',
-                        style: TextStyle(
-                          fontSize: size * 0.16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              // Dead overlay
-              if (isDead)
-                Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black.withValues(alpha: 0.5),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.red.withValues(alpha: 0.7),
-                    size: size * 0.4,
-                  ),
-                ),
-            ],
-          ),
+        // Procedural avatar
+        RepaintBoundary(
+          child: widget.templateId != null
+              ? _buildProceduralAvatar(rarColor)
+              : _buildFallbackAvatar(rarColor),
         ),
         // Name
-        if (showName) ...[
+        if (widget.showName) ...[
           const SizedBox(height: 4),
           SizedBox(
-            width: size + 16,
+            width: widget.size + 16,
             child: Text(
-              name,
+              widget.name,
               style: TextStyle(
-                fontSize: (size * 0.22).clamp(10, 14),
-                color: isDead ? Colors.grey : rarColor,
+                fontSize: (widget.size * 0.22).clamp(10, 14),
+                color: widget.isDead ? Colors.grey : rarColor,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -151,11 +114,11 @@ class MonsterAvatar extends StatelessWidget {
           ),
         ],
         // Level
-        if (showLevel) ...[
+        if (widget.showLevel) ...[
           Text(
-            'Lv.$level',
+            'Lv.${widget.level}',
             style: TextStyle(
-              fontSize: (size * 0.18).clamp(9, 12),
+              fontSize: (widget.size * 0.18).clamp(9, 12),
               color: Colors.grey[500],
             ),
           ),
@@ -164,8 +127,117 @@ class MonsterAvatar extends StatelessWidget {
     );
   }
 
-  static IconData _elementIcon(String element) {
-    return MonsterElement.fromName(element)?.icon ?? Icons.pets_rounded;
+  Widget _buildProceduralAvatar(Color rarColor) {
+    if (_glowController != null) {
+      return AnimatedBuilder(
+        animation: _glowController!,
+        builder: (context, _) {
+          return CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: MonsterPortraitPainter(
+              templateId: widget.templateId!,
+              element: widget.element,
+              rarity: widget.rarity,
+              isDead: widget.isDead,
+              evolutionStage: widget.evolutionStage,
+              glowPhase: _glowController!.value * 6.283,
+            ),
+          );
+        },
+      );
+    }
+    return CustomPaint(
+      size: Size(widget.size, widget.size),
+      painter: MonsterPortraitPainter(
+        templateId: widget.templateId!,
+        element: widget.element,
+        rarity: widget.rarity,
+        isDead: widget.isDead,
+        evolutionStage: widget.evolutionStage,
+      ),
+    );
+  }
+
+  Widget _buildFallbackAvatar(Color rarColor) {
+    final elemEnum = MonsterElement.fromName(widget.element);
+    final elemColor = elemEnum?.color ?? Colors.grey;
+
+    return Container(
+      width: widget.size,
+      height: widget.size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            elemColor.withValues(alpha: 0.3),
+            elemColor.withValues(alpha: 0.1),
+          ],
+        ),
+        border: Border.all(
+          color: widget.isDead ? Colors.grey.withValues(alpha: 0.3) : rarColor,
+          width: widget.rarity >= 4 ? 2.5 : 2.0,
+        ),
+        boxShadow: widget.showRarityGlow && widget.rarity >= 3 && !widget.isDead
+            ? [
+                BoxShadow(
+                  color: rarColor.withValues(alpha: 0.4),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ]
+            : null,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            elemEnum?.icon ?? Icons.pets_rounded,
+            color: widget.isDead ? Colors.grey : elemColor,
+            size: widget.size * 0.45,
+          ),
+          if (widget.evolutionStage > 0)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                width: widget.size * 0.3,
+                height: widget.size * 0.3,
+                decoration: BoxDecoration(
+                  color: widget.evolutionStage >= 2 ? Colors.amber : Colors.orange,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black54, width: 1),
+                ),
+                child: Center(
+                  child: Text(
+                    '${widget.evolutionStage}',
+                    style: TextStyle(
+                      fontSize: widget.size * 0.16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (widget.isDead)
+            Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: 0.5),
+              ),
+              child: Icon(
+                Icons.close,
+                color: Colors.red.withValues(alpha: 0.7),
+                size: widget.size * 0.4,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

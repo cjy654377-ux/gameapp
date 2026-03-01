@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../data/datasources/local_storage.dart';
 import '../data/models/monster_model.dart';
 import '../presentation/screens/home_screen.dart';
-import '../presentation/screens/battle/battle_screen.dart';
 import '../presentation/screens/gacha/gacha_screen.dart';
 import '../presentation/screens/collection/collection_screen.dart';
 import '../presentation/screens/collection/team_edit_screen.dart';
@@ -81,6 +80,7 @@ class AppRoutes {
   static const mapHub = '/map-hub';
   static const train = '/train';
   static const luckyBox = '/lucky-box';
+  static const team = '/team';
 }
 
 // ---------------------------------------------------------------------------
@@ -216,6 +216,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MapHubScreen(),
       ),
       GoRoute(
+        path: AppRoutes.hero,
+        builder: (context, state) => const HeroScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.train,
+        builder: (context, state) => const TrainScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.gacha,
+        builder: (context, state) => const GachaScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.shop,
+        builder: (context, state) => const ShopScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.monsterDetail,
         builder: (context, state) {
           final monster = state.extra;
@@ -233,31 +249,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.battle,
             pageBuilder: (context, state) => const NoTransitionPage(
-              child: BattleScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.train,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: TrainScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.hero,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: HeroScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.gacha,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: GachaScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.shop,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ShopScreen(),
+              child: SizedBox.shrink(), // Battle is always visible in HomeScreen
             ),
           ),
         ],
