@@ -3284,6 +3284,66 @@ abstract class AppLocalizations {
   /// **'적군'**
   String get replayEnemyTeam;
 
+  /// No description provided for @replayFilterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get replayFilterAll;
+
+  /// No description provided for @replayWinRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'승률 {rate}%'**
+  String replayWinRate(String rate);
+
+  /// No description provided for @replayNoMatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 조건의 기록이 없습니다'**
+  String get replayNoMatch;
+
+  /// No description provided for @replayDeleteOne.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 삭제'**
+  String get replayDeleteOne;
+
+  /// No description provided for @replayDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} 기록을 삭제하시겠습니까?'**
+  String replayDeleteConfirm(String label);
+
+  /// No description provided for @replayTotalDmg.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 데미지'**
+  String get replayTotalDmg;
+
+  /// No description provided for @replayCritCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'치명타'**
+  String get replayCritCount;
+
+  /// No description provided for @replaySkillCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'스킬'**
+  String get replaySkillCount;
+
+  /// No description provided for @replayShowLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그 보기'**
+  String get replayShowLog;
+
+  /// No description provided for @replayShowStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계 보기'**
+  String get replayShowStats;
+
   /// No description provided for @relicEnhance.
   ///
   /// In ko, this message translates to:

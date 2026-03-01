@@ -17,6 +17,7 @@ import 'package:gameapp/data/static/equippable_skill_database.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 import 'package:gameapp/presentation/providers/season_pass_provider.dart';
 import 'package:gameapp/presentation/providers/battle_replay_provider.dart';
+import 'package:gameapp/domain/services/battle_statistics_service.dart';
 
 // ---------------------------------------------------------------------------
 // Internal helpers — delegate to StageDatabase shared utilities.
@@ -897,6 +898,14 @@ class BattleNotifier extends StateNotifier<BattleState> {
 
   void _saveReplay(List<BattleLogEntry> log, bool isVictory) {
     final stageKey = _stageIndexToKey(state.currentStageId);
+
+    // Calculate stats
+    final battleStats = BattleStatisticsService.calculate(
+      log: log,
+      playerTeam: state.playerTeam,
+      turnCount: state.currentTurn,
+    );
+
     final record = BattleRecord(
       id: '${DateTime.now().millisecondsSinceEpoch}',
       timestamp: DateTime.now(),
@@ -906,6 +915,12 @@ class BattleNotifier extends StateNotifier<BattleState> {
       playerNames: state.playerTeam.map((m) => m.name).toList(),
       enemyNames: state.enemyTeam.map((m) => m.name).toList(),
       logLines: log.map((e) => e.description).toList(),
+      stats: BattleRecordStats(
+        totalDamage: battleStats.totalDamage,
+        totalCriticals: battleStats.totalCriticals,
+        totalSkillUses: battleStats.totalSkillUses,
+        mvpName: battleStats.mvpName,
+      ),
     );
     ref.read(battleReplayProvider.notifier).addRecord(record);
   }

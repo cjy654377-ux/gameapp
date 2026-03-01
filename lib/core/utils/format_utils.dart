@@ -194,4 +194,7 @@ class FormatUtils {
     }
     return '${millions.toStringAsFixed(1)}M';
   }
+
+  /// Format a double compactly (e.g. 1234567.0 → "1.2M").
+  static String compact(double value) => formatCompact(value.toInt());
 }

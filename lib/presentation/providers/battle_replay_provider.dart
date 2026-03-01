@@ -6,6 +6,35 @@ import 'package:hive/hive.dart';
 // Battle Record (serializable)
 // =============================================================================
 
+class BattleRecordStats {
+  final double totalDamage;
+  final int totalCriticals;
+  final int totalSkillUses;
+  final String mvpName;
+
+  const BattleRecordStats({
+    this.totalDamage = 0,
+    this.totalCriticals = 0,
+    this.totalSkillUses = 0,
+    this.mvpName = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'dmg': totalDamage,
+        'crit': totalCriticals,
+        'skill': totalSkillUses,
+        'mvp': mvpName,
+      };
+
+  factory BattleRecordStats.fromJson(Map<String, dynamic> json) =>
+      BattleRecordStats(
+        totalDamage: (json['dmg'] as num?)?.toDouble() ?? 0,
+        totalCriticals: json['crit'] as int? ?? 0,
+        totalSkillUses: json['skill'] as int? ?? 0,
+        mvpName: json['mvp'] as String? ?? '',
+      );
+}
+
 class BattleRecord {
   final String id;
   final DateTime timestamp;
@@ -15,6 +44,7 @@ class BattleRecord {
   final List<String> playerNames;
   final List<String> enemyNames;
   final List<String> logLines; // BattleLogEntry.description list
+  final BattleRecordStats stats;
 
   const BattleRecord({
     required this.id,
@@ -25,6 +55,7 @@ class BattleRecord {
     required this.playerNames,
     required this.enemyNames,
     required this.logLines,
+    this.stats = const BattleRecordStats(),
   });
 
   Map<String, dynamic> toJson() => {
@@ -36,6 +67,7 @@ class BattleRecord {
         'players': playerNames,
         'enemies': enemyNames,
         'logs': logLines,
+        'stats': stats.toJson(),
       };
 
   factory BattleRecord.fromJson(Map<String, dynamic> json) => BattleRecord(
@@ -48,8 +80,17 @@ class BattleRecord {
         playerNames: (json['players'] as List).cast<String>(),
         enemyNames: (json['enemies'] as List).cast<String>(),
         logLines: (json['logs'] as List).cast<String>(),
+        stats: json['stats'] != null
+            ? BattleRecordStats.fromJson(json['stats'] as Map<String, dynamic>)
+            : const BattleRecordStats(),
       );
 }
+
+// =============================================================================
+// Filter
+// =============================================================================
+
+enum ReplayFilter { all, victory, defeat }
 
 // =============================================================================
 // State
@@ -57,11 +98,35 @@ class BattleRecord {
 
 class BattleReplayState {
   final List<BattleRecord> records;
+  final ReplayFilter filter;
 
-  const BattleReplayState({this.records = const []});
+  const BattleReplayState({
+    this.records = const [],
+    this.filter = ReplayFilter.all,
+  });
 
-  BattleReplayState copyWith({List<BattleRecord>? records}) =>
-      BattleReplayState(records: records ?? this.records);
+  List<BattleRecord> get filteredRecords {
+    switch (filter) {
+      case ReplayFilter.all:
+        return records;
+      case ReplayFilter.victory:
+        return records.where((r) => r.isVictory).toList();
+      case ReplayFilter.defeat:
+        return records.where((r) => !r.isVictory).toList();
+    }
+  }
+
+  int get victoryCount => records.where((r) => r.isVictory).length;
+  int get defeatCount => records.where((r) => !r.isVictory).length;
+
+  BattleReplayState copyWith({
+    List<BattleRecord>? records,
+    ReplayFilter? filter,
+  }) =>
+      BattleReplayState(
+        records: records ?? this.records,
+        filter: filter ?? this.filter,
+      );
 }
 
 // =============================================================================
@@ -74,7 +139,7 @@ class BattleReplayNotifier extends StateNotifier<BattleReplayState> {
   }
 
   static const _key = 'battle_replays';
-  static const _maxRecords = 10;
+  static const _maxRecords = 20;
 
   void _load() {
     final box = Hive.box('settings');
@@ -99,6 +164,17 @@ class BattleReplayNotifier extends StateNotifier<BattleReplayState> {
     }
     state = state.copyWith(records: updated);
     await _save();
+  }
+
+  /// Delete a single record by id.
+  Future<void> deleteRecord(String id) async {
+    final updated = state.records.where((r) => r.id != id).toList();
+    state = state.copyWith(records: updated);
+    await _save();
+  }
+
+  void setFilter(ReplayFilter filter) {
+    state = state.copyWith(filter: filter);
   }
 
   Future<void> clearAll() async {

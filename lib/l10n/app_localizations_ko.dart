@@ -1790,6 +1790,40 @@ class AppLocalizationsKo extends AppLocalizations {
   String get replayEnemyTeam => '적군';
 
   @override
+  String get replayFilterAll => '전체';
+
+  @override
+  String replayWinRate(String rate) {
+    return '승률 $rate%';
+  }
+
+  @override
+  String get replayNoMatch => '해당 조건의 기록이 없습니다';
+
+  @override
+  String get replayDeleteOne => '기록 삭제';
+
+  @override
+  String replayDeleteConfirm(String label) {
+    return '$label 기록을 삭제하시겠습니까?';
+  }
+
+  @override
+  String get replayTotalDmg => '총 데미지';
+
+  @override
+  String get replayCritCount => '치명타';
+
+  @override
+  String get replaySkillCount => '스킬';
+
+  @override
+  String get replayShowLog => '로그 보기';
+
+  @override
+  String get replayShowStats => '통계 보기';
+
+  @override
   String get relicEnhance => '강화';
 
   @override

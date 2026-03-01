@@ -1798,6 +1798,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get replayEnemyTeam => 'Enemies';
 
   @override
+  String get replayFilterAll => 'All';
+
+  @override
+  String replayWinRate(String rate) {
+    return 'Win Rate $rate%';
+  }
+
+  @override
+  String get replayNoMatch => 'No matching records';
+
+  @override
+  String get replayDeleteOne => 'Delete Record';
+
+  @override
+  String replayDeleteConfirm(String label) {
+    return 'Delete $label record?';
+  }
+
+  @override
+  String get replayTotalDmg => 'Total DMG';
+
+  @override
+  String get replayCritCount => 'Criticals';
+
+  @override
+  String get replaySkillCount => 'Skills';
+
+  @override
+  String get replayShowLog => 'Show Log';
+
+  @override
+  String get replayShowStats => 'Show Stats';
+
+  @override
   String get relicEnhance => 'Enhance';
 
   @override
