@@ -2742,4 +2742,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String relicDismantleResult(int gold) {
     return 'Dismantled! +$gold G';
   }
+
+  @override
+  String get bannerFlameDragon => 'Flame Dragon Pickup';
+
+  @override
+  String get bannerFlameDragonDesc => 'Flame Dragon & Phoenix rate greatly UP!';
+
+  @override
+  String get bannerArchangel => 'Archangel Pickup';
+
+  @override
+  String get bannerArchangelDesc => 'Archangel & Ice Queen rate greatly UP!';
+
+  @override
+  String get bannerDarkKnight => 'Dark Knight Pickup';
+
+  @override
+  String get bannerDarkKnightDesc => 'Dark Knight & Phoenix rate greatly UP!';
+
+  @override
+  String get bannerIceQueen => 'Ice Queen Pickup';
+
+  @override
+  String get bannerIceQueenDesc => 'Ice Queen & Phoenix rate greatly UP!';
+
+  @override
+  String get bannerPickupLabel => '★ PICK UP ★';
+
+  @override
+  String get bannerRateUp => 'Rate UP';
+
+  @override
+  String bannerTimeRemaining(int hours) {
+    return '${hours}h left';
+  }
+
+  @override
+  String get bannerPickupTag => 'PICK UP!';
 }

@@ -943,5 +943,19 @@
   "relicDismantleConfirm": "Dismantle all unequipped relics of {rarity}-star or below?",
   "@relicDismantleConfirm": {"placeholders": {"rarity": {"type": "int"}}},
   "relicDismantleResult": "Dismantled! +{gold} G",
-  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}}
+  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}},
+
+  "bannerFlameDragon": "Flame Dragon Pickup",
+  "bannerFlameDragonDesc": "Flame Dragon & Phoenix rate greatly UP!",
+  "bannerArchangel": "Archangel Pickup",
+  "bannerArchangelDesc": "Archangel & Ice Queen rate greatly UP!",
+  "bannerDarkKnight": "Dark Knight Pickup",
+  "bannerDarkKnightDesc": "Dark Knight & Phoenix rate greatly UP!",
+  "bannerIceQueen": "Ice Queen Pickup",
+  "bannerIceQueenDesc": "Ice Queen & Phoenix rate greatly UP!",
+  "bannerPickupLabel": "★ PICK UP ★",
+  "bannerRateUp": "Rate UP",
+  "bannerTimeRemaining": "{hours}h left",
+  "@bannerTimeRemaining": {"placeholders": {"hours": {"type": "int"}}},
+  "bannerPickupTag": "PICK UP!"
 }

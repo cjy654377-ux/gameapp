@@ -182,7 +182,14 @@ class _HistoryTile extends StatelessWidget {
           '${rarity.starsDisplay}  ${FormatUtils.formatDateTime(entry.timestamp)}',
           style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
         ),
-        trailing: entry.isPity
+        trailing: entry.isPickup
+            ? Chip(
+                label: Text(l.bannerPickupTag, style: const TextStyle(fontSize: 10, color: AppColors.rarityLegendary)),
+                backgroundColor: AppColors.rarityLegendary.withValues(alpha: 0.15),
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              )
+            : entry.isPity
             ? Chip(
                 label: Text(l.gachaPityLabel, style: const TextStyle(fontSize: 10)),
                 backgroundColor: Colors.amber.withValues(alpha: 0.2),

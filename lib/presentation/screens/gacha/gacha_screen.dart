@@ -507,23 +507,27 @@ class _GachaBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final banner = PickupBannerSchedule.current;
+    final hoursLeft = PickupBannerSchedule.hoursRemaining;
+    final featuredMonsters = banner.featuredMonsterIds
+        .map((id) => MonsterDatabase.findById(id))
+        .where((t) => t != null)
+        .cast<MonsterTemplate>()
+        .toList();
+    final gradientColors = banner.gradientColors.map((c) => Color(c)).toList();
+
     return Container(
       width: double.infinity,
-      height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF1A0A3E),
-            Color(0xFF3B1F7E),
-            Color(0xFF6B3FA0),
-          ],
+          colors: gradientColors,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha:0.3),
+            color: gradientColors.last.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -536,10 +540,10 @@ class _GachaBanner extends StatelessWidget {
             final rng = math.Random(i);
             return Positioned(
               left: rng.nextDouble() * 300,
-              top: rng.nextDouble() * 160,
+              top: rng.nextDouble() * 200,
               child: Icon(
                 Icons.star_rounded,
-                color: Colors.white.withValues(alpha:0.1 + rng.nextDouble() * 0.15),
+                color: Colors.white.withValues(alpha: 0.1 + rng.nextDouble() * 0.15),
                 size: 12 + rng.nextDouble() * 18,
               ),
             );
@@ -577,66 +581,146 @@ class _GachaBanner extends StatelessWidget {
               ),
             ),
           ),
+          // Timer badge (top-left)
+          Positioned(
+            top: 12,
+            left: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.timer_outlined, color: Colors.white70, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    l.bannerTimeRemaining(hoursLeft),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           // Main content
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 40, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Banner title
                 Row(
                   children: [
                     const Icon(
                       Icons.auto_awesome,
                       color: AppColors.rarityLegendary,
-                      size: 28,
+                      size: 24,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      l.gachaTitle,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        shadows: [
-                          Shadow(
-                            color: AppColors.primary.withValues(alpha:0.5),
-                            blurRadius: 12,
-                          ),
-                        ],
+                    Expanded(
+                      child: Text(
+                        _bannerName(banner.nameKey, l),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            Shadow(
+                              color: gradientColors.last.withValues(alpha: 0.5),
+                              blurRadius: 12,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
-                  l.gachaDesc,
+                  _bannerDesc(banner.descKey, l),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha:0.7),
-                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 12),
+                // Featured monsters row
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.rarityLegendary.withValues(alpha:0.2),
+                    color: AppColors.rarityLegendary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.rarityLegendary.withValues(alpha:0.4),
+                      color: AppColors.rarityLegendary.withValues(alpha: 0.4),
                     ),
                   ),
                   child: Text(
-                    l.gachaLegendaryUp,
+                    l.bannerPickupLabel,
                     style: const TextStyle(
                       color: AppColors.rarityLegendary,
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                // Featured monster cards
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: featuredMonsters.map((t) {
+                    final element = MonsterElement.fromName(t.element) ?? MonsterElement.fire;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(element.emoji, style: const TextStyle(fontSize: 18)),
+                          const SizedBox(width: 6),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                t.name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  shadows: [
+                                    Shadow(
+                                      color: element.color.withValues(alpha: 0.5),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '★${t.rarity} ${l.bannerRateUp}',
+                                style: TextStyle(
+                                  color: AppColors.rarityLegendary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -644,6 +728,26 @@ class _GachaBanner extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _bannerName(String key, AppLocalizations l) {
+    switch (key) {
+      case 'bannerFlameDragon': return l.bannerFlameDragon;
+      case 'bannerArchangel': return l.bannerArchangel;
+      case 'bannerDarkKnight': return l.bannerDarkKnight;
+      case 'bannerIceQueen': return l.bannerIceQueen;
+      default: assert(false, 'Missing l10n for banner name: $key'); return key;
+    }
+  }
+
+  String _bannerDesc(String key, AppLocalizations l) {
+    switch (key) {
+      case 'bannerFlameDragonDesc': return l.bannerFlameDragonDesc;
+      case 'bannerArchangelDesc': return l.bannerArchangelDesc;
+      case 'bannerDarkKnightDesc': return l.bannerDarkKnightDesc;
+      case 'bannerIceQueenDesc': return l.bannerIceQueenDesc;
+      default: assert(false, 'Missing l10n for banner desc: $key'); return key;
+    }
   }
 }
 
@@ -1292,6 +1396,15 @@ class _ResultCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (result.wasPickup)
+                    Text(
+                      l.bannerPickupTag,
+                      style: const TextStyle(
+                        color: AppColors.rarityLegendary,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   if (result.wasPity)
                     Text(
                       l.gachaGuaranteed,

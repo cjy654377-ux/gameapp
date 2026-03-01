@@ -4,7 +4,8 @@ import 'package:uuid/uuid.dart';
 import 'package:gameapp/core/constants/game_config.dart';
 import 'package:gameapp/data/models/monster_model.dart';
 import 'package:gameapp/data/static/monster_database.dart';
-import 'package:gameapp/domain/services/gacha_service.dart';
+import 'package:gameapp/domain/services/gacha_service.dart'
+    show GachaPullResult, GachaService, PickupBannerSchedule;
 import 'package:gameapp/data/static/quest_database.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/currency_provider.dart';
@@ -162,7 +163,12 @@ class GachaNotifier extends StateNotifier<GachaState> {
     state = state.copyWith(isAnimating: true);
     AudioService.instance.playGachaPull();
 
-    final pull = GachaService.performSinglePull(state.pityCount);
+    final banner = PickupBannerSchedule.current;
+    final pull = GachaService.performSinglePull(
+      state.pityCount,
+      featuredIds: banner.featuredMonsterIds,
+      rateUpMultiplier: banner.rateUpMultiplier,
+    );
     final monster = _createMonsterFromTemplate(pull.result.template);
 
     await ref.read(monsterListProvider.notifier).addMonster(monster);
@@ -191,6 +197,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
         element: pull.result.template.element,
         timestamp: DateTime.now(),
         isPity: pull.newPityCount == 0 && pull.result.template.rarity >= 5,
+        isPickup: pull.result.wasPickup,
       ),
     ]);
 
@@ -201,7 +208,12 @@ class GachaNotifier extends StateNotifier<GachaState> {
     state = state.copyWith(isAnimating: true);
     AudioService.instance.playGachaPull();
 
-    final pull = GachaService.performTenPull(state.pityCount);
+    final banner = PickupBannerSchedule.current;
+    final pull = GachaService.performTenPull(
+      state.pityCount,
+      featuredIds: banner.featuredMonsterIds,
+      rateUpMultiplier: banner.rateUpMultiplier,
+    );
 
     // Create all monsters first, then batch-add to roster (single Hive write).
     final monsterNotifier = ref.read(monsterListProvider.notifier);
@@ -229,6 +241,7 @@ class GachaNotifier extends StateNotifier<GachaState> {
             rarity: r.template.rarity,
             element: r.template.element,
             timestamp: now,
+            isPickup: r.wasPickup,
           )).toList(),
     );
 

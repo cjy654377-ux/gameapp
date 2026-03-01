@@ -2728,4 +2728,42 @@ class AppLocalizationsKo extends AppLocalizations {
   String relicDismantleResult(int gold) {
     return '분해 완료! +$gold G';
   }
+
+  @override
+  String get bannerFlameDragon => '화염드래곤 픽업';
+
+  @override
+  String get bannerFlameDragonDesc => '화염드래곤 & 피닉스 확률 대폭 UP!';
+
+  @override
+  String get bannerArchangel => '대천사 픽업';
+
+  @override
+  String get bannerArchangelDesc => '대천사 & 얼음여왕 확률 대폭 UP!';
+
+  @override
+  String get bannerDarkKnight => '암흑기사 픽업';
+
+  @override
+  String get bannerDarkKnightDesc => '암흑기사 & 피닉스 확률 대폭 UP!';
+
+  @override
+  String get bannerIceQueen => '얼음여왕 픽업';
+
+  @override
+  String get bannerIceQueenDesc => '얼음여왕 & 피닉스 확률 대폭 UP!';
+
+  @override
+  String get bannerPickupLabel => '★ PICK UP ★';
+
+  @override
+  String get bannerRateUp => '확률UP';
+
+  @override
+  String bannerTimeRemaining(int hours) {
+    return '$hours시간 남음';
+  }
+
+  @override
+  String get bannerPickupTag => 'PICK UP!';
 }

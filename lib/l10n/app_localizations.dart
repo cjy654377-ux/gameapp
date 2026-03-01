@@ -4903,6 +4903,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'분해 완료! +{gold} G'**
   String relicDismantleResult(int gold);
+
+  /// No description provided for @bannerFlameDragon.
+  ///
+  /// In ko, this message translates to:
+  /// **'화염드래곤 픽업'**
+  String get bannerFlameDragon;
+
+  /// No description provided for @bannerFlameDragonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'화염드래곤 & 피닉스 확률 대폭 UP!'**
+  String get bannerFlameDragonDesc;
+
+  /// No description provided for @bannerArchangel.
+  ///
+  /// In ko, this message translates to:
+  /// **'대천사 픽업'**
+  String get bannerArchangel;
+
+  /// No description provided for @bannerArchangelDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'대천사 & 얼음여왕 확률 대폭 UP!'**
+  String get bannerArchangelDesc;
+
+  /// No description provided for @bannerDarkKnight.
+  ///
+  /// In ko, this message translates to:
+  /// **'암흑기사 픽업'**
+  String get bannerDarkKnight;
+
+  /// No description provided for @bannerDarkKnightDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'암흑기사 & 피닉스 확률 대폭 UP!'**
+  String get bannerDarkKnightDesc;
+
+  /// No description provided for @bannerIceQueen.
+  ///
+  /// In ko, this message translates to:
+  /// **'얼음여왕 픽업'**
+  String get bannerIceQueen;
+
+  /// No description provided for @bannerIceQueenDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'얼음여왕 & 피닉스 확률 대폭 UP!'**
+  String get bannerIceQueenDesc;
+
+  /// No description provided for @bannerPickupLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'★ PICK UP ★'**
+  String get bannerPickupLabel;
+
+  /// No description provided for @bannerRateUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'확률UP'**
+  String get bannerRateUp;
+
+  /// No description provided for @bannerTimeRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 남음'**
+  String bannerTimeRemaining(int hours);
+
+  /// No description provided for @bannerPickupTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'PICK UP!'**
+  String get bannerPickupTag;
 }
 
 class _AppLocalizationsDelegate

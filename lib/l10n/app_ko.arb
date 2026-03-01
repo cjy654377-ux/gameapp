@@ -1019,5 +1019,19 @@
   "relicDismantleConfirm": "{rarity}성 이하 미장착 유물을 모두 분해하시겠습니까?",
   "@relicDismantleConfirm": {"placeholders": {"rarity": {"type": "int"}}},
   "relicDismantleResult": "분해 완료! +{gold} G",
-  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}}
+  "@relicDismantleResult": {"placeholders": {"gold": {"type": "int"}}},
+
+  "bannerFlameDragon": "화염드래곤 픽업",
+  "bannerFlameDragonDesc": "화염드래곤 & 피닉스 확률 대폭 UP!",
+  "bannerArchangel": "대천사 픽업",
+  "bannerArchangelDesc": "대천사 & 얼음여왕 확률 대폭 UP!",
+  "bannerDarkKnight": "암흑기사 픽업",
+  "bannerDarkKnightDesc": "암흑기사 & 피닉스 확률 대폭 UP!",
+  "bannerIceQueen": "얼음여왕 픽업",
+  "bannerIceQueenDesc": "얼음여왕 & 피닉스 확률 대폭 UP!",
+  "bannerPickupLabel": "★ PICK UP ★",
+  "bannerRateUp": "확률UP",
+  "bannerTimeRemaining": "{hours}시간 남음",
+  "@bannerTimeRemaining": {"placeholders": {"hours": {"type": "int"}}},
+  "bannerPickupTag": "PICK UP!"
 }

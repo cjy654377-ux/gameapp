@@ -13,6 +13,7 @@ class GachaHistoryEntry {
   final String element;
   final DateTime timestamp;
   final bool isPity;
+  final bool isPickup;
 
   const GachaHistoryEntry({
     required this.monsterName,
@@ -20,6 +21,7 @@ class GachaHistoryEntry {
     required this.element,
     required this.timestamp,
     this.isPity = false,
+    this.isPickup = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -28,6 +30,7 @@ class GachaHistoryEntry {
         'element': element,
         'ts': timestamp.millisecondsSinceEpoch,
         'pity': isPity,
+        'pickup': isPickup,
       };
 
   factory GachaHistoryEntry.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +41,7 @@ class GachaHistoryEntry {
         timestamp:
             DateTime.fromMillisecondsSinceEpoch(json['ts'] as int),
         isPity: json['pity'] as bool? ?? false,
+        isPickup: json['pickup'] as bool? ?? false,
       );
 }
 
