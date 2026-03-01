@@ -2679,6 +2679,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarCollection => 'Collect';
 
   @override
+  String get sidebarCatCombat => 'Combat';
+
+  @override
+  String get sidebarCatContent => 'Content';
+
+  @override
+  String get sidebarCatProgress => 'Growth';
+
+  @override
+  String get sidebarCatSystem => 'System';
+
+  @override
   String stageProgress(Object defeated, Object total) {
     return '$defeated/$total';
   }

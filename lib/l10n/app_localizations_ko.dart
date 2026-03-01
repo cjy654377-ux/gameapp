@@ -2666,6 +2666,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sidebarCollection => '도감';
 
   @override
+  String get sidebarCatCombat => '전투';
+
+  @override
+  String get sidebarCatContent => '컨텐츠';
+
+  @override
+  String get sidebarCatProgress => '성장';
+
+  @override
+  String get sidebarCatSystem => '시스템';
+
+  @override
   String stageProgress(Object defeated, Object total) {
     return '$defeated/$total';
   }

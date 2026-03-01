@@ -4808,6 +4808,30 @@ abstract class AppLocalizations {
   /// **'도감'**
   String get sidebarCollection;
 
+  /// No description provided for @sidebarCatCombat.
+  ///
+  /// In ko, this message translates to:
+  /// **'전투'**
+  String get sidebarCatCombat;
+
+  /// No description provided for @sidebarCatContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'컨텐츠'**
+  String get sidebarCatContent;
+
+  /// No description provided for @sidebarCatProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'성장'**
+  String get sidebarCatProgress;
+
+  /// No description provided for @sidebarCatSystem.
+  ///
+  /// In ko, this message translates to:
+  /// **'시스템'**
+  String get sidebarCatSystem;
+
   /// No description provided for @stageProgress.
   ///
   /// In ko, this message translates to:
