@@ -56,4 +56,5 @@ flutter:
     - assets/images/backgrounds/
     - assets/images/ui/
     - assets/images/effects/
+    - assets/images/hero/
     - assets/animations/

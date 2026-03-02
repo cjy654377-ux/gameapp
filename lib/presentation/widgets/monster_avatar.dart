@@ -141,45 +141,84 @@ class _MonsterAvatarState extends State<MonsterAvatar>
   }
 
   Widget _buildProceduralAvatar(Color rarColor, Color? skinColor, int skinRarity) {
-    Widget paintWidget;
-    if (_glowController != null) {
-      paintWidget = AnimatedBuilder(
+    // Try pixel art asset first, fallback to procedural
+    final assetPath = 'assets/images/monsters/${widget.templateId}.png';
+    Widget avatarWidget = Image.asset(
+      assetPath,
+      width: widget.size,
+      height: widget.size,
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.none, // Nearest-neighbor for pixel art
+      errorBuilder: (_, __, ___) => _buildProceduralPaint(skinColor, skinRarity),
+    );
+
+    // Grayscale + dim overlay when dead
+    if (widget.isDead) {
+      avatarWidget = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(<double>[
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0,      0,      0,      0.5, 0,
+        ]),
+        child: avatarWidget,
+      );
+    }
+
+    // Animated glow ring for rarity 3+
+    if (_glowController != null && !widget.isDead) {
+      avatarWidget = AnimatedBuilder(
         animation: _glowController!,
-        builder: (context, _) {
-          return CustomPaint(
-            size: Size(widget.size, widget.size),
-            painter: MonsterPortraitPainter(
-              templateId: widget.templateId!,
-              element: widget.element,
-              rarity: widget.rarity,
-              isDead: widget.isDead,
-              evolutionStage: widget.evolutionStage,
-              glowPhase: _glowController!.value * 6.283,
-              overrideColor: skinColor,
-              skinRarity: skinRarity,
+        builder: (context, child) {
+          final glowOpacity = (0.3 + 0.4 * (0.5 + 0.5 * (_glowController!.value * 6.283).clamp(-1.0, 1.0).abs()));
+          return Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: rarColor.withValues(alpha: glowOpacity),
+                  blurRadius: widget.size * 0.15,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
+            child: child,
           );
         },
-      );
-    } else {
-      paintWidget = CustomPaint(
-        size: Size(widget.size, widget.size),
-        painter: MonsterPortraitPainter(
-          templateId: widget.templateId!,
-          element: widget.element,
-          rarity: widget.rarity,
-          isDead: widget.isDead,
-          evolutionStage: widget.evolutionStage,
-          overrideColor: skinColor,
-          skinRarity: skinRarity,
-        ),
+        child: avatarWidget,
       );
     }
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        paintWidget,
+        avatarWidget,
+        // Evolution stage badge
+        if (widget.evolutionStage > 0)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: widget.size * 0.3,
+              height: widget.size * 0.3,
+              decoration: BoxDecoration(
+                color: widget.evolutionStage >= 2 ? Colors.amber : Colors.orange,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black54, width: 1),
+              ),
+              child: Center(
+                child: Text(
+                  '${widget.evolutionStage}',
+                  style: TextStyle(
+                    fontSize: widget.size * 0.16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        // Skin badge
         if (widget.equippedSkinId != null)
           Positioned(
             top: 0,
@@ -200,6 +239,42 @@ class _MonsterAvatarState extends State<MonsterAvatar>
             ),
           ),
       ],
+    );
+  }
+
+  /// Fallback procedural rendering (used when no pixel art asset exists)
+  Widget _buildProceduralPaint(Color? skinColor, int skinRarity) {
+    if (_glowController != null) {
+      return AnimatedBuilder(
+        animation: _glowController!,
+        builder: (context, _) {
+          return CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: MonsterPortraitPainter(
+              templateId: widget.templateId!,
+              element: widget.element,
+              rarity: widget.rarity,
+              isDead: widget.isDead,
+              evolutionStage: widget.evolutionStage,
+              glowPhase: _glowController!.value * 6.283,
+              overrideColor: skinColor,
+              skinRarity: skinRarity,
+            ),
+          );
+        },
+      );
+    }
+    return CustomPaint(
+      size: Size(widget.size, widget.size),
+      painter: MonsterPortraitPainter(
+        templateId: widget.templateId!,
+        element: widget.element,
+        rarity: widget.rarity,
+        isDead: widget.isDead,
+        evolutionStage: widget.evolutionStage,
+        overrideColor: skinColor,
+        skinRarity: skinRarity,
+      ),
     );
   }
 
