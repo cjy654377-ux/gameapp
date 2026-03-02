@@ -568,3 +568,11 @@
 - [x] Step 4: 도전의탑 50층 확장 (maxFloor 30→50, 31~40 coeff 0.08, 41~50 coeff 0.10, 50층 마일스톤)
 - [x] Step 5: 월드맵 Area 6 노드 (심연 보라+검정, 결정+어둠파티클 장식)
 - [x] Step 6: 오프라인 보상 확장 (expPotion/summonStone, stageIndex≥12 포션, ≥24 소환석)
+
+## 23차 고도화 - 아레나 코인 + 던전 특수층 + 초월 + 길드랭킹 + 신규 몬스터 + 영웅 투자
+- [x] Step 1: 아레나 연승 보너스 + 코인 (winStreak, 3/5/10연승 ×1.2/1.5/2.0 배율, arenaCoin HiveField 8)
+- [x] Step 2: 던전 특수 플로어 (FloorType enum, boss 10층마다 3x스탯, treasure 7층 3x골드, healing 5층 50%회복)
+- [x] Step 3: 몬스터 초월 시스템 (transcendLevel HiveField 21, 최대 3단계, +20%/단계, 5각성 조건)
+- [x] Step 4: 길드 기여도 랭킹 (3탭 확장, AI 시드 기여도, 1~3위 메달, 플레이어 하이라이트)
+- [x] Step 5: 신규 몬스터 6종 (ghostLantern/sunFairy/thornDruid/magmaGolem/soulReaper/ancientTree + 스킬 6종)
+- [x] Step 6: 영웅 스탯 투자 (heroStatPoints HiveField 27, 레벨업+2pt, ATK+3/DEF+2/HP+20/SPD+1)
