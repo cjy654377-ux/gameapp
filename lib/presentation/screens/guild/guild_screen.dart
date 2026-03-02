@@ -24,7 +24,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -51,9 +51,10 @@ class _GuildScreenState extends ConsumerState<GuildScreen>
         bottom: isLobby
             ? TabBar(
                 controller: _tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.info_outline), text: '정보'),
-                  Tab(icon: Icon(Icons.chat_bubble_outline), text: '채팅'),
+                tabs: [
+                  const Tab(icon: Icon(Icons.info_outline), text: '정보'),
+                  const Tab(icon: Icon(Icons.chat_bubble_outline), text: '채팅'),
+                  Tab(icon: const Icon(Icons.leaderboard), text: AppLocalizations.of(context)!.guildRankingTab),
                 ],
                 indicatorColor: Colors.amber,
                 labelColor: Colors.amber,
@@ -146,6 +147,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen>
       children: [
         _buildLobby(context, guildState),
         _buildChatTab(context, guildState),
+        _buildRankingTab(context, guildState),
       ],
     );
   }
@@ -211,6 +213,122 @@ class _GuildScreenState extends ConsumerState<GuildScreen>
           ),
         ),
       ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Ranking tab
+  // ---------------------------------------------------------------------------
+
+  Widget _buildRankingTab(BuildContext context, GuildState guildState) {
+    final l = AppLocalizations.of(context)!;
+    final guild = guildState.guild;
+    if (guild == null) return const SizedBox();
+
+    // Calculate contributions for AI members (deterministic per day).
+    final dayOfYear = DateTime.now()
+            .difference(DateTime(DateTime.now().year, 1, 1))
+            .inDays +
+        1;
+
+    final playerContrib = guild.playerContribution;
+
+    // Build list: player + AI members.
+    final entries = <({String name, double contribution, bool isPlayer})>[
+      (name: l.guildLeader, contribution: playerContrib, isPlayer: true),
+      ...guild.memberNames.map((memberName) {
+        final aiContrib =
+            (memberName.hashCode.abs() * dayOfYear) % 500 + 100.0;
+        return (name: memberName, contribution: aiContrib, isPlayer: false);
+      }),
+    ];
+
+    // Sort by contribution descending.
+    entries.sort((a, b) => b.contribution.compareTo(a.contribution));
+
+    const medalIcons = ['🥇', '🥈', '🥉'];
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: entries.length,
+      itemBuilder: (ctx, i) {
+        final entry = entries[i];
+        final isPlayer = entry.isPlayer;
+        final medal = i < 3 ? medalIcons[i] : null;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isPlayer
+                ? Colors.amber.withValues(alpha: 0.1)
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isPlayer
+                  ? Colors.amber.withValues(alpha: 0.4)
+                  : AppColors.border,
+            ),
+          ),
+          child: Row(
+            children: [
+              // Rank number or medal.
+              SizedBox(
+                width: 36,
+                child: medal != null
+                    ? Text(
+                        medal,
+                        style: const TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      )
+                    : Text(
+                        l.guildRank(i + 1),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+              ),
+              const SizedBox(width: 10),
+              // Name.
+              Expanded(
+                child: Text(
+                  entry.name,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight:
+                        isPlayer ? FontWeight.bold : FontWeight.normal,
+                    color: isPlayer ? Colors.amber : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              // Contribution value.
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    l.guildContribution,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                  Text(
+                    entry.contribution.round().toString(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isPlayer ? Colors.amber : AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

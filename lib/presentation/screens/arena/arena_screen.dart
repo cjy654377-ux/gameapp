@@ -118,7 +118,17 @@ class _LobbyView extends ConsumerWidget {
           losses: arena.totalLosses,
           remaining: arena.remainingAttempts,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+
+        // Win streak badge (show only when streak >= 3).
+        if (arena.winStreak >= 3)
+          _WinStreakBadge(
+            streak: arena.winStreak,
+            multiplier: arena.streakMultiplier,
+          ),
+        if (arena.winStreak >= 3) const SizedBox(height: 8),
+
+        const SizedBox(height: 8),
 
         // Opponent cards.
         ...List.generate(opponents.length, (i) {
@@ -396,6 +406,68 @@ class _RatingBar extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: remaining > 0 ? AppColors.primary : AppColors.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _WinStreakBadge
+// =============================================================================
+
+class _WinStreakBadge extends StatelessWidget {
+  const _WinStreakBadge({required this.streak, required this.multiplier});
+
+  final int streak;
+  final double multiplier;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.deepOrange.withValues(alpha: 0.25),
+            Colors.amber.withValues(alpha: 0.15),
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.deepOrange.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.local_fire_department, color: Colors.deepOrange, size: 20),
+          const SizedBox(width: 6),
+          Text(
+            l.arenaWinStreak(streak),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepOrange,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              l.arenaStreakBonus(multiplier.toStringAsFixed(1)),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.amber,
               ),
             ),
           ),
@@ -854,6 +926,15 @@ class _ResultView extends ConsumerWidget {
                         label: l.diamond,
                         value: '+${reward.diamond}',
                         color: Colors.cyan,
+                      ),
+                    ],
+                    if (reward.arenaCoin > 0) ...[
+                      const SizedBox(height: 8),
+                      RewardRow(
+                        icon: Icons.stadium,
+                        label: l.arenaCoin,
+                        value: '+${reward.arenaCoin}',
+                        color: Colors.deepOrange,
                       ),
                     ],
                   ],

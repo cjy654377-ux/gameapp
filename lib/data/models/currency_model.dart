@@ -34,6 +34,10 @@ class CurrencyModel extends HiveObject {
   @HiveField(7)
   int mountGem;
 
+  /// Coin earned from arena battles.
+  @HiveField(8)
+  int arenaCoin;
+
   CurrencyModel({
     required this.gold,
     required this.diamond,
@@ -43,6 +47,7 @@ class CurrencyModel extends HiveObject {
     this.skillTicket = 0,
     this.relicTicket = 0,
     this.mountGem = 0,
+    this.arenaCoin = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -73,6 +78,7 @@ class CurrencyModel extends HiveObject {
     int skillTicket = 0,
     int relicTicket = 0,
     int mountGem = 0,
+    int arenaCoin = 0,
   }) {
     return this.gold >= gold &&
         this.diamond >= diamond &&
@@ -81,7 +87,8 @@ class CurrencyModel extends HiveObject {
         this.gachaTicket >= gachaTicket &&
         this.skillTicket >= skillTicket &&
         this.relicTicket >= relicTicket &&
-        this.mountGem >= mountGem;
+        this.mountGem >= mountGem &&
+        this.arenaCoin >= arenaCoin;
   }
 
   /// Returns a new [CurrencyModel] with the given amounts added (use negative
@@ -95,6 +102,7 @@ class CurrencyModel extends HiveObject {
     int skillTicket = 0,
     int relicTicket = 0,
     int mountGem = 0,
+    int arenaCoin = 0,
   }) {
     return CurrencyModel(
       gold: (this.gold + gold).clamp(0, 9999999),
@@ -105,6 +113,7 @@ class CurrencyModel extends HiveObject {
       skillTicket: (this.skillTicket + skillTicket).clamp(0, 9999999),
       relicTicket: (this.relicTicket + relicTicket).clamp(0, 9999999),
       mountGem: (this.mountGem + mountGem).clamp(0, 9999999),
+      arenaCoin: (this.arenaCoin + arenaCoin).clamp(0, 9999999),
     );
   }
 
@@ -121,6 +130,7 @@ class CurrencyModel extends HiveObject {
     int? skillTicket,
     int? relicTicket,
     int? mountGem,
+    int? arenaCoin,
   }) {
     return CurrencyModel(
       gold: gold ?? this.gold,
@@ -131,6 +141,7 @@ class CurrencyModel extends HiveObject {
       skillTicket: skillTicket ?? this.skillTicket,
       relicTicket: relicTicket ?? this.relicTicket,
       mountGem: mountGem ?? this.mountGem,
+      arenaCoin: arenaCoin ?? this.arenaCoin,
     );
   }
 
@@ -139,7 +150,8 @@ class CurrencyModel extends HiveObject {
     return 'CurrencyModel(gold: $gold, diamond: $diamond, '
         'monsterShard: $monsterShard, expPotion: $expPotion, '
         'gachaTicket: $gachaTicket, skillTicket: $skillTicket, '
-        'relicTicket: $relicTicket, mountGem: $mountGem)';
+        'relicTicket: $relicTicket, mountGem: $mountGem, '
+        'arenaCoin: $arenaCoin)';
   }
 }
 
@@ -167,13 +179,14 @@ class CurrencyModelAdapter extends TypeAdapter<CurrencyModel> {
       skillTicket:  fields[5] as int? ?? 0,
       relicTicket:  fields[6] as int? ?? 0,
       mountGem:     fields[7] as int? ?? 0,
+      arenaCoin:    fields[8] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, CurrencyModel obj) {
     writer
-      ..writeByte(8) // number of fields
+      ..writeByte(9) // number of fields
       ..writeByte(0)
       ..write(obj.gold)
       ..writeByte(1)
@@ -189,7 +202,9 @@ class CurrencyModelAdapter extends TypeAdapter<CurrencyModel> {
       ..writeByte(6)
       ..write(obj.relicTicket)
       ..writeByte(7)
-      ..write(obj.mountGem);
+      ..write(obj.mountGem)
+      ..writeByte(8)
+      ..write(obj.arenaCoin);
   }
 
   @override

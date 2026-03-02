@@ -58,8 +58,11 @@ class ArenaState {
   /// Date of last attempt (yyyy-MM-dd).
   final String lastAttemptDate;
 
-  /// Reward from last fight (gold, diamond, ratingChange).
-  final ({int gold, int diamond, int ratingChange})? lastReward;
+  /// Current win streak count.
+  final int winStreak;
+
+  /// Reward from last fight (gold, diamond, ratingChange, arenaCoin).
+  final ({int gold, int diamond, int ratingChange, int arenaCoin})? lastReward;
 
   const ArenaState({
     this.phase = ArenaPhase.lobby,
@@ -77,6 +80,7 @@ class ArenaState {
     this.totalLosses = 0,
     this.attemptsUsed = 0,
     this.lastAttemptDate = '',
+    this.winStreak = 0,
     this.lastReward,
   });
 
@@ -91,6 +95,14 @@ class ArenaState {
     if (lastAttemptDate != today) return ArenaService.maxDailyAttempts;
     return (ArenaService.maxDailyAttempts - attemptsUsed)
         .clamp(0, ArenaService.maxDailyAttempts);
+  }
+
+  /// Returns the win streak RP multiplier (applied to rating gain).
+  double get streakMultiplier {
+    if (winStreak >= 10) return 2.0;
+    if (winStreak >= 5) return 1.5;
+    if (winStreak >= 3) return 1.2;
+    return 1.0;
   }
 
   static String _todayStr() {
@@ -114,7 +126,8 @@ class ArenaState {
     int? totalLosses,
     int? attemptsUsed,
     String? lastAttemptDate,
-    ({int gold, int diamond, int ratingChange})? lastReward,
+    int? winStreak,
+    ({int gold, int diamond, int ratingChange, int arenaCoin})? lastReward,
     bool clearReward = false,
   }) {
     return ArenaState(
@@ -134,6 +147,7 @@ class ArenaState {
       totalLosses: totalLosses ?? this.totalLosses,
       attemptsUsed: attemptsUsed ?? this.attemptsUsed,
       lastAttemptDate: lastAttemptDate ?? this.lastAttemptDate,
+      winStreak: winStreak ?? this.winStreak,
       lastReward: clearReward ? null : (lastReward ?? this.lastReward),
     );
   }
@@ -301,7 +315,17 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
       final idx = state.selectedOpponentIndex;
       if (idx < 0 || idx >= state.opponents.length) return;
       final opponent = state.opponents[idx];
-      final newRating = state.rating + opponent.ratingGain;
+
+      // Win streak: increment and apply RP bonus multiplier.
+      final newStreak = state.winStreak + 1;
+      final multiplier = _streakMultiplierFor(newStreak);
+      final baseRpGain = opponent.ratingGain;
+      final boostedRpGain = (baseRpGain * multiplier).round();
+      final newRating = state.rating + boostedRpGain;
+
+      // Arena coin reward: base 10, bonus from rating tier, capped at 30.
+      final coinReward = (10 + state.rating ~/ 100).clamp(10, 30);
+
       state = state.copyWith(
         phase: ArenaPhase.victory,
         playerTeam: playerTeam,
@@ -309,10 +333,12 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
         battleLog: log,
         rating: newRating,
         totalWins: state.totalWins + 1,
+        winStreak: newStreak,
         lastReward: (
           gold: opponent.rewardGold,
           diamond: opponent.rewardDiamond,
-          ratingChange: opponent.ratingGain,
+          ratingChange: boostedRpGain,
+          arenaCoin: coinReward,
         ),
       );
       return;
@@ -330,7 +356,8 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
         battleLog: log,
         rating: newRating,
         totalLosses: state.totalLosses + 1,
-        lastReward: (gold: 0, diamond: 0, ratingChange: loss),
+        winStreak: 0, // reset streak on defeat
+        lastReward: (gold: 0, diamond: 0, ratingChange: loss, arenaCoin: 0),
       );
       return;
     }
@@ -361,6 +388,9 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
     }
     if (reward != null && reward.diamond > 0) {
       await ref.read(currencyProvider.notifier).addDiamond(reward.diamond);
+    }
+    if (reward != null && reward.arenaCoin > 0) {
+      await ref.read(currencyProvider.notifier).addArenaCoin(reward.arenaCoin);
     }
     AudioService.instance.playRewardCollect();
 
@@ -395,6 +425,13 @@ class ArenaNotifier extends StateNotifier<ArenaState> {
 
   List<BattleMonster> _copyTeam(List<BattleMonster> team) {
     return team.map((m) => m.copyWith()).toList();
+  }
+
+  double _streakMultiplierFor(int streak) {
+    if (streak >= 10) return 2.0;
+    if (streak >= 5) return 1.5;
+    if (streak >= 3) return 1.2;
+    return 1.0;
   }
 }
 

@@ -168,6 +168,22 @@ class CurrencyNotifier extends StateNotifier<CurrencyModel> {
   }
 
   // ---------------------------------------------------------------------------
+  // Arena Coin
+  // ---------------------------------------------------------------------------
+
+  Future<void> addArenaCoin(int amount) async {
+    state = state.add(arenaCoin: amount);
+    await save();
+  }
+
+  Future<bool> spendArenaCoin(int amount) async {
+    if (!state.canAfford(arenaCoin: amount)) return false;
+    state = state.add(arenaCoin: -amount);
+    await save();
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
   // Bulk helpers
   // ---------------------------------------------------------------------------
 

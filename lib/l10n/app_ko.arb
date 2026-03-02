@@ -222,6 +222,16 @@
   "dungeonCollectFloor": "보상 수령 ({floor}층 도달)",
   "@dungeonCollectFloor": {"placeholders": {"floor": {"type": "int"}}},
   "floorCleared": "클리어!",
+  "dungeonBossFloor": "👑 보스 출현!",
+  "dungeonTreasureFloor": "💰 보물방!",
+  "dungeonHealingFloor": "💚 회복의 방",
+
+  "monsterGhostLantern": "유령등불",
+  "monsterSunFairy": "태양요정",
+  "monsterThornDruid": "가시드루이드",
+  "monsterMagmaGolem": "용암골렘",
+  "monsterSoulReaper": "영혼수확자",
+  "monsterAncientTree": "고대나무",
 
   "worldBoss": "월드 보스",
   "worldBossName": "월드 보스 - {name}",
@@ -1167,5 +1177,18 @@
   "@statusTurnsN": {"placeholders": {"n": {"type": "int"}}},
 
   "offlineExpPotion": "경험치 포션",
-  "offlineSummonStone": "소환석"
+  "offlineSummonStone": "소환석",
+
+  "arenaWinStreak": "{count}연승",
+  "@arenaWinStreak": {"placeholders": {"count": {"type": "int"}}},
+  "arenaStreakBonus": "연승 보너스 ×{multiplier}",
+  "@arenaStreakBonus": {"placeholders": {"multiplier": {"type": "String"}}},
+  "arenaCoinReward": "아레나 코인 +{amount}",
+  "@arenaCoinReward": {"placeholders": {"amount": {"type": "int"}}},
+  "arenaCoin": "아레나 코인",
+
+  "guildRankingTab": "랭킹",
+  "guildContribution": "기여도",
+  "guildRank": "{rank}위",
+  "@guildRank": {"placeholders": {"rank": {"type": "int"}}}
 }

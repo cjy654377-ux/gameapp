@@ -200,6 +200,16 @@
   "dungeonCollect": "Collect Reward",
   "dungeonCollectFloor": "Collect Reward (Floor {floor})",
   "floorCleared": "Cleared!",
+  "dungeonBossFloor": "👑 Boss Encounter!",
+  "dungeonTreasureFloor": "💰 Treasure Room!",
+  "dungeonHealingFloor": "💚 Healing Chamber",
+
+  "monsterGhostLantern": "Ghost Lantern",
+  "monsterSunFairy": "Sun Fairy",
+  "monsterThornDruid": "Thorn Druid",
+  "monsterMagmaGolem": "Magma Golem",
+  "monsterSoulReaper": "Soul Reaper",
+  "monsterAncientTree": "Ancient Tree",
 
   "worldBoss": "World Boss",
   "worldBossName": "World Boss - {name}",
@@ -1091,5 +1101,18 @@
   "@statusTurnsN": {"placeholders": {"n": {"type": "int"}}},
 
   "offlineExpPotion": "EXP Potion",
-  "offlineSummonStone": "Summon Stone"
+  "offlineSummonStone": "Summon Stone",
+
+  "arenaWinStreak": "{count} Win Streak",
+  "@arenaWinStreak": {"placeholders": {"count": {"type": "int"}}},
+  "arenaStreakBonus": "Streak Bonus ×{multiplier}",
+  "@arenaStreakBonus": {"placeholders": {"multiplier": {"type": "String"}}},
+  "arenaCoinReward": "Arena Coin +{amount}",
+  "@arenaCoinReward": {"placeholders": {"amount": {"type": "int"}}},
+  "arenaCoin": "Arena Coin",
+
+  "guildRankingTab": "Ranking",
+  "guildContribution": "Contribution",
+  "guildRank": "#{rank}",
+  "@guildRank": {"placeholders": {"rank": {"type": "int"}}}
 }
