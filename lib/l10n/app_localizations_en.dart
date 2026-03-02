@@ -628,6 +628,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get floorCleared => 'Cleared!';
 
   @override
+  String get dungeonBossFloor => '👑 Boss Encounter!';
+
+  @override
+  String get dungeonTreasureFloor => '💰 Treasure Room!';
+
+  @override
+  String get dungeonHealingFloor => '💚 Healing Chamber';
+
+  @override
+  String get monsterGhostLantern => 'Ghost Lantern';
+
+  @override
+  String get monsterSunFairy => 'Sun Fairy';
+
+  @override
+  String get monsterThornDruid => 'Thorn Druid';
+
+  @override
+  String get monsterMagmaGolem => 'Magma Golem';
+
+  @override
+  String get monsterSoulReaper => 'Soul Reaper';
+
+  @override
+  String get monsterAncientTree => 'Ancient Tree';
+
+  @override
   String get worldBoss => 'World Boss';
 
   @override
@@ -3115,4 +3142,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offlineSummonStone => 'Summon Stone';
+
+  @override
+  String arenaWinStreak(int count) {
+    return '$count Win Streak';
+  }
+
+  @override
+  String arenaStreakBonus(String multiplier) {
+    return 'Streak Bonus ×$multiplier';
+  }
+
+  @override
+  String arenaCoinReward(int amount) {
+    return 'Arena Coin +$amount';
+  }
+
+  @override
+  String get arenaCoin => 'Arena Coin';
+
+  @override
+  String get guildRankingTab => 'Ranking';
+
+  @override
+  String get guildContribution => 'Contribution';
+
+  @override
+  String guildRank(int rank) {
+    return '#$rank';
+  }
+
+  @override
+  String get transcend => 'Transcend';
+
+  @override
+  String transcendLevel(int level) {
+    return 'Transcend Lv.$level';
+  }
+
+  @override
+  String get transcendRequirement => 'Requires Final Evo + 5 Awakening Stars';
+
+  @override
+  String get transcendCost => 'Transcend Cost';
+
+  @override
+  String transcendSuccess(int level) {
+    return 'Transcend Lv.$level Reached!';
+  }
+
+  @override
+  String get transcendMaxReached => 'Max Transcend Reached';
+
+  @override
+  String get transcendInProgress => 'Transcending...';
+
+  @override
+  String msgTranscend(int level, int bonus) {
+    return 'Transcend Lv.$level achieved! (+$bonus% Stats)';
+  }
+
+  @override
+  String get heroStatPoints => 'Invest Points';
+
+  @override
+  String heroStatPointsRemaining(int points) {
+    return 'Remaining Points: $points';
+  }
+
+  @override
+  String get heroInvestAtk => 'ATK +3';
+
+  @override
+  String get heroInvestDef => 'DEF +2';
+
+  @override
+  String get heroInvestHp => 'HP +20';
+
+  @override
+  String get heroInvestSpd => 'SPD +1';
 }

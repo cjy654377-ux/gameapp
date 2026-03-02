@@ -1244,6 +1244,60 @@ abstract class AppLocalizations {
   /// **'클리어!'**
   String get floorCleared;
 
+  /// No description provided for @dungeonBossFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'👑 보스 출현!'**
+  String get dungeonBossFloor;
+
+  /// No description provided for @dungeonTreasureFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'💰 보물방!'**
+  String get dungeonTreasureFloor;
+
+  /// No description provided for @dungeonHealingFloor.
+  ///
+  /// In ko, this message translates to:
+  /// **'💚 회복의 방'**
+  String get dungeonHealingFloor;
+
+  /// No description provided for @monsterGhostLantern.
+  ///
+  /// In ko, this message translates to:
+  /// **'유령등불'**
+  String get monsterGhostLantern;
+
+  /// No description provided for @monsterSunFairy.
+  ///
+  /// In ko, this message translates to:
+  /// **'태양요정'**
+  String get monsterSunFairy;
+
+  /// No description provided for @monsterThornDruid.
+  ///
+  /// In ko, this message translates to:
+  /// **'가시드루이드'**
+  String get monsterThornDruid;
+
+  /// No description provided for @monsterMagmaGolem.
+  ///
+  /// In ko, this message translates to:
+  /// **'용암골렘'**
+  String get monsterMagmaGolem;
+
+  /// No description provided for @monsterSoulReaper.
+  ///
+  /// In ko, this message translates to:
+  /// **'영혼수확자'**
+  String get monsterSoulReaper;
+
+  /// No description provided for @monsterAncientTree.
+  ///
+  /// In ko, this message translates to:
+  /// **'고대나무'**
+  String get monsterAncientTree;
+
   /// No description provided for @worldBoss.
   ///
   /// In ko, this message translates to:
@@ -5539,6 +5593,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'소환석'**
   String get offlineSummonStone;
+
+  /// No description provided for @arenaWinStreak.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}연승'**
+  String arenaWinStreak(int count);
+
+  /// No description provided for @arenaStreakBonus.
+  ///
+  /// In ko, this message translates to:
+  /// **'연승 보너스 ×{multiplier}'**
+  String arenaStreakBonus(String multiplier);
+
+  /// No description provided for @arenaCoinReward.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나 코인 +{amount}'**
+  String arenaCoinReward(int amount);
+
+  /// No description provided for @arenaCoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'아레나 코인'**
+  String get arenaCoin;
+
+  /// No description provided for @guildRankingTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'랭킹'**
+  String get guildRankingTab;
+
+  /// No description provided for @guildContribution.
+  ///
+  /// In ko, this message translates to:
+  /// **'기여도'**
+  String get guildContribution;
+
+  /// No description provided for @guildRank.
+  ///
+  /// In ko, this message translates to:
+  /// **'{rank}위'**
+  String guildRank(int rank);
+
+  /// No description provided for @transcend.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월'**
+  String get transcend;
+
+  /// No description provided for @transcendLevel.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월 {level}단계'**
+  String transcendLevel(int level);
+
+  /// No description provided for @transcendRequirement.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 진화 5각성 필요'**
+  String get transcendRequirement;
+
+  /// No description provided for @transcendCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월 비용'**
+  String get transcendCost;
+
+  /// No description provided for @transcendSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월 {level}단계 달성!'**
+  String transcendSuccess(int level);
+
+  /// No description provided for @transcendMaxReached.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 초월 도달'**
+  String get transcendMaxReached;
+
+  /// No description provided for @transcendInProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월 중...'**
+  String get transcendInProgress;
+
+  /// No description provided for @msgTranscend.
+  ///
+  /// In ko, this message translates to:
+  /// **'초월 {level}단계 달성! (+{bonus}% 스탯)'**
+  String msgTranscend(int level, int bonus);
+
+  /// No description provided for @heroStatPoints.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 포인트'**
+  String get heroStatPoints;
+
+  /// No description provided for @heroStatPointsRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 포인트: {points}'**
+  String heroStatPointsRemaining(int points);
+
+  /// No description provided for @heroInvestAtk.
+  ///
+  /// In ko, this message translates to:
+  /// **'ATK +3'**
+  String get heroInvestAtk;
+
+  /// No description provided for @heroInvestDef.
+  ///
+  /// In ko, this message translates to:
+  /// **'DEF +2'**
+  String get heroInvestDef;
+
+  /// No description provided for @heroInvestHp.
+  ///
+  /// In ko, this message translates to:
+  /// **'HP +20'**
+  String get heroInvestHp;
+
+  /// No description provided for @heroInvestSpd.
+  ///
+  /// In ko, this message translates to:
+  /// **'SPD +1'**
+  String get heroInvestSpd;
 }
 
 class _AppLocalizationsDelegate

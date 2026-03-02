@@ -252,8 +252,10 @@ class _UpgradePanel extends ConsumerWidget {
             _EvolutionPanel(monster: monster)
           else if (activeTab == UpgradeTab.fusion)
             _FusionPanel(monster: monster)
+          else if (activeTab == UpgradeTab.awakening)
+            _AwakeningPanel(monster: monster)
           else
-            _AwakeningPanel(monster: monster),
+            _TranscendPanel(monster: monster),
           const SizedBox(height: 24),
         ],
       ),
@@ -405,6 +407,15 @@ class _TabSelector extends ConsumerWidget {
           onTap: () =>
               ref.read(upgradeProvider.notifier).setTab(UpgradeTab.awakening),
         ),
+        const SizedBox(width: 6),
+        _TabButton(
+          label: l.transcend,
+          icon: Icons.auto_fix_high_rounded,
+          isActive: activeTab == UpgradeTab.transcend,
+          onTap: () =>
+              ref.read(upgradeProvider.notifier).setTab(UpgradeTab.transcend),
+          accentColor: Colors.deepPurple,
+        ),
       ],
     );
   }
@@ -416,15 +427,21 @@ class _TabButton extends StatelessWidget {
     required this.icon,
     required this.isActive,
     required this.onTap,
+    this.accentColor,
   });
 
   final String label;
   final IconData icon;
   final bool isActive;
   final VoidCallback onTap;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = accentColor ?? AppColors.primary;
+    final activeBorder = accentColor != null
+        ? accentColor!.withValues(alpha: 0.6)
+        : AppColors.primaryLight.withValues(alpha: 0.4);
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -432,11 +449,9 @@ class _TabButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: isActive ? AppColors.primary : AppColors.surface,
+            color: isActive ? activeColor : AppColors.surface,
             border: Border.all(
-              color: isActive
-                  ? AppColors.primaryLight.withValues(alpha:0.4)
-                  : AppColors.border,
+              color: isActive ? activeBorder : AppColors.border,
             ),
           ),
           child: Row(
@@ -1997,6 +2012,211 @@ class _StatMiniPreview extends StatelessWidget {
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// _TranscendPanel — transcendence (post-max-awakening enhancement)
+// =============================================================================
+
+class _TranscendPanel extends ConsumerWidget {
+  const _TranscendPanel({required this.monster});
+  final MonsterModel monster;
+
+  static const _purple = Colors.deepPurple;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final isMaxEvo = monster.evolutionStage >= GameConfig.maxEvolutionStage;
+    final isMaxAwakened = monster.awakeningStars >= UpgradeNotifier.maxAwakeningStars;
+    final canTranscend = UpgradeNotifier.canTranscend(monster);
+    final isMaxTranscend = monster.transcendLevel >= UpgradeNotifier.maxTranscendLevel;
+
+    // Requirement check
+    if (!isMaxEvo || !isMaxAwakened) {
+      return _buildInfoBanner(
+        icon: Icons.lock_outline,
+        text: l.transcendRequirement,
+        color: AppColors.textTertiary,
+      );
+    }
+
+    if (isMaxTranscend) {
+      return Column(
+        children: [
+          _buildTranscendDisplay(),
+          const SizedBox(height: 12),
+          _buildInfoBanner(
+            icon: Icons.auto_fix_high_rounded,
+            text: l.transcendMaxReached,
+            color: _purple,
+          ),
+          const SizedBox(height: 8),
+          _buildStatPreview(),
+        ],
+      );
+    }
+
+    final goldCost = UpgradeNotifier.transcendGoldCost(monster);
+    final shardCost = UpgradeNotifier.transcendShardCost(monster);
+    final diamondCost = UpgradeNotifier.transcendDiamondCost(monster);
+    final currency = ref.watch(currencyProvider);
+    final canAfford = currency.canAfford(gold: goldCost, monsterShard: shardCost, diamond: diamondCost);
+    final processing = ref.watch(upgradeProvider.select((s) => s.isProcessing));
+
+    return Column(
+      children: [
+        _buildTranscendDisplay(),
+        const SizedBox(height: 12),
+        _buildStatPreview(),
+        const SizedBox(height: 16),
+
+        // Cost display
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _purple.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            children: [
+              Text(
+                l.transcendCost,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _CostChip(
+                    icon: Icons.monetization_on_rounded,
+                    label: FormatUtils.formatNumber(goldCost),
+                    available: currency.gold >= goldCost,
+                  ),
+                  _CostChip(
+                    icon: Icons.diamond_rounded,
+                    label: l.shardCost(shardCost),
+                    available: currency.monsterShard >= shardCost,
+                  ),
+                  _CostChip(
+                    icon: Icons.workspace_premium_rounded,
+                    label: '$diamondCost 💎',
+                    available: currency.diamond >= diamondCost,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Transcend button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: canTranscend && canAfford && !processing
+                ? () => ref.read(upgradeProvider.notifier).transcend()
+                : null,
+            icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
+            label: Text(
+              processing ? l.transcendInProgress : l.transcend,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _purple,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: AppColors.surfaceVariant,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTranscendDisplay() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(UpgradeNotifier.maxTranscendLevel, (i) {
+        final active = i < monster.transcendLevel;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Icon(
+            active ? Icons.star_rounded : Icons.star_outline_rounded,
+            size: 32,
+            color: active ? _purple : AppColors.textTertiary,
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildStatPreview() {
+    final bonus = monster.transcendLevel * 20;
+    final nextBonus = (monster.transcendLevel + 1) * 20;
+    final isMax = monster.transcendLevel >= UpgradeNotifier.maxTranscendLevel;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _purple.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '+$bonus% 스탯 (초월)',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: bonus > 0 ? _purple : AppColors.textTertiary,
+            ),
+          ),
+          if (!isMax) ...[
+            const SizedBox(height: 4),
+            Text(
+              '다음: +$nextBonus%',
+              style: TextStyle(fontSize: 12, color: Colors.green[300]),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _StatMiniPreview(label: 'HP', value: monster.finalHp),
+              _StatMiniPreview(label: 'ATK', value: monster.finalAtk),
+              _StatMiniPreview(label: 'DEF', value: monster.finalDef),
+              _StatMiniPreview(label: 'SPD', value: monster.finalSpd),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoBanner({required IconData icon, required String text, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+        ],
+      ),
     );
   }
 }

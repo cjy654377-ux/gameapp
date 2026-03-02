@@ -102,6 +102,10 @@ class PlayerModel extends HiveObject {
   @HiveField(26)
   String maxHardClearedStageId;
 
+  /// Stat investment points gained from levelling up (2 per level-up).
+  @HiveField(27)
+  int heroStatPoints;
+
   PlayerModel({
     required this.id,
     required this.nickname,
@@ -130,6 +134,7 @@ class PlayerModel extends HiveObject {
     this.equippedSkillId,
     this.equippedMountId,
     this.maxHardClearedStageId = '',
+    this.heroStatPoints = 0,
   });
 
   // -------------------------------------------------------------------------
@@ -219,6 +224,7 @@ class PlayerModel extends HiveObject {
     String? equippedMountId,
     bool clearEquippedMount = false,
     String? maxHardClearedStageId,
+    int? heroStatPoints,
   }) {
     return PlayerModel(
       id: id ?? this.id,
@@ -249,6 +255,7 @@ class PlayerModel extends HiveObject {
       equippedSkillId: clearEquippedSkill ? null : (equippedSkillId ?? this.equippedSkillId),
       equippedMountId: clearEquippedMount ? null : (equippedMountId ?? this.equippedMountId),
       maxHardClearedStageId: maxHardClearedStageId ?? this.maxHardClearedStageId,
+      heroStatPoints: heroStatPoints ?? this.heroStatPoints,
     );
   }
 
@@ -301,13 +308,15 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       heroBaseSpd: (fields[23] as num?)?.toDouble() ?? 12.0,
       equippedSkillId: fields[24] as String?,
       equippedMountId: fields[25] as String?,
+      maxHardClearedStageId: fields[26] as String? ?? '',
+      heroStatPoints: fields[27] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, PlayerModel obj) {
     writer
-      ..writeByte(26) // number of fields
+      ..writeByte(28) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -359,7 +368,11 @@ class PlayerModelAdapter extends TypeAdapter<PlayerModel> {
       ..writeByte(24)
       ..write(obj.equippedSkillId)
       ..writeByte(25)
-      ..write(obj.equippedMountId);
+      ..write(obj.equippedMountId)
+      ..writeByte(26)
+      ..write(obj.maxHardClearedStageId)
+      ..writeByte(27)
+      ..write(obj.heroStatPoints);
   }
 
   @override

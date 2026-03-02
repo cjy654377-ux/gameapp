@@ -752,6 +752,8 @@ class _HeroStatsSection extends ConsumerWidget {
     final hpCnt = _trainCount(player.heroBaseHp, _initHp, _incrHp);
     final spdCnt = _trainCount(player.heroBaseSpd, _initSpd, _incrSpd);
     final gold = ref.watch(currencyProvider).gold;
+    final statPoints = player.heroStatPoints;
+    final hasPoints = statPoints > 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -772,6 +774,33 @@ class _HeroStatsSection extends ConsumerWidget {
               Text(l.heroTraining, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.warning)),
             ],
           ),
+          // Stat investment points display
+          if (statPoints > 0) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.auto_fix_high_rounded, color: Colors.deepPurple, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    l.heroStatPointsRemaining(statPoints),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                  ),
+                  const Spacer(),
+                  Text(
+                    l.heroStatPoints,
+                    style: TextStyle(fontSize: 11, color: Colors.deepPurple.withValues(alpha: 0.7)),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           _TrainableStatRow(
             label: 'ATK', icon: Icons.flash_on, color: AppColors.error,
@@ -779,6 +808,8 @@ class _HeroStatsSection extends ConsumerWidget {
             trainCount: atkCnt, cost: _trainCost(atkCnt), gold: gold,
             onTrain: () => _train(ref, 'atk', atkCnt),
             onBulkTrain: () => _trainBulk(ref, 'atk', atkCnt, gold),
+            investLabel: hasPoints ? l.heroInvestAtk : null,
+            onInvest: hasPoints ? () => ref.read(playerProvider.notifier).investHeroStat('atk') : null,
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -787,6 +818,8 @@ class _HeroStatsSection extends ConsumerWidget {
             trainCount: defCnt, cost: _trainCost(defCnt), gold: gold,
             onTrain: () => _train(ref, 'def', defCnt),
             onBulkTrain: () => _trainBulk(ref, 'def', defCnt, gold),
+            investLabel: hasPoints ? l.heroInvestDef : null,
+            onInvest: hasPoints ? () => ref.read(playerProvider.notifier).investHeroStat('def') : null,
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -795,6 +828,8 @@ class _HeroStatsSection extends ConsumerWidget {
             trainCount: hpCnt, cost: _trainCost(hpCnt), gold: gold,
             onTrain: () => _train(ref, 'hp', hpCnt),
             onBulkTrain: () => _trainBulk(ref, 'hp', hpCnt, gold),
+            investLabel: hasPoints ? l.heroInvestHp : null,
+            onInvest: hasPoints ? () => ref.read(playerProvider.notifier).investHeroStat('hp') : null,
           ),
           const SizedBox(height: 8),
           _TrainableStatRow(
@@ -803,6 +838,8 @@ class _HeroStatsSection extends ConsumerWidget {
             trainCount: spdCnt, cost: _trainCost(spdCnt), gold: gold,
             onTrain: () => _train(ref, 'spd', spdCnt),
             onBulkTrain: () => _trainBulk(ref, 'spd', spdCnt, gold),
+            investLabel: hasPoints ? l.heroInvestSpd : null,
+            onInvest: hasPoints ? () => ref.read(playerProvider.notifier).investHeroStat('spd') : null,
           ),
         ],
       ),
@@ -874,6 +911,7 @@ class _TrainableStatRow extends StatelessWidget {
     required this.baseValue, this.bonus = 0,
     required this.trainCount, required this.cost, required this.gold,
     required this.onTrain, this.onBulkTrain,
+    this.investLabel, this.onInvest,
   });
   final String label;
   final IconData icon;
@@ -885,6 +923,8 @@ class _TrainableStatRow extends StatelessWidget {
   final int gold;
   final VoidCallback onTrain;
   final VoidCallback? onBulkTrain;
+  final String? investLabel;
+  final VoidCallback? onInvest;
 
   @override
   Widget build(BuildContext context) {
@@ -906,6 +946,25 @@ class _TrainableStatRow extends StatelessWidget {
           Text('Lv$trainCount', style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.7))),
         ],
         const Spacer(),
+        // Stat invest button (purple, only shown when points available)
+        if (investLabel != null && onInvest != null) ...[
+          GestureDetector(
+            onTap: onInvest,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+              margin: const EdgeInsets.only(right: 6),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.4)),
+              ),
+              child: Text(
+                investLabel!,
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+              ),
+            ),
+          ),
+        ],
         GestureDetector(
           onTap: canAfford ? onTrain : null,
           onLongPress: canAfford && onBulkTrain != null ? onBulkTrain : null,

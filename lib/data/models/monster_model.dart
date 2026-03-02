@@ -88,6 +88,10 @@ class MonsterModel extends HiveObject {
   @HiveField(20)
   String? equippedSkinId;
 
+  /// Transcendence level (0~3). Requires max evolution + 5 awakening stars.
+  @HiveField(21)
+  int transcendLevel;
+
   MonsterModel({
     required this.id,
     required this.templateId,
@@ -110,10 +114,13 @@ class MonsterModel extends HiveObject {
     this.nickname,
     this.isFavorite = false,
     this.equippedSkinId,
+    this.transcendLevel = 0,
   });
 
   /// Display name: nickname if set, otherwise species name.
   String get displayName => nickname ?? name;
+
+  static const int maxTranscendLevel = 3;
 
   // -------------------------------------------------------------------------
   // Scaling helpers
@@ -160,9 +167,12 @@ class MonsterModel extends HiveObject {
     return thresholds[affinityLevel] - battleCount;
   }
 
+  /// Transcend multiplier: 0→1.0x, 1→1.2x, 2→1.4x, 3→1.6x
+  double get _transcendMultiplier => 1.0 + transcendLevel * 0.2;
+
   /// Composite multiplier (cached per access chain, avoids repeated recompute per stat).
   double get _compositeMultiplier =>
-      _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier * _affinityMultiplier;
+      _levelMultiplier * _evolutionMultiplier * _awakeningMultiplier * _affinityMultiplier * _transcendMultiplier;
 
   // -------------------------------------------------------------------------
   // Computed final stats
@@ -248,6 +258,7 @@ class MonsterModel extends HiveObject {
     Object? nickname = _sentinel,
     bool? isFavorite,
     Object? equippedSkinId = _sentinel,
+    int? transcendLevel,
   }) {
     return MonsterModel(
       id: id ?? this.id,
@@ -277,6 +288,7 @@ class MonsterModel extends HiveObject {
       equippedSkinId: equippedSkinId == _sentinel
           ? this.equippedSkinId
           : equippedSkinId as String?,
+      transcendLevel: transcendLevel ?? this.transcendLevel,
     );
   }
 
@@ -329,13 +341,14 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       nickname:       fields[18] as String?,
       isFavorite:     fields[19] as bool? ?? false,
       equippedSkinId: fields[20] as String?,
+      transcendLevel: fields[21] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, MonsterModel obj) {
     writer
-      ..writeByte(21) // total number of fields
+      ..writeByte(22) // total number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -377,7 +390,9 @@ class MonsterModelAdapter extends TypeAdapter<MonsterModel> {
       ..writeByte(19)
       ..write(obj.isFavorite)
       ..writeByte(20)
-      ..write(obj.equippedSkinId);
+      ..write(obj.equippedSkinId)
+      ..writeByte(21)
+      ..write(obj.transcendLevel);
   }
 
   @override

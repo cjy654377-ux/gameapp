@@ -179,9 +179,14 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
       }
     }
 
+    // Grant 2 stat investment points per level gained.
+    final levelsGained = newLevel - current.playerLevel;
+    final pointsGained = levelsGained * 2;
+
     final updated = current.copyWith(
-      playerExp:   newExp,
-      playerLevel: newLevel,
+      playerExp:      newExp,
+      playerLevel:    newLevel,
+      heroStatPoints: current.heroStatPoints + pointsGained,
     );
 
     await _storage.savePlayer(updated);
@@ -265,6 +270,38 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   /// Marks the tutorial as fully completed (step 99).
   Future<void> completeTutorial() async {
     await advanceTutorial(99);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hero stat investment
+  // ---------------------------------------------------------------------------
+
+  /// Spends 1 hero stat point to permanently boost the given stat.
+  /// [stat] must be one of 'atk', 'def', 'hp', 'spd'.
+  Future<void> investHeroStat(String stat) async {
+    final current = state.player;
+    if (current == null) return;
+    if (current.heroStatPoints <= 0) return;
+
+    double atkAdd = 0, defAdd = 0, hpAdd = 0, spdAdd = 0;
+    switch (stat) {
+      case 'atk': atkAdd = 3.0;
+      case 'def': defAdd = 2.0;
+      case 'hp':  hpAdd  = 20.0;
+      case 'spd': spdAdd = 1.0;
+      default: return;
+    }
+
+    final updated = current.copyWith(
+      heroStatPoints: current.heroStatPoints - 1,
+      heroBaseAtk:   current.heroBaseAtk + atkAdd,
+      heroBaseDef:   current.heroBaseDef + defAdd,
+      heroBaseHp:    current.heroBaseHp  + hpAdd,
+      heroBaseSpd:   current.heroBaseSpd + spdAdd,
+    );
+
+    await _storage.savePlayer(updated);
+    state = state.copyWith(player: updated);
   }
 
   /// Generic update: apply [transform] to the current player and persist.

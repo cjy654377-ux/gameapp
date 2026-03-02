@@ -627,6 +627,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get floorCleared => '클리어!';
 
   @override
+  String get dungeonBossFloor => '👑 보스 출현!';
+
+  @override
+  String get dungeonTreasureFloor => '💰 보물방!';
+
+  @override
+  String get dungeonHealingFloor => '💚 회복의 방';
+
+  @override
+  String get monsterGhostLantern => '유령등불';
+
+  @override
+  String get monsterSunFairy => '태양요정';
+
+  @override
+  String get monsterThornDruid => '가시드루이드';
+
+  @override
+  String get monsterMagmaGolem => '용암골렘';
+
+  @override
+  String get monsterSoulReaper => '영혼수확자';
+
+  @override
+  String get monsterAncientTree => '고대나무';
+
+  @override
   String get worldBoss => '월드 보스';
 
   @override
@@ -3101,4 +3128,83 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get offlineSummonStone => '소환석';
+
+  @override
+  String arenaWinStreak(int count) {
+    return '$count연승';
+  }
+
+  @override
+  String arenaStreakBonus(String multiplier) {
+    return '연승 보너스 ×$multiplier';
+  }
+
+  @override
+  String arenaCoinReward(int amount) {
+    return '아레나 코인 +$amount';
+  }
+
+  @override
+  String get arenaCoin => '아레나 코인';
+
+  @override
+  String get guildRankingTab => '랭킹';
+
+  @override
+  String get guildContribution => '기여도';
+
+  @override
+  String guildRank(int rank) {
+    return '$rank위';
+  }
+
+  @override
+  String get transcend => '초월';
+
+  @override
+  String transcendLevel(int level) {
+    return '초월 $level단계';
+  }
+
+  @override
+  String get transcendRequirement => '최종 진화 5각성 필요';
+
+  @override
+  String get transcendCost => '초월 비용';
+
+  @override
+  String transcendSuccess(int level) {
+    return '초월 $level단계 달성!';
+  }
+
+  @override
+  String get transcendMaxReached => '최대 초월 도달';
+
+  @override
+  String get transcendInProgress => '초월 중...';
+
+  @override
+  String msgTranscend(int level, int bonus) {
+    return '초월 $level단계 달성! (+$bonus% 스탯)';
+  }
+
+  @override
+  String get heroStatPoints => '투자 포인트';
+
+  @override
+  String heroStatPointsRemaining(int points) {
+    return '남은 포인트: $points';
+  }
+
+  @override
+  String get heroInvestAtk => 'ATK +3';
+
+  @override
+  String get heroInvestDef => 'DEF +2';
+
+  @override
+  String get heroInvestHp => 'HP +20';
+
+  @override
+  String get heroInvestSpd => 'SPD +1';
 }

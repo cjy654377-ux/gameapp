@@ -34,6 +34,9 @@ class AppMessage {
   factory AppMessage.awakening(int stars) =>
       AppMessage._((l) => l.msgAwakening(stars));
 
+  factory AppMessage.transcend(int level) =>
+      AppMessage._((l) => l.msgTranscend(level, level * 20));
+
   // ── Training ─────────────────────────────────────────────────────────────
 
   factory AppMessage.trainingStart(String name) =>

@@ -20,7 +20,7 @@ import 'package:gameapp/presentation/widgets/tutorial_overlay.dart';
 // UpgradeTab enum
 // =============================================================================
 
-enum UpgradeTab { levelUp, evolution, fusion, awakening }
+enum UpgradeTab { levelUp, evolution, fusion, awakening, transcend }
 
 // =============================================================================
 // UpgradeState
@@ -399,6 +399,90 @@ class UpgradeNotifier extends StateNotifier<UpgradeState> {
     state = state.copyWith(
       isProcessing: false,
       successMessage: AppMessage.awakening(awakened.awakeningStars),
+    );
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Transcendence
+  // ---------------------------------------------------------------------------
+
+  static const int maxTranscendLevel = 3;
+
+  static bool canTranscend(MonsterModel m) {
+    return m.evolutionStage == 2 && m.awakeningStars == 5 && m.transcendLevel < maxTranscendLevel;
+  }
+
+  static int transcendGoldCost(MonsterModel m) {
+    switch (m.transcendLevel) {
+      case 0: return 50000;
+      case 1: return 100000;
+      case 2: return 200000;
+      default: return 0;
+    }
+  }
+
+  static int transcendShardCost(MonsterModel m) {
+    switch (m.transcendLevel) {
+      case 0: return 50;
+      case 1: return 100;
+      case 2: return 200;
+      default: return 0;
+    }
+  }
+
+  static int transcendDiamondCost(MonsterModel m) {
+    switch (m.transcendLevel) {
+      case 0: return 100;
+      case 1: return 200;
+      case 2: return 500;
+      default: return 0;
+    }
+  }
+
+  Future<bool> transcend() async {
+    final monster = _selectedMonster;
+    if (monster == null || state.isProcessing) return false;
+    if (!canTranscend(monster)) return false;
+
+    final goldCost = transcendGoldCost(monster);
+    final shardCost = transcendShardCost(monster);
+    final diamondCost = transcendDiamondCost(monster);
+
+    state = state.copyWith(isProcessing: true, clearMessage: true);
+
+    final currency = ref.read(currencyProvider);
+    if (!currency.canAfford(gold: goldCost, monsterShard: shardCost, diamond: diamondCost)) {
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    final goldOk = await ref.read(currencyProvider.notifier).spendGold(goldCost);
+    if (!goldOk) {
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+    final shardOk = await ref.read(currencyProvider.notifier).spendShard(shardCost);
+    if (!shardOk) {
+      await ref.read(currencyProvider.notifier).addGold(goldCost);
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+    final diamondOk = await ref.read(currencyProvider.notifier).spendDiamond(diamondCost);
+    if (!diamondOk) {
+      await ref.read(currencyProvider.notifier).addGold(goldCost);
+      await ref.read(currencyProvider.notifier).addShard(shardCost);
+      state = state.copyWith(isProcessing: false);
+      return false;
+    }
+
+    final transcended = monster.copyWith(transcendLevel: monster.transcendLevel + 1);
+    await ref.read(monsterListProvider.notifier).updateMonster(transcended);
+    AudioService.instance.playEvolution();
+
+    state = state.copyWith(
+      isProcessing: false,
+      successMessage: AppMessage.transcend(transcended.transcendLevel),
     );
     return true;
   }
