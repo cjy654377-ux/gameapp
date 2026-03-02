@@ -328,6 +328,25 @@ class SkillDatabase {
     isTeamHeal: true,
   );
 
+  static const SkillDefinition ghostLantern = SkillDefinition(
+    id: 'ghost_lantern',
+    name: '유령의 불꽃',
+    description: '불길한 유령 불꽃을 적에게 쏘아 독을 주입한다.',
+    cooldown: 3,
+    damageMultiplier: 1.1,
+    poisonTurns: 3,
+    poisonDamagePercent: 0.04,
+  );
+
+  static const SkillDefinition sunFairy = SkillDefinition(
+    id: 'sun_fairy',
+    name: '태양의 축복',
+    description: '태양의 따뜻한 빛으로 아군 전체의 체력을 회복한다.',
+    cooldown: 4,
+    healPercent: 0.20,
+    isTeamHeal: true,
+  );
+
   // ---------------------------------------------------------------------------
   // 3★ 희귀 monsters (4)
   // ---------------------------------------------------------------------------
@@ -369,6 +388,27 @@ class SkillDatabase {
     damageTarget: SkillTargetType.allEnemies,
   );
 
+  static const SkillDefinition thornDruid = SkillDefinition(
+    id: 'thorn_druid',
+    name: '가시 방벽',
+    description: '온몸에 가시를 두르며 보호막을 생성하고 독 기운을 퍼뜨린다.',
+    cooldown: 3,
+    shieldPercent: 0.20,
+    poisonTurns: 2,
+    poisonDamagePercent: 0.04,
+  );
+
+  static const SkillDefinition magmaGolem = SkillDefinition(
+    id: 'magma_golem',
+    name: '용암 분출',
+    description: '온몸의 용암을 뿜어 모든 적에게 화상을 입힌다.',
+    cooldown: 3,
+    damageMultiplier: 1.3,
+    damageTarget: SkillTargetType.allEnemies,
+    burnTurns: 3,
+    burnDamagePercent: 0.05,
+  );
+
   // ---------------------------------------------------------------------------
   // 4★ 영웅 monsters (3)
   // ---------------------------------------------------------------------------
@@ -400,6 +440,27 @@ class SkillDatabase {
     description: '어둠의 검기를 날려 적에게 초강력 피해를 준다.',
     cooldown: 3,
     damageMultiplier: 2.5,
+  );
+
+  static const SkillDefinition soulReaper = SkillDefinition(
+    id: 'soul_reaper',
+    name: '영혼 수확',
+    description: '낫으로 적의 영혼을 베어 기절시키고 생명력을 흡수한다.',
+    cooldown: 3,
+    damageMultiplier: 1.8,
+    stunChance: 0.55,
+    drainPercent: 0.40,
+  );
+
+  static const SkillDefinition ancientTree = SkillDefinition(
+    id: 'ancient_tree',
+    name: '대자연의 가호',
+    description: '대자연의 기운으로 아군 전체를 치유하고 보호막을 부여한다.',
+    cooldown: 4,
+    healPercent: 0.22,
+    isTeamHeal: true,
+    shieldPercent: 0.15,
+    isTeamShield: true,
   );
 
   // ---------------------------------------------------------------------------
@@ -488,13 +549,19 @@ class SkillDatabase {
     'thunder_wolf': thunderWolf,
     'vine_snake': vineSnake,
     'mermaid': mermaid,
+    'ghost_lantern': ghostLantern,
+    'sun_fairy': sunFairy,
     'silver_wolf': silverWolf,
     'shadow_cat': shadowCat,
     'crystal_turtle': crystalTurtle,
     'storm_eagle': stormEagle,
+    'thorn_druid': thornDruid,
+    'magma_golem': magmaGolem,
     'phoenix': phoenix,
     'ice_queen': iceQueen,
     'dark_knight': darkKnight,
+    'soul_reaper': soulReaper,
+    'ancient_tree': ancientTree,
     'flame_dragon': flameDragon,
     'archangel': archangel,
     'abyss_slug': abyssSlug,
@@ -559,6 +626,14 @@ class SkillDatabase {
       id: 'mermaid_p', name: '수호의 노래', description: '피격 시 20% 확률로 반격',
       trigger: PassiveTrigger.onDamaged, counterChance: 0.20, counterMultiplier: 0.6,
     ),
+    'ghost_lantern': PassiveDefinition(
+      id: 'ghost_lantern_p', name: '독의 기운', description: '공격 시 크리 확률 +10%',
+      trigger: PassiveTrigger.onAttack, critBoost: 0.10,
+    ),
+    'sun_fairy': PassiveDefinition(
+      id: 'sun_fairy_p', name: '태양의 은총', description: '매 턴 HP 3% 회복',
+      trigger: PassiveTrigger.onTurnStart, hpRegenPercent: 0.03,
+    ),
     // 3★ passives
     'silver_wolf': PassiveDefinition(
       id: 'silver_wolf_p', name: '달빛 축복', description: '공격력 +12%, 크리 +5%',
@@ -576,6 +651,14 @@ class SkillDatabase {
       id: 'storm_eagle_p', name: '질풍', description: '공격력 +10%',
       trigger: PassiveTrigger.battleStart, atkBoost: 0.10,
     ),
+    'thorn_druid': PassiveDefinition(
+      id: 'thorn_druid_p', name: '가시 반격', description: '피격 시 15% 확률로 독 반격',
+      trigger: PassiveTrigger.onDamaged, counterChance: 0.15, counterMultiplier: 0.6,
+    ),
+    'magma_golem': PassiveDefinition(
+      id: 'magma_golem_p', name: '용암 갑옷', description: '방어력 +10%',
+      trigger: PassiveTrigger.battleStart, defBoost: 0.10,
+    ),
     // 4★ passives
     'phoenix': PassiveDefinition(
       id: 'phoenix_p', name: '불사', description: '매 턴 HP 4% 회복',
@@ -588,6 +671,14 @@ class SkillDatabase {
     'dark_knight': PassiveDefinition(
       id: 'dark_knight_p', name: '암흑 집중', description: '공격력 +15%',
       trigger: PassiveTrigger.battleStart, atkBoost: 0.15,
+    ),
+    'soul_reaper': PassiveDefinition(
+      id: 'soul_reaper_p', name: '사신의 낫', description: '공격 시 크리 확률 +12%',
+      trigger: PassiveTrigger.onAttack, critBoost: 0.12,
+    ),
+    'ancient_tree': PassiveDefinition(
+      id: 'ancient_tree_p', name: '고대의 뿌리', description: '방어력 +12%, 매 턴 HP 3% 회복',
+      trigger: PassiveTrigger.onTurnStart, defBoost: 0.12, hpRegenPercent: 0.03,
     ),
     // 5★ passives
     'flame_dragon': PassiveDefinition(

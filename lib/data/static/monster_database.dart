@@ -222,6 +222,34 @@ class MonsterDatabase {
     gachaWeight: 200,
   );
 
+  static const MonsterTemplate ghostLantern = MonsterTemplate(
+    id:          'ghost_lantern',
+    name:        '유령등불',
+    rarity:      2,
+    element:     'ghost',
+    size:        'small',
+    description: '어둠 속에서 홀로 떠다니는 유령의 등불. 가까이 다가오면 독성 불꽃에 잠식된다.',
+    baseAtk:     18.0,
+    baseDef:     14.0,
+    baseHp:      200.0,
+    baseSpd:     16.0,
+    gachaWeight: 15,
+  );
+
+  static const MonsterTemplate sunFairy = MonsterTemplate(
+    id:          'sun_fairy',
+    name:        '태양요정',
+    rarity:      2,
+    element:     'light',
+    size:        'small',
+    description: '태양의 축복을 받아 태어난 요정. 눈부신 빛으로 아군의 상처를 치유한다.',
+    baseAtk:     15.0,
+    baseDef:     12.0,
+    baseHp:      160.0,
+    baseSpd:     22.0,
+    gachaWeight: 15,
+  );
+
   // ---------------------------------------------------------------------------
   // 3성 희귀 monsters (4 total)
   // ---------------------------------------------------------------------------
@@ -282,6 +310,34 @@ class MonsterDatabase {
     gachaWeight: 60,
   );
 
+  static const MonsterTemplate thornDruid = MonsterTemplate(
+    id:          'thorn_druid',
+    name:        '가시드루이드',
+    rarity:      3,
+    element:     'grass',
+    size:        'medium',
+    description: '가시덤불을 온몸에 두른 자연의 수호자. 방어막과 독으로 적을 서서히 소진시킨다.',
+    baseAtk:     22.0,
+    baseDef:     28.0,
+    baseHp:      280.0,
+    baseSpd:     14.0,
+    gachaWeight: 8,
+  );
+
+  static const MonsterTemplate magmaGolem = MonsterTemplate(
+    id:          'magma_golem',
+    name:        '용암골렘',
+    rarity:      3,
+    element:     'fire',
+    size:        'large',
+    description: '화산 내부에서 탄생한 용암 거인. 뜨거운 몸을 무기 삼아 적 전체에 화염을 쏟아낸다.',
+    baseAtk:     26.0,
+    baseDef:     20.0,
+    baseHp:      350.0,
+    baseSpd:     10.0,
+    gachaWeight: 8,
+  );
+
   // ---------------------------------------------------------------------------
   // 4성 영웅 monsters (3 total)
   // ---------------------------------------------------------------------------
@@ -326,6 +382,34 @@ class MonsterDatabase {
     baseHp:      850.0,
     baseSpd:     14.0,
     gachaWeight: 15,
+  );
+
+  static const MonsterTemplate soulReaper = MonsterTemplate(
+    id:          'soul_reaper',
+    name:        '영혼수확자',
+    rarity:      4,
+    element:     'ghost',
+    size:        'medium',
+    description: '저승 문지기가 보낸 영혼 수확자. 낫 한 번에 적을 기절시키고 생명력을 흡수한다.',
+    baseAtk:     40.0,
+    baseDef:     22.0,
+    baseHp:      320.0,
+    baseSpd:     20.0,
+    gachaWeight: 3,
+  );
+
+  static const MonsterTemplate ancientTree = MonsterTemplate(
+    id:          'ancient_tree',
+    name:        '고대나무',
+    rarity:      4,
+    element:     'grass',
+    size:        'extraLarge',
+    description: '수천 년을 산 고대의 나무 정령. 대자연의 힘으로 아군 전체를 치유하고 보호막을 펼친다.',
+    baseAtk:     20.0,
+    baseDef:     35.0,
+    baseHp:      500.0,
+    baseSpd:     8.0,
+    gachaWeight: 3,
   );
 
   // ---------------------------------------------------------------------------
@@ -513,15 +597,21 @@ class MonsterDatabase {
     thunderWolf,
     vineSnake,
     mermaid,
+    ghostLantern,
+    sunFairy,
     // 3성 희귀
     silverWolf,
     shadowCat,
     crystalTurtle,
     stormEagle,
+    thornDruid,
+    magmaGolem,
     // 4성 영웅
     phoenix,
     iceQueen,
     darkKnight,
+    soulReaper,
+    ancientTree,
     // 5성 전설
     flameDragon,
     archangel,

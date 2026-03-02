@@ -1114,5 +1114,25 @@
   "guildRankingTab": "Ranking",
   "guildContribution": "Contribution",
   "guildRank": "#{rank}",
-  "@guildRank": {"placeholders": {"rank": {"type": "int"}}}
+  "@guildRank": {"placeholders": {"rank": {"type": "int"}}},
+
+  "transcend": "Transcend",
+  "transcendLevel": "Transcend Lv.{level}",
+  "@transcendLevel": {"placeholders": {"level": {"type": "int"}}},
+  "transcendRequirement": "Requires Final Evo + 5 Awakening Stars",
+  "transcendCost": "Transcend Cost",
+  "transcendSuccess": "Transcend Lv.{level} Reached!",
+  "@transcendSuccess": {"placeholders": {"level": {"type": "int"}}},
+  "transcendMaxReached": "Max Transcend Reached",
+  "transcendInProgress": "Transcending...",
+  "msgTranscend": "Transcend Lv.{level} achieved! (+{bonus}% Stats)",
+  "@msgTranscend": {"placeholders": {"level": {"type": "int"}, "bonus": {"type": "int"}}},
+
+  "heroStatPoints": "Invest Points",
+  "heroStatPointsRemaining": "Remaining Points: {points}",
+  "@heroStatPointsRemaining": {"placeholders": {"points": {"type": "int"}}},
+  "heroInvestAtk": "ATK +3",
+  "heroInvestDef": "DEF +2",
+  "heroInvestHp": "HP +20",
+  "heroInvestSpd": "SPD +1"
 }

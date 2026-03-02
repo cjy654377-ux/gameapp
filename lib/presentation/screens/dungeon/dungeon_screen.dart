@@ -159,6 +159,11 @@ class _DungeonHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
+          // Floor type banner (boss / treasure / healing).
+          if (state.currentFloor > 0)
+            _FloorTypeBanner(floorType: state.floorType, l: l),
+          if (state.currentFloor > 0)
+            const SizedBox(height: 6),
           // Accumulated rewards bar.
           Row(
             children: [
@@ -189,6 +194,49 @@ class _DungeonHeader extends StatelessWidget {
   }
 }
 
+
+// =============================================================================
+// _FloorTypeBanner
+// =============================================================================
+
+class _FloorTypeBanner extends StatelessWidget {
+  const _FloorTypeBanner({required this.floorType, required this.l});
+
+  final FloorType floorType;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    if (floorType == FloorType.normal) return const SizedBox.shrink();
+
+    final (label, color) = switch (floorType) {
+      FloorType.boss     => (l.dungeonBossFloor,     const Color(0xFFEF5350)),
+      FloorType.treasure => (l.dungeonTreasureFloor, const Color(0xFFFFD700)),
+      FloorType.healing  => (l.dungeonHealingFloor,  const Color(0xFF66BB6A)),
+      FloorType.normal   => ('', Colors.transparent),
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.6), width: 1),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: color,
+          fontSize: 13,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
 
 // =============================================================================
 // _DungeonArena
@@ -233,6 +281,7 @@ class _DungeonArena extends StatelessWidget {
                 _FloorBadge(
                   floor: state.currentFloor,
                   phase: state.phase,
+                  floorType: state.floorType,
                 ),
                 const SizedBox(height: 6),
                 const Text(
@@ -308,32 +357,56 @@ class _TeamColumn extends StatelessWidget {
 }
 
 class _FloorBadge extends StatelessWidget {
-  const _FloorBadge({required this.floor, required this.phase});
+  const _FloorBadge({
+    required this.floor,
+    required this.phase,
+    this.floorType = FloorType.normal,
+  });
 
   final int floor;
   final DungeonPhase phase;
+  final FloorType floorType;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final (label, color) = switch (phase) {
-      DungeonPhase.idle         => (l.standby, AppColors.textTertiary),
-      DungeonPhase.fighting     => (l.dungeonFloor(floor), const Color(0xFFCE93D8)),
-      DungeonPhase.floorCleared => (l.floorCleared, AppColors.gold),
-      DungeonPhase.defeated     => (l.battleDefeat, AppColors.error),
+
+    // Base color from phase.
+    Color baseColor = switch (phase) {
+      DungeonPhase.idle         => AppColors.textTertiary,
+      DungeonPhase.fighting     => const Color(0xFFCE93D8),
+      DungeonPhase.floorCleared => AppColors.gold,
+      DungeonPhase.defeated     => AppColors.error,
+    };
+
+    // Override color for special floor types when fighting.
+    if (phase == DungeonPhase.fighting || phase == DungeonPhase.floorCleared) {
+      baseColor = switch (floorType) {
+        FloorType.boss     => const Color(0xFFEF5350),
+        FloorType.treasure => const Color(0xFFFFD700),
+        FloorType.healing  => const Color(0xFF66BB6A),
+        FloorType.normal   => baseColor,
+      };
+    }
+
+    final label = switch (phase) {
+      DungeonPhase.idle         => l.standby,
+      DungeonPhase.fighting     => l.dungeonFloor(floor),
+      DungeonPhase.floorCleared => l.floorCleared,
+      DungeonPhase.defeated     => l.battleDefeat,
     };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.18),
+        color: baseColor.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.6), width: 1),
+        border: Border.all(color: baseColor.withValues(alpha: 0.6), width: 1),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: color,
+          color: baseColor,
           fontSize: 11,
           fontWeight: FontWeight.w800,
         ),

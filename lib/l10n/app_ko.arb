@@ -1190,5 +1190,25 @@
   "guildRankingTab": "랭킹",
   "guildContribution": "기여도",
   "guildRank": "{rank}위",
-  "@guildRank": {"placeholders": {"rank": {"type": "int"}}}
+  "@guildRank": {"placeholders": {"rank": {"type": "int"}}},
+
+  "transcend": "초월",
+  "transcendLevel": "초월 {level}단계",
+  "@transcendLevel": {"placeholders": {"level": {"type": "int"}}},
+  "transcendRequirement": "최종 진화 5각성 필요",
+  "transcendCost": "초월 비용",
+  "transcendSuccess": "초월 {level}단계 달성!",
+  "@transcendSuccess": {"placeholders": {"level": {"type": "int"}}},
+  "transcendMaxReached": "최대 초월 도달",
+  "transcendInProgress": "초월 중...",
+  "msgTranscend": "초월 {level}단계 달성! (+{bonus}% 스탯)",
+  "@msgTranscend": {"placeholders": {"level": {"type": "int"}, "bonus": {"type": "int"}}},
+
+  "heroStatPoints": "투자 포인트",
+  "heroStatPointsRemaining": "남은 포인트: {points}",
+  "@heroStatPointsRemaining": {"placeholders": {"points": {"type": "int"}}},
+  "heroInvestAtk": "ATK +3",
+  "heroInvestDef": "DEF +2",
+  "heroInvestHp": "HP +20",
+  "heroInvestSpd": "SPD +1"
 }

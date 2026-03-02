@@ -10,6 +10,9 @@ import 'package:gameapp/presentation/providers/player_provider.dart';
 import 'package:gameapp/domain/services/audio_service.dart';
 import 'package:gameapp/presentation/providers/relic_provider.dart';
 
+// Re-export FloorType so UI can use it without importing dungeon_service.
+export 'package:gameapp/domain/services/dungeon_service.dart' show FloorType;
+
 // =============================================================================
 // DungeonPhase
 // =============================================================================
@@ -44,6 +47,9 @@ class DungeonState {
   final double battleSpeed;
   final bool isAutoMode;
 
+  /// The special floor classification for the current floor.
+  final FloorType floorType;
+
   /// Accumulated gold earned this run.
   final int accumulatedGold;
 
@@ -64,6 +70,7 @@ class DungeonState {
     this.turnWithinRound = 0,
     this.battleSpeed = 1.0,
     this.isAutoMode = false,
+    this.floorType = FloorType.normal,
     this.accumulatedGold = 0,
     this.accumulatedExp = 0,
     this.accumulatedShard = 0,
@@ -80,6 +87,7 @@ class DungeonState {
     int? turnWithinRound,
     double? battleSpeed,
     bool? isAutoMode,
+    FloorType? floorType,
     int? accumulatedGold,
     int? accumulatedExp,
     int? accumulatedShard,
@@ -95,6 +103,7 @@ class DungeonState {
       turnWithinRound:  turnWithinRound  ?? this.turnWithinRound,
       battleSpeed:      battleSpeed      ?? this.battleSpeed,
       isAutoMode:       isAutoMode       ?? this.isAutoMode,
+      floorType:        floorType        ?? this.floorType,
       accumulatedGold:  accumulatedGold  ?? this.accumulatedGold,
       accumulatedExp:   accumulatedExp   ?? this.accumulatedExp,
       accumulatedShard: accumulatedShard ?? this.accumulatedShard,
@@ -142,11 +151,18 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
         ref.read(playerProvider).player?.maxDungeonFloor ?? 0;
 
     // Start at floor 1.
-    final enemies = DungeonService.createEnemiesForFloor(1);
+    const int startFloor = 1;
+    final startFloorType = DungeonService.getFloorType(startFloor);
+    final enemies = DungeonService.createEnemiesForFloor(startFloor);
+
+    // Treasure floor at floor 1 is impossible (1 % 10 != 0/7/5), but guard anyway.
+    final startPhase = startFloorType == FloorType.treasure
+        ? DungeonPhase.floorCleared
+        : DungeonPhase.fighting;
 
     state = DungeonState(
-      phase: DungeonPhase.fighting,
-      currentFloor: 1,
+      phase: startPhase,
+      currentFloor: startFloor,
       bestFloor: bestFloor,
       playerTeam: teamWithRelics,
       enemyTeam: enemies,
@@ -155,6 +171,7 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
       turnWithinRound: 0,
       battleSpeed: state.battleSpeed,
       isAutoMode: state.isAutoMode,
+      floorType: startFloorType,
       accumulatedGold: 0,
       accumulatedExp: 0,
       accumulatedShard: 0,
@@ -292,17 +309,42 @@ class DungeonNotifier extends StateNotifier<DungeonState> {
   void advanceFloor() {
     if (state.phase != DungeonPhase.floorCleared) return;
 
-    final nextFloor = state.currentFloor + 1;
+    final nextFloor  = state.currentFloor + 1;
+    final nextType   = DungeonService.getFloorType(nextFloor);
     final playerTeam = _copyTeam(state.playerTeam);
 
-    // Heal 20% and reset status effects between floors.
-    DungeonService.applyFloorHeal(playerTeam);
+    // Apply appropriate heal: 50% on healing floors, 25% otherwise.
+    if (state.floorType == FloorType.healing) {
+      DungeonService.applyHealingFloor(playerTeam);
+    } else {
+      DungeonService.applyFloorHeal(playerTeam);
+    }
 
     final enemies = DungeonService.createEnemiesForFloor(nextFloor);
+
+    // Treasure floor: auto-collect reward immediately, skip combat.
+    if (nextType == FloorType.treasure) {
+      final floorReward = DungeonService.calculateFloorReward(nextFloor);
+      state = state.copyWith(
+        phase: DungeonPhase.floorCleared,
+        currentFloor: nextFloor,
+        floorType: nextType,
+        playerTeam: playerTeam,
+        enemyTeam: const [],
+        battleLog: const [],
+        currentTurn: 1,
+        turnWithinRound: 0,
+        accumulatedGold:  state.accumulatedGold  + floorReward.gold,
+        accumulatedExp:   state.accumulatedExp   + floorReward.exp,
+        accumulatedShard: state.accumulatedShard + (floorReward.bonusShard ?? 0),
+      );
+      return;
+    }
 
     state = state.copyWith(
       phase: DungeonPhase.fighting,
       currentFloor: nextFloor,
+      floorType: nextType,
       playerTeam: playerTeam,
       enemyTeam: enemies,
       battleLog: const [],
