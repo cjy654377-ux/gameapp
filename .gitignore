@@ -46,3 +46,6 @@ app.*.map.json
 node_modules/
 package.json
 package-lock.json
+
+# MCP config (contains API keys)
+.mcp.json

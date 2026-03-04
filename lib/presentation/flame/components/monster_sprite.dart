@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart' show MoveByEffect, EffectController;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:gameapp/core/enums/monster_element.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/flame/components/hp_bar_component.dart';
@@ -30,6 +32,12 @@ class MonsterSpriteComponent extends PositionComponent {
   double _glowPhase = 0;
   double _idlePhase = 0;
   bool _isHero = false;
+  ui.Image? _spriteImage;
+  bool _spriteLoaded = false;
+  double _breathScale = 1.0;
+
+  /// Cache to avoid reloading the same sprite across instances.
+  static final Map<String, ui.Image> _spriteCache = {};
 
   MonsterSpriteComponent({
     required this.monster,
@@ -81,6 +89,29 @@ class MonsterSpriteComponent extends PositionComponent {
     add(_hpBar);
 
     _isDead = !monster.isAlive;
+
+    // Load sprite image
+    await _loadSprite();
+  }
+
+  Future<void> _loadSprite() async {
+    final templateId = monster.templateId;
+    if (_spriteCache.containsKey(templateId)) {
+      _spriteImage = _spriteCache[templateId];
+      _spriteLoaded = true;
+      return;
+    }
+    try {
+      final data = await rootBundle.load('assets/images/monsters/$templateId.png');
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      _spriteImage = frame.image;
+      _spriteCache[templateId] = _spriteImage!;
+      _spriteLoaded = true;
+    } catch (_) {
+      // Sprite not found — fall back to procedural rendering
+      _spriteLoaded = false;
+    }
   }
 
   void updateMonster(BattleMonster updated) {
@@ -144,6 +175,7 @@ class MonsterSpriteComponent extends PositionComponent {
     super.update(dt);
     _glowPhase += dt * 2;
     _idlePhase += dt * 1.5;
+    _breathScale = 1.0 + sin(_idlePhase * 0.8) * 0.02;
     if (_flashTimer > 0) _flashTimer -= dt;
   }
 
@@ -159,9 +191,15 @@ class MonsterSpriteComponent extends PositionComponent {
     canvas.translate(0, bobOffset);
 
     if (_isDead) {
-      _renderDead(canvas);
+      if (_spriteLoaded) {
+        _renderSpriteDead(canvas);
+      } else {
+        _renderDead(canvas);
+      }
     } else if (_isHero) {
       _renderHero(canvas);
+    } else if (_spriteLoaded) {
+      _renderSprite(canvas);
     } else {
       _renderMonster(canvas);
     }
@@ -177,6 +215,71 @@ class MonsterSpriteComponent extends PositionComponent {
     }
 
     canvas.restore();
+  }
+
+  void _renderSprite(Canvas canvas) {
+    final img = _spriteImage!;
+    final srcRect = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
+    final drawSize = _bodyRadius * 2.2;
+    final dstRect = Rect.fromCenter(center: Offset.zero, width: drawSize, height: drawSize);
+
+    canvas.save();
+    // Breathing scale
+    canvas.scale(_breathScale, _breathScale);
+    // Enemy side: flip horizontally
+    if (!isPlayerSide) {
+      canvas.scale(-1, 1);
+    }
+
+    // Glow ring for rarity 3+
+    if (monster.rarity >= 3) {
+      final glowAlpha = (0.3 + 0.2 * sin(_glowPhase)).clamp(0.0, 1.0);
+      final glowPaint = Paint()
+        ..color = _baseColor.withValues(alpha: glowAlpha)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+      canvas.drawCircle(Offset.zero, _bodyRadius + 4, glowPaint);
+    }
+
+    final paint = Paint()..filterQuality = FilterQuality.none;
+    canvas.drawImageRect(img, srcRect, dstRect, paint);
+    canvas.restore();
+  }
+
+  void _renderSpriteDead(Canvas canvas) {
+    final img = _spriteImage!;
+    final srcRect = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
+    final drawSize = _bodyRadius * 2.2;
+    final dstRect = Rect.fromCenter(center: Offset.zero, width: drawSize, height: drawSize);
+
+    canvas.save();
+    if (!isPlayerSide) {
+      canvas.scale(-1, 1);
+    }
+
+    // Greyscale + semi-transparent
+    final greyMatrix = ColorFilter.matrix(<double>[
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0, 0, 0, 0.5, 0,
+    ]);
+    final paint = Paint()
+      ..filterQuality = FilterQuality.none
+      ..colorFilter = greyMatrix;
+    canvas.drawImageRect(img, srcRect, dstRect, paint);
+    canvas.restore();
+
+    // Red X overlay
+    final xPaint = Paint()
+      ..color = Colors.red.withValues(alpha: 0.7)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final d = _bodyRadius * 0.5;
+    canvas.drawLine(Offset(-d, -d), Offset(d, d), xPaint);
+    canvas.drawLine(Offset(d, -d), Offset(-d, d), xPaint);
   }
 
   void _renderMonster(Canvas canvas) {

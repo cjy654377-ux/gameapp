@@ -38,6 +38,7 @@ import '../presentation/screens/hero/hero_screen.dart';
 import '../presentation/screens/map_hub/map_hub_screen.dart';
 import '../presentation/screens/train/train_screen.dart';
 import '../presentation/screens/lucky_box/lucky_box_screen.dart';
+import '../presentation/screens/sprite_preview/sprite_preview_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -80,6 +81,7 @@ class AppRoutes {
   static const mapHub = '/map-hub';
   static const train = '/train';
   static const luckyBox = '/lucky-box';
+  static const spritePreview = '/sprite-preview';
   static const team = '/team';
 }
 
@@ -198,6 +200,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.luckyBox,
         builder: (context, state) => const LuckyBoxScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.spritePreview,
+        builder: (context, state) => const SpritePreviewScreen(),
       ),
       GoRoute(
         path: AppRoutes.collection,
