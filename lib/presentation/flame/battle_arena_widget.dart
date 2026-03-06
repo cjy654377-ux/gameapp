@@ -6,6 +6,7 @@ import 'package:gameapp/l10n/app_localizations.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
 import 'package:gameapp/presentation/flame/battle_game.dart';
 import 'package:gameapp/presentation/providers/battle_provider.dart';
+import 'package:gameapp/presentation/providers/monster_provider.dart';
 import 'package:gameapp/presentation/widgets/procedural_background_painter.dart';
 
 /// Bridge widget: Riverpod state → BattleGame (Flame).
@@ -40,10 +41,26 @@ class _BattleArenaWidgetState extends ConsumerState<BattleArenaWidget> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           _autoStarted = false;
-          ref.read(battleProvider.notifier).startBattle();
+          _tryStartBattle();
         });
       }
     });
+
+    // Also listen for monster list changes — if roster was empty on first
+    // attempt, retry once monsters finish loading.
+    ref.listenManual(monsterListProvider, (prev, next) {
+      if (!mounted) return;
+      final phase = ref.read(battleProvider).phase;
+      if (phase == BattlePhase.idle && next.isNotEmpty) {
+        _tryStartBattle();
+      }
+    });
+  }
+
+  void _tryStartBattle() {
+    final roster = ref.read(monsterListProvider);
+    if (roster.isEmpty) return; // Still loading — wait for monsterListProvider listener
+    ref.read(battleProvider.notifier).startBattle();
   }
 
   @override
@@ -76,15 +93,20 @@ class _BattleArenaWidgetState extends ConsumerState<BattleArenaWidget> {
 
     return Stack(
       children: [
-        // Procedural background (Flutter layer)
+        // Pixel art background image
         Positioned.fill(
-          child: CustomPaint(
-            painter: ProceduralBackgroundPainter(areaName: areaName),
+          child: Image.asset(
+            'assets/images/backgrounds/bg_$areaName.png',
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.none, // Keep pixel art crisp
+            errorBuilder: (_, __, ___) => CustomPaint(
+              painter: ProceduralBackgroundPainter(areaName: areaName),
+            ),
           ),
         ),
         // Dark overlay
         Positioned.fill(
-          child: Container(color: Colors.black.withValues(alpha: 0.45)),
+          child: Container(color: Colors.black.withValues(alpha: 0.3)),
         ),
         // Flame game canvas (transparent)
         Positioned.fill(

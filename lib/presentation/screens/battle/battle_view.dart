@@ -39,6 +39,8 @@ class _BattleViewState extends ConsumerState<BattleView> {
       _autoStarted = true;
       final phase = ref.read(battleProvider).phase;
       if (phase == BattlePhase.idle) {
+        // Roster may still be loading — the BattleArenaWidget listener
+        // will retry once monsterListProvider is populated.
         ref.read(battleProvider.notifier).startBattle();
       }
     });

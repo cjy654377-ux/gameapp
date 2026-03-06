@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gameapp/data/static/stage_database.dart';
 import 'package:gameapp/domain/entities/battle_entity.dart';
@@ -304,17 +305,42 @@ class BattleNotifier extends StateNotifier<BattleState> {
     // Resolve stage data.
     final stageKey  = _stageIndexToKey(resolvedId);
     final stageData = StageDatabase.findById(stageKey);
-    if (stageData == null) return;
+    if (stageData == null) {
+      debugPrint('[Battle] stageData null for key=$stageKey resolvedId=$resolvedId');
+      return;
+    }
 
     // Build player team from the current roster (with synergy bonuses applied).
     final roster = ref.read(monsterListProvider);
-    final result = BattleService.createPlayerTeam(
-        roster.where((m) => m.isInTeam).toList());
-    if (result.team.isEmpty) return;
+    final inTeam = roster.where((m) => m.isInTeam).toList();
+    debugPrint('[Battle] roster=${roster.length}, inTeam=${inTeam.length}');
+    final result = BattleService.createPlayerTeam(inTeam);
+    if (result.team.isEmpty) {
+      debugPrint('[Battle] createPlayerTeam returned empty! inTeam ids: ${inTeam.map((m) => m.id).toList()}');
+      // Fallback: if roster has monsters but none in team, auto-assign first one
+      if (roster.isNotEmpty) {
+        debugPrint('[Battle] Auto-assigning first monster to team');
+        final first = roster.first;
+        ref.read(monsterListProvider.notifier).setTeam([first.id]);
+        final retryResult = BattleService.createPlayerTeam([first]);
+        if (retryResult.team.isNotEmpty) {
+          // Continue with this team instead of returning
+          _continueStartBattle(resolvedId, stageData, retryResult, hardMode, challenge);
+          return;
+        }
+      }
+      return;
+    }
 
+    _continueStartBattle(resolvedId, stageData, result, hardMode, challenge);
+  }
+
+  /// Shared logic for building teams and starting the battle phase.
+  void _continueStartBattle(int resolvedId, StageData stageData,
+      ({List<BattleMonster> team, List<SynergyEffect> synergies}) result, bool hardMode, ChallengeModifier challenge) {
     // Apply relic bonuses to each team member.
     final relicNotifier = ref.read(relicProvider.notifier);
-    final teamWithRelics = result.team.map((m) {
+    final teamWithRelics = result.team.map<BattleMonster>((m) {
       final bonus = relicNotifier.relicBonuses(m.monsterId);
       if (bonus.atk == 0 && bonus.def == 0 && bonus.hp == 0 && bonus.spd == 0) {
         return m;
