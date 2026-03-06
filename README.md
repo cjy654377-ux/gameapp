@@ -1,17 +1,16 @@
-# gameapp
+# IdleRPG - 2.5D 쿼터뷰 자동전투 RPG
 
-A new Flutter project.
+Unity 6 기반 2.5D 쿼터뷰 자동전투 RPG 모바일 게임
 
-## Getting Started
+## 기술 스택
+- **엔진**: Unity 6 LTS
+- **캐릭터**: SPUM (Soonsoon Pixel Unit Maker)
+- **AI 연동**: mcp-unity (Claude Code)
+- **에셋 생성**: ComfyUI + PixelLab MCP
+- **타겟**: iOS / Android
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 개발 순서
+1. 전투 씬 프로토타입 (게임성 먼저)
+2. 전투 깊이 (스킬, 웨이브, 보스)
+3. 캐릭터/팀 시스템
+4. 메타 시스템 (가챠, 강화, 오프라인 보상)
