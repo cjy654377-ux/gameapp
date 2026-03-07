@@ -14,7 +14,7 @@ public class BattleUnit : MonoBehaviour
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
 
-    public float CurrentHp { get; private set; }
+    public float CurrentHp { get; set; }
     public bool IsDead => CurrentHp <= 0;
     public Team CurrentTeam { get; private set; }
     public UnitState CurrentState { get; private set; } = UnitState.Idle;
@@ -77,6 +77,8 @@ public class BattleUnit : MonoBehaviour
             spriteRoot.localScale = new Vector3(-1, 1, 1);
     }
 
+    public float advanceSpeed = 1.5f;
+
     void Update()
     {
         if (IsDead || BattleManager.Instance == null ||
@@ -101,7 +103,19 @@ public class BattleUnit : MonoBehaviour
             target = BattleManager.Instance.FindNearestEnemy(this);
             if (target == null)
             {
-                SetState(UnitState.Idle);
+                // Allies auto-advance right when no enemies
+                if (CurrentTeam == Team.Ally)
+                {
+                    SetState(UnitState.Moving);
+                    transform.position += Vector3.right * advanceSpeed * Time.deltaTime;
+                    if (spriteRoot != null)
+                        spriteRoot.localScale = new Vector3(-1, 1, 1); // face right
+                }
+                else
+                {
+                    SetState(UnitState.Idle);
+                }
+                ClampY();
                 return;
             }
         }
@@ -112,6 +126,18 @@ public class BattleUnit : MonoBehaviour
             MoveToTarget();
         else
             AttackTarget();
+
+        ClampY();
+    }
+
+    void ClampY()
+    {
+        // Clamp Y to middle 3/5 of screen
+        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 8f;
+        float halfZone = camH * 0.3f; // 3/5 / 2
+        var pos = transform.position;
+        pos.y = Mathf.Clamp(pos.y, -halfZone, halfZone);
+        transform.position = pos;
     }
 
     void MoveToTarget()

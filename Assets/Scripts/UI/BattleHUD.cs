@@ -43,7 +43,8 @@ public class BattleHUD : MonoBehaviour
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.matchWidthOrHeight = 0f;
 
         gameObject.AddComponent<GraphicRaycaster>();
     }

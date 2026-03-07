@@ -29,7 +29,7 @@ MonoBehaviour:
   backSprite: Back_1
   horseSprite: 
   attackAnimType: 5
-  maxHp: 70
+  maxHp: 140
   atk: 35
   def: 2
   moveSpeed: 1.5

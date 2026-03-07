@@ -25,8 +25,8 @@ public class DamagePopup : MonoBehaviour
         popup.disappearTimer = 0.8f;
         popup.moveVector = new Vector3(Random.Range(-0.3f, 0.3f), 0.8f, 0f);
 
-        go.transform.position += Vector3.up * 0.7f;
-        go.transform.localScale = Vector3.one * 0.15f;
+        go.transform.position += Vector3.up * 0.5f;
+        go.transform.localScale = Vector3.one * 0.12f;
 
         return popup;
     }
@@ -48,7 +48,7 @@ public class DamagePopup : MonoBehaviour
         popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 0.6f, 0f);
 
         go.transform.position += Vector3.up * 0.5f;
-        go.transform.localScale = Vector3.one * 0.12f;
+        go.transform.localScale = Vector3.one * 0.1f;
 
         return popup;
     }

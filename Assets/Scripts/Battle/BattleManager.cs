@@ -30,21 +30,14 @@ public class BattleManager : MonoBehaviour
     {
         if (CurrentState != BattleState.Fighting) return;
 
-        bool allEnemiesDead = true;
+        // Check defeat only (waves are continuous, no victory condition here)
         bool allAlliesDead = true;
-
-        for (int i = 0; i < enemyUnits.Count; i++)
-            if (!enemyUnits[i].IsDead) { allEnemiesDead = false; break; }
-
-        if (!allEnemiesDead)
+        for (int i = 0; i < allyUnits.Count; i++)
         {
-            for (int i = 0; i < allyUnits.Count; i++)
-                if (!allyUnits[i].IsDead) { allAlliesDead = false; break; }
+            if (!allyUnits[i].IsDead) { allAlliesDead = false; break; }
         }
 
-        if (allEnemiesDead)
-            SetState(BattleState.Victory);
-        else if (allAlliesDead)
+        if (allAlliesDead)
             SetState(BattleState.Defeat);
     }
 
