@@ -1,0 +1,313 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public enum DamageNumberStyle
+{
+    Damage,  // Pink-red gradient (default damage)
+    Heal,    // Green gradient
+    Gold,    // Gold/yellow gradient
+    Critical // Orange-red, bigger
+}
+
+public static class PixelNumberFont
+{
+    static readonly Dictionary<string, Sprite> spriteCache = new();
+
+    // 7x9 bold pixel font patterns for 0-9, + and -
+    // Designed to be chunky and wide like MapleStory damage numbers
+    static readonly byte[][] patterns = {
+        // 0
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        },
+        // 1
+        new byte[] {
+            0,0,0,1,1,0,0,
+            0,0,1,1,1,0,0,
+            0,1,1,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1
+        },
+        // 2
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,1,1,
+            0,0,0,0,1,1,1,
+            0,0,1,1,1,1,0,
+            0,1,1,1,0,0,0,
+            1,1,1,0,0,0,0,
+            1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1
+        },
+        // 3
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            0,0,0,0,0,1,1,
+            0,0,1,1,1,1,0,
+            0,0,1,1,1,1,0,
+            0,0,0,0,0,1,1,
+            0,0,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        },
+        // 4
+        new byte[] {
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,
+            0,0,0,0,0,1,1,
+            0,0,0,0,0,1,1,
+            0,0,0,0,0,1,1
+        },
+        // 5
+        new byte[] {
+            1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,0,0,
+            1,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            0,0,0,0,0,1,1,
+            0,0,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        },
+        // 6
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,0,0,
+            1,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        },
+        // 7
+        new byte[] {
+            1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,
+            0,0,0,0,0,1,1,
+            0,0,0,0,1,1,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0,
+            0,0,0,1,1,0,0
+        },
+        // 8
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,1,1,
+            0,1,1,1,1,1,0,
+            0,1,1,1,1,1,0,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        },
+        // 9
+        new byte[] {
+            0,1,1,1,1,1,0,
+            1,1,1,1,1,1,1,
+            1,1,0,0,0,1,1,
+            1,1,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,1,
+            0,0,0,0,0,1,1,
+            1,1,1,1,1,1,1,
+            0,1,1,1,1,1,0
+        }
+    };
+
+    static readonly byte[] plusPattern = {
+        0,0,0,0,0,0,0,
+        0,0,0,1,1,0,0,
+        0,0,0,1,1,0,0,
+        0,1,1,1,1,1,1,
+        0,1,1,1,1,1,1,
+        0,0,0,1,1,0,0,
+        0,0,0,1,1,0,0,
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0
+    };
+
+    static readonly byte[] minusPattern = {
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,
+        0,1,1,1,1,1,1,
+        0,1,1,1,1,1,1,
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0
+    };
+
+    const int CHAR_W = 7;
+    const int CHAR_H = 9;
+    const int SCALE = 2;
+    const int OUTLINE = 2;
+
+    struct StyleColors
+    {
+        public Color top, mid, bottom, highlight, outline;
+    }
+
+    static StyleColors GetStyleColors(DamageNumberStyle style)
+    {
+        return style switch
+        {
+            DamageNumberStyle.Damage => new StyleColors {
+                top = new Color(1f, 0.75f, 0.8f),       // light pink
+                mid = new Color(0.95f, 0.35f, 0.45f),    // pink-red
+                bottom = new Color(0.7f, 0.15f, 0.25f),  // dark red
+                highlight = new Color(1f, 0.95f, 0.95f),  // white-ish
+                outline = new Color(0.25f, 0.05f, 0.1f)   // dark
+            },
+            DamageNumberStyle.Heal => new StyleColors {
+                top = new Color(0.7f, 1f, 0.75f),
+                mid = new Color(0.2f, 0.85f, 0.35f),
+                bottom = new Color(0.1f, 0.55f, 0.2f),
+                highlight = new Color(0.9f, 1f, 0.9f),
+                outline = new Color(0.05f, 0.2f, 0.05f)
+            },
+            DamageNumberStyle.Gold => new StyleColors {
+                top = new Color(1f, 0.95f, 0.5f),
+                mid = new Color(1f, 0.8f, 0.2f),
+                bottom = new Color(0.75f, 0.55f, 0.1f),
+                highlight = new Color(1f, 1f, 0.85f),
+                outline = new Color(0.3f, 0.2f, 0.05f)
+            },
+            DamageNumberStyle.Critical => new StyleColors {
+                top = new Color(1f, 0.85f, 0.3f),
+                mid = new Color(1f, 0.45f, 0.15f),
+                bottom = new Color(0.8f, 0.15f, 0.1f),
+                highlight = new Color(1f, 1f, 0.7f),
+                outline = new Color(0.3f, 0.05f, 0.02f)
+            },
+            _ => GetStyleColors(DamageNumberStyle.Damage)
+        };
+    }
+
+    static byte[] GetPattern(char c)
+    {
+        if (c >= '0' && c <= '9') return patterns[c - '0'];
+        if (c == '+') return plusPattern;
+        if (c == '-') return minusPattern;
+        return null;
+    }
+
+    public static Sprite CreateNumberSprite(string text, DamageNumberStyle style = DamageNumberStyle.Damage)
+    {
+        string cacheKey = $"{text}_{style}";
+        if (spriteCache.TryGetValue(cacheKey, out var cached)) return cached;
+
+        var colors = GetStyleColors(style);
+        int charCount = text.Length;
+        int scaledW = CHAR_W * SCALE;
+        int scaledH = CHAR_H * SCALE;
+        int pad = OUTLINE * 2;
+        int spacing = 1 * SCALE;
+        int totalW = charCount * (scaledW + pad) + (charCount - 1) * spacing;
+        int totalH = scaledH + pad;
+
+        var tex = new Texture2D(totalW, totalH, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Point;
+
+        // Clear
+        var pixels = new Color[totalW * totalH];
+        tex.SetPixels(pixels);
+
+        for (int ci = 0; ci < charCount; ci++)
+        {
+            var pattern = GetPattern(text[ci]);
+            if (pattern == null) continue;
+
+            int offsetX = ci * (scaledW + pad + spacing);
+
+            // Pass 1: thick outline
+            for (int py = 0; py < CHAR_H; py++)
+            {
+                for (int px = 0; px < CHAR_W; px++)
+                {
+                    if (pattern[py * CHAR_W + px] == 0) continue;
+
+                    for (int ox = -OUTLINE; ox <= OUTLINE; ox++)
+                    {
+                        for (int oy = -OUTLINE; oy <= OUTLINE; oy++)
+                        {
+                            int sx = offsetX + OUTLINE + px * SCALE + ox;
+                            int sy = totalH - 1 - (OUTLINE + py * SCALE + oy);
+
+                            for (int i = 0; i < SCALE; i++)
+                            {
+                                for (int j = 0; j < SCALE; j++)
+                                {
+                                    int fx = sx + i, fy = sy - j;
+                                    if (fx >= 0 && fx < totalW && fy >= 0 && fy < totalH)
+                                        tex.SetPixel(fx, fy, colors.outline);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Pass 2: gradient fill
+            for (int py = 0; py < CHAR_H; py++)
+            {
+                for (int px = 0; px < CHAR_W; px++)
+                {
+                    if (pattern[py * CHAR_W + px] == 0) continue;
+
+                    float t = (float)py / (CHAR_H - 1);
+                    Color fill;
+                    if (t < 0.15f)
+                        fill = colors.highlight;
+                    else if (t < 0.5f)
+                        fill = Color.Lerp(colors.top, colors.mid, (t - 0.15f) / 0.35f);
+                    else
+                        fill = Color.Lerp(colors.mid, colors.bottom, (t - 0.5f) / 0.5f);
+
+                    int sx = offsetX + OUTLINE + px * SCALE;
+                    int sy = totalH - 1 - (OUTLINE + py * SCALE);
+
+                    for (int i = 0; i < SCALE; i++)
+                    {
+                        for (int j = 0; j < SCALE; j++)
+                        {
+                            int fx = sx + i, fy = sy - j;
+                            if (fx >= 0 && fx < totalW && fy >= 0 && fy < totalH)
+                                tex.SetPixel(fx, fy, fill);
+                        }
+                    }
+                }
+            }
+        }
+
+        tex.Apply();
+        float ppu = totalH * 0.5f;
+        var sprite = Sprite.Create(tex, new Rect(0, 0, totalW, totalH), new Vector2(0.5f, 0.5f), ppu);
+        spriteCache[cacheKey] = sprite;
+        return sprite;
+    }
+}
