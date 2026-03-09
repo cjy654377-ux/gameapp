@@ -4,9 +4,11 @@ using TMPro;
 
 /// <summary>
 /// Battle Cats 스타일 메인 HUD (UI_SPEC.md 기반)
-/// 상단: HUD 바 (아바타/스테이지/코인/다이아)
+/// 상단: HUD 바 (에리어명/스테이지/코인/다이아)
+/// 중앙: 웨이브 배너, 킬 카운터
 /// 하단: 네비게이션 바 (훈련/영웅/편성/소환/상점)
-/// 오버레이: 탭 패널, 패배 패널
+/// 오버레이: 탭 패널
+/// 패배 시: 메시지 없이 이전 웨이브로 자동 복귀
 /// </summary>
 public class MainHUD : MonoBehaviour
 {
@@ -19,23 +21,31 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI goldText;
     TextMeshProUGUI gemText;
     TextMeshProUGUI stageText;
-    TextMeshProUGUI powerText;
+    TextMeshProUGUI areaNameText;
     Image progressBarFill;
     TextMeshProUGUI progressText;
-    Image avatarImg;
+
+    // Wave Banner
+    GameObject waveBanner;
+    TextMeshProUGUI waveBannerText;
+    CanvasGroup waveBannerCG;
+    float waveBannerTimer;
+
+    // Kill Counter
+    TextMeshProUGUI killCountText;
+    int killCount;
 
     // Bottom Nav
     readonly string[] tabNames = { "훈련", "영웅", "편성", "소환", "상점" };
+    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "♦" };
     readonly Button[] tabButtons = new Button[5];
     readonly Image[] tabIndicators = new Image[5];
     readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[5];
+    readonly TextMeshProUGUI[] tabIconTexts = new TextMeshProUGUI[5];
 
     // Tab overlay panels
     readonly GameObject[] tabPanels = new GameObject[5];
     int activeTab = -1;
-
-    // Defeat
-    GameObject defeatPanel;
 
     void Awake()
     {
@@ -48,7 +58,7 @@ public class MainHUD : MonoBehaviour
     void Start()
     {
         if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged += OnGoldChanged;
+            GoldManager.Instance.OnGoldChanged += UpdateGold;
         if (StageManager.Instance != null)
             StageManager.Instance.OnStageChanged += OnStageChanged;
         if (BattleManager.Instance != null)
@@ -56,9 +66,22 @@ public class MainHUD : MonoBehaviour
 
         UpdateGold(GoldManager.Instance != null ? GoldManager.Instance.Gold : 0);
         UpdateGem(0);
-        UpdatePower();
-        if (StageManager.Instance != null && stageText != null)
-            stageText.text = StageManager.Instance.GetStageText();
+        if (StageManager.Instance != null)
+        {
+            if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
+            if (areaNameText != null) areaNameText.text = StageManager.Instance.GetAreaName();
+        }
+    }
+
+    void Update()
+    {
+        if (waveBannerTimer <= 0) return;
+
+        waveBannerTimer -= Time.unscaledDeltaTime;
+        if (waveBannerTimer <= 0.5f && waveBannerCG != null)
+            waveBannerCG.alpha = waveBannerTimer / 0.5f;
+        if (waveBannerTimer <= 0 && waveBanner != null)
+            waveBanner.SetActive(false);
     }
 
     // ════════════════════════════════════════
@@ -70,9 +93,10 @@ public class MainHUD : MonoBehaviour
         CreateCanvas();
         CreateSafeAreaRoot();
         CreateHUDBar();
+        CreateWaveBanner();
+        CreateKillCounter();
         CreateBottomNavBar();
         CreateTabPanels();
-        CreateDefeatPanel();
     }
 
     void CreateCanvas()
@@ -105,43 +129,34 @@ public class MainHUD : MonoBehaviour
         UIHelper.SetAnchors(hudBar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1));
         hudBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.HUD_Height);
 
-        // Avatar
-        var avatar = UIHelper.MakeUI("Avatar", hudBar.transform);
-        avatarImg = avatar.AddComponent<Image>();
-        avatarImg.color = UIColors.Panel_Inner;
-        var avOutline = avatar.AddComponent<Outline>();
-        avOutline.effectColor = UIColors.Panel_Border;
-        avOutline.effectDistance = new Vector2(UIConstants.HUD_AvatarBorder, UIConstants.HUD_AvatarBorder);
-        var art = avatar.GetComponent<RectTransform>();
-        art.anchorMin = new Vector2(0, 0.5f);
-        art.anchorMax = new Vector2(0, 0.5f);
-        art.pivot = new Vector2(0, 0.5f);
-        art.anchoredPosition = new Vector2(UIConstants.Spacing_Medium, 0);
-        art.sizeDelta = new Vector2(UIConstants.HUD_AvatarSize, UIConstants.HUD_AvatarSize);
+        // Area name (small, top-left)
+        areaNameText = UIHelper.MakeText("AreaName", hudBar.transform, "Grass Field",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.TopLeft, UIColors.Text_Secondary);
+        var anrt = areaNameText.GetComponent<RectTransform>();
+        anrt.anchorMin = new Vector2(0, 0.55f);
+        anrt.anchorMax = new Vector2(0.40f, 1);
+        anrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        anrt.offsetMax = new Vector2(0, -UIConstants.Spacing_Small);
 
-        // Stage text (center)
-        float stageX = UIConstants.Spacing_Medium + UIConstants.HUD_AvatarSize + UIConstants.Spacing_Medium;
+        // Stage text
         stageText = UIHelper.MakeText("Stage", hudBar.transform, "1-1",
             UIConstants.Font_HeaderMedium, TextAlignmentOptions.MidlineLeft);
         stageText.fontStyle = FontStyles.Bold;
         var srt = stageText.GetComponent<RectTransform>();
-        srt.anchorMin = new Vector2(0, 0);
-        srt.anchorMax = new Vector2(0.35f, 0.55f);
-        srt.offsetMin = new Vector2(stageX, 0);
+        srt.anchorMin = new Vector2(0, 0.05f);
+        srt.anchorMax = new Vector2(0.15f, 0.55f);
+        srt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
         srt.offsetMax = Vector2.zero;
 
-        // Progress bar (under stage text)
+        // Progress bar
         var progBg = UIHelper.MakePanel("ProgBG", hudBar.transform, UIColors.ProgressBar_BG);
+        var progOutline = progBg.gameObject.AddComponent<Outline>();
+        progOutline.effectColor = UIColors.ProgressBar_Border;
+        progOutline.effectDistance = new Vector2(1, 1);
         var prt = progBg.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0, 0);
-        prt.anchorMax = new Vector2(0.35f, 0);
-        prt.pivot = new Vector2(0, 0);
-        prt.anchoredPosition = new Vector2(stageX, UIConstants.Spacing_Small + 2);
-        prt.sizeDelta = new Vector2(0, UIConstants.HUD_ProgressHeight);
-        // stretch width via anchors
-        prt.anchorMin = new Vector2(0, 0.08f);
-        prt.anchorMax = new Vector2(0.35f, 0.08f + UIConstants.HUD_ProgressHeight / UIConstants.HUD_Height);
-        prt.offsetMin = new Vector2(stageX, 0);
+        prt.anchorMin = new Vector2(0.16f, 0.18f);
+        prt.anchorMax = new Vector2(0.40f, 0.48f);
+        prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
         var progFillObj = UIHelper.MakeUI("ProgFill", progBg.transform);
@@ -157,40 +172,116 @@ public class MainHUD : MonoBehaviour
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center);
         UIHelper.FillParent(progressText.GetComponent<RectTransform>());
 
-        // Power (left of coins)
-        powerText = UIHelper.MakeText("Power", hudBar.transform, "0",
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineRight, UIColors.Text_Secondary);
-        var pwrt = powerText.GetComponent<RectTransform>();
-        pwrt.anchorMin = new Vector2(0.36f, 0);
-        pwrt.anchorMax = new Vector2(0.50f, 1);
-        pwrt.offsetMin = Vector2.zero;
-        pwrt.offsetMax = Vector2.zero;
-
         // Gold
-        var goldBg = UIHelper.MakePanel("GoldBG", hudBar.transform, UIColors.Panel_Inner);
-        var grt = goldBg.GetComponent<RectTransform>();
-        grt.anchorMin = new Vector2(0.52f, 0.15f);
-        grt.anchorMax = new Vector2(0.74f, 0.85f);
-        grt.offsetMin = Vector2.zero;
-        grt.offsetMax = Vector2.zero;
-
-        goldText = UIHelper.MakeText("GoldText", goldBg.transform, "0",
-            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, UIColors.Text_Gold);
-        goldText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(goldText.GetComponent<RectTransform>());
+        CreateResourceDisplay(hudBar.transform, "Gold", "G",
+            UIColors.Text_Gold, new Vector2(0.42f, 0.12f), new Vector2(0.70f, 0.88f),
+            out goldText);
 
         // Gem
-        var gemBg = UIHelper.MakePanel("GemBG", hudBar.transform, UIColors.Panel_Inner);
-        var ert = gemBg.GetComponent<RectTransform>();
-        ert.anchorMin = new Vector2(0.76f, 0.15f);
-        ert.anchorMax = new Vector2(0.98f, 0.85f);
-        ert.offsetMin = Vector2.zero;
-        ert.offsetMax = Vector2.zero;
+        CreateResourceDisplay(hudBar.transform, "Gem", "D",
+            UIColors.Text_Diamond, new Vector2(0.72f, 0.12f), new Vector2(0.98f, 0.88f),
+            out gemText);
+    }
 
-        gemText = UIHelper.MakeText("GemText", gemBg.transform, "0",
-            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, UIColors.Text_Diamond);
-        gemText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(gemText.GetComponent<RectTransform>());
+    void CreateResourceDisplay(Transform parent, string name, string iconChar,
+        Color iconColor, Vector2 anchorMin, Vector2 anchorMax, out TextMeshProUGUI valueText)
+    {
+        var container = UIHelper.MakePanel($"{name}BG", parent, UIColors.Panel_Inner);
+        var containerOutline = container.gameObject.AddComponent<Outline>();
+        containerOutline.effectColor = UIColors.Panel_Border;
+        containerOutline.effectDistance = new Vector2(1, 1);
+        var crt = container.GetComponent<RectTransform>();
+        crt.anchorMin = anchorMin;
+        crt.anchorMax = anchorMax;
+        crt.offsetMin = Vector2.zero;
+        crt.offsetMax = Vector2.zero;
+
+        // Icon circle
+        var iconBg = UIHelper.MakePanel($"{name}Icon", container.transform, iconColor);
+        var irt = iconBg.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0.15f);
+        irt.anchorMax = new Vector2(0, 0.85f);
+        irt.pivot = new Vector2(0, 0.5f);
+        irt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 0);
+        irt.sizeDelta = new Vector2(22, 0);
+
+        var iconText = UIHelper.MakeText($"{name}IconText", iconBg.transform, iconChar,
+            UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
+        iconText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(iconText.GetComponent<RectTransform>());
+
+        valueText = UIHelper.MakeText($"{name}Text", container.transform, "0",
+            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, iconColor);
+        valueText.fontStyle = FontStyles.Bold;
+        var vrt = valueText.GetComponent<RectTransform>();
+        vrt.anchorMin = new Vector2(0.28f, 0);
+        vrt.anchorMax = new Vector2(1, 1);
+        vrt.offsetMin = Vector2.zero;
+        vrt.offsetMax = Vector2.zero;
+    }
+
+    // ── Wave Banner (중앙 상단) ──
+    void CreateWaveBanner()
+    {
+        waveBanner = UIHelper.MakeUI("WaveBanner", safeAreaRoot.transform);
+        waveBannerCG = waveBanner.AddComponent<CanvasGroup>();
+
+        var bannerBg = waveBanner.AddComponent<Image>();
+        bannerBg.color = new Color(0, 0, 0, 0.6f);
+
+        var rt = waveBanner.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.15f, 0.75f);
+        rt.anchorMax = new Vector2(0.85f, 0.82f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        var bannerOutline = waveBanner.AddComponent<Outline>();
+        bannerOutline.effectColor = UIColors.Button_Yellow;
+        bannerOutline.effectDistance = new Vector2(2, 2);
+
+        waveBannerText = UIHelper.MakeText("BannerText", waveBanner.transform, "WAVE 1",
+            UIConstants.Font_HeaderLarge, TextAlignmentOptions.Center, UIColors.Button_Yellow);
+        waveBannerText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(waveBannerText.GetComponent<RectTransform>());
+
+        waveBanner.SetActive(false);
+    }
+
+    // ── Kill Counter (좌측 중앙) ──
+    void CreateKillCounter()
+    {
+        var container = UIHelper.MakeUI("KillCounter", safeAreaRoot.transform);
+        var bg = container.AddComponent<Image>();
+        bg.color = new Color(0, 0, 0, 0.5f);
+
+        var outline = container.AddComponent<Outline>();
+        outline.effectColor = UIColors.Defeat_Red;
+        outline.effectDistance = new Vector2(1, 1);
+
+        var rt = container.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0, 0.5f);
+        rt.anchorMax = new Vector2(0, 0.5f);
+        rt.pivot = new Vector2(0, 0.5f);
+        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Medium, 60);
+        rt.sizeDelta = new Vector2(70, 28);
+
+        var iconText = UIHelper.MakeText("KillIcon", container.transform, "KILL",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Defeat_Red);
+        iconText.fontStyle = FontStyles.Bold;
+        var irt = iconText.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0);
+        irt.anchorMax = new Vector2(0.5f, 1);
+        irt.offsetMin = new Vector2(UIConstants.Spacing_Small, 0);
+        irt.offsetMax = Vector2.zero;
+
+        killCountText = UIHelper.MakeText("KillCount", container.transform, "0",
+            UIConstants.Font_Tab, TextAlignmentOptions.MidlineRight, UIColors.Text_Primary);
+        killCountText.fontStyle = FontStyles.Bold;
+        var krt = killCountText.GetComponent<RectTransform>();
+        krt.anchorMin = new Vector2(0.5f, 0);
+        krt.anchorMax = new Vector2(1, 1);
+        krt.offsetMin = Vector2.zero;
+        krt.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
     }
 
     // ── Bottom Nav Bar (하단) ──
@@ -202,13 +293,13 @@ public class MainHUD : MonoBehaviour
         UIHelper.SetAnchors(navBar, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0));
         navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.NavBar_Height);
 
-        // Top border line
+        // Top border (golden)
         var borderLine = UIHelper.MakePanel("Border", navBar.transform, UIColors.Panel_Border);
         var brt = borderLine.GetComponent<RectTransform>();
         brt.anchorMin = new Vector2(0, 1);
         brt.anchorMax = new Vector2(1, 1);
         brt.pivot = new Vector2(0.5f, 1);
-        brt.sizeDelta = new Vector2(0, UIConstants.NavBar_BorderTop);
+        brt.sizeDelta = new Vector2(0, 2);
 
         for (int i = 0; i < 5; i++)
         {
@@ -227,32 +318,34 @@ public class MainHUD : MonoBehaviour
             trt.anchorMin = new Vector2(xMin, 0);
             trt.anchorMax = new Vector2(xMax, 1);
             trt.offsetMin = new Vector2(1, 0);
-            trt.offsetMax = new Vector2(-1, -UIConstants.NavBar_BorderTop);
+            trt.offsetMax = new Vector2(-1, -2);
 
-            // Active indicator (top line)
+            // Active indicator
             var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Button_Yellow);
             var irt = indicator.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0.1f, 1);
-            irt.anchorMax = new Vector2(0.9f, 1);
+            irt.anchorMin = new Vector2(0.05f, 1);
+            irt.anchorMax = new Vector2(0.95f, 1);
             irt.pivot = new Vector2(0.5f, 1);
-            irt.sizeDelta = new Vector2(0, 2);
+            irt.sizeDelta = new Vector2(0, 3);
             indicator.gameObject.SetActive(false);
             tabIndicators[i] = indicator;
 
-            // Icon placeholder
-            var icon = UIHelper.MakePanel("Icon", tabObj.transform, UIColors.Panel_Border);
-            var icrt = icon.GetComponent<RectTransform>();
-            icrt.anchorMin = new Vector2(0.5f, 0.5f);
-            icrt.anchorMax = new Vector2(0.5f, 0.5f);
-            icrt.pivot = new Vector2(0.5f, 0.4f);
-            icrt.sizeDelta = new Vector2(UIConstants.NavBar_IconSize, UIConstants.NavBar_IconSize);
+            // Icon text
+            tabIconTexts[i] = UIHelper.MakeText("Icon", tabObj.transform, tabIcons[i],
+                UIConstants.NavBar_IconSize, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+            tabIconTexts[i].fontStyle = FontStyles.Bold;
+            var icrt = tabIconTexts[i].GetComponent<RectTransform>();
+            icrt.anchorMin = new Vector2(0, 0.35f);
+            icrt.anchorMax = new Vector2(1, 0.9f);
+            icrt.offsetMin = Vector2.zero;
+            icrt.offsetMax = Vector2.zero;
 
             // Label
             tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
-                UIConstants.Font_NavLabel, TextAlignmentOptions.Bottom, UIColors.Text_Disabled);
+                UIConstants.Font_NavLabel, TextAlignmentOptions.Top, UIColors.Text_Disabled);
             var lrt = tabLabels[i].GetComponent<RectTransform>();
             lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.3f);
+            lrt.anchorMax = new Vector2(1, 0.35f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
         }
@@ -261,37 +354,47 @@ public class MainHUD : MonoBehaviour
     // ── Tab Overlay Panels ──
     void CreateTabPanels()
     {
+        float refH = UIConstants.ReferenceResolution.y;
+        float navRatio = UIConstants.NavBar_Height / refH;
+        float hudRatio = UIConstants.HUD_Height / refH;
+
         for (int i = 0; i < 5; i++)
         {
             var panel = UIHelper.MakeUI($"Panel_{tabNames[i]}", safeAreaRoot.transform);
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = UIColors.Background_Panel;
 
-            // Panel position: above nav bar, below HUD
             var prt = panel.GetComponent<RectTransform>();
-            float refH = UIConstants.ReferenceResolution.y;
-            float navRatio = UIConstants.NavBar_Height / refH;
-            float hudRatio = UIConstants.HUD_Height / refH;
-            prt.anchorMin = new Vector2(0, navRatio);
-            prt.anchorMax = new Vector2(1, 1f - hudRatio);
+            // 편성 탭은 하단 절반만, 나머지는 전체
+            if (i == 2)
+            {
+                prt.anchorMin = new Vector2(0, navRatio);
+                prt.anchorMax = new Vector2(1, 0.55f);
+            }
+            else
+            {
+                prt.anchorMin = new Vector2(0, navRatio);
+                prt.anchorMax = new Vector2(1, 1f - hudRatio);
+            }
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
-            // Border
             var panelOutline = panel.AddComponent<Outline>();
             panelOutline.effectColor = UIColors.Panel_Border;
             panelOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
 
             // Header bar
             var header = UIHelper.MakePanel("Header", panel.transform, UIColors.Background_Dark);
+            var headerOutline = header.gameObject.AddComponent<Outline>();
+            headerOutline.effectColor = UIColors.Panel_Border;
+            headerOutline.effectDistance = new Vector2(0, -1);
             var hrt = header.GetComponent<RectTransform>();
             hrt.anchorMin = new Vector2(0, 1);
             hrt.anchorMax = new Vector2(1, 1);
             hrt.pivot = new Vector2(0.5f, 1);
             hrt.sizeDelta = new Vector2(0, UIConstants.Tab_Height);
 
-            // Title
-            var title = UIHelper.MakeText("Title", header.transform, tabNames[i],
+            var title = UIHelper.MakeText("Title", header.transform, $"{tabIcons[i]} {tabNames[i]}",
                 UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center);
             title.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(title.GetComponent<RectTransform>());
@@ -300,6 +403,9 @@ public class MainHUD : MonoBehaviour
             var (closeBtn, closeImg) = UIHelper.MakeButton("CloseBtn", header.transform,
                 UIColors.Button_Brown, "X", UIConstants.Font_Button);
             closeImg.color = UIColors.Button_Brown;
+            var closeBtnOutline = closeBtn.gameObject.AddComponent<Outline>();
+            closeBtnOutline.effectColor = UIColors.Button_Brown_Border;
+            closeBtnOutline.effectDistance = new Vector2(1, 1);
             closeBtn.onClick.AddListener(ClosePanel);
             var crt = closeBtn.GetComponent<RectTransform>();
             crt.anchorMin = new Vector2(1, 0.5f);
@@ -308,94 +414,56 @@ public class MainHUD : MonoBehaviour
             crt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, 0);
             crt.sizeDelta = new Vector2(UIConstants.MinTouchTarget, UIConstants.Tab_Height - UIConstants.Spacing_Small);
 
-            // Placeholder content
-            var content = UIHelper.MakeText("Content", panel.transform, "준비 중...",
-                UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Disabled);
-            var contrt = content.GetComponent<RectTransform>();
-            contrt.anchorMin = new Vector2(0, 0.4f);
-            contrt.anchorMax = new Vector2(1, 0.6f);
-            contrt.offsetMin = Vector2.zero;
-            contrt.offsetMax = Vector2.zero;
+            // 편성 탭(index 2)에는 DeckUI 연결
+            if (i == 2)
+            {
+                var deckUI = panel.AddComponent<DeckUI>();
+                deckUI.Init(panel.transform);
+            }
+            else
+            {
+                var content = UIHelper.MakeText("Content", panel.transform, "준비 중...",
+                    UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+                var contrt = content.GetComponent<RectTransform>();
+                contrt.anchorMin = new Vector2(0, 0.4f);
+                contrt.anchorMax = new Vector2(1, 0.6f);
+                contrt.offsetMin = Vector2.zero;
+                contrt.offsetMax = Vector2.zero;
+            }
 
             tabPanels[i] = panel;
             panel.SetActive(false);
         }
     }
 
-    // ── Defeat Panel ──
-    void CreateDefeatPanel()
-    {
-        defeatPanel = UIHelper.MakeUI("DefeatPanel", canvas.transform);
-        var overlay = defeatPanel.AddComponent<Image>();
-        overlay.color = UIColors.Overlay_Dark;
-        UIHelper.FillParent(defeatPanel.GetComponent<RectTransform>());
-
-        // Center container
-        var container = UIHelper.MakePanel("Container", defeatPanel.transform, UIColors.Panel_Inner);
-        var containerOutline = container.gameObject.AddComponent<Outline>();
-        containerOutline.effectColor = UIColors.Panel_Border;
-        containerOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
-        var conrt = container.GetComponent<RectTransform>();
-        conrt.anchorMin = new Vector2(0.5f, 0.5f);
-        conrt.anchorMax = new Vector2(0.5f, 0.5f);
-        conrt.sizeDelta = new Vector2(280, 180);
-
-        // DEFEAT text
-        var title = UIHelper.MakeText("Title", container.transform, "DEFEAT",
-            UIConstants.Font_HeaderLarge * 1.5f, TextAlignmentOptions.Center, UIColors.Defeat_Red);
-        title.fontStyle = FontStyles.Bold;
-        var trt = title.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0, 0.55f);
-        trt.anchorMax = new Vector2(1, 0.95f);
-        trt.offsetMin = Vector2.zero;
-        trt.offsetMax = Vector2.zero;
-
-        // Retry button (Yellow CTA)
-        var (retryBtn, retryImg) = UIHelper.MakeButton("RetryBtn", container.transform,
-            UIColors.Button_Yellow, "RETRY", UIConstants.Font_Button);
-        retryBtn.onClick.AddListener(() =>
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex));
-        // Make retry button text dark for readability on yellow
-        var retryLabel = retryBtn.GetComponentInChildren<TextMeshProUGUI>();
-        if (retryLabel != null) retryLabel.color = UIColors.Text_TabActive;
-
-        var rbrt = retryBtn.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.5f, 0.05f);
-        rbrt.anchorMax = new Vector2(0.5f, 0.05f);
-        rbrt.pivot = new Vector2(0.5f, 0);
-        rbrt.sizeDelta = new Vector2(UIConstants.Button_CTAWidth, UIConstants.Button_CTAHeight);
-
-        defeatPanel.SetActive(false);
-    }
-
     // ════════════════════════════════════════
     // EVENTS
     // ════════════════════════════════════════
 
-    void OnGoldChanged(int gold) => UpdateGold(gold);
-
     void OnStageChanged(int area, int stage, int wave)
     {
-        if (StageManager.Instance != null && stageText != null)
-            stageText.text = StageManager.Instance.GetStageText();
+        if (StageManager.Instance != null)
+        {
+            if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
+            if (areaNameText != null) areaNameText.text = StageManager.Instance.GetAreaName();
+        }
         UpdateProgress(wave);
-        UpdatePower();
+        ShowWaveBanner(wave);
     }
 
     void OnBattleStateChanged(BattleManager.BattleState state)
     {
         if (state == BattleManager.BattleState.Defeat)
-            defeatPanel.SetActive(true);
+        {
+            ClosePanel();
+            if (StageManager.Instance != null)
+                StageManager.Instance.RewindAndRestart();
+        }
     }
 
     void OnTabClicked(int idx)
     {
-        if (activeTab == idx)
-        {
-            ClosePanel();
-            return;
-        }
+        if (activeTab == idx) { ClosePanel(); return; }
         ClosePanel();
         activeTab = idx;
         tabPanels[idx].SetActive(true);
@@ -416,8 +484,9 @@ public class MainHUD : MonoBehaviour
         {
             bool active = (i == activeTab);
             tabButtons[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
-            tabLabels[i].color = active ? UIColors.Text_Secondary : UIColors.Text_Disabled;
+            tabLabels[i].color = active ? UIColors.Text_Primary : UIColors.Text_Disabled;
             tabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
+            tabIconTexts[i].color = active ? UIColors.Button_Yellow : UIColors.Text_Disabled;
             tabIndicators[i].gameObject.SetActive(active);
         }
     }
@@ -445,27 +514,38 @@ public class MainHUD : MonoBehaviour
             rt.anchorMax = new Vector2((float)wave / total, 1);
         }
         if (progressText != null)
-            progressText.text = $"{wave}/{total}";
+            progressText.SetText("{0}/{1}", wave, total);
     }
 
-    void UpdatePower()
+    void ShowWaveBanner(int wave)
     {
-        if (powerText == null) return;
-        float totalAtk = 0;
-        if (BattleManager.Instance != null)
-        {
-            var allies = BattleManager.Instance.allyUnits;
-            for (int i = 0; i < allies.Count; i++)
-                if (allies[i] != null && !allies[i].IsDead)
-                    totalAtk += allies[i].atk;
-        }
-        powerText.text = UIHelper.FormatNumber(Mathf.RoundToInt(totalAtk));
+        if (waveBanner == null || waveBannerText == null) return;
+        bool isBoss = wave == (StageManager.Instance != null ? StageManager.Instance.wavesPerStage : 10);
+        waveBannerText.text = isBoss ? "BOSS!" : $"WAVE {wave}";
+        waveBannerText.color = isBoss ? UIColors.Defeat_Red : UIColors.Button_Yellow;
+
+        var outline = waveBanner.GetComponent<Outline>();
+        if (outline != null)
+            outline.effectColor = isBoss ? UIColors.Defeat_Red : UIColors.Button_Yellow;
+
+        if (waveBannerCG != null) waveBannerCG.alpha = 1f;
+        waveBanner.SetActive(true);
+        waveBannerTimer = 2f;
+    }
+
+    // ── Public API ──
+
+    public void AddKill()
+    {
+        killCount++;
+        if (killCountText != null)
+            killCountText.SetText("{0}", killCount);
     }
 
     void OnDestroy()
     {
         if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged -= OnGoldChanged;
+            GoldManager.Instance.OnGoldChanged -= UpdateGold;
         if (StageManager.Instance != null)
             StageManager.Instance.OnStageChanged -= OnStageChanged;
         if (BattleManager.Instance != null)

@@ -340,6 +340,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 630ee87e60b154ff188269f3fc17137e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldUI
+  goldText: {fileID: 0}
+  tapDmgText: {fileID: 0}
+  upgradeButton: {fileID: 0}
+  upgradeCostText: {fileID: 0}
 --- !u!4 &795496867
 Transform:
   m_ObjectHideFlags: 0
@@ -384,10 +388,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cea0595a77354d8ea5ef99746d55160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  wavesPerStage: 10
+  wavesPerStage: 3
   stagesPerArea: 10
   enemiesPerWave: 10
   waveCooldown: 1.5
+  fadeOutTime: 0.4
+  fadeHoldTime: 0.3
+  fadeInTime: 0.4
   hpScalePerWave: 0.08
   atkScalePerWave: 0.05
   midBossHpMult: 3
@@ -626,6 +633,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5063989dbf03a40438039b782e615bb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleHUD
+  resultPanel: {fileID: 0}
+  resultText: {fileID: 0}
+  resultSubText: {fileID: 0}
+  retryButton: {fileID: 0}
+  stageText: {fileID: 0}
+  canvas: {fileID: 0}
 --- !u!4 &1674680649
 Transform:
   m_ObjectHideFlags: 0
@@ -858,9 +871,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49a10bec857eb49ba822428cbb2206d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuarterViewCamera
-  cameraSize: 5
+  cameraSize: 6
   followSpeed: 3
-  lookAheadX: 1
+  lookAheadX: 1.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -133,6 +133,9 @@ public class CharacterFactory : MonoBehaviour
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
 
+        // Portrait scale (80%)
+        unitObj.transform.localScale = Vector3.one * 0.8f;
+
         // Add HP bar
         unitObj.AddComponent<HpBar>();
 

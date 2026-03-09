@@ -3,11 +3,11 @@ using UnityEngine;
 public class QuarterViewCamera : MonoBehaviour
 {
     [Header("Camera Settings")]
-    public float cameraSize = 4f;
+    public float cameraSize = 6f;  // 세로 화면에 맞춰 확대
     public float followSpeed = 3f;
-    public float lookAheadX = 1f;
+    public float lookAheadX = 1.5f;
 
-    private Camera cam;
+    Camera cam;
 
     void Awake()
     {
@@ -28,7 +28,6 @@ public class QuarterViewCamera : MonoBehaviour
         var allies = BattleManager.Instance.allyUnits;
         if (allies.Count == 0) return;
 
-        // Follow average X of alive allies
         float sumX = 0f;
         int count = 0;
         for (int i = 0; i < allies.Count; i++)
@@ -54,7 +53,7 @@ public class QuarterViewCamera : MonoBehaviour
 
     public float GetVisibleHeight()
     {
-        if (cam == null) return 8f;
+        if (cam == null) return 12f;
         return cam.orthographicSize * 2f;
     }
 }

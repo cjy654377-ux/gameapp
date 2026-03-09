@@ -32,6 +32,6 @@ MonoBehaviour:
   maxHp: 180
   atk: 26
   def: 8
-  moveSpeed: 3
+  moveSpeed: 1.8
   attackRange: 2
   attackCooldown: 0.9

@@ -56,7 +56,7 @@ public class HpBar : MonoBehaviour
         borderObj.transform.localScale = new Vector3(BAR_WIDTH + BORDER * 2, BAR_HEIGHT + BORDER * 2, 1);
         borderRenderer = borderObj.AddComponent<SpriteRenderer>();
         borderRenderer.sprite = pixelSprite;
-        borderRenderer.color = UIColors.ProgressBar_Border;
+        borderRenderer.color = Color.black;
         borderRenderer.sortingOrder = 89;
 
         // Background (dark)

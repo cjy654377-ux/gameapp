@@ -6,10 +6,15 @@ public class StageManager : MonoBehaviour
     public static StageManager Instance { get; private set; }
 
     [Header("Stage Config")]
-    public int wavesPerStage = 10;
+    public int wavesPerStage = 3;
     public int stagesPerArea = 10;
     public int enemiesPerWave = 10;
     public float waveCooldown = 1.5f;
+
+    [Header("Fade Transition")]
+    public float fadeOutTime = 0.4f;
+    public float fadeHoldTime = 0.3f;
+    public float fadeInTime = 0.4f;
 
     [Header("Difficulty")]
     public float hpScalePerWave = 0.08f;
@@ -33,23 +38,23 @@ public class StageManager : MonoBehaviour
     public CharacterPreset caveAreaBoss;
 
     // Current progress
-    public int CurrentArea { get; private set; } = 1;   // 1, 2, 3
-    public int CurrentStage { get; private set; } = 1;   // 1~10
-    public int CurrentWave { get; private set; } = 0;    // 1~10
-    public int TotalWaveIndex { get; private set; } = 0; // absolute wave count
+    public int CurrentArea { get; private set; } = 1;
+    public int CurrentStage { get; private set; } = 1;
+    public int CurrentWave { get; private set; } = 0;
+    public int TotalWaveIndex { get; private set; } = 0;
 
-    public event System.Action<int, int, int> OnStageChanged; // area, stage, wave
-    public event System.Action<int> OnAreaChanged; // new area
+    public event System.Action<int, int, int> OnStageChanged;
+    public event System.Action<int> OnAreaChanged;
 
-    private float waveTimer;
-    private bool waitingForNextWave;
+    float waveTimer;
+    bool waitingForNextWave;
+    bool isTransitioning;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Load progress
         int saved = PlayerPrefs.GetInt("TotalWaveIndex", 0);
         TotalWaveIndex = saved;
         CalcStageFromTotal(saved);
@@ -57,11 +62,11 @@ public class StageManager : MonoBehaviour
 
     void CalcStageFromTotal(int total)
     {
-        int wavesPerArea = wavesPerStage * stagesPerArea; // 100
+        int wavesPerArea = wavesPerStage * stagesPerArea;
         CurrentArea = Mathf.Clamp(total / wavesPerArea + 1, 1, 3);
         int remaining = total % wavesPerArea;
         CurrentStage = remaining / wavesPerStage + 1;
-        CurrentWave = remaining % wavesPerStage + 1; // 1-based
+        CurrentWave = remaining % wavesPerStage + 1;
     }
 
     public void StartFirstWave()
@@ -71,12 +76,11 @@ public class StageManager : MonoBehaviour
 
     void Update()
     {
-        if (!waitingForNextWave) return;
+        if (!waitingForNextWave || isTransitioning) return;
 
         var manager = BattleManager.Instance;
         if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) return;
 
-        // Check if all enemies dead
         bool allDead = true;
         for (int i = 0; i < manager.enemyUnits.Count; i++)
         {
@@ -100,24 +104,97 @@ public class StageManager : MonoBehaviour
 
     void AdvanceWave()
     {
+        int prevStage = CurrentStage;
+        int prevArea = CurrentArea;
+
         TotalWaveIndex++;
         PlayerPrefs.SetInt("TotalWaveIndex", TotalWaveIndex);
-
-        int prevArea = CurrentArea;
         CalcStageFromTotal(TotalWaveIndex);
 
         if (CurrentArea != prevArea)
             OnAreaChanged?.Invoke(CurrentArea);
 
-        SpawnNextWave();
+        // 스테이지가 바뀌면 페이드 전환 (1-1의 3웨이브 끝 → 1-2로)
+        bool stageChanged = (CurrentStage != prevStage) || (CurrentArea != prevArea);
+        if (stageChanged)
+            DoStageTransition();
+        else
+            SpawnNextWave();
+    }
+
+    void DoStageTransition()
+    {
+        isTransitioning = true;
+        var fader = ScreenFader.Instance;
+        if (fader == null)
+        {
+            // ScreenFader 없으면 즉시 진행
+            ResetBattlefield();
+            SpawnNextWave();
+            isTransitioning = false;
+            return;
+        }
+
+        fader.FadeTransition(fadeOutTime, fadeHoldTime, fadeInTime, () =>
+        {
+            // 페이드 아웃 완료 시점: 전장 리셋
+            ResetBattlefield();
+            OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
+            isTransitioning = false;
+            SpawnWaveImmediate();
+        });
+    }
+
+    void ResetBattlefield()
+    {
+        var manager = BattleManager.Instance;
+        if (manager == null) return;
+
+        // 적 전부 제거
+        for (int i = manager.enemyUnits.Count - 1; i >= 0; i--)
+        {
+            if (manager.enemyUnits[i] != null)
+                Destroy(manager.enemyUnits[i].gameObject);
+        }
+        manager.enemyUnits.Clear();
+
+        // 아군 위치 리셋 + 체력 회복
+        var setup = FindFirstObjectByType<BattleSetup>();
+        float startX = setup != null ? setup.allyStartX : -1f;
+        float spacing = setup != null ? setup.unitSpacingY : 1f;
+
+        for (int i = 0; i < manager.allyUnits.Count; i++)
+        {
+            var unit = manager.allyUnits[i];
+            if (unit == null) continue;
+
+            unit.gameObject.SetActive(true);
+            unit.Revive();
+            float yOffset = (i - (manager.allyUnits.Count - 1) * 0.5f) * spacing;
+            unit.transform.position = new Vector3(startX, yOffset, 0);
+
+            if (UpgradeManager.Instance != null)
+                UpgradeManager.Instance.ApplyToUnit(unit);
+        }
+
+        // 카메라 리셋
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            var camPos = cam.transform.position;
+            camPos.x = 0;
+            cam.transform.position = camPos;
+        }
     }
 
     void SpawnNextWave()
     {
-        // CalcStageFromTotal already set CurrentArea/Stage/Wave correctly
-        // Just fire the event and spawn
         OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
+        SpawnWaveImmediate();
+    }
 
+    void SpawnWaveImmediate()
+    {
         var manager = BattleManager.Instance;
         var factory = CharacterFactory.Instance;
         if (manager == null || factory == null) return;
@@ -142,7 +219,6 @@ public class StageManager : MonoBehaviour
         if (isBossWave)
         {
             SpawnBoss(factory, manager, spawnX, isAreaBoss);
-            // Add some minions for area boss
             if (isAreaBoss)
             {
                 for (int i = 0; i < 5; i++)
@@ -183,7 +259,6 @@ public class StageManager : MonoBehaviour
         var preset = isAreaBoss ? GetAreaBossPreset() : GetMidBossPreset();
         if (preset == null)
         {
-            // Fallback: spawn normal enemies
             float battleZoneH = GetBattleZoneHeight();
             for (int i = 0; i < enemiesPerWave; i++)
                 SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, 2f), battleZoneH);
@@ -202,9 +277,8 @@ public class StageManager : MonoBehaviour
         unit.CurrentHp = unit.maxHp;
         unit.damageElement = GetAreaElement();
 
-        // Boss size
         float sizeScale = isAreaBoss ? 2f : 1.5f;
-        unit.transform.localScale = Vector3.one * sizeScale;
+        unit.transform.localScale = Vector3.one * sizeScale * 0.8f;
 
         manager.enemyUnits.Add(unit);
     }
@@ -264,6 +338,38 @@ public class StageManager : MonoBehaviour
             3 => caveAreaBoss,
             _ => grassAreaBoss
         };
+    }
+
+    /// <summary>
+    /// 패배 시 이전 웨이브로 되돌리고 페이드 전환 후 자동 재시작
+    /// </summary>
+    public void RewindAndRestart()
+    {
+        if (TotalWaveIndex > 0)
+            TotalWaveIndex--;
+        PlayerPrefs.SetInt("TotalWaveIndex", TotalWaveIndex);
+        CalcStageFromTotal(TotalWaveIndex);
+
+        isTransitioning = true;
+        var fader = ScreenFader.Instance;
+        if (fader == null)
+        {
+            ResetBattlefield();
+            BattleManager.Instance?.StartBattle();
+            SpawnWaveImmediate();
+            OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
+            isTransitioning = false;
+            return;
+        }
+
+        fader.FadeTransition(fadeOutTime, fadeHoldTime, fadeInTime, () =>
+        {
+            ResetBattlefield();
+            BattleManager.Instance?.StartBattle();
+            OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
+            isTransitioning = false;
+            SpawnWaveImmediate();
+        });
     }
 
     public string GetStageText()

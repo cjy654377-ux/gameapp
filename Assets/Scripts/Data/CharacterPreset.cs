@@ -47,7 +47,7 @@ public class CharacterPreset : ScriptableObject
     public float maxHp = 100f;
     public float atk = 20f;
     public float def = 5f;
-    public float moveSpeed = 2f;
+    public float moveSpeed = 1.2f;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
 

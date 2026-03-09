@@ -12,8 +12,8 @@ public class UpgradeUI : MonoBehaviour
     GameObject panel;
     Button toggleButton;
 
-    TextMeshProUGUI hpText, atkText, defText, spdText;
-    Button hpBtn, atkBtn, defBtn, spdBtn;
+    TextMeshProUGUI hpText, atkText, defText;
+    Button hpBtn, atkBtn, defBtn;
 
     bool panelOpen = false;
 
@@ -78,7 +78,7 @@ public class UpgradeUI : MonoBehaviour
         prt.anchorMax = new Vector2(1, 0);
         prt.pivot = new Vector2(0.5f, 0);
         prt.anchoredPosition = new Vector2(0, UIConstants.NavBar_Height + UIConstants.Button_MinHeight + UIConstants.Spacing_Large);
-        prt.sizeDelta = new Vector2(-UIConstants.Spacing_XLarge, UIConstants.StatRow_Height * 4 + UIConstants.Spacing_Large * 2);
+        prt.sizeDelta = new Vector2(-UIConstants.Spacing_XLarge, UIConstants.StatRow_Height * 3 + UIConstants.Spacing_Large * 2);
 
         float y = -UIConstants.Spacing_Large;
         CreateUpgradeRow(panel.transform, "HP", ref hpText, ref hpBtn, y, () => UpgradeManager.Instance?.UpgradeHp());
@@ -86,8 +86,6 @@ public class UpgradeUI : MonoBehaviour
         CreateUpgradeRow(panel.transform, "ATK", ref atkText, ref atkBtn, y, () => UpgradeManager.Instance?.UpgradeAtk());
         y -= UIConstants.StatRow_Height;
         CreateUpgradeRow(panel.transform, "DEF", ref defText, ref defBtn, y, () => UpgradeManager.Instance?.UpgradeDef());
-        y -= UIConstants.StatRow_Height;
-        CreateUpgradeRow(panel.transform, "SPD", ref spdText, ref spdBtn, y, () => UpgradeManager.Instance?.UpgradeSpeed());
 
         RefreshUI();
     }
@@ -171,12 +169,10 @@ public class UpgradeUI : MonoBehaviour
         hpText.text = $"Lv.{um.HpLevel}  +{um.GetHpBonus():F0}";
         atkText.text = $"Lv.{um.AtkLevel}  +{um.GetAtkBonus():F0}";
         defText.text = $"Lv.{um.DefLevel}  +{um.GetDefBonus():F1}";
-        spdText.text = $"Lv.{um.SpeedLevel}  +{um.GetSpeedBonus():F1}";
 
         SetBtnCost(hpBtn, um.GetCost(um.HpLevel));
         SetBtnCost(atkBtn, um.GetCost(um.AtkLevel));
         SetBtnCost(defBtn, um.GetCost(um.DefLevel));
-        SetBtnCost(spdBtn, um.GetCost(um.SpeedLevel));
     }
 
     void SetBtnCost(Button btn, int cost)

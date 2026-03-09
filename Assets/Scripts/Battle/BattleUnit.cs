@@ -12,10 +12,10 @@ public class BattleUnit : MonoBehaviour
     public float maxHp = 100f;
     public float atk = 20f;
     public float def = 5f;
-    public float moveSpeed = 2f;
+    public float moveSpeed = 1.2f;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
-    public float advanceSpeed = 1.5f;
+    public float advanceSpeed = 0.8f;
 
     [Header("Element & Resist")]
     public DamageElement damageElement = DamageElement.Physical;
@@ -396,6 +396,10 @@ public class BattleUnit : MonoBehaviour
         SetState(UnitState.Dead);
         OnDeath?.Invoke();
 
+        // Track kills for HUD
+        if (CurrentTeam == Team.Enemy && MainHUD.Instance != null)
+            MainHUD.Instance.AddKill();
+
         if (animator != null)
         {
             animator.SetBool("isDeath", true);
@@ -408,6 +412,34 @@ public class BattleUnit : MonoBehaviour
     void DisableUnit()
     {
         gameObject.SetActive(false);
+    }
+
+    void OnDisable()
+    {
+        CancelInvoke(nameof(DisableUnit));
+    }
+
+    /// <summary>
+    /// 패배 복귀 시 아군 부활
+    /// </summary>
+    public void Revive()
+    {
+        CurrentHp = maxHp;
+        CurrentState = UnitState.Idle;
+        target = null;
+        attackTimer = 0f;
+        buffTimer = 0f;
+        buffAtk = 0f;
+        buffDef = 0f;
+        OnHpChanged?.Invoke(CurrentHp, maxHp);
+
+        if (animator != null)
+        {
+            animator.SetBool("isDeath", false);
+            animator.SetBool("1_Move", false);
+            animator.Rebind();
+            animator.Update(0f);
+        }
     }
 
     void SetState(UnitState newState)

@@ -11,6 +11,8 @@ public class SkillUI : MonoBehaviour
     TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4];
     TextMeshProUGUI[] nameTexts = new TextMeshProUGUI[4];
     Image[] slotBgs = new Image[4];
+    readonly Color[] readyColors = new Color[4];
+    readonly Color[] cooldownColors = new Color[4];
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
 
@@ -105,16 +107,16 @@ public class SkillUI : MonoBehaviour
     void CreateAutoToggle()
     {
         var (btn, img) = UIHelper.MakeButton("AutoToggle", canvas.transform,
-            UIColors.Button_Green, "AUTO", UIConstants.Font_Tab);
+            UIColors.Button_Green, "자동", UIConstants.Font_Tab);
         autoToggleButton = btn;
         autoToggleButton.onClick.AddListener(OnAutoToggleClicked);
         autoToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
 
         var toggleRT = btn.GetComponent<RectTransform>();
-        toggleRT.anchorMin = new Vector2(0.5f, 0f);
-        toggleRT.anchorMax = new Vector2(0.5f, 0f);
-        toggleRT.pivot = new Vector2(0.5f, 0f);
-        toggleRT.anchoredPosition = new Vector2(120f, UIConstants.NavBar_Height + UIConstants.Spacing_Medium + UIConstants.MinTouchTarget * 0.5f - UIConstants.Spacing_Small);
+        toggleRT.anchorMin = new Vector2(1f, 0f);
+        toggleRT.anchorMax = new Vector2(1f, 0f);
+        toggleRT.pivot = new Vector2(1f, 0f);
+        toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
         toggleRT.sizeDelta = new Vector2(60f, 30f);
     }
 
@@ -138,7 +140,9 @@ public class SkillUI : MonoBehaviour
                     SkillRarity.Legendary => UIColors.Text_Gold,
                     _ => UIColors.Rarity_Common
                 };
-                slotBgs[i].color = new Color(rarityColor.r * 0.3f, rarityColor.g * 0.3f, rarityColor.b * 0.3f, 0.9f);
+                readyColors[i] = new Color(rarityColor.r * 0.6f, rarityColor.g * 0.6f, rarityColor.b * 0.6f, 0.95f);
+                cooldownColors[i] = new Color(rarityColor.r * 0.15f, rarityColor.g * 0.15f, rarityColor.b * 0.15f, 0.9f);
+                slotBgs[i].color = readyColors[i];
             }
             else
             {
@@ -155,11 +159,13 @@ public class SkillUI : MonoBehaviour
         {
             cooldownOverlays[slot].fillAmount = 0f;
             cooldownTexts[slot].text = "";
+            slotBgs[slot].color = readyColors[slot];
         }
         else
         {
             cooldownOverlays[slot].fillAmount = remaining / total;
             cooldownTexts[slot].text = Mathf.CeilToInt(remaining).ToString();
+            slotBgs[slot].color = cooldownColors[slot];
         }
     }
 
@@ -189,7 +195,7 @@ public class SkillUI : MonoBehaviour
         SkillManager.Instance.autoUse = !SkillManager.Instance.autoUse;
 
         bool isAuto = SkillManager.Instance.autoUse;
-        autoToggleText.text = isAuto ? "AUTO" : "MANUAL";
+        autoToggleText.text = isAuto ? "자동" : "수동";
         autoToggleButton.GetComponent<Image>().color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
