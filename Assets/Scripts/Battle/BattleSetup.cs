@@ -24,6 +24,7 @@ public class BattleSetup : MonoBehaviour
         if (factory == null) return;
 
         var manager = BattleManager.Instance;
+        if (manager == null) return;
         float battleZoneH = GetBattleZoneHeight();
 
         for (int i = 0; i < allyPresets.Count; i++)

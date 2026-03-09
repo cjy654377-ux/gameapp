@@ -7,6 +7,10 @@ public class GoldManager : MonoBehaviour
     public int Gold { get; private set; }
     public event System.Action<int> OnGoldChanged;
 
+    private bool isDirty;
+    private float saveTimer;
+    private const float SAVE_INTERVAL = 5f;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -18,7 +22,7 @@ public class GoldManager : MonoBehaviour
     public void AddGold(int amount)
     {
         Gold += amount;
-        PlayerPrefs.SetInt("Gold", Gold);
+        isDirty = true;
         OnGoldChanged?.Invoke(Gold);
     }
 
@@ -26,8 +30,36 @@ public class GoldManager : MonoBehaviour
     {
         if (Gold < amount) return false;
         Gold -= amount;
-        PlayerPrefs.SetInt("Gold", Gold);
+        isDirty = true;
         OnGoldChanged?.Invoke(Gold);
         return true;
+    }
+
+    void Update()
+    {
+        if (!isDirty) return;
+        saveTimer += Time.deltaTime;
+        if (saveTimer >= SAVE_INTERVAL)
+        {
+            FlushSave();
+        }
+    }
+
+    void FlushSave()
+    {
+        if (!isDirty) return;
+        PlayerPrefs.SetInt("Gold", Gold);
+        isDirty = false;
+        saveTimer = 0f;
+    }
+
+    void OnApplicationPause(bool pause)
+    {
+        if (pause) FlushSave();
+    }
+
+    void OnApplicationQuit()
+    {
+        FlushSave();
     }
 }

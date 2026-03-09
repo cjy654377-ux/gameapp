@@ -37,6 +37,7 @@ public class UpgradeManager : MonoBehaviour
 
     public bool UpgradeHp()
     {
+        if (GoldManager.Instance == null) return false;
         int cost = GetCost(HpLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         HpLevel++;
@@ -48,6 +49,7 @@ public class UpgradeManager : MonoBehaviour
 
     public bool UpgradeAtk()
     {
+        if (GoldManager.Instance == null) return false;
         int cost = GetCost(AtkLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         AtkLevel++;
@@ -59,6 +61,7 @@ public class UpgradeManager : MonoBehaviour
 
     public bool UpgradeDef()
     {
+        if (GoldManager.Instance == null) return false;
         int cost = GetCost(DefLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         DefLevel++;
@@ -70,6 +73,7 @@ public class UpgradeManager : MonoBehaviour
 
     public bool UpgradeSpeed()
     {
+        if (GoldManager.Instance == null) return false;
         int cost = GetCost(SpeedLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         SpeedLevel++;
@@ -98,10 +102,10 @@ public class UpgradeManager : MonoBehaviour
         float defBonus = DefLevel * DEF_PER_LEVEL;
         float speedBonus = SpeedLevel * SPEED_PER_LEVEL;
 
-        // Use base stats stored on unit to avoid stacking
+        // Use base stats stored on unit to avoid stacking, preserve active buffs
         unit.maxHp = unit.baseMaxHp + hpBonus;
-        unit.atk = unit.baseAtk + atkBonus;
-        unit.def = unit.baseDef + defBonus;
+        unit.atk = unit.baseAtk + atkBonus + unit.buffAtk;
+        unit.def = unit.baseDef + defBonus + unit.buffDef;
         unit.moveSpeed = unit.baseMoveSpeed + speedBonus;
         unit.advanceSpeed = unit.baseAdvanceSpeed + speedBonus;
 

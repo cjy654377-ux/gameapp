@@ -18,7 +18,10 @@ public class BattleBackground : MonoBehaviour
     void Awake()
     {
         SetArea(1);
+    }
 
+    void Start()
+    {
         if (StageManager.Instance != null)
             StageManager.Instance.OnAreaChanged += SetArea;
     }

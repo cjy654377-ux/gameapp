@@ -168,9 +168,10 @@ public class StageManager : MonoBehaviour
         float y = Random.Range(-battleZoneH * 0.45f, battleZoneH * 0.45f);
         var unit = factory.CreateCharacter(preset, new Vector3(spawnX, y, 0), BattleUnit.Team.Enemy);
 
-        float statMult = GetStatMultiplier();
-        unit.maxHp *= statMult;
-        unit.atk *= statMult;
+        float hpMult = 1f + TotalWaveIndex * hpScalePerWave;
+        float atkMult = 1f + TotalWaveIndex * atkScalePerWave;
+        unit.maxHp *= hpMult;
+        unit.atk *= atkMult;
         unit.CurrentHp = unit.maxHp;
         unit.damageElement = GetAreaElement();
 
@@ -191,12 +192,13 @@ public class StageManager : MonoBehaviour
 
         var unit = factory.CreateCharacter(preset, new Vector3(spawnX, 0, 0), BattleUnit.Team.Enemy);
 
-        float statMult = GetStatMultiplier();
+        float hpMult = 1f + TotalWaveIndex * hpScalePerWave;
+        float atkMult = 1f + TotalWaveIndex * atkScalePerWave;
         float bossMult = isAreaBoss ? areaBossHpMult : midBossHpMult;
         float bossAtkMult = isAreaBoss ? areaBossAtkMult : midBossAtkMult;
 
-        unit.maxHp *= statMult * bossMult;
-        unit.atk *= statMult * bossAtkMult;
+        unit.maxHp *= hpMult * bossMult;
+        unit.atk *= atkMult * bossAtkMult;
         unit.CurrentHp = unit.maxHp;
         unit.damageElement = GetAreaElement();
 
@@ -205,11 +207,6 @@ public class StageManager : MonoBehaviour
         unit.transform.localScale = Vector3.one * sizeScale;
 
         manager.enemyUnits.Add(unit);
-    }
-
-    float GetStatMultiplier()
-    {
-        return 1f + TotalWaveIndex * hpScalePerWave;
     }
 
     float GetSpawnX()

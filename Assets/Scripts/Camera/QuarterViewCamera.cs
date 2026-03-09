@@ -33,7 +33,7 @@ public class QuarterViewCamera : MonoBehaviour
         int count = 0;
         for (int i = 0; i < allies.Count; i++)
         {
-            if (!allies[i].IsDead)
+            if (allies[i] != null && !allies[i].IsDead)
             {
                 sumX += allies[i].transform.position.x;
                 count++;

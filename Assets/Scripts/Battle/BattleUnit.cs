@@ -51,15 +51,16 @@ public class BattleUnit : MonoBehaviour
 
     private BattleUnit target;
     private float attackTimer;
-    private float supportTimer;
+    private float supportTimer = 1f;
     private Animator animator;
+    private Camera cachedCamera;
     private Transform spriteRoot;
     private AttackAnimType attackAnimType;
     private StatusEffectController statusEffects;
 
-    // Temp buff tracking
-    private float buffAtk;
-    private float buffDef;
+    // Temp buff tracking (public read for UpgradeManager compatibility)
+    [HideInInspector] public float buffAtk;
+    [HideInInspector] public float buffDef;
     private float buffTimer;
 
     static readonly Dictionary<AttackAnimType, string> AttackClipPaths = new()
@@ -83,6 +84,7 @@ public class BattleUnit : MonoBehaviour
 
         CurrentHp = maxHp;
         attackAnimType = animType;
+        cachedCamera = Camera.main;
         animator = GetComponentInChildren<Animator>();
         statusEffects = GetComponent<StatusEffectController>();
         if (statusEffects == null)
@@ -132,10 +134,17 @@ public class BattleUnit : MonoBehaviour
         if (CurrentTeam == Team.Ally && role != RoleType.Attacker)
         {
             supportTimer -= Time.deltaTime;
-            if (supportTimer <= 0f && TrySupportAction())
+            if (supportTimer <= 0f)
             {
-                ClampY();
-                return;
+                if (TrySupportAction())
+                {
+                    ClampY();
+                    return;
+                }
+                else
+                {
+                    supportTimer = 0.5f; // retry interval instead of every frame
+                }
             }
         }
 
@@ -233,7 +242,7 @@ public class BattleUnit : MonoBehaviour
 
     void ClampY()
     {
-        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 10f;
+        float camH = cachedCamera != null ? cachedCamera.orthographicSize * 2f : 10f;
         float halfZone = camH * 0.3f;
         var pos = transform.position;
         pos.y = Mathf.Clamp(pos.y, -halfZone, halfZone);
