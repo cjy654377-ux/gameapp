@@ -33,6 +33,15 @@ public class BattleHUD : MonoBehaviour
     {
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged += OnBattleStateChanged;
+
+        if (StageManager.Instance != null)
+            StageManager.Instance.OnStageChanged += OnStageChanged;
+    }
+
+    void OnStageChanged(int area, int stage, int wave)
+    {
+        if (StageManager.Instance != null)
+            SetStageText(StageManager.Instance.GetStageText());
     }
 
     void CreateCanvas()
@@ -172,5 +181,7 @@ public class BattleHUD : MonoBehaviour
     {
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged -= OnBattleStateChanged;
+        if (StageManager.Instance != null)
+            StageManager.Instance.OnStageChanged -= OnStageChanged;
     }
 }

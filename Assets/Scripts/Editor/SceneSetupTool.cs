@@ -26,41 +26,55 @@ public class SceneSetupTool
                 Debug.Log("Base prefab assigned: " + factory.spumBasePrefab.name);
         }
 
-        // BattleSetup - assign presets
+        // BattleSetup - assign ally presets
         var setup = gm.GetComponent<BattleSetup>();
         if (setup != null)
         {
             setup.allyPresets.Clear();
-            setup.enemyPresets.Clear();
-
             AddPreset(setup.allyPresets, "Assets/Data/Presets/Ally_Swordsman.asset");
             AddPreset(setup.allyPresets, "Assets/Data/Presets/Ally_Archer.asset");
             AddPreset(setup.allyPresets, "Assets/Data/Presets/Ally_Mage.asset");
-
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_OrcWarrior.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_Skeleton.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_Demon.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_OrcArcher.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_DarkKnight.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_RedRider.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_SkeletonMage.asset");
-            AddPreset(setup.enemyPresets, "Assets/Data/Presets/Enemy_OrcChief.asset");
-
-            Debug.Log($"Presets assigned: {setup.allyPresets.Count} allies, {setup.enemyPresets.Count} enemies");
+            Debug.Log($"Ally presets assigned: {setup.allyPresets.Count}");
         }
 
-        // Ensure new managers exist
+        // StageManager - assign enemy presets by area
+        var stageMgr = EnsureComponent<StageManager>(FindOrCreate("StageManager"));
+        stageMgr.grassEnemies.Clear();
+        AddPreset(stageMgr.grassEnemies, "Assets/Data/Presets/Enemy_OrcWarrior.asset");
+        AddPreset(stageMgr.grassEnemies, "Assets/Data/Presets/Enemy_Skeleton.asset");
+        AddPreset(stageMgr.grassEnemies, "Assets/Data/Presets/Enemy_OrcArcher.asset");
+        AddPreset(stageMgr.grassEnemies, "Assets/Data/Presets/Enemy_SkeletonMage.asset");
+        AddPreset(stageMgr.grassEnemies, "Assets/Data/Presets/Enemy_OrcChief.asset");
+
+        stageMgr.desertEnemies.Clear();
+        AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_Demon.asset");
+        AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_DarkKnight.asset");
+
+        stageMgr.caveEnemies.Clear();
+        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_RedRider.asset");
+        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_Skeleton.asset");
+
+        // Boss presets (use existing strong enemies as placeholders)
+        stageMgr.grassMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_OrcChief.asset");
+        stageMgr.grassAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_OrcChief.asset");
+        stageMgr.desertMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_DarkKnight.asset");
+        stageMgr.desertAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_DarkKnight.asset");
+        stageMgr.caveMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_RedRider.asset");
+        stageMgr.caveAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_RedRider.asset");
+        Debug.Log("StageManager presets assigned");
+
+        // Ensure managers
         EnsureComponent<GoldManager>(gm);
         EnsureComponent<TapDamageSystem>(gm);
         EnsureComponent<SkillManager>(gm);
+        EnsureComponent<UpgradeManager>(FindOrCreate("UpgradeManager"));
 
-        // EventSystem for UI interaction
+        // EventSystem
         if (GameObject.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
         {
             var esObj = new GameObject("EventSystem");
             esObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
             esObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-            Debug.Log("Created EventSystem");
         }
 
         // Background
@@ -68,15 +82,15 @@ public class SceneSetupTool
         {
             var bgObj = new GameObject("Background");
             bgObj.AddComponent<BattleBackground>();
-            Debug.Log("Created Background");
         }
 
         // UI objects
         EnsureUIObject("BattleHUD", typeof(BattleHUD));
         EnsureUIObject("SkillUI", typeof(SkillUI));
         EnsureUIObject("GoldUI", typeof(GoldUI));
+        EnsureUIObject("UpgradeUI", typeof(UpgradeUI));
 
-        // Assign default skills to SkillManager
+        // Assign default skills
         var skillMgr = gm.GetComponent<SkillManager>();
         if (skillMgr != null)
         {
@@ -93,6 +107,13 @@ public class SceneSetupTool
         Debug.Log("Battle scene setup complete!");
     }
 
+    static GameObject FindOrCreate(string name)
+    {
+        var obj = GameObject.Find(name);
+        if (obj == null) obj = new GameObject(name);
+        return obj;
+    }
+
     static void AddPreset(System.Collections.Generic.List<CharacterPreset> list, string path)
     {
         var preset = AssetDatabase.LoadAssetAtPath<CharacterPreset>(path);
@@ -107,15 +128,12 @@ public class SceneSetupTool
         var skill = AssetDatabase.LoadAssetAtPath<SkillData>(path);
         if (skill != null)
             mgr.equippedSkills.Add(skill);
-        else
-            Debug.LogWarning("Skill not found: " + path);
     }
 
     static T EnsureComponent<T>(GameObject go) where T : Component
     {
         var comp = go.GetComponent<T>();
-        if (comp == null)
-            comp = go.AddComponent<T>();
+        if (comp == null) comp = go.AddComponent<T>();
         return comp;
     }
 
@@ -126,7 +144,6 @@ public class SceneSetupTool
         {
             existing = new GameObject(name);
             existing.AddComponent(componentType);
-            Debug.Log($"Created UI object: {name}");
         }
     }
 }

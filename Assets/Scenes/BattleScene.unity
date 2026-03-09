@@ -223,6 +223,50 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
+--- !u!1 &610026014
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 610026016}
+  - component: {fileID: 610026015}
+  m_Layer: 0
+  m_Name: UpgradeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &610026015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610026014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b6b046f842c46898ee37f5c2ef1b1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeManager
+--- !u!4 &610026016
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610026014}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &795496865
 GameObject:
   m_ObjectHideFlags: 0
@@ -259,6 +303,78 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795496865}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1242652070
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1242652072}
+  - component: {fileID: 1242652071}
+  m_Layer: 0
+  m_Name: StageManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1242652071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1242652070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cea0595a77354d8ea5ef99746d55160, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageManager
+  wavesPerStage: 10
+  stagesPerArea: 10
+  enemiesPerWave: 10
+  waveCooldown: 1.5
+  hpScalePerWave: 0.08
+  atkScalePerWave: 0.05
+  midBossHpMult: 3
+  midBossAtkMult: 3
+  areaBossHpMult: 5
+  areaBossAtkMult: 5
+  grassEnemies:
+  - {fileID: 11400000, guid: 461080f6035ee48ba9d36af221ed4e06, type: 2}
+  - {fileID: 11400000, guid: f3dfa9d12b98f4986b6bb118dbe4b493, type: 2}
+  - {fileID: 11400000, guid: 3152c13db379a424d84822d92910ff31, type: 2}
+  - {fileID: 11400000, guid: b81e776125d1f40c899502099bfd40b8, type: 2}
+  - {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
+  desertEnemies:
+  - {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
+  - {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  caveEnemies:
+  - {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
+  - {fileID: 11400000, guid: f3dfa9d12b98f4986b6bb118dbe4b493, type: 2}
+  grassMidBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
+  grassAreaBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
+  desertMidBoss: {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  desertAreaBoss: {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  caveMidBoss: {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
+  caveAreaBoss: {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
+--- !u!4 &1242652072
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1242652070}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -305,21 +421,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
   - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
   - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
-  enemyPresets:
-  - {fileID: 11400000, guid: 461080f6035ee48ba9d36af221ed4e06, type: 2}
-  - {fileID: 11400000, guid: f3dfa9d12b98f4986b6bb118dbe4b493, type: 2}
-  - {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
-  - {fileID: 11400000, guid: 3152c13db379a424d84822d92910ff31, type: 2}
-  - {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
-  - {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
-  - {fileID: 11400000, guid: b81e776125d1f40c899502099bfd40b8, type: 2}
-  - {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
   allyStartX: -3
-  enemySpawnOffset: 6
   unitSpacingY: 1.5
-  waveCooldown: 2
-  baseEnemyCount: 3
-  difficultyScale: 0.15
 --- !u!114 &1286532211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -562,6 +665,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1836309766
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1836309768}
+  - component: {fileID: 1836309767}
+  m_Layer: 0
+  m_Name: UpgradeUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1836309767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1836309766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b8b0964a7a4341a79641b4637bff67b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeUI
+--- !u!4 &1836309768
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1836309766}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1897603563
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,3 +828,6 @@ SceneRoots:
   - {fileID: 795496867}
   - {fileID: 1795040958}
   - {fileID: 185057854}
+  - {fileID: 1242652072}
+  - {fileID: 610026016}
+  - {fileID: 1836309768}

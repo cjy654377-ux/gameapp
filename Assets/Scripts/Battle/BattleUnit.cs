@@ -1,9 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BattleUnit : MonoBehaviour
 {
     public enum Team { Ally, Enemy }
     public enum UnitState { Idle, Moving, Attacking, Dead }
+    public enum RoleType { Attacker, Healer, Buffer }
 
     [Header("Stats")]
     public string unitName = "Unit";
@@ -13,6 +15,30 @@ public class BattleUnit : MonoBehaviour
     public float moveSpeed = 2f;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
+    public float advanceSpeed = 1.5f;
+
+    [Header("Element & Resist")]
+    public DamageElement damageElement = DamageElement.Physical;
+    public float lightningResist = 0f;
+    public float poisonResist = 0f;
+
+    [Header("Support")]
+    public RoleType role = RoleType.Attacker;
+    public float healAmount = 0f;
+    public float healCooldown = 3f;
+    public float healRange = 3f;
+    public float buffAtkBonus = 0f;
+    public float buffDefBonus = 0f;
+    public float buffDuration = 5f;
+    public float buffCooldown = 8f;
+    public float buffRange = 4f;
+
+    // Base stats (set once at creation, used by UpgradeManager)
+    [HideInInspector] public float baseMaxHp;
+    [HideInInspector] public float baseAtk;
+    [HideInInspector] public float baseDef;
+    [HideInInspector] public float baseMoveSpeed;
+    [HideInInspector] public float baseAdvanceSpeed;
 
     public float CurrentHp { get; set; }
     public bool IsDead => CurrentHp <= 0;
@@ -25,6 +51,7 @@ public class BattleUnit : MonoBehaviour
 
     private BattleUnit target;
     private float attackTimer;
+    private float supportTimer;
     private Animator animator;
     private Transform spriteRoot;
     private AttackAnimType attackAnimType;
@@ -35,7 +62,7 @@ public class BattleUnit : MonoBehaviour
     private float buffDef;
     private float buffTimer;
 
-    static readonly System.Collections.Generic.Dictionary<AttackAnimType, string> AttackClipPaths = new()
+    static readonly Dictionary<AttackAnimType, string> AttackClipPaths = new()
     {
         { AttackAnimType.Melee,     "Addons/Legacy/0_Unit/1_Animation/02_Attack/00_MeleeAttack/0_Attack_Normal" },
         { AttackAnimType.Axe,       "Addons/Ver300/0_Unit/1_Animation/02_Attack/00_MeleeAttack/AxeAttack_1" },
@@ -47,6 +74,13 @@ public class BattleUnit : MonoBehaviour
 
     public void Init(AttackAnimType animType = AttackAnimType.Melee)
     {
+        // Store base stats for upgrade system
+        baseMaxHp = maxHp;
+        baseAtk = atk;
+        baseDef = def;
+        baseMoveSpeed = moveSpeed;
+        baseAdvanceSpeed = advanceSpeed;
+
         CurrentHp = maxHp;
         attackAnimType = animType;
         animator = GetComponentInChildren<Animator>();
@@ -56,14 +90,12 @@ public class BattleUnit : MonoBehaviour
         if (transform.childCount > 0)
             spriteRoot = transform.GetChild(0);
 
-        // Override attack animation based on weapon type
         if (animator != null && AttackClipPaths.TryGetValue(animType, out string clipPath))
         {
             var clip = Resources.Load<AnimationClip>(clipPath);
             if (clip != null)
             {
                 var overrideCtrl = new AnimatorOverrideController(animator.runtimeAnimatorController);
-                // SPUM ATTACK state uses "ATTACK" clip name
                 overrideCtrl["ATTACK"] = clip;
                 animator.runtimeAnimatorController = overrideCtrl;
             }
@@ -76,8 +108,6 @@ public class BattleUnit : MonoBehaviour
         if (team == Team.Enemy && spriteRoot != null)
             spriteRoot.localScale = new Vector3(-1, 1, 1);
     }
-
-    public float advanceSpeed = 1.5f;
 
     void Update()
     {
@@ -98,18 +128,28 @@ public class BattleUnit : MonoBehaviour
             }
         }
 
+        // Support roles: heal/buff allies first
+        if (CurrentTeam == Team.Ally && role != RoleType.Attacker)
+        {
+            supportTimer -= Time.deltaTime;
+            if (supportTimer <= 0f && TrySupportAction())
+            {
+                ClampY();
+                return;
+            }
+        }
+
         if (target == null || target.IsDead)
         {
             target = BattleManager.Instance.FindNearestEnemy(this);
             if (target == null)
             {
-                // Allies auto-advance right when no enemies
                 if (CurrentTeam == Team.Ally)
                 {
                     SetState(UnitState.Moving);
                     transform.position += Vector3.right * advanceSpeed * Time.deltaTime;
                     if (spriteRoot != null)
-                        spriteRoot.localScale = new Vector3(-1, 1, 1); // face right
+                        spriteRoot.localScale = new Vector3(-1, 1, 1);
                 }
                 else
                 {
@@ -130,11 +170,71 @@ public class BattleUnit : MonoBehaviour
         ClampY();
     }
 
+    bool TrySupportAction()
+    {
+        var allies = BattleManager.Instance.allyUnits;
+
+        if (role == RoleType.Healer)
+        {
+            // Find most injured ally in range
+            BattleUnit mostInjured = null;
+            float lowestRatio = 1f;
+
+            for (int i = 0; i < allies.Count; i++)
+            {
+                if (allies[i] == null || allies[i].IsDead || allies[i] == this) continue;
+                float ratio = allies[i].CurrentHp / allies[i].maxHp;
+                float dist = Vector2.Distance(transform.position, allies[i].transform.position);
+                if (ratio < 0.8f && dist <= healRange && ratio < lowestRatio)
+                {
+                    lowestRatio = ratio;
+                    mostInjured = allies[i];
+                }
+            }
+
+            if (mostInjured != null)
+            {
+                mostInjured.Heal(healAmount);
+                supportTimer = healCooldown;
+                SetState(UnitState.Attacking);
+                if (animator != null) animator.SetTrigger("2_Attack");
+                return true;
+            }
+        }
+        else if (role == RoleType.Buffer)
+        {
+            // Buff ally with no active buff, nearest first
+            BattleUnit buffTarget = null;
+            float minDist = float.MaxValue;
+
+            for (int i = 0; i < allies.Count; i++)
+            {
+                if (allies[i] == null || allies[i].IsDead || allies[i] == this) continue;
+                float dist = Vector2.Distance(transform.position, allies[i].transform.position);
+                if (dist <= buffRange && dist < minDist)
+                {
+                    minDist = dist;
+                    buffTarget = allies[i];
+                }
+            }
+
+            if (buffTarget != null)
+            {
+                buffTarget.ApplyBuff(buffAtkBonus, buffDefBonus, buffDuration);
+                supportTimer = buffCooldown;
+                SetState(UnitState.Attacking);
+                if (animator != null) animator.SetTrigger("2_Attack");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void ClampY()
     {
-        // Clamp Y to middle 3/5 of screen
-        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 8f;
-        float halfZone = camH * 0.3f; // 3/5 / 2
+        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 10f;
+        float halfZone = camH * 0.3f;
         var pos = transform.position;
         pos.y = Mathf.Clamp(pos.y, -halfZone, halfZone);
         transform.position = pos;
@@ -147,7 +247,6 @@ public class BattleUnit : MonoBehaviour
         float speedMult = statusEffects != null ? statusEffects.GetSpeedMultiplier() : 1f;
         transform.position += direction * moveSpeed * speedMult * Time.deltaTime;
 
-        // Flip sprite based on direction
         if (spriteRoot != null)
         {
             if (direction.x > 0)
@@ -163,7 +262,6 @@ public class BattleUnit : MonoBehaviour
     {
         SetState(UnitState.Attacking);
 
-        // Face target while attacking
         if (spriteRoot != null)
         {
             float dirX = target.transform.position.x - transform.position.x;
@@ -175,7 +273,7 @@ public class BattleUnit : MonoBehaviour
 
         if (attackTimer <= 0f)
         {
-            float damage = Mathf.Max(1f, atk - target.def);
+            float damage = CalcDamage(target);
 
             if (IsRanged)
             {
@@ -189,6 +287,25 @@ public class BattleUnit : MonoBehaviour
 
             attackTimer = attackCooldown;
         }
+    }
+
+    float CalcDamage(BattleUnit defender)
+    {
+        float baseDmg = Mathf.Max(1f, atk - defender.def);
+
+        // Element bonus damage
+        float elementMult = 1f;
+        switch (damageElement)
+        {
+            case DamageElement.Lightning:
+                elementMult = 1f + 0.5f * (1f - defender.lightningResist);
+                break;
+            case DamageElement.Poison:
+                elementMult = 1f + 0.5f * (1f - defender.poisonResist);
+                break;
+        }
+
+        return baseDmg * elementMult;
     }
 
     public void TakeDamage(float damage, bool ignoreDefense = false)
@@ -226,31 +343,19 @@ public class BattleUnit : MonoBehaviour
         if (cachedRenderers == null)
             cachedRenderers = GetComponentsInChildren<SpriteRenderer>();
 
-        // Cache original colors
         if (originalColors == null || originalColors.Length != cachedRenderers.Length)
             originalColors = new Color[cachedRenderers.Length];
 
         for (int i = 0; i < cachedRenderers.Length; i++)
-        {
-            if (cachedRenderers[i] != null)
-                originalColors[i] = cachedRenderers[i].color;
-        }
+            if (cachedRenderers[i] != null) originalColors[i] = cachedRenderers[i].color;
 
-        // Flash white
         for (int i = 0; i < cachedRenderers.Length; i++)
-        {
-            if (cachedRenderers[i] != null)
-                cachedRenderers[i].color = Color.white;
-        }
+            if (cachedRenderers[i] != null) cachedRenderers[i].color = Color.white;
 
         yield return new WaitForSeconds(0.08f);
 
-        // Restore
         for (int i = 0; i < cachedRenderers.Length; i++)
-        {
-            if (cachedRenderers[i] != null)
-                cachedRenderers[i].color = originalColors[i];
-        }
+            if (cachedRenderers[i] != null) cachedRenderers[i].color = originalColors[i];
 
         flashRoutine = null;
     }
@@ -265,7 +370,6 @@ public class BattleUnit : MonoBehaviour
 
     public void ApplyBuff(float atkBonus, float defBonus, float duration)
     {
-        // Remove previous buff if active
         if (buffTimer > 0f)
         {
             atk -= buffAtk;
@@ -304,7 +408,6 @@ public class BattleUnit : MonoBehaviour
 
         if (animator == null) return;
 
-        // SPUM Animator parameters: 1_Move (bool), 2_Attack (trigger), isDeath (bool)
         animator.SetBool("1_Move", newState == UnitState.Moving);
 
         if (newState == UnitState.Attacking)

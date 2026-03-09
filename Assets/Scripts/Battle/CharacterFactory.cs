@@ -108,19 +108,43 @@ public class CharacterFactory : MonoBehaviour
         battleUnit.attackRange = preset.attackRange;
         battleUnit.attackCooldown = preset.attackCooldown;
 
+        battleUnit.damageElement = preset.damageElement;
+        battleUnit.lightningResist = preset.lightningResist;
+        battleUnit.poisonResist = preset.poisonResist;
+
+        // Support role
+        if (preset.isHealer)
+        {
+            battleUnit.role = BattleUnit.RoleType.Healer;
+            battleUnit.healAmount = preset.healAmount;
+            battleUnit.healCooldown = preset.healCooldown;
+            battleUnit.healRange = preset.healRange;
+        }
+        else if (preset.isBuffer)
+        {
+            battleUnit.role = BattleUnit.RoleType.Buffer;
+            battleUnit.buffAtkBonus = preset.buffAtkBonus;
+            battleUnit.buffDefBonus = preset.buffDefBonus;
+            battleUnit.buffDuration = preset.buffDuration;
+            battleUnit.buffCooldown = preset.buffCooldown;
+            battleUnit.buffRange = preset.buffRange;
+        }
+
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
 
         // Add HP bar
         unitObj.AddComponent<HpBar>();
 
-        // Enemy: drop gold on death
+        // Enemy gold drops handled by StageManager for bosses,
+        // default drop for normal enemies
         if (team == BattleUnit.Team.Enemy)
         {
+            var unitRef = battleUnit;
             int goldReward = Mathf.RoundToInt(preset.maxHp * 0.5f);
             battleUnit.OnDeath += () =>
             {
-                GoldDrop.Spawn(unitObj.transform.position, goldReward);
+                GoldDrop.Spawn(unitRef.transform.position, goldReward);
             };
         }
 

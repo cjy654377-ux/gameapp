@@ -50,4 +50,24 @@ public class CharacterPreset : ScriptableObject
     public float moveSpeed = 2f;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.0f;
+
+    [Header("Resistances")]
+    public float lightningResist = 0f; // 0~1, 1 = immune
+    public float poisonResist = 0f;
+
+    [Header("Element")]
+    public DamageElement damageElement = DamageElement.Physical;
+
+    [Header("Support Role")]
+    public bool isHealer = false;
+    public float healAmount = 0f;
+    public float healCooldown = 3f;
+    public float healRange = 3f;
+
+    public bool isBuffer = false;
+    public float buffAtkBonus = 0f;
+    public float buffDefBonus = 0f;
+    public float buffDuration = 5f;
+    public float buffCooldown = 8f;
+    public float buffRange = 4f;
 }
