@@ -44,109 +44,78 @@ public class SkillUI : MonoBehaviour
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.matchWidthOrHeight = 0f;
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
 
         gameObject.AddComponent<GraphicRaycaster>();
     }
 
     void CreateSkillSlots()
     {
-        float slotSize = 90f;
-        float spacing = 10f;
+        float slotSize = UIConstants.MinTouchTarget;
+        float spacing = UIConstants.Spacing_Medium;
         float totalWidth = 4 * slotSize + 3 * spacing;
         float startX = -totalWidth * 0.5f + slotSize * 0.5f;
 
         for (int i = 0; i < 4; i++)
         {
-            var slot = CreateUIObject($"SkillSlot_{i}", canvas.transform);
+            var slot = UIHelper.MakeUI($"SkillSlot_{i}", canvas.transform);
             slotObjects[i] = slot;
 
-            // Position at bottom center
             var rt = slot.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0f);
             rt.anchorMax = new Vector2(0.5f, 0f);
             rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(startX + i * (slotSize + spacing), 20f);
+            rt.anchoredPosition = new Vector2(startX + i * (slotSize + spacing), UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
             rt.sizeDelta = new Vector2(slotSize, slotSize);
 
-            // Background with rarity border
             var bg = slot.AddComponent<Image>();
-            bg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+            bg.color = UIColors.Panel_Inner;
             slotBgs[i] = bg;
 
-            // Button for manual use
             var btn = slot.AddComponent<Button>();
             int slotIdx = i;
             btn.onClick.AddListener(() => OnSlotClicked(slotIdx));
             btn.targetGraphic = bg;
 
-            // Skill icon/name text
-            var nameObj = CreateUIObject("Name", slot.transform);
-            nameTexts[i] = nameObj.AddComponent<TextMeshProUGUI>();
-            nameTexts[i].fontSize = 16;
-            nameTexts[i].alignment = TextAlignmentOptions.Center;
-            nameTexts[i].color = Color.white;
-            var nameRT = nameObj.GetComponent<RectTransform>();
-            nameRT.anchorMin = Vector2.zero;
-            nameRT.anchorMax = Vector2.one;
-            nameRT.sizeDelta = Vector2.zero;
-            nameRT.anchoredPosition = new Vector2(0, 5);
+            // Skill name
+            nameTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
+                UIConstants.Font_Tab, TextAlignmentOptions.Center);
+            var nameRT = nameTexts[i].GetComponent<RectTransform>();
+            UIHelper.FillParent(nameRT);
+            nameRT.anchoredPosition = new Vector2(0, 3);
 
             // Cooldown overlay
-            var cdObj = CreateUIObject("CooldownOverlay", slot.transform);
+            var cdObj = UIHelper.MakeUI("CooldownOverlay", slot.transform);
             cooldownOverlays[i] = cdObj.AddComponent<Image>();
-            cooldownOverlays[i].color = new Color(0, 0, 0, 0.6f);
+            cooldownOverlays[i].color = UIColors.Overlay_Dark;
             cooldownOverlays[i].type = Image.Type.Filled;
             cooldownOverlays[i].fillMethod = Image.FillMethod.Vertical;
             cooldownOverlays[i].fillOrigin = 0;
             cooldownOverlays[i].fillAmount = 0f;
-            var cdRT = cdObj.GetComponent<RectTransform>();
-            cdRT.anchorMin = Vector2.zero;
-            cdRT.anchorMax = Vector2.one;
-            cdRT.sizeDelta = Vector2.zero;
+            UIHelper.FillParent(cdObj.GetComponent<RectTransform>());
 
             // Cooldown timer text
-            var timerObj = CreateUIObject("Timer", slot.transform);
-            cooldownTexts[i] = timerObj.AddComponent<TextMeshProUGUI>();
-            cooldownTexts[i].fontSize = 24;
-            cooldownTexts[i].alignment = TextAlignmentOptions.Center;
-            cooldownTexts[i].color = Color.white;
-            cooldownTexts[i].text = "";
-            var timerRT = timerObj.GetComponent<RectTransform>();
-            timerRT.anchorMin = Vector2.zero;
-            timerRT.anchorMax = Vector2.one;
-            timerRT.sizeDelta = Vector2.zero;
+            cooldownTexts[i] = UIHelper.MakeText("Timer", slot.transform, "",
+                UIConstants.Font_StatValue, TextAlignmentOptions.Center);
+            UIHelper.FillParent(cooldownTexts[i].GetComponent<RectTransform>());
         }
     }
 
     void CreateAutoToggle()
     {
-        var toggleObj = CreateUIObject("AutoToggle", canvas.transform);
-        var toggleImg = toggleObj.AddComponent<Image>();
-        toggleImg.color = new Color(0.2f, 0.6f, 0.3f, 0.9f);
-        autoToggleButton = toggleObj.AddComponent<Button>();
-        autoToggleButton.targetGraphic = toggleImg;
+        var (btn, img) = UIHelper.MakeButton("AutoToggle", canvas.transform,
+            UIColors.Button_Green, "AUTO", UIConstants.Font_Tab);
+        autoToggleButton = btn;
         autoToggleButton.onClick.AddListener(OnAutoToggleClicked);
+        autoToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
 
-        var toggleRT = toggleObj.GetComponent<RectTransform>();
+        var toggleRT = btn.GetComponent<RectTransform>();
         toggleRT.anchorMin = new Vector2(0.5f, 0f);
         toggleRT.anchorMax = new Vector2(0.5f, 0f);
         toggleRT.pivot = new Vector2(0.5f, 0f);
-        toggleRT.anchoredPosition = new Vector2(250f, 45f);
-        toggleRT.sizeDelta = new Vector2(80f, 40f);
-
-        var textObj = CreateUIObject("Text", toggleObj.transform);
-        autoToggleText = textObj.AddComponent<TextMeshProUGUI>();
-        autoToggleText.text = "AUTO";
-        autoToggleText.fontSize = 20;
-        autoToggleText.alignment = TextAlignmentOptions.Center;
-        autoToggleText.color = Color.white;
-        autoToggleText.fontStyle = FontStyles.Bold;
-        var textRT = textObj.GetComponent<RectTransform>();
-        textRT.anchorMin = Vector2.zero;
-        textRT.anchorMax = Vector2.one;
-        textRT.sizeDelta = Vector2.zero;
+        toggleRT.anchoredPosition = new Vector2(120f, UIConstants.NavBar_Height + UIConstants.Spacing_Medium + UIConstants.MinTouchTarget * 0.5f - UIConstants.Spacing_Small);
+        toggleRT.sizeDelta = new Vector2(60f, 30f);
     }
 
     public void RefreshSlots()
@@ -159,16 +128,15 @@ public class SkillUI : MonoBehaviour
             if (i < skills.Count && skills[i] != null)
             {
                 slotObjects[i].SetActive(true);
-                nameTexts[i].text = $"{skills[i].iconChar}\n<size=12>{skills[i].skillName}</size>";
+                nameTexts[i].text = $"{skills[i].iconChar}\n<size=10>{skills[i].skillName}</size>";
 
-                // Rarity color border
                 Color rarityColor = skills[i].rarity switch
                 {
-                    SkillRarity.Common => new Color(0.5f, 0.5f, 0.5f),
-                    SkillRarity.Rare => new Color(0.3f, 0.5f, 1f),
-                    SkillRarity.Epic => new Color(0.6f, 0.2f, 0.8f),
-                    SkillRarity.Legendary => new Color(1f, 0.7f, 0.1f),
-                    _ => Color.gray
+                    SkillRarity.Common => UIColors.Rarity_Common,
+                    SkillRarity.Rare => UIColors.Rarity_Rare,
+                    SkillRarity.Epic => UIColors.Rarity_Rare,
+                    SkillRarity.Legendary => UIColors.Text_Gold,
+                    _ => UIColors.Rarity_Common
                 };
                 slotBgs[i].color = new Color(rarityColor.r * 0.3f, rarityColor.g * 0.3f, rarityColor.b * 0.3f, 0.9f);
             }
@@ -197,7 +165,6 @@ public class SkillUI : MonoBehaviour
 
     void OnSkillUsed(int slot)
     {
-        // Flash effect
         if (slot >= 0 && slot < 4 && slotBgs[slot] != null)
             StartCoroutine(FlashSlot(slot));
     }
@@ -223,15 +190,7 @@ public class SkillUI : MonoBehaviour
 
         bool isAuto = SkillManager.Instance.autoUse;
         autoToggleText.text = isAuto ? "AUTO" : "MANUAL";
-        autoToggleButton.GetComponent<Image>().color =
-            isAuto ? new Color(0.2f, 0.6f, 0.3f, 0.9f) : new Color(0.5f, 0.3f, 0.3f, 0.9f);
-    }
-
-    GameObject CreateUIObject(string name, Transform parent)
-    {
-        var obj = new GameObject(name, typeof(RectTransform));
-        obj.transform.SetParent(parent, false);
-        return obj;
+        autoToggleButton.GetComponent<Image>().color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
     void OnDestroy()

@@ -85,9 +85,8 @@ public class SceneSetupTool
         }
 
         // UI objects
-        EnsureUIObject("BattleHUD", typeof(BattleHUD));
+        EnsureUIObject("MainHUD", typeof(MainHUD));
         EnsureUIObject("SkillUI", typeof(SkillUI));
-        EnsureUIObject("GoldUI", typeof(GoldUI));
         EnsureUIObject("UpgradeUI", typeof(UpgradeUI));
 
         // Assign default skills

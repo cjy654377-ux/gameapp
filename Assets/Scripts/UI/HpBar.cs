@@ -56,7 +56,7 @@ public class HpBar : MonoBehaviour
         borderObj.transform.localScale = new Vector3(BAR_WIDTH + BORDER * 2, BAR_HEIGHT + BORDER * 2, 1);
         borderRenderer = borderObj.AddComponent<SpriteRenderer>();
         borderRenderer.sprite = pixelSprite;
-        borderRenderer.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        borderRenderer.color = UIColors.ProgressBar_Border;
         borderRenderer.sortingOrder = 89;
 
         // Background (dark)
@@ -65,7 +65,7 @@ public class HpBar : MonoBehaviour
         bgObj.transform.localScale = new Vector3(BAR_WIDTH, BAR_HEIGHT, 1);
         bgRenderer = bgObj.AddComponent<SpriteRenderer>();
         bgRenderer.sprite = pixelSprite;
-        bgRenderer.color = new Color(0.15f, 0.05f, 0.05f, 0.9f);
+        bgRenderer.color = UIColors.ProgressBar_BG;
         bgRenderer.sortingOrder = 90;
 
         // Fill (gradient green)
@@ -80,7 +80,7 @@ public class HpBar : MonoBehaviour
         innerFill.transform.localScale = new Vector3(BAR_WIDTH, BAR_HEIGHT, 1);
         fillRenderer = innerFill.AddComponent<SpriteRenderer>();
         fillRenderer.sprite = pixelSprite;
-        fillRenderer.color = new Color(0.2f, 0.9f, 0.3f);
+        fillRenderer.color = UIColors.ProgressBar_Fill;
         fillRenderer.sortingOrder = 91;
     }
 
@@ -93,9 +93,9 @@ public class HpBar : MonoBehaviour
 
         // Color gradient: green -> yellow -> red
         if (ratio > 0.5f)
-            fillRenderer.color = Color.Lerp(new Color(0.9f, 0.9f, 0.1f), new Color(0.2f, 0.9f, 0.3f), (ratio - 0.5f) * 2f);
+            fillRenderer.color = Color.Lerp(UIColors.Text_Gold, UIColors.ProgressBar_Fill, (ratio - 0.5f) * 2f);
         else
-            fillRenderer.color = Color.Lerp(new Color(0.9f, 0.15f, 0.15f), new Color(0.9f, 0.9f, 0.1f), ratio * 2f);
+            fillRenderer.color = Color.Lerp(UIColors.Defeat_Red, UIColors.Text_Gold, ratio * 2f);
     }
 
     void RefreshStatusIcons()

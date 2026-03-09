@@ -2,12 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// 훈련(업그레이드) 패널 - UI_SPEC StatUpgradeRow 스타일
+/// MainHUD의 "훈련" 탭 패널에 부착하여 사용
+/// </summary>
 public class UpgradeUI : MonoBehaviour
 {
     Canvas canvas;
     GameObject panel;
     Button toggleButton;
-    TextMeshProUGUI toggleText;
 
     TextMeshProUGUI hpText, atkText, defText, spdText;
     Button hpBtn, atkBtn, defBtn, spdBtn;
@@ -35,60 +38,55 @@ public class UpgradeUI : MonoBehaviour
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.matchWidthOrHeight = 0f;
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
 
         gameObject.AddComponent<GraphicRaycaster>();
     }
 
     void CreateToggleButton()
     {
-        var obj = MakeUI("ToggleBtn", canvas.transform);
-        var img = obj.AddComponent<Image>();
-        img.color = new Color(0.2f, 0.4f, 0.7f, 0.9f);
-        toggleButton = obj.AddComponent<Button>();
-        toggleButton.targetGraphic = img;
+        var (btn, img) = UIHelper.MakeButton("ToggleBtn", canvas.transform,
+            UIColors.Button_Brown, "UPGRADE", UIConstants.Font_Tab);
+        toggleButton = btn;
         toggleButton.onClick.AddListener(TogglePanel);
 
-        var rt = obj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0f, 0f);
-        rt.anchorMax = new Vector2(0f, 0f);
-        rt.pivot = new Vector2(0f, 0f);
-        rt.anchoredPosition = new Vector2(20, 20);
-        rt.sizeDelta = new Vector2(100, 40);
+        var outline = btn.gameObject.AddComponent<Outline>();
+        outline.effectColor = UIColors.Button_Brown_Border;
+        outline.effectDistance = new Vector2(1, 1);
 
-        var textObj = MakeUI("Text", obj.transform);
-        toggleText = textObj.AddComponent<TextMeshProUGUI>();
-        toggleText.text = "UPGRADE";
-        toggleText.fontSize = 18;
-        toggleText.alignment = TextAlignmentOptions.Center;
-        toggleText.color = Color.white;
-        toggleText.fontStyle = FontStyles.Bold;
-        var trt = textObj.GetComponent<RectTransform>();
-        trt.anchorMin = Vector2.zero;
-        trt.anchorMax = Vector2.one;
-        trt.sizeDelta = Vector2.zero;
+        var rt = btn.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0, 0);
+        rt.anchorMax = new Vector2(0, 0);
+        rt.pivot = new Vector2(0, 0);
+        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
+        rt.sizeDelta = new Vector2(UIConstants.Button_MinWidth, UIConstants.Button_MinHeight);
     }
 
     void CreatePanel()
     {
-        panel = MakeUI("UpgradePanel", canvas.transform);
+        panel = UIHelper.MakeUI("UpgradePanel", canvas.transform);
         var panelImg = panel.AddComponent<Image>();
-        panelImg.color = new Color(0.05f, 0.05f, 0.1f, 0.9f);
+        panelImg.color = UIColors.Background_Panel;
+
+        var panelOutline = panel.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
 
         var prt = panel.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0f, 0f);
-        prt.anchorMax = new Vector2(1f, 0.35f);
-        prt.offsetMin = new Vector2(10, 70);
-        prt.offsetMax = new Vector2(-10, 0);
+        prt.anchorMin = new Vector2(0, 0);
+        prt.anchorMax = new Vector2(1, 0);
+        prt.pivot = new Vector2(0.5f, 0);
+        prt.anchoredPosition = new Vector2(0, UIConstants.NavBar_Height + UIConstants.Button_MinHeight + UIConstants.Spacing_Large);
+        prt.sizeDelta = new Vector2(-UIConstants.Spacing_XLarge, UIConstants.StatRow_Height * 4 + UIConstants.Spacing_Large * 2);
 
-        float y = -20f;
+        float y = -UIConstants.Spacing_Large;
         CreateUpgradeRow(panel.transform, "HP", ref hpText, ref hpBtn, y, () => UpgradeManager.Instance?.UpgradeHp());
-        y -= 60f;
+        y -= UIConstants.StatRow_Height;
         CreateUpgradeRow(panel.transform, "ATK", ref atkText, ref atkBtn, y, () => UpgradeManager.Instance?.UpgradeAtk());
-        y -= 60f;
+        y -= UIConstants.StatRow_Height;
         CreateUpgradeRow(panel.transform, "DEF", ref defText, ref defBtn, y, () => UpgradeManager.Instance?.UpgradeDef());
-        y -= 60f;
+        y -= UIConstants.StatRow_Height;
         CreateUpgradeRow(panel.transform, "SPD", ref spdText, ref spdBtn, y, () => UpgradeManager.Instance?.UpgradeSpeed());
 
         RefreshUI();
@@ -96,45 +94,66 @@ public class UpgradeUI : MonoBehaviour
 
     void CreateUpgradeRow(Transform parent, string label, ref TextMeshProUGUI infoText, ref Button btn, float yPos, UnityEngine.Events.UnityAction onClick)
     {
-        // Info text
-        var infoObj = MakeUI($"{label}Info", parent);
-        infoText = infoObj.AddComponent<TextMeshProUGUI>();
-        infoText.fontSize = 20;
-        infoText.alignment = TextAlignmentOptions.MidlineLeft;
-        infoText.color = Color.white;
-        var irt = infoObj.GetComponent<RectTransform>();
-        irt.anchorMin = new Vector2(0, 1);
-        irt.anchorMax = new Vector2(0.65f, 1);
-        irt.pivot = new Vector2(0, 1);
-        irt.anchoredPosition = new Vector2(20, yPos);
-        irt.sizeDelta = new Vector2(0, 50);
+        // Row background
+        var row = UIHelper.MakePanel($"{label}Row", parent, UIColors.Panel_Inner);
+        var rrt = row.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, 1);
+        rrt.anchorMax = new Vector2(1, 1);
+        rrt.pivot = new Vector2(0.5f, 1);
+        rrt.anchoredPosition = new Vector2(0, yPos);
+        rrt.sizeDelta = new Vector2(-UIConstants.Panel_Padding * 2, UIConstants.StatRow_Height - UIConstants.Spacing_Small);
 
-        // Button
-        var btnObj = MakeUI($"{label}Btn", parent);
-        var btnImg = btnObj.AddComponent<Image>();
-        btnImg.color = new Color(0.3f, 0.6f, 0.2f);
-        btn = btnObj.AddComponent<Button>();
-        btn.targetGraphic = btnImg;
+        // Divider at bottom
+        var divider = UIHelper.MakePanel("Divider", row.transform, UIColors.Panel_Border);
+        var drt = divider.GetComponent<RectTransform>();
+        drt.anchorMin = new Vector2(0, 0);
+        drt.anchorMax = new Vector2(1, 0);
+        drt.pivot = new Vector2(0.5f, 0);
+        drt.sizeDelta = new Vector2(0, 1);
+
+        // Stat label
+        var labelText = UIHelper.MakeText($"{label}Label", row.transform, label,
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+        var llrt = labelText.GetComponent<RectTransform>();
+        llrt.anchorMin = new Vector2(0, 0.6f);
+        llrt.anchorMax = new Vector2(0.15f, 1);
+        llrt.offsetMin = new Vector2(UIConstants.StatRow_Padding, 0);
+        llrt.offsetMax = Vector2.zero;
+
+        // Info text (level + bonus)
+        var infoObj = UIHelper.MakeUI($"{label}Info", row.transform);
+        infoText = infoObj.AddComponent<TextMeshProUGUI>();
+        infoText.fontSize = UIConstants.Font_StatValue;
+        infoText.alignment = TextAlignmentOptions.MidlineLeft;
+        infoText.color = UIColors.Text_Primary;
+        infoText.fontStyle = FontStyles.Bold;
+        var irt = infoObj.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0.15f, 0);
+        irt.anchorMax = new Vector2(0.65f, 0.65f);
+        irt.offsetMin = new Vector2(UIConstants.StatRow_Padding, UIConstants.Spacing_Small);
+        irt.offsetMax = Vector2.zero;
+
+        // Upgrade button (green)
+        var (upgradeBtn, upgImg) = UIHelper.MakeButton($"{label}Btn", row.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Cost);
+        btn = upgradeBtn;
         btn.onClick.AddListener(onClick);
 
-        var brt = btnObj.GetComponent<RectTransform>();
-        brt.anchorMin = new Vector2(0.7f, 1);
-        brt.anchorMax = new Vector2(0.95f, 1);
-        brt.pivot = new Vector2(0.5f, 1);
-        brt.anchoredPosition = new Vector2(0, yPos);
-        brt.sizeDelta = new Vector2(0, 45);
+        var ubOutline = btn.gameObject.AddComponent<Outline>();
+        ubOutline.effectColor = UIColors.Button_Green_Border;
+        ubOutline.effectDistance = new Vector2(1, 1);
 
-        var costObj = MakeUI("Cost", btnObj.transform);
-        var costText = costObj.AddComponent<TextMeshProUGUI>();
-        costText.text = "UP";
-        costText.fontSize = 18;
-        costText.alignment = TextAlignmentOptions.Center;
-        costText.color = Color.white;
+        var ubrt = btn.GetComponent<RectTransform>();
+        ubrt.anchorMin = new Vector2(0.7f, 0.1f);
+        ubrt.anchorMax = new Vector2(0.97f, 0.9f);
+        ubrt.offsetMin = Vector2.zero;
+        ubrt.offsetMax = Vector2.zero;
+
+        // Cost text inside button
+        var costText = UIHelper.MakeText("Cost", btn.transform, "UP",
+            UIConstants.Font_Cost, TextAlignmentOptions.Center, UIColors.Text_Gold);
         costText.fontStyle = FontStyles.Bold;
-        var crt = costObj.GetComponent<RectTransform>();
-        crt.anchorMin = Vector2.zero;
-        crt.anchorMax = Vector2.one;
-        crt.sizeDelta = Vector2.zero;
+        UIHelper.FillParent(costText.GetComponent<RectTransform>());
     }
 
     void TogglePanel()
@@ -149,10 +168,10 @@ public class UpgradeUI : MonoBehaviour
         var um = UpgradeManager.Instance;
         if (um == null) return;
 
-        hpText.text = $"HP  Lv.{um.HpLevel}  (+{um.GetHpBonus():F0})";
-        atkText.text = $"ATK  Lv.{um.AtkLevel}  (+{um.GetAtkBonus():F0})";
-        defText.text = $"DEF  Lv.{um.DefLevel}  (+{um.GetDefBonus():F1})";
-        spdText.text = $"SPD  Lv.{um.SpeedLevel}  (+{um.GetSpeedBonus():F1})";
+        hpText.text = $"Lv.{um.HpLevel}  +{um.GetHpBonus():F0}";
+        atkText.text = $"Lv.{um.AtkLevel}  +{um.GetAtkBonus():F0}";
+        defText.text = $"Lv.{um.DefLevel}  +{um.GetDefBonus():F1}";
+        spdText.text = $"Lv.{um.SpeedLevel}  +{um.GetSpeedBonus():F1}";
 
         SetBtnCost(hpBtn, um.GetCost(um.HpLevel));
         SetBtnCost(atkBtn, um.GetCost(um.AtkLevel));
@@ -167,16 +186,7 @@ public class UpgradeUI : MonoBehaviour
             text.text = $"{cost}G";
 
         bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
-        btn.GetComponent<Image>().color = canAfford
-            ? new Color(0.3f, 0.6f, 0.2f)
-            : new Color(0.4f, 0.4f, 0.4f);
-    }
-
-    GameObject MakeUI(string name, Transform parent)
-    {
-        var obj = new GameObject(name, typeof(RectTransform));
-        obj.transform.SetParent(parent, false);
-        return obj;
+        btn.GetComponent<Image>().color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
     void OnGoldChanged(int _) => RefreshUI();

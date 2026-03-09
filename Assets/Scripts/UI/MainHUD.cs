@@ -2,67 +2,79 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Battle Cats 스타일 메인 HUD (UI_SPEC.md 기반)
+/// 상단: HUD 바 (아바타/스테이지/코인/다이아)
+/// 하단: 네비게이션 바 (훈련/영웅/편성/소환/상점)
+/// 오버레이: 탭 패널, 패배 패널
+/// </summary>
 public class MainHUD : MonoBehaviour
 {
     public static MainHUD Instance { get; private set; }
 
     Canvas canvas;
+    GameObject safeAreaRoot;
 
-    // Top bar
-    TextMeshProUGUI playerNameText;
+    // HUD Bar
     TextMeshProUGUI goldText;
     TextMeshProUGUI gemText;
     TextMeshProUGUI stageText;
     TextMeshProUGUI powerText;
     Image progressBarFill;
     TextMeshProUGUI progressText;
+    Image avatarImg;
 
-    // Bottom tabs
-    GameObject tabPanel;
+    // Bottom Nav
     readonly string[] tabNames = { "훈련", "영웅", "편성", "소환", "상점" };
     readonly Button[] tabButtons = new Button[5];
+    readonly Image[] tabIndicators = new Image[5];
+    readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[5];
 
-    // Overlay panels (shown when tab is pressed)
+    // Tab overlay panels
     readonly GameObject[] tabPanels = new GameObject[5];
     int activeTab = -1;
 
-    // Defeat overlay
+    // Defeat
     GameObject defeatPanel;
-    Button retryButton;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
 
-        CreateCanvas();
-        CreateTopBar();
-        CreateStageBar();
-        CreateBottomTabBar();
-        CreateDefeatPanel();
-        CreateTabPanels();
+        BuildUI();
     }
 
     void Start()
     {
         if (GoldManager.Instance != null)
             GoldManager.Instance.OnGoldChanged += OnGoldChanged;
-
         if (StageManager.Instance != null)
             StageManager.Instance.OnStageChanged += OnStageChanged;
-
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged += OnBattleStateChanged;
 
         UpdateGold(GoldManager.Instance != null ? GoldManager.Instance.Gold : 0);
         UpdateGem(0);
         UpdatePower();
-
-        if (StageManager.Instance != null)
+        if (StageManager.Instance != null && stageText != null)
             stageText.text = StageManager.Instance.GetStageText();
     }
 
-    // ── Canvas ──
+    // ════════════════════════════════════════
+    // BUILD
+    // ════════════════════════════════════════
+
+    void BuildUI()
+    {
+        CreateCanvas();
+        CreateSafeAreaRoot();
+        CreateHUDBar();
+        CreateBottomNavBar();
+        CreateTabPanels();
+        CreateDefeatPanel();
+    }
+
     void CreateCanvas()
     {
         canvas = gameObject.AddComponent<Canvas>();
@@ -71,229 +83,239 @@ public class MainHUD : MonoBehaviour
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.matchWidthOrHeight = 0f;
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
 
         gameObject.AddComponent<GraphicRaycaster>();
     }
 
-    // ── Top Bar: Profile, Gold, Gem ──
-    void CreateTopBar()
+    void CreateSafeAreaRoot()
     {
-        // Background strip
-        var topBg = MakeUI("TopBar", canvas.transform);
-        var topImg = topBg.AddComponent<Image>();
-        topImg.color = new Color(0.08f, 0.06f, 0.12f, 0.85f);
-        SetAnchors(topBg, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1));
-        topBg.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 90);
-
-        // Profile circle placeholder
-        var profile = MakeUI("Profile", topBg.transform);
-        var profileImg = profile.AddComponent<Image>();
-        profileImg.color = new Color(0.3f, 0.3f, 0.35f);
-        var prt = profile.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0, 0.5f);
-        prt.anchorMax = new Vector2(0, 0.5f);
-        prt.pivot = new Vector2(0, 0.5f);
-        prt.anchoredPosition = new Vector2(15, 0);
-        prt.sizeDelta = new Vector2(65, 65);
-
-        // Player name
-        playerNameText = MakeText("PlayerName", topBg.transform, "Player", 22, TextAlignmentOptions.MidlineLeft);
-        var nrt = playerNameText.GetComponent<RectTransform>();
-        nrt.anchorMin = new Vector2(0, 0.5f);
-        nrt.anchorMax = new Vector2(0, 0.5f);
-        nrt.pivot = new Vector2(0, 0.5f);
-        nrt.anchoredPosition = new Vector2(90, 10);
-        nrt.sizeDelta = new Vector2(200, 30);
-
-        // Gold display
-        var goldBg = MakeUI("GoldBg", topBg.transform);
-        var goldBgImg = goldBg.AddComponent<Image>();
-        goldBgImg.color = new Color(0.15f, 0.12f, 0.08f, 0.8f);
-        var grt = goldBg.GetComponent<RectTransform>();
-        grt.anchorMin = new Vector2(0.45f, 0.5f);
-        grt.anchorMax = new Vector2(0.45f, 0.5f);
-        grt.pivot = new Vector2(0.5f, 0.5f);
-        grt.anchoredPosition = Vector2.zero;
-        grt.sizeDelta = new Vector2(180, 40);
-
-        goldText = MakeText("GoldText", goldBg.transform, "0", 22, TextAlignmentOptions.Center);
-        goldText.color = new Color(1f, 0.85f, 0.2f);
-        goldText.fontStyle = FontStyles.Bold;
-        FillParent(goldText.GetComponent<RectTransform>());
-
-        // Gem display
-        var gemBg = MakeUI("GemBg", topBg.transform);
-        var gemBgImg = gemBg.AddComponent<Image>();
-        gemBgImg.color = new Color(0.08f, 0.1f, 0.18f, 0.8f);
-        var ert = gemBg.GetComponent<RectTransform>();
-        ert.anchorMin = new Vector2(0.72f, 0.5f);
-        ert.anchorMax = new Vector2(0.72f, 0.5f);
-        ert.pivot = new Vector2(0.5f, 0.5f);
-        ert.anchoredPosition = Vector2.zero;
-        ert.sizeDelta = new Vector2(160, 40);
-
-        gemText = MakeText("GemText", gemBg.transform, "0", 22, TextAlignmentOptions.Center);
-        gemText.color = new Color(0.4f, 0.8f, 1f);
-        gemText.fontStyle = FontStyles.Bold;
-        FillParent(gemText.GetComponent<RectTransform>());
+        safeAreaRoot = UIHelper.MakeUI("SafeAreaRoot", canvas.transform);
+        safeAreaRoot.AddComponent<SafeAreaAdapter>();
+        UIHelper.FillParent(safeAreaRoot.GetComponent<RectTransform>());
     }
 
-    // ── Stage Bar: Power, Stage, Progress ──
-    void CreateStageBar()
+    // ── HUD Bar (상단) ──
+    void CreateHUDBar()
     {
-        var bar = MakeUI("StageBar", canvas.transform);
-        var barImg = bar.AddComponent<Image>();
-        barImg.color = new Color(0.06f, 0.05f, 0.1f, 0.75f);
-        SetAnchors(bar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 1));
-        bar.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -90);
-        bar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 50);
+        var hudBar = UIHelper.MakeUI("HUDBar", safeAreaRoot.transform);
+        var hudImg = hudBar.AddComponent<Image>();
+        hudImg.color = UIColors.Background_Dark;
+        UIHelper.SetAnchors(hudBar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1));
+        hudBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.HUD_Height);
 
-        // Power
-        powerText = MakeText("Power", bar.transform, "Power: 0", 18, TextAlignmentOptions.MidlineLeft);
-        powerText.color = new Color(0.9f, 0.7f, 0.3f);
-        var pwrt = powerText.GetComponent<RectTransform>();
-        pwrt.anchorMin = new Vector2(0, 0);
-        pwrt.anchorMax = new Vector2(0.25f, 1);
-        pwrt.offsetMin = new Vector2(15, 0);
-        pwrt.offsetMax = Vector2.zero;
+        // Avatar
+        var avatar = UIHelper.MakeUI("Avatar", hudBar.transform);
+        avatarImg = avatar.AddComponent<Image>();
+        avatarImg.color = UIColors.Panel_Inner;
+        var avOutline = avatar.AddComponent<Outline>();
+        avOutline.effectColor = UIColors.Panel_Border;
+        avOutline.effectDistance = new Vector2(UIConstants.HUD_AvatarBorder, UIConstants.HUD_AvatarBorder);
+        var art = avatar.GetComponent<RectTransform>();
+        art.anchorMin = new Vector2(0, 0.5f);
+        art.anchorMax = new Vector2(0, 0.5f);
+        art.pivot = new Vector2(0, 0.5f);
+        art.anchoredPosition = new Vector2(UIConstants.Spacing_Medium, 0);
+        art.sizeDelta = new Vector2(UIConstants.HUD_AvatarSize, UIConstants.HUD_AvatarSize);
 
-        // Stage text
-        stageText = MakeText("Stage", bar.transform, "1-1", 22, TextAlignmentOptions.Center);
-        stageText.color = Color.white;
+        // Stage text (center)
+        float stageX = UIConstants.Spacing_Medium + UIConstants.HUD_AvatarSize + UIConstants.Spacing_Medium;
+        stageText = UIHelper.MakeText("Stage", hudBar.transform, "1-1",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.MidlineLeft);
         stageText.fontStyle = FontStyles.Bold;
         var srt = stageText.GetComponent<RectTransform>();
-        srt.anchorMin = new Vector2(0.25f, 0);
-        srt.anchorMax = new Vector2(0.55f, 1);
-        srt.offsetMin = Vector2.zero;
+        srt.anchorMin = new Vector2(0, 0);
+        srt.anchorMax = new Vector2(0.35f, 0.55f);
+        srt.offsetMin = new Vector2(stageX, 0);
         srt.offsetMax = Vector2.zero;
 
-        // Progress bar bg
-        var progBg = MakeUI("ProgBg", bar.transform);
-        var progBgImg = progBg.AddComponent<Image>();
-        progBgImg.color = new Color(0.15f, 0.15f, 0.2f);
-        var pbrt = progBg.GetComponent<RectTransform>();
-        pbrt.anchorMin = new Vector2(0.58f, 0.25f);
-        pbrt.anchorMax = new Vector2(0.95f, 0.75f);
-        pbrt.offsetMin = Vector2.zero;
-        pbrt.offsetMax = Vector2.zero;
+        // Progress bar (under stage text)
+        var progBg = UIHelper.MakePanel("ProgBG", hudBar.transform, UIColors.ProgressBar_BG);
+        var prt = progBg.GetComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0, 0);
+        prt.anchorMax = new Vector2(0.35f, 0);
+        prt.pivot = new Vector2(0, 0);
+        prt.anchoredPosition = new Vector2(stageX, UIConstants.Spacing_Small + 2);
+        prt.sizeDelta = new Vector2(0, UIConstants.HUD_ProgressHeight);
+        // stretch width via anchors
+        prt.anchorMin = new Vector2(0, 0.08f);
+        prt.anchorMax = new Vector2(0.35f, 0.08f + UIConstants.HUD_ProgressHeight / UIConstants.HUD_Height);
+        prt.offsetMin = new Vector2(stageX, 0);
+        prt.offsetMax = Vector2.zero;
 
-        // Progress fill
-        var progFill = MakeUI("ProgFill", progBg.transform);
-        progressBarFill = progFill.AddComponent<Image>();
-        progressBarFill.color = new Color(0.3f, 0.8f, 0.3f);
-        var pfrt = progFill.GetComponent<RectTransform>();
+        var progFillObj = UIHelper.MakeUI("ProgFill", progBg.transform);
+        progressBarFill = progFillObj.AddComponent<Image>();
+        progressBarFill.color = UIColors.ProgressBar_Fill;
+        var pfrt = progFillObj.GetComponent<RectTransform>();
         pfrt.anchorMin = Vector2.zero;
-        pfrt.anchorMax = new Vector2(0, 1);
-        pfrt.pivot = new Vector2(0, 0.5f);
+        pfrt.anchorMax = new Vector2(0.1f, 1);
         pfrt.offsetMin = Vector2.zero;
         pfrt.offsetMax = Vector2.zero;
-        pfrt.sizeDelta = new Vector2(0, 0);
 
-        // Progress text overlay
-        progressText = MakeText("ProgText", progBg.transform, "0/10", 16, TextAlignmentOptions.Center);
-        FillParent(progressText.GetComponent<RectTransform>());
+        progressText = UIHelper.MakeText("ProgText", progBg.transform, "1/10",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center);
+        UIHelper.FillParent(progressText.GetComponent<RectTransform>());
+
+        // Power (left of coins)
+        powerText = UIHelper.MakeText("Power", hudBar.transform, "0",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineRight, UIColors.Text_Secondary);
+        var pwrt = powerText.GetComponent<RectTransform>();
+        pwrt.anchorMin = new Vector2(0.36f, 0);
+        pwrt.anchorMax = new Vector2(0.50f, 1);
+        pwrt.offsetMin = Vector2.zero;
+        pwrt.offsetMax = Vector2.zero;
+
+        // Gold
+        var goldBg = UIHelper.MakePanel("GoldBG", hudBar.transform, UIColors.Panel_Inner);
+        var grt = goldBg.GetComponent<RectTransform>();
+        grt.anchorMin = new Vector2(0.52f, 0.15f);
+        grt.anchorMax = new Vector2(0.74f, 0.85f);
+        grt.offsetMin = Vector2.zero;
+        grt.offsetMax = Vector2.zero;
+
+        goldText = UIHelper.MakeText("GoldText", goldBg.transform, "0",
+            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        goldText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(goldText.GetComponent<RectTransform>());
+
+        // Gem
+        var gemBg = UIHelper.MakePanel("GemBG", hudBar.transform, UIColors.Panel_Inner);
+        var ert = gemBg.GetComponent<RectTransform>();
+        ert.anchorMin = new Vector2(0.76f, 0.15f);
+        ert.anchorMax = new Vector2(0.98f, 0.85f);
+        ert.offsetMin = Vector2.zero;
+        ert.offsetMax = Vector2.zero;
+
+        gemText = UIHelper.MakeText("GemText", gemBg.transform, "0",
+            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, UIColors.Text_Diamond);
+        gemText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(gemText.GetComponent<RectTransform>());
     }
 
-    // ── Bottom Tab Bar ──
-    void CreateBottomTabBar()
+    // ── Bottom Nav Bar (하단) ──
+    void CreateBottomNavBar()
     {
-        tabPanel = MakeUI("TabBar", canvas.transform);
-        var tabImg = tabPanel.AddComponent<Image>();
-        tabImg.color = new Color(0.08f, 0.06f, 0.12f, 0.92f);
-        SetAnchors(tabPanel, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0));
-        tabPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 120);
+        var navBar = UIHelper.MakeUI("NavBar", safeAreaRoot.transform);
+        var navImg = navBar.AddComponent<Image>();
+        navImg.color = UIColors.Background_Dark;
+        UIHelper.SetAnchors(navBar, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0));
+        navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.NavBar_Height);
+
+        // Top border line
+        var borderLine = UIHelper.MakePanel("Border", navBar.transform, UIColors.Panel_Border);
+        var brt = borderLine.GetComponent<RectTransform>();
+        brt.anchorMin = new Vector2(0, 1);
+        brt.anchorMax = new Vector2(1, 1);
+        brt.pivot = new Vector2(0.5f, 1);
+        brt.sizeDelta = new Vector2(0, UIConstants.NavBar_BorderTop);
 
         for (int i = 0; i < 5; i++)
         {
             int idx = i;
-            var btn = MakeUI($"Tab_{tabNames[i]}", tabPanel.transform);
-            var btnImg = btn.AddComponent<Image>();
-            btnImg.color = new Color(0.15f, 0.12f, 0.2f, 0.9f);
-            tabButtons[i] = btn.AddComponent<Button>();
-            tabButtons[i].targetGraphic = btnImg;
-            tabButtons[i].onClick.AddListener(() => OnTabClicked(idx));
-
-            var brt = btn.GetComponent<RectTransform>();
             float xMin = i * 0.2f;
             float xMax = (i + 1) * 0.2f;
-            brt.anchorMin = new Vector2(xMin + 0.005f, 0.05f);
-            brt.anchorMax = new Vector2(xMax - 0.005f, 0.95f);
-            brt.offsetMin = Vector2.zero;
-            brt.offsetMax = Vector2.zero;
 
-            // Icon placeholder (circle)
-            var icon = MakeUI("Icon", btn.transform);
-            var iconImg = icon.AddComponent<Image>();
-            iconImg.color = new Color(0.4f, 0.35f, 0.5f);
-            var irt = icon.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0.5f, 0.55f);
-            irt.anchorMax = new Vector2(0.5f, 0.55f);
-            irt.pivot = new Vector2(0.5f, 0.5f);
-            irt.sizeDelta = new Vector2(50, 50);
+            var tabObj = UIHelper.MakeUI($"Tab_{tabNames[i]}", navBar.transform);
+            var tabImg = tabObj.AddComponent<Image>();
+            tabImg.color = UIColors.Tab_Inactive;
+            tabButtons[i] = tabObj.AddComponent<Button>();
+            tabButtons[i].targetGraphic = tabImg;
+            tabButtons[i].onClick.AddListener(() => OnTabClicked(idx));
+
+            var trt = tabObj.GetComponent<RectTransform>();
+            trt.anchorMin = new Vector2(xMin, 0);
+            trt.anchorMax = new Vector2(xMax, 1);
+            trt.offsetMin = new Vector2(1, 0);
+            trt.offsetMax = new Vector2(-1, -UIConstants.NavBar_BorderTop);
+
+            // Active indicator (top line)
+            var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Button_Yellow);
+            var irt = indicator.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0.1f, 1);
+            irt.anchorMax = new Vector2(0.9f, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.sizeDelta = new Vector2(0, 2);
+            indicator.gameObject.SetActive(false);
+            tabIndicators[i] = indicator;
+
+            // Icon placeholder
+            var icon = UIHelper.MakePanel("Icon", tabObj.transform, UIColors.Panel_Border);
+            var icrt = icon.GetComponent<RectTransform>();
+            icrt.anchorMin = new Vector2(0.5f, 0.5f);
+            icrt.anchorMax = new Vector2(0.5f, 0.5f);
+            icrt.pivot = new Vector2(0.5f, 0.4f);
+            icrt.sizeDelta = new Vector2(UIConstants.NavBar_IconSize, UIConstants.NavBar_IconSize);
 
             // Label
-            var label = MakeText("Label", btn.transform, tabNames[i], 18, TextAlignmentOptions.Center);
-            label.color = new Color(0.7f, 0.7f, 0.8f);
-            var lrt = label.GetComponent<RectTransform>();
+            tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
+                UIConstants.Font_NavLabel, TextAlignmentOptions.Bottom, UIColors.Text_Disabled);
+            var lrt = tabLabels[i].GetComponent<RectTransform>();
             lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.35f);
+            lrt.anchorMax = new Vector2(1, 0.3f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
         }
     }
 
-    // ── Tab Overlay Panels (empty for now) ──
+    // ── Tab Overlay Panels ──
     void CreateTabPanels()
     {
         for (int i = 0; i < 5; i++)
         {
-            var panel = MakeUI($"Panel_{tabNames[i]}", canvas.transform);
+            var panel = UIHelper.MakeUI($"Panel_{tabNames[i]}", safeAreaRoot.transform);
             var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0.05f, 0.04f, 0.08f, 0.95f);
+            panelImg.color = UIColors.Background_Panel;
 
+            // Panel position: above nav bar, below HUD
             var prt = panel.GetComponent<RectTransform>();
-            prt.anchorMin = new Vector2(0, 0.07f);  // above tab bar
-            prt.anchorMax = new Vector2(1, 0.85f);   // below top bars
+            float refH = UIConstants.ReferenceResolution.y;
+            float navRatio = UIConstants.NavBar_Height / refH;
+            float hudRatio = UIConstants.HUD_Height / refH;
+            prt.anchorMin = new Vector2(0, navRatio);
+            prt.anchorMax = new Vector2(1, 1f - hudRatio);
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
+            // Border
+            var panelOutline = panel.AddComponent<Outline>();
+            panelOutline.effectColor = UIColors.Panel_Border;
+            panelOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
+
+            // Header bar
+            var header = UIHelper.MakePanel("Header", panel.transform, UIColors.Background_Dark);
+            var hrt = header.GetComponent<RectTransform>();
+            hrt.anchorMin = new Vector2(0, 1);
+            hrt.anchorMax = new Vector2(1, 1);
+            hrt.pivot = new Vector2(0.5f, 1);
+            hrt.sizeDelta = new Vector2(0, UIConstants.Tab_Height);
+
             // Title
-            var title = MakeText("Title", panel.transform, tabNames[i], 32, TextAlignmentOptions.Center);
+            var title = UIHelper.MakeText("Title", header.transform, tabNames[i],
+                UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center);
             title.fontStyle = FontStyles.Bold;
-            var trt = title.GetComponent<RectTransform>();
-            trt.anchorMin = new Vector2(0, 0.9f);
-            trt.anchorMax = new Vector2(1, 1);
-            trt.offsetMin = Vector2.zero;
-            trt.offsetMax = Vector2.zero;
+            UIHelper.FillParent(title.GetComponent<RectTransform>());
 
             // Close button
-            var closeBtn = MakeUI("Close", panel.transform);
-            var closeImg = closeBtn.AddComponent<Image>();
-            closeImg.color = new Color(0.6f, 0.2f, 0.2f);
-            var cb = closeBtn.AddComponent<Button>();
-            cb.targetGraphic = closeImg;
-            cb.onClick.AddListener(ClosePanel);
+            var (closeBtn, closeImg) = UIHelper.MakeButton("CloseBtn", header.transform,
+                UIColors.Button_Brown, "X", UIConstants.Font_Button);
+            closeImg.color = UIColors.Button_Brown;
+            closeBtn.onClick.AddListener(ClosePanel);
             var crt = closeBtn.GetComponent<RectTransform>();
-            crt.anchorMin = new Vector2(1, 1);
-            crt.anchorMax = new Vector2(1, 1);
-            crt.pivot = new Vector2(1, 1);
-            crt.anchoredPosition = new Vector2(-10, -10);
-            crt.sizeDelta = new Vector2(50, 50);
+            crt.anchorMin = new Vector2(1, 0.5f);
+            crt.anchorMax = new Vector2(1, 0.5f);
+            crt.pivot = new Vector2(1, 0.5f);
+            crt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, 0);
+            crt.sizeDelta = new Vector2(UIConstants.MinTouchTarget, UIConstants.Tab_Height - UIConstants.Spacing_Small);
 
-            var xText = MakeText("X", closeBtn.transform, "X", 24, TextAlignmentOptions.Center);
-            xText.fontStyle = FontStyles.Bold;
-            FillParent(xText.GetComponent<RectTransform>());
-
-            // "Coming Soon" placeholder
-            var soon = MakeText("Soon", panel.transform, "준비 중...", 24, TextAlignmentOptions.Center);
-            soon.color = new Color(0.5f, 0.5f, 0.6f);
-            var soort = soon.GetComponent<RectTransform>();
-            soort.anchorMin = new Vector2(0, 0.4f);
-            soort.anchorMax = new Vector2(1, 0.6f);
-            soort.offsetMin = Vector2.zero;
-            soort.offsetMax = Vector2.zero;
+            // Placeholder content
+            var content = UIHelper.MakeText("Content", panel.transform, "준비 중...",
+                UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+            var contrt = content.GetComponent<RectTransform>();
+            contrt.anchorMin = new Vector2(0, 0.4f);
+            contrt.anchorMax = new Vector2(1, 0.6f);
+            contrt.offsetMin = Vector2.zero;
+            contrt.offsetMax = Vector2.zero;
 
             tabPanels[i] = panel;
             panel.SetActive(false);
@@ -303,46 +325,59 @@ public class MainHUD : MonoBehaviour
     // ── Defeat Panel ──
     void CreateDefeatPanel()
     {
-        defeatPanel = MakeUI("DefeatPanel", canvas.transform);
+        defeatPanel = UIHelper.MakeUI("DefeatPanel", canvas.transform);
         var overlay = defeatPanel.AddComponent<Image>();
-        overlay.color = new Color(0, 0, 0, 0.7f);
-        FillParent(defeatPanel.GetComponent<RectTransform>());
+        overlay.color = UIColors.Overlay_Dark;
+        UIHelper.FillParent(defeatPanel.GetComponent<RectTransform>());
 
-        var title = MakeText("DefeatText", defeatPanel.transform, "DEFEAT", 72, TextAlignmentOptions.Center);
-        title.color = new Color(0.8f, 0.2f, 0.2f);
+        // Center container
+        var container = UIHelper.MakePanel("Container", defeatPanel.transform, UIColors.Panel_Inner);
+        var containerOutline = container.gameObject.AddComponent<Outline>();
+        containerOutline.effectColor = UIColors.Panel_Border;
+        containerOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
+        var conrt = container.GetComponent<RectTransform>();
+        conrt.anchorMin = new Vector2(0.5f, 0.5f);
+        conrt.anchorMax = new Vector2(0.5f, 0.5f);
+        conrt.sizeDelta = new Vector2(280, 180);
+
+        // DEFEAT text
+        var title = UIHelper.MakeText("Title", container.transform, "DEFEAT",
+            UIConstants.Font_HeaderLarge * 1.5f, TextAlignmentOptions.Center, UIColors.Defeat_Red);
         title.fontStyle = FontStyles.Bold;
         var trt = title.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0.5f, 0.55f);
-        trt.anchorMax = new Vector2(0.5f, 0.55f);
-        trt.sizeDelta = new Vector2(600, 100);
+        trt.anchorMin = new Vector2(0, 0.55f);
+        trt.anchorMax = new Vector2(1, 0.95f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
 
-        var btnObj = MakeUI("RetryBtn", defeatPanel.transform);
-        var btnImg = btnObj.AddComponent<Image>();
-        btnImg.color = new Color(0.3f, 0.5f, 0.8f);
-        retryButton = btnObj.AddComponent<Button>();
-        retryButton.targetGraphic = btnImg;
-        retryButton.onClick.AddListener(() =>
+        // Retry button (Yellow CTA)
+        var (retryBtn, retryImg) = UIHelper.MakeButton("RetryBtn", container.transform,
+            UIColors.Button_Yellow, "RETRY", UIConstants.Font_Button);
+        retryBtn.onClick.AddListener(() =>
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex));
+        // Make retry button text dark for readability on yellow
+        var retryLabel = retryBtn.GetComponentInChildren<TextMeshProUGUI>();
+        if (retryLabel != null) retryLabel.color = UIColors.Text_TabActive;
 
-        var brt = btnObj.GetComponent<RectTransform>();
-        brt.anchorMin = new Vector2(0.5f, 0.4f);
-        brt.anchorMax = new Vector2(0.5f, 0.4f);
-        brt.sizeDelta = new Vector2(250, 70);
-
-        var btnText = MakeText("BtnText", btnObj.transform, "RETRY", 30, TextAlignmentOptions.Center);
-        btnText.fontStyle = FontStyles.Bold;
-        FillParent(btnText.GetComponent<RectTransform>());
+        var rbrt = retryBtn.GetComponent<RectTransform>();
+        rbrt.anchorMin = new Vector2(0.5f, 0.05f);
+        rbrt.anchorMax = new Vector2(0.5f, 0.05f);
+        rbrt.pivot = new Vector2(0.5f, 0);
+        rbrt.sizeDelta = new Vector2(UIConstants.Button_CTAWidth, UIConstants.Button_CTAHeight);
 
         defeatPanel.SetActive(false);
     }
 
-    // ── Events ──
+    // ════════════════════════════════════════
+    // EVENTS
+    // ════════════════════════════════════════
+
     void OnGoldChanged(int gold) => UpdateGold(gold);
 
     void OnStageChanged(int area, int stage, int wave)
     {
-        if (StageManager.Instance != null)
+        if (StageManager.Instance != null && stageText != null)
             stageText.text = StageManager.Instance.GetStageText();
         UpdateProgress(wave);
         UpdatePower();
@@ -361,11 +396,10 @@ public class MainHUD : MonoBehaviour
             ClosePanel();
             return;
         }
-
         ClosePanel();
         activeTab = idx;
         tabPanels[idx].SetActive(true);
-        HighlightTab(idx);
+        UpdateTabVisuals();
     }
 
     void ClosePanel()
@@ -373,23 +407,34 @@ public class MainHUD : MonoBehaviour
         if (activeTab >= 0)
             tabPanels[activeTab].SetActive(false);
         activeTab = -1;
-        HighlightTab(-1);
+        UpdateTabVisuals();
     }
 
-    void HighlightTab(int idx)
+    void UpdateTabVisuals()
     {
         for (int i = 0; i < 5; i++)
         {
-            var img = tabButtons[i].GetComponent<Image>();
-            img.color = (i == idx)
-                ? new Color(0.3f, 0.25f, 0.45f, 0.95f)
-                : new Color(0.15f, 0.12f, 0.2f, 0.9f);
+            bool active = (i == activeTab);
+            tabButtons[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            tabLabels[i].color = active ? UIColors.Text_Secondary : UIColors.Text_Disabled;
+            tabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
+            tabIndicators[i].gameObject.SetActive(active);
         }
     }
 
-    // ── Updates ──
-    void UpdateGold(int gold) { if (goldText != null) goldText.text = FormatNumber(gold); }
-    void UpdateGem(int gem) { if (gemText != null) gemText.text = FormatNumber(gem); }
+    // ════════════════════════════════════════
+    // UPDATES
+    // ════════════════════════════════════════
+
+    void UpdateGold(int gold)
+    {
+        if (goldText != null) goldText.text = UIHelper.FormatNumber(gold);
+    }
+
+    void UpdateGem(int gem)
+    {
+        if (gemText != null) gemText.text = UIHelper.FormatNumber(gem);
+    }
 
     void UpdateProgress(int wave)
     {
@@ -414,50 +459,7 @@ public class MainHUD : MonoBehaviour
                 if (allies[i] != null && !allies[i].IsDead)
                     totalAtk += allies[i].atk;
         }
-        powerText.text = $"Power {FormatNumber(Mathf.RoundToInt(totalAtk))}";
-    }
-
-    static string FormatNumber(int n)
-    {
-        if (n >= 1000000) return (n / 1000000f).ToString("F1") + "M";
-        if (n >= 1000) return (n / 1000f).ToString("F1") + "K";
-        return n.ToString();
-    }
-
-    // ── Helpers ──
-    GameObject MakeUI(string name, Transform parent)
-    {
-        var obj = new GameObject(name, typeof(RectTransform));
-        obj.transform.SetParent(parent, false);
-        return obj;
-    }
-
-    TextMeshProUGUI MakeText(string name, Transform parent, string text, float size, TextAlignmentOptions align)
-    {
-        var obj = MakeUI(name, parent);
-        var tmp = obj.AddComponent<TextMeshProUGUI>();
-        tmp.text = text;
-        tmp.fontSize = size;
-        tmp.alignment = align;
-        tmp.color = Color.white;
-        return tmp;
-    }
-
-    void SetAnchors(GameObject obj, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot)
-    {
-        var rt = obj.GetComponent<RectTransform>();
-        rt.anchorMin = anchorMin;
-        rt.anchorMax = anchorMax;
-        rt.pivot = pivot;
-        rt.anchoredPosition = Vector2.zero;
-    }
-
-    void FillParent(RectTransform rt)
-    {
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        powerText.text = UIHelper.FormatNumber(Mathf.RoundToInt(totalAtk));
     }
 
     void OnDestroy()
