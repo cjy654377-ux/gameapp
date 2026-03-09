@@ -45,10 +45,12 @@ public class StageManager : MonoBehaviour
 
     public event System.Action<int, int, int> OnStageChanged;
     public event System.Action<int> OnAreaChanged;
+    public event System.Action<int> OnStageCleared;
 
     float waveTimer;
     bool waitingForNextWave;
     bool isTransitioning;
+    Camera cachedMainCamera;
 
     void Awake()
     {
@@ -117,7 +119,10 @@ public class StageManager : MonoBehaviour
         // 스테이지가 바뀌면 페이드 전환 (1-1의 3웨이브 끝 → 1-2로)
         bool stageChanged = (CurrentStage != prevStage) || (CurrentArea != prevArea);
         if (stageChanged)
+        {
+            OnStageCleared?.Invoke(TotalWaveIndex - 1);
             DoStageTransition();
+        }
         else
             SpawnNextWave();
     }
@@ -173,8 +178,7 @@ public class StageManager : MonoBehaviour
             float yOffset = (i - (manager.allyUnits.Count - 1) * 0.5f) * spacing;
             unit.transform.position = new Vector3(startX, yOffset, 0);
 
-            if (UpgradeManager.Instance != null)
-                UpgradeManager.Instance.ApplyToUnit(unit);
+            UpgradeManager.ApplyAllBonuses(unit);
         }
 
         // 카메라 리셋
@@ -283,16 +287,24 @@ public class StageManager : MonoBehaviour
         manager.enemyUnits.Add(unit);
     }
 
+    Camera GetMainCamera()
+    {
+        if (cachedMainCamera == null)
+            cachedMainCamera = Camera.main;
+        return cachedMainCamera;
+    }
+
     float GetSpawnX()
     {
-        var cam = Camera.main;
+        var cam = GetMainCamera();
         if (cam == null) return 8f;
         return cam.transform.position.x + cam.orthographicSize * cam.aspect + 4f;
     }
 
     float GetBattleZoneHeight()
     {
-        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 10f;
+        var cam = GetMainCamera();
+        float camH = cam != null ? cam.orthographicSize * 2f : 10f;
         return camH * 0.6f;
     }
 

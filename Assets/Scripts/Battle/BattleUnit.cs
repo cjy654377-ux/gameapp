@@ -57,6 +57,9 @@ public class BattleUnit : MonoBehaviour
     private Transform spriteRoot;
     private AttackAnimType attackAnimType;
     private StatusEffectController statusEffects;
+    private float retargetTimer;
+
+    public StatusEffectController StatusEffects => statusEffects;
 
     // Temp buff tracking (public read for UpgradeManager compatibility)
     [HideInInspector] public float buffAtk;
@@ -150,7 +153,12 @@ public class BattleUnit : MonoBehaviour
 
         if (target == null || target.IsDead)
         {
-            target = BattleManager.Instance.FindNearestEnemy(this);
+            retargetTimer -= Time.deltaTime;
+            if (retargetTimer <= 0f)
+            {
+                target = BattleManager.Instance.FindNearestEnemy(this);
+                retargetTimer = 0.2f;
+            }
             if (target == null)
             {
                 if (CurrentTeam == Team.Ally)
@@ -158,7 +166,7 @@ public class BattleUnit : MonoBehaviour
                     SetState(UnitState.Moving);
                     transform.position += Vector3.right * advanceSpeed * Time.deltaTime;
                     if (spriteRoot != null)
-                        spriteRoot.localScale = new Vector3(-1, 1, 1);
+                        spriteRoot.localScale = new Vector3(1, 1, 1);
                 }
                 else
                 {
@@ -327,6 +335,11 @@ public class BattleUnit : MonoBehaviour
 
         DamagePopup.Create(transform.position + Vector3.up * 0.5f, damage);
 
+        if (EffectManager.Instance != null)
+            EffectManager.Instance.SpawnHitEffect(transform.position);
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayHitSFX();
+
         if (animator != null)
             animator.SetTrigger("3_Damaged");
 
@@ -375,6 +388,8 @@ public class BattleUnit : MonoBehaviour
         CurrentHp = Mathf.Min(maxHp, CurrentHp + amount);
         OnHpChanged?.Invoke(CurrentHp, maxHp);
         DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount, true);
+        if (EffectManager.Instance != null)
+            EffectManager.Instance.SpawnHealEffect(transform.position + Vector3.up * 0.5f);
     }
 
     public void ApplyBuff(float atkBonus, float defBonus, float duration)
@@ -424,6 +439,8 @@ public class BattleUnit : MonoBehaviour
     /// </summary>
     public void Revive()
     {
+        CancelInvoke(nameof(DisableUnit));
+        gameObject.SetActive(true);
         CurrentHp = maxHp;
         CurrentState = UnitState.Idle;
         target = null;

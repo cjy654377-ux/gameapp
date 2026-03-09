@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 /// <summary>
 /// Battle Cats 스타일 메인 HUD (UI_SPEC.md 기반)
@@ -47,6 +48,10 @@ public class MainHUD : MonoBehaviour
     readonly GameObject[] tabPanels = new GameObject[5];
     int activeTab = -1;
 
+    // 훈련 탭 업그레이드 UI
+    TextMeshProUGUI tapUpText;
+    Button tapUpBtn;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -59,13 +64,15 @@ public class MainHUD : MonoBehaviour
     {
         if (GoldManager.Instance != null)
             GoldManager.Instance.OnGoldChanged += UpdateGold;
+        if (GemManager.Instance != null)
+            GemManager.Instance.OnGemChanged += UpdateGem;
         if (StageManager.Instance != null)
             StageManager.Instance.OnStageChanged += OnStageChanged;
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged += OnBattleStateChanged;
 
         UpdateGold(GoldManager.Instance != null ? GoldManager.Instance.Gold : 0);
-        UpdateGem(0);
+        UpdateGem(GemManager.Instance != null ? GemManager.Instance.Gem : 0);
         if (StageManager.Instance != null)
         {
             if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
@@ -356,7 +363,6 @@ public class MainHUD : MonoBehaviour
     {
         float refH = UIConstants.ReferenceResolution.y;
         float navRatio = UIConstants.NavBar_Height / refH;
-        float hudRatio = UIConstants.HUD_Height / refH;
 
         for (int i = 0; i < 5; i++)
         {
@@ -365,17 +371,9 @@ public class MainHUD : MonoBehaviour
             panelImg.color = UIColors.Background_Panel;
 
             var prt = panel.GetComponent<RectTransform>();
-            // 편성 탭은 하단 절반만, 나머지는 전체
-            if (i == 2)
-            {
-                prt.anchorMin = new Vector2(0, navRatio);
-                prt.anchorMax = new Vector2(1, 0.55f);
-            }
-            else
-            {
-                prt.anchorMin = new Vector2(0, navRatio);
-                prt.anchorMax = new Vector2(1, 1f - hudRatio);
-            }
+            // 모든 탭 하단 절반만 사용
+            prt.anchorMin = new Vector2(0, navRatio);
+            prt.anchorMax = new Vector2(1, 0.55f);
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
@@ -414,12 +412,18 @@ public class MainHUD : MonoBehaviour
             crt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, 0);
             crt.sizeDelta = new Vector2(UIConstants.MinTouchTarget, UIConstants.Tab_Height - UIConstants.Spacing_Small);
 
-            // 편성 탭(index 2)에는 DeckUI 연결
-            if (i == 2)
+            // 탭별 콘텐츠
+            if (i == 0)
+                BuildUpgradeContent(panel.transform);
+            else if (i == 1)
+                BuildHeroContent(panel.transform);
+            else if (i == 2)
             {
                 var deckUI = panel.AddComponent<DeckUI>();
                 deckUI.Init(panel.transform);
             }
+            else if (i == 3)
+                BuildGachaContent(panel.transform);
             else
             {
                 var content = UIHelper.MakeText("Content", panel.transform, "준비 중...",
@@ -434,6 +438,94 @@ public class MainHUD : MonoBehaviour
             tabPanels[i] = panel;
             panel.SetActive(false);
         }
+    }
+
+    // ── 훈련 탭 콘텐츠 ──
+    void BuildUpgradeContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("UpgradeContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0);
+        contentRT.anchorMax = new Vector2(1, 1);
+        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
+
+        float rowH = 1f; // 1행만
+        BuildUpgradeRow(content.transform, "번개", 0, rowH,
+            ref tapUpText, ref tapUpBtn, () => { TapDamageSystem.Instance?.UpgradeTapDamage(); RefreshUpgradeUI(); });
+    }
+
+    void BuildUpgradeRow(Transform parent, string label, int index, float rowH,
+        ref TextMeshProUGUI infoText, ref Button btn, UnityEngine.Events.UnityAction onClick)
+    {
+        float yMax = 1f - index * rowH;
+        float yMin = yMax - rowH;
+
+        var row = UIHelper.MakePanel($"{label}Row", parent, UIColors.Panel_Inner);
+        var rrt = row.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, yMin);
+        rrt.anchorMax = new Vector2(1, yMax);
+        rrt.offsetMin = new Vector2(0, 1);
+        rrt.offsetMax = new Vector2(0, -1);
+
+        // Label
+        var labelText = UIHelper.MakeText($"{label}Label", row.transform, label,
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+        labelText.fontStyle = FontStyles.Bold;
+        var llrt = labelText.GetComponent<RectTransform>();
+        llrt.anchorMin = new Vector2(0, 0);
+        llrt.anchorMax = new Vector2(0.18f, 1);
+        llrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        llrt.offsetMax = Vector2.zero;
+
+        // Info
+        infoText = UIHelper.MakeText($"{label}Info", row.transform, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+        infoText.fontStyle = FontStyles.Bold;
+        var irt = infoText.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0.18f, 0);
+        irt.anchorMax = new Vector2(0.65f, 1);
+        irt.offsetMin = new Vector2(UIConstants.Spacing_Small, 0);
+        irt.offsetMax = Vector2.zero;
+
+        // Button
+        var (upgradeBtn, _) = UIHelper.MakeButton($"{label}Btn", row.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Cost);
+        btn = upgradeBtn;
+        btn.onClick.AddListener(onClick);
+
+        var ubOutline = btn.gameObject.AddComponent<Outline>();
+        ubOutline.effectColor = UIColors.Button_Green_Border;
+        ubOutline.effectDistance = new Vector2(1, 1);
+
+        var ubrt = btn.GetComponent<RectTransform>();
+        ubrt.anchorMin = new Vector2(0.68f, 0.1f);
+        ubrt.anchorMax = new Vector2(0.97f, 0.9f);
+        ubrt.offsetMin = Vector2.zero;
+        ubrt.offsetMax = Vector2.zero;
+
+        var costText = UIHelper.MakeText("Cost", btn.transform, "",
+            UIConstants.Font_Cost, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        costText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(costText.GetComponent<RectTransform>());
+    }
+
+    void RefreshUpgradeUI()
+    {
+        var tap = TapDamageSystem.Instance;
+        if (tap != null && tapUpText != null)
+            tapUpText.text = $"Lv.{tap.tapDamageLevel}  DMG:{tap.TapDamage:F0}";
+        if (tap != null)
+            SetUpgradeBtnCost(tapUpBtn, tap.UpgradeCost);
+    }
+
+    void SetUpgradeBtnCost(Button btn, int cost)
+    {
+        if (btn == null) return;
+        var text = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (text != null) text.text = $"{cost}G";
+        bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
+        btn.GetComponent<Image>().color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
     // ════════════════════════════════════════
@@ -468,6 +560,9 @@ public class MainHUD : MonoBehaviour
         activeTab = idx;
         tabPanels[idx].SetActive(true);
         UpdateTabVisuals();
+        if (idx == 0) RefreshUpgradeUI();
+        if (idx == 1) RefreshHeroUI();
+        if (idx == 3) RefreshGachaUI();
     }
 
     void ClosePanel()
@@ -498,6 +593,7 @@ public class MainHUD : MonoBehaviour
     void UpdateGold(int gold)
     {
         if (goldText != null) goldText.text = UIHelper.FormatNumber(gold);
+        if (activeTab == 0) RefreshUpgradeUI();
     }
 
     void UpdateGem(int gem)
@@ -546,9 +642,286 @@ public class MainHUD : MonoBehaviour
     {
         if (GoldManager.Instance != null)
             GoldManager.Instance.OnGoldChanged -= UpdateGold;
+        if (GemManager.Instance != null)
+            GemManager.Instance.OnGemChanged -= UpdateGem;
         if (StageManager.Instance != null)
             StageManager.Instance.OnStageChanged -= OnStageChanged;
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged -= OnBattleStateChanged;
+    }
+
+    // ════════════════════════════════════════
+    // 영웅 탭 (index 1) - 영웅 강화
+    // ════════════════════════════════════════
+
+    GameObject heroListContainer;
+    readonly List<GameObject> heroListItems = new();
+
+    void BuildHeroContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("HeroContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0);
+        contentRT.anchorMax = new Vector2(1, 1);
+        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
+
+        // 스크롤
+        var scrollObj = UIHelper.MakeUI("HeroScroll", content.transform);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = Vector2.zero;
+        scrollRT.anchorMax = Vector2.one;
+        scrollRT.offsetMin = Vector2.zero;
+        scrollRT.offsetMax = Vector2.zero;
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<Image>().color = Color.clear;
+        viewport.AddComponent<Mask>().showMaskGraphic = false;
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        heroListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = heroListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+    }
+
+    void RefreshHeroUI()
+    {
+        if (heroListContainer == null) return;
+        var dm = DeckManager.Instance;
+        var hlm = HeroLevelManager.Instance;
+        if (dm == null) return;
+
+        // Clear
+        for (int i = 0; i < heroListItems.Count; i++)
+            if (heroListItems[i] != null) Object.Destroy(heroListItems[i]);
+        heroListItems.Clear();
+
+        float itemH = 50f;
+        float spacing = 3f;
+        float y = 0;
+
+        for (int i = 0; i < dm.roster.Count; i++)
+        {
+            var preset = dm.roster[i];
+            if (preset == null || preset.isEnemy) continue;
+            string heroName = preset.characterName;
+
+            var itemImg = UIHelper.MakePanel($"Hero_{heroName}", heroListContainer.transform, UIColors.Panel_Inner);
+            var item = itemImg.gameObject;
+            heroListItems.Add(item);
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            int level = hlm != null ? hlm.GetLevel(heroName) : 1;
+            int copies = hlm != null ? hlm.GetCopies(heroName) : 0;
+            int needed = hlm != null ? hlm.GetCopiesNeeded(level) : 1;
+
+            // Name + Level
+            var nameText = UIHelper.MakeText("Name", item.transform, $"{heroName}",
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0.5f);
+            nrt.anchorMax = new Vector2(0.3f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // Level badge
+            var lvText = UIHelper.MakeText("Lv", item.transform, $"Lv.{level}",
+                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
+            lvText.fontStyle = FontStyles.Bold;
+            var lvrt = lvText.GetComponent<RectTransform>();
+            lvrt.anchorMin = new Vector2(0, 0);
+            lvrt.anchorMax = new Vector2(0.3f, 0.5f);
+            lvrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            lvrt.offsetMax = Vector2.zero;
+
+            // Copies info
+            var copyText = UIHelper.MakeText("Copies", item.transform, $"카드: {copies}/{needed}",
+                9f, TextAlignmentOptions.Center, copies >= needed ? UIColors.Text_Green : UIColors.Text_Secondary);
+            var cprt = copyText.GetComponent<RectTransform>();
+            cprt.anchorMin = new Vector2(0.32f, 0);
+            cprt.anchorMax = new Vector2(0.65f, 1);
+            cprt.offsetMin = Vector2.zero;
+            cprt.offsetMax = Vector2.zero;
+
+            // Level up button
+            bool canLevelUp = hlm != null && copies >= needed && level < HeroLevelManager.MAX_LEVEL;
+            string btnLabel = level >= HeroLevelManager.MAX_LEVEL ? "MAX" : "강화";
+            Color btnColor = canLevelUp ? UIColors.Button_Green : UIColors.Button_Gray;
+
+            var (btn, _) = UIHelper.MakeButton($"LvUp_{heroName}", item.transform, btnColor, "", 10f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.68f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                UIConstants.Font_Cost, TextAlignmentOptions.Center,
+                canLevelUp ? UIColors.Text_Primary : UIColors.Text_Disabled);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            if (canLevelUp)
+            {
+                string capturedName = heroName;
+                btn.onClick.AddListener(() =>
+                {
+                    if (HeroLevelManager.Instance != null)
+                    {
+                        HeroLevelManager.Instance.TryLevelUp(capturedName);
+                        RefreshHeroUI();
+                    }
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        var containerRT = heroListContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 소환 탭 (index 3) - 가챠
+    // ════════════════════════════════════════
+
+    TextMeshProUGUI gachaGemText;
+    TextMeshProUGUI gachaResultText;
+
+    void BuildGachaContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("GachaContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0);
+        contentRT.anchorMax = new Vector2(1, 1);
+        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height);
+
+        // 보석 보유량 표시
+        gachaGemText = UIHelper.MakeText("GemInfo", content.transform, "보석: 0",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Diamond);
+        gachaGemText.fontStyle = FontStyles.Bold;
+        var grt = gachaGemText.GetComponent<RectTransform>();
+        grt.anchorMin = new Vector2(0, 0.8f);
+        grt.anchorMax = new Vector2(1, 1);
+        grt.offsetMin = Vector2.zero;
+        grt.offsetMax = Vector2.zero;
+
+        // 1회 뽑기 버튼 (50보석)
+        var (singleBtn, _) = UIHelper.MakeButton("SinglePull", content.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
+        singleBtn.onClick.AddListener(OnSinglePull);
+        var sbrt = singleBtn.GetComponent<RectTransform>();
+        sbrt.anchorMin = new Vector2(0.05f, 0.45f);
+        sbrt.anchorMax = new Vector2(0.47f, 0.75f);
+        sbrt.offsetMin = Vector2.zero;
+        sbrt.offsetMax = Vector2.zero;
+        var sText = UIHelper.MakeText("Label", singleBtn.transform, $"1회 소환\n{GachaManager.SINGLE_PULL_COST} 보석",
+            10f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        sText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(sText.GetComponent<RectTransform>());
+
+        // 10연차 버튼 (450보석)
+        var (multiBtn, _) = UIHelper.MakeButton("MultiPull", content.transform,
+            UIColors.Button_Yellow, "", UIConstants.Font_Button);
+        multiBtn.onClick.AddListener(OnMultiPull);
+        var mbrt = multiBtn.GetComponent<RectTransform>();
+        mbrt.anchorMin = new Vector2(0.53f, 0.45f);
+        mbrt.anchorMax = new Vector2(0.95f, 0.75f);
+        mbrt.offsetMin = Vector2.zero;
+        mbrt.offsetMax = Vector2.zero;
+        var mText = UIHelper.MakeText("Label", multiBtn.transform, $"10연차\n{GachaManager.MULTI_PULL_COST} 보석",
+            10f, TextAlignmentOptions.Center, UIColors.Background_Dark);
+        mText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(mText.GetComponent<RectTransform>());
+
+        // 결과 텍스트
+        gachaResultText = UIHelper.MakeText("Result", content.transform, "",
+            9f, TextAlignmentOptions.Center, UIColors.Text_Green);
+        var rrt = gachaResultText.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, 0);
+        rrt.anchorMax = new Vector2(1, 0.4f);
+        rrt.offsetMin = Vector2.zero;
+        rrt.offsetMax = Vector2.zero;
+    }
+
+    void RefreshGachaUI()
+    {
+        if (gachaGemText != null && GemManager.Instance != null)
+            gachaGemText.text = $"보석: {GemManager.Instance.Gem}";
+    }
+
+    void OnSinglePull()
+    {
+        if (GachaManager.Instance == null) return;
+        var hero = GachaManager.Instance.SinglePull();
+        if (hero != null)
+        {
+            bool isDuplicate = false;
+            var dm = DeckManager.Instance;
+            if (dm != null)
+            {
+                int count = 0;
+                for (int i = 0; i < dm.roster.Count; i++)
+                    if (dm.roster[i] == hero) count++;
+                isDuplicate = count > 1 || (count == 1 && HeroLevelManager.Instance != null && HeroLevelManager.Instance.GetCopies(hero.characterName) > 0);
+            }
+
+            if (gachaResultText != null)
+            {
+                if (isDuplicate)
+                    gachaResultText.text = $"<color=#FFD700>{hero.characterName}</color> 중복! 강화 카드 +1";
+                else
+                    gachaResultText.text = $"<color=#7FD44C>NEW!</color> {hero.characterName} 획득!";
+            }
+        }
+        else
+        {
+            if (gachaResultText != null)
+                gachaResultText.text = "<color=#CC3333>보석이 부족합니다</color>";
+        }
+        RefreshGachaUI();
+    }
+
+    void OnMultiPull()
+    {
+        if (GachaManager.Instance == null) return;
+        var results = GachaManager.Instance.MultiPull();
+        if (results != null)
+        {
+            var counts = new Dictionary<string, int>();
+            for (int i = 0; i < results.Length; i++)
+            {
+                string n = results[i].characterName;
+                if (!counts.ContainsKey(n)) counts[n] = 0;
+                counts[n]++;
+            }
+            string resultStr = "";
+            foreach (var kv in counts)
+                resultStr += $"{kv.Key} x{kv.Value}  ";
+            if (gachaResultText != null)
+                gachaResultText.text = resultStr.Trim();
+        }
+        else
+        {
+            if (gachaResultText != null)
+                gachaResultText.text = "<color=#CC3333>보석이 부족합니다</color>";
+        }
+        RefreshGachaUI();
     }
 }

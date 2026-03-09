@@ -56,7 +56,7 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < enemies.Count; i++)
         {
             var enemy = enemies[i];
-            if (enemy.IsDead) continue;
+            if (enemy == null || enemy.IsDead) continue;
             float dist = Vector2.Distance(unit.transform.position, enemy.transform.position);
             if (dist < minDist)
             {

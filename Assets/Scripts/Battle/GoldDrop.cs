@@ -101,4 +101,15 @@ public class GoldDrop : MonoBehaviour
         DamagePopup.CreateGold(transform.position + Vector3.up * 0.3f, goldAmount);
         Destroy(gameObject);
     }
+
+    void OnDestroy()
+    {
+        if (coinSprite != null)
+        {
+            var tex = coinSprite.texture;
+            Destroy(coinSprite);
+            coinSprite = null;
+            if (tex != null) Destroy(tex);
+        }
+    }
 }

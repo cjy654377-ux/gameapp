@@ -87,7 +87,6 @@ public class SceneSetupTool
         // UI objects
         EnsureUIObject("MainHUD", typeof(MainHUD));
         EnsureUIObject("SkillUI", typeof(SkillUI));
-        EnsureUIObject("UpgradeUI", typeof(UpgradeUI));
 
         // Assign default skills
         var skillMgr = gm.GetComponent<SkillManager>();

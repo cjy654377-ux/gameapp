@@ -77,7 +77,10 @@ public class TapDamageSystem : MonoBehaviour
         if (closest != null)
         {
             closest.TakeDamage(TapDamage);
-            SpawnTapEffect(worldPos);
+            if (EffectManager.Instance != null)
+                EffectManager.Instance.SpawnLightningEffect(closest.transform.position);
+            else
+                SpawnTapEffect(worldPos);
         }
     }
 
@@ -94,6 +97,16 @@ public class TapDamageSystem : MonoBehaviour
 
         var anim = go.AddComponent<TapEffectAnim>();
         anim.Init();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this && tapSprite != null)
+        {
+            Destroy(tapSprite.texture);
+            Destroy(tapSprite);
+            tapSprite = null;
+        }
     }
 
     public bool UpgradeTapDamage()

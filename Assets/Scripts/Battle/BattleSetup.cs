@@ -12,11 +12,16 @@ public class BattleSetup : MonoBehaviour
 
     void Start()
     {
-        if (ScreenFader.Instance == null)
-        {
-            var faderObj = new GameObject("ScreenFader");
-            faderObj.AddComponent<ScreenFader>();
-        }
+        EnsureSystem<ScreenFader>("ScreenFader");
+        EnsureSystem<TapDamageSystem>("TapDamageSystem");
+        EnsureSystem<GemManager>("GemManager");
+        EnsureSystem<OfflineRewardManager>("OfflineRewardManager");
+        EnsureSystem<StageRewardSystem>("StageRewardSystem");
+        EnsureSystem<HeroLevelManager>("HeroLevelManager");
+        EnsureSystem<GachaManager>("GachaManager");
+        EnsureSystem<EquipmentManager>("EquipmentManager");
+        EnsureSystem<EffectManager>("EffectManager");
+        EnsureSystem<SoundManager>("SoundManager");
 
         // DeckManager가 없으면 생성 + fallback 프리셋을 로스터로
         if (DeckManager.Instance == null)
@@ -27,10 +32,30 @@ public class BattleSetup : MonoBehaviour
             dm.Initialize();
         }
 
+        // 가챠 풀에 아군 프리셋 설정
+        if (GachaManager.Instance != null && GachaManager.Instance.HeroPoolCount == 0)
+        {
+            var allPresets = Resources.LoadAll<CharacterPreset>("Presets");
+            if (allPresets == null || allPresets.Length == 0)
+            {
+                // fallback: allyPresets 사용
+                GachaManager.Instance.SetHeroPool(allyPresets.ToArray());
+            }
+        }
+
         SpawnAllies();
 
         if (StageManager.Instance != null)
             StageManager.Instance.StartFirstWave();
+    }
+
+    void EnsureSystem<T>(string name) where T : MonoBehaviour
+    {
+        if (FindFirstObjectByType<T>() == null)
+        {
+            var obj = new GameObject(name);
+            obj.AddComponent<T>();
+        }
     }
 
     void SpawnAllies()
@@ -41,7 +66,6 @@ public class BattleSetup : MonoBehaviour
         var manager = BattleManager.Instance;
         if (manager == null) return;
 
-        // DeckManager가 있으면 덱 기반, 없으면 fallback
         List<CharacterPreset> presets;
         if (DeckManager.Instance != null)
             presets = DeckManager.Instance.GetActiveDeck();
@@ -58,8 +82,10 @@ public class BattleSetup : MonoBehaviour
             yOffset = Mathf.Clamp(yOffset, -battleZoneH * 0.5f, battleZoneH * 0.5f);
             Vector3 pos = new Vector3(allyStartX, yOffset, 0);
             var unit = factory.CreateCharacter(presets[i], pos, BattleUnit.Team.Ally);
-            if (UpgradeManager.Instance != null)
-                UpgradeManager.Instance.ApplyToUnit(unit);
+
+            // 통합 스탯 보너스 적용
+            UpgradeManager.ApplyAllBonuses(unit);
+
             manager.allyUnits.Add(unit);
         }
 

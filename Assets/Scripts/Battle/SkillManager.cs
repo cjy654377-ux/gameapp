@@ -233,4 +233,13 @@ public class SkillManager : MonoBehaviour
         for (int i = 0; i < source.Count; i++)
             if (!source[i].IsDead) result.Add(source[i]);
     }
+
+    void OnDestroy()
+    {
+        if (cachedVFXMaterial != null)
+        {
+            Destroy(cachedVFXMaterial);
+            cachedVFXMaterial = null;
+        }
+    }
 }

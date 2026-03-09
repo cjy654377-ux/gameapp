@@ -68,7 +68,6 @@ public class UpgradeManager : MonoBehaviour
         return true;
     }
 
-
     void RefreshAllAllies()
     {
         if (BattleManager.Instance == null) return;
@@ -76,25 +75,53 @@ public class UpgradeManager : MonoBehaviour
         for (int i = 0; i < allies.Count; i++)
         {
             if (allies[i] != null && !allies[i].IsDead)
-                ApplyToUnit(allies[i]);
+                ApplyAllBonuses(allies[i]);
         }
     }
 
-    // Applies upgrade bonuses on top of base stats (idempotent - safe to call multiple times)
-    public void ApplyToUnit(BattleUnit unit)
+    /// <summary>
+    /// 모든 보너스를 통합 적용 (UpgradeManager + HeroLevelManager + EquipmentManager)
+    /// </summary>
+    public static void ApplyAllBonuses(BattleUnit unit)
     {
-        float hpBonus = HpLevel * HP_PER_LEVEL;
-        float atkBonus = AtkLevel * ATK_PER_LEVEL;
-        float defBonus = DefLevel * DEF_PER_LEVEL;
+        string heroName = unit.unitName;
+        float hpBonus = 0f, atkBonus = 0f, defBonus = 0f;
 
-        // Use base stats stored on unit to avoid stacking, preserve active buffs
+        // UpgradeManager (글로벌 업그레이드)
+        var um = Instance;
+        if (um != null)
+        {
+            hpBonus += um.HpLevel * HP_PER_LEVEL;
+            atkBonus += um.AtkLevel * ATK_PER_LEVEL;
+            defBonus += um.DefLevel * DEF_PER_LEVEL;
+        }
+
+        // HeroLevelManager (영웅 개별 레벨)
+        var hlm = HeroLevelManager.Instance;
+        if (hlm != null)
+        {
+            hpBonus += hlm.GetHpBonus(heroName);
+            atkBonus += hlm.GetAtkBonus(heroName);
+            defBonus += hlm.GetDefBonus(heroName);
+        }
+
+        // EquipmentManager (장비)
+        var em = EquipmentManager.Instance;
+        if (em != null)
+        {
+            hpBonus += em.GetTotalBonusHp(heroName);
+            atkBonus += em.GetTotalBonusAtk(heroName);
+            defBonus += em.GetTotalBonusDef(heroName);
+        }
+
+        // HP 비율 유지
+        float hpRatio = unit.maxHp > 0 ? unit.CurrentHp / unit.maxHp : 1f;
         unit.maxHp = unit.baseMaxHp + hpBonus;
         unit.atk = unit.baseAtk + atkBonus + unit.buffAtk;
         unit.def = unit.baseDef + defBonus + unit.buffDef;
 
-        // Heal to new max
         if (unit.CurrentHp > 0)
-            unit.CurrentHp = unit.maxHp;
+            unit.CurrentHp = unit.maxHp * hpRatio;
     }
 
     public float GetHpBonus() => HpLevel * HP_PER_LEVEL;

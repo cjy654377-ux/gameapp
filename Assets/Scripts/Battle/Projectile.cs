@@ -86,6 +86,17 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
+    void OnDestroy()
+    {
+        if (fallbackSprite != null)
+        {
+            var tex = fallbackSprite.texture;
+            Destroy(fallbackSprite);
+            fallbackSprite = null;
+            if (tex != null) Destroy(tex);
+        }
+    }
+
     void SpawnHitVFX()
     {
         string prefabPath = projType == ProjectileType.Arrow ? HIT_RED : HIT_BLUE;

@@ -8,6 +8,8 @@ public class CharacterFactory : MonoBehaviour
     [Header("Base Prefab")]
     public GameObject spumBasePrefab;
 
+    static readonly Dictionary<string, Sprite[]> spriteCache = new();
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -33,7 +35,7 @@ public class CharacterFactory : MonoBehaviour
                 horseRoot.localPosition = Vector3.zero;
                 horseRoot.gameObject.SetActive(true);
                 // Apply horse body sprites by matching GameObject name to sub-sprite name
-                var horseSprites = Resources.LoadAll<Sprite>($"Addons/Legacy/1_Horse/0_Sprite/0_Body/{preset.horseSprite}");
+                var horseSprites = LoadSprites($"Addons/Legacy/1_Horse/0_Sprite/0_Body/{preset.horseSprite}");
                 if (horseSprites != null && horseSprites.Length > 0)
                 {
                     // Build lookup: sub-sprite name -> Sprite
@@ -162,7 +164,7 @@ public class CharacterFactory : MonoBehaviour
         // Body
         if (!string.IsNullOrEmpty(preset.bodySprite))
         {
-            var bodySprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/1_Body/{preset.bodySprite}");
+            var bodySprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/1_Body/{preset.bodySprite}");
             if (bodySprites != null && bodySprites.Length > 0)
             {
                 foreach (var sr in renderers)
@@ -211,7 +213,7 @@ public class CharacterFactory : MonoBehaviour
         // Armor (multi-part: Body, Left, Right)
         if (!string.IsNullOrEmpty(preset.armorSprite))
         {
-            var armorSprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{preset.armorSprite}");
+            var armorSprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{preset.armorSprite}");
             if (armorSprites != null && armorSprites.Length > 0)
             {
                 foreach (var sr in renderers)
@@ -229,7 +231,7 @@ public class CharacterFactory : MonoBehaviour
         // Cloth
         if (!string.IsNullOrEmpty(preset.clothSprite))
         {
-            var clothSprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/2_Cloth/{preset.clothSprite}");
+            var clothSprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/2_Cloth/{preset.clothSprite}");
             if (clothSprites != null && clothSprites.Length > 0)
             {
                 foreach (var sr in renderers)
@@ -271,7 +273,7 @@ public class CharacterFactory : MonoBehaviour
     {
         if (string.IsNullOrEmpty(spriteName)) return;
 
-        var sprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/{folder}/{spriteName}");
+        var sprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/{folder}/{spriteName}");
         if (sprites == null || sprites.Length == 0) return;
 
         foreach (var sr in renderers)
@@ -283,6 +285,15 @@ public class CharacterFactory : MonoBehaviour
                 break;
             }
         }
+    }
+
+    static Sprite[] LoadSprites(string path)
+    {
+        if (spriteCache.TryGetValue(path, out var cached))
+            return cached;
+        var loaded = LoadSprites(path);
+        spriteCache[path] = loaded;
+        return loaded;
     }
 
     Sprite FindSubSprite(Sprite[] sprites, string subName)
