@@ -5,8 +5,8 @@ public class BattleBackground : MonoBehaviour
 {
     static readonly string[] AreaBackgrounds = {
         "Backgrounds/bg_grass_field",
-        "Backgrounds/bg_desert",
-        "Backgrounds/bg_cave"
+        "Backgrounds/bg_medieval",    // Desert area
+        "Backgrounds/bg_dungeon"      // Cave area
     };
 
     private Sprite bgSprite;

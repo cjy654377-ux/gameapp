@@ -7,13 +7,15 @@ public class DamagePopup : MonoBehaviour
     private Color spriteColor;
     private Vector3 moveVector;
 
+    const string POOL_DMG = "DmgPopup";
+    const string POOL_GOLD = "GoldPopup";
+
     public static DamagePopup Create(Vector3 position, float amount, bool isHeal = false)
     {
-        GameObject go = new GameObject("DamagePopup");
-        go.transform.position = position;
+        var go = GetFromPool(POOL_DMG);
+        go.transform.position = position + Vector3.up * 0.5f;
 
-        var popup = go.AddComponent<DamagePopup>();
-        popup.sr = go.AddComponent<SpriteRenderer>();
+        var popup = go.GetComponent<DamagePopup>();
         popup.sr.sortingOrder = 100;
 
         var style = isHeal ? DamageNumberStyle.Heal : DamageNumberStyle.Damage;
@@ -24,21 +26,17 @@ public class DamagePopup : MonoBehaviour
         popup.spriteColor = Color.white;
         popup.disappearTimer = 0.8f;
         popup.moveVector = new Vector3(Random.Range(-0.3f, 0.3f), 0.8f, 0f);
-
-        go.transform.position += Vector3.up * 0.5f;
         go.transform.localScale = Vector3.one * 0.12f;
 
         return popup;
     }
 
-    // Gold drop용 오버로드
     public static DamagePopup CreateGold(Vector3 position, int amount)
     {
-        GameObject go = new GameObject("GoldPopup");
-        go.transform.position = position;
+        var go = GetFromPool(POOL_GOLD);
+        go.transform.position = position + Vector3.up * 0.5f;
 
-        var popup = go.AddComponent<DamagePopup>();
-        popup.sr = go.AddComponent<SpriteRenderer>();
+        var popup = go.GetComponent<DamagePopup>();
         popup.sr.sortingOrder = 100;
 
         popup.sr.sprite = PixelNumberFont.CreateNumberSprite("+" + amount, DamageNumberStyle.Gold);
@@ -46,11 +44,33 @@ public class DamagePopup : MonoBehaviour
         popup.spriteColor = Color.white;
         popup.disappearTimer = 0.8f;
         popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 0.6f, 0f);
-
-        go.transform.position += Vector3.up * 0.5f;
         go.transform.localScale = Vector3.one * 0.1f;
 
         return popup;
+    }
+
+    static GameObject GetFromPool(string poolName)
+    {
+        var pool = ObjectPool.Instance;
+        if (pool != null)
+        {
+            return pool.Get(poolName, () => CreateNewPopupObject());
+        }
+        return CreateNewPopupObject();
+    }
+
+    static GameObject CreateNewPopupObject()
+    {
+        var go = new GameObject("DamagePopup");
+        go.AddComponent<SpriteRenderer>();
+        go.AddComponent<DamagePopup>();
+        return go;
+    }
+
+    void Awake()
+    {
+        sr = GetComponent<SpriteRenderer>();
+        if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -65,7 +85,21 @@ public class DamagePopup : MonoBehaviour
             sr.color = spriteColor;
 
             if (spriteColor.a <= 0)
-                Destroy(gameObject);
+                ReturnToPool();
+        }
+    }
+
+    void ReturnToPool()
+    {
+        var pool = ObjectPool.Instance;
+        if (pool != null)
+        {
+            sr.sprite = null;
+            pool.Return(POOL_DMG, gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 }

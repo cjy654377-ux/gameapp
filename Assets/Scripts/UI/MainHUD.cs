@@ -36,6 +36,12 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI killCountText;
     int killCount;
 
+    // Speed toggle
+    Button speedButton;
+    TextMeshProUGUI speedButtonText;
+    int speedIndex; // 0=1x, 1=2x
+    static readonly float[] SPEED_OPTIONS = { 1f, 2f };
+
     // Bottom Nav
     readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점" };
     readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "$" };
@@ -144,6 +150,7 @@ public class MainHUD : MonoBehaviour
         CreateHUDBar();
         CreateWaveBanner();
         CreateKillCounter();
+        CreateSpeedButton();
         CreateBottomNavBar();
         CreateTabPanels();
         CreateOfflinePopup();
@@ -332,6 +339,40 @@ public class MainHUD : MonoBehaviour
         krt.anchorMax = new Vector2(1, 1);
         krt.offsetMin = Vector2.zero;
         krt.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+    }
+
+    // ── Speed Button (우측 중앙) ──
+    void CreateSpeedButton()
+    {
+        var (btn, btnImg) = UIHelper.MakeButton("SpeedBtn", safeAreaRoot.transform,
+            UIColors.Panel_Inner, "", 0);
+        speedButton = btn;
+        var btnOutline = btn.gameObject.AddComponent<Outline>();
+        btnOutline.effectColor = UIColors.Panel_Border;
+        btnOutline.effectDistance = new Vector2(1, 1);
+
+        var rt = btn.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 0.5f);
+        rt.anchorMax = new Vector2(1, 0.5f);
+        rt.pivot = new Vector2(1, 0.5f);
+        rt.anchoredPosition = new Vector2(-UIConstants.Spacing_Small, 50);
+        rt.sizeDelta = new Vector2(40, 22);
+
+        speedButtonText = UIHelper.MakeText("Label", btn.transform, "1x",
+            UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        speedButtonText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(speedButtonText.GetComponent<RectTransform>());
+
+        btn.onClick.AddListener(OnSpeedToggle);
+    }
+
+    void OnSpeedToggle()
+    {
+        speedIndex = (speedIndex + 1) % SPEED_OPTIONS.Length;
+        Time.timeScale = SPEED_OPTIONS[speedIndex];
+        if (speedButtonText != null)
+            speedButtonText.text = $"{SPEED_OPTIONS[speedIndex]:F0}x";
+        SoundManager.Instance?.PlayButtonSFX();
     }
 
     // ── Bottom Nav Bar (하단) ──

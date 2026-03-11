@@ -42,7 +42,9 @@ public class QuarterViewCamera : MonoBehaviour
 
         float targetX = sumX / count + lookAheadX;
         float newX = Mathf.Lerp(transform.position.x, targetX, followSpeed * Time.deltaTime);
-        transform.position = new Vector3(newX, 0, -10f);
+        var pos = new Vector3(newX, 0, -10f);
+        ApplyShake(ref pos);
+        transform.position = pos;
     }
 
     public float GetVisibleWidth()
@@ -55,5 +57,24 @@ public class QuarterViewCamera : MonoBehaviour
     {
         if (cam == null) return 12f;
         return cam.orthographicSize * 2f;
+    }
+
+    // Camera shake
+    float shakeTimer;
+    float shakeIntensity;
+
+    public void Shake(float duration = 0.3f, float intensity = 0.15f)
+    {
+        shakeTimer = duration;
+        shakeIntensity = intensity;
+    }
+
+    void ApplyShake(ref Vector3 pos)
+    {
+        if (shakeTimer <= 0) return;
+        shakeTimer -= Time.unscaledDeltaTime;
+        float t = shakeTimer > 0 ? shakeIntensity : 0;
+        pos.x += Random.Range(-t, t);
+        pos.y += Random.Range(-t, t);
     }
 }

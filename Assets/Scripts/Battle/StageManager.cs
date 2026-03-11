@@ -267,8 +267,8 @@ public class StageManager : MonoBehaviour
         float y = Random.Range(-battleZoneH * 0.45f, battleZoneH * 0.45f);
         var unit = factory.CreateCharacter(preset, new Vector3(spawnX, y, 0), BattleUnit.Team.Enemy);
 
-        float hpMult = 1f + TotalWaveIndex * hpScalePerWave;
-        float atkMult = 1f + TotalWaveIndex * atkScalePerWave;
+        float hpMult = GetDifficultyMultiplier(TotalWaveIndex, hpScalePerWave);
+        float atkMult = GetDifficultyMultiplier(TotalWaveIndex, atkScalePerWave);
         unit.maxHp *= hpMult;
         unit.atk *= atkMult;
         unit.CurrentHp = unit.maxHp;
@@ -308,8 +308,8 @@ public class StageManager : MonoBehaviour
 
         var unit = factory.CreateCharacter(preset, new Vector3(spawnX, 0, 0), BattleUnit.Team.Enemy);
 
-        float hpMult = 1f + TotalWaveIndex * hpScalePerWave;
-        float atkMult = 1f + TotalWaveIndex * atkScalePerWave;
+        float hpMult = GetDifficultyMultiplier(TotalWaveIndex, hpScalePerWave);
+        float atkMult = GetDifficultyMultiplier(TotalWaveIndex, atkScalePerWave);
         float bossMult = isAreaBoss ? areaBossHpMult : midBossHpMult;
         float bossAtkMult = isAreaBoss ? areaBossAtkMult : midBossAtkMult;
 
@@ -343,6 +343,12 @@ public class StageManager : MonoBehaviour
         manager.enemyUnits.Add(unit);
         SoundManager.Instance?.PlayBossAppearSFX();
         OnBossSpawned?.Invoke(isAreaBoss);
+
+        // 카메라 셰이크
+        var cam = GetMainCamera();
+        var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
+        if (camShake != null)
+            camShake.Shake(isAreaBoss ? 0.5f : 0.3f, isAreaBoss ? 0.2f : 0.12f);
     }
 
     Camera GetMainCamera()
@@ -461,5 +467,43 @@ public class StageManager : MonoBehaviour
             3 => "Underground Cave",
             _ => "Unknown"
         };
+    }
+
+    /// <summary>
+    /// 구간별 난이도 곡선: 초반 완만 → 중반 선형 → 후반 가파름 + 에리어 전환 점프
+    /// wave 0~29: 완만 (sqrt 기반), 30~59: 선형, 60+: 가속 (pow 1.3)
+    /// 에리어 전환 시 1.5배 점프
+    /// </summary>
+    float GetDifficultyMultiplier(int wave, float baseScale)
+    {
+        int wavesPerArea = wavesPerStage * stagesPerArea; // 30
+        int area = wave / wavesPerArea; // 0, 1, 2
+        int localWave = wave % wavesPerArea;
+
+        // 구간별 곡선
+        float curveMult;
+        if (localWave <= 10)
+        {
+            // 초반 완만: sqrt 기반 (0~10웨이브)
+            curveMult = Mathf.Sqrt(localWave / 10f) * 10f * baseScale;
+        }
+        else if (localWave <= 20)
+        {
+            // 중반 선형 (10~20웨이브)
+            float basePart = Mathf.Sqrt(1f) * 10f * baseScale; // 10웨이브 시점 값
+            curveMult = basePart + (localWave - 10) * baseScale;
+        }
+        else
+        {
+            // 후반 가속 (20~30웨이브)
+            float basePart = Mathf.Sqrt(1f) * 10f * baseScale + 10f * baseScale;
+            float accel = Mathf.Pow((localWave - 20) / 10f, 1.3f) * 10f * baseScale * 1.5f;
+            curveMult = basePart + accel;
+        }
+
+        // 에리어 전환 점프 (에리어 2: 1.5배, 에리어 3: 2.25배)
+        float areaJump = Mathf.Pow(1.5f, area);
+
+        return 1f + curveMult * areaJump;
     }
 }
