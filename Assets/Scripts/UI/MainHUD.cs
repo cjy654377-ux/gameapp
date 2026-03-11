@@ -68,26 +68,57 @@ public class MainHUD : MonoBehaviour
         BuildUI();
     }
 
+    // Offline reward popup
+    GameObject offlinePopup;
+    TextMeshProUGUI offlineText;
+
+    // Achievement list
+    GameObject achieveListContainer;
+    readonly List<GameObject> achieveListItems = new();
+
+    // Cached references for safe unsubscribe
+    GoldManager cachedGoldMgr;
+    GemManager cachedGemMgr;
+    StageManager cachedStageMgr;
+    BattleManager cachedBattleMgr;
+    OfflineRewardManager cachedOfflineMgr;
+
     void Start()
     {
-        if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged += UpdateGold;
-        if (GemManager.Instance != null)
-            GemManager.Instance.OnGemChanged += UpdateGem;
-        if (StageManager.Instance != null)
-        {
-            StageManager.Instance.OnStageChanged += OnStageChanged;
-            StageManager.Instance.OnBossSpawned += OnBossSpawned;
-        }
-        if (BattleManager.Instance != null)
-            BattleManager.Instance.OnBattleStateChanged += OnBattleStateChanged;
+        StartCoroutine(DeferredSubscribe());
+    }
 
-        UpdateGold(GoldManager.Instance != null ? GoldManager.Instance.Gold : 0);
-        UpdateGem(GemManager.Instance != null ? GemManager.Instance.Gem : 0);
-        if (StageManager.Instance != null)
+    System.Collections.IEnumerator DeferredSubscribe()
+    {
+        yield return null;
+
+        cachedGoldMgr = GoldManager.Instance;
+        cachedGemMgr = GemManager.Instance;
+        cachedStageMgr = StageManager.Instance;
+        cachedBattleMgr = BattleManager.Instance;
+
+        if (cachedGoldMgr != null)
+            cachedGoldMgr.OnGoldChanged += UpdateGold;
+        if (cachedGemMgr != null)
+            cachedGemMgr.OnGemChanged += UpdateGem;
+        if (cachedStageMgr != null)
         {
-            if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
-            if (areaNameText != null) areaNameText.text = StageManager.Instance.GetAreaName();
+            cachedStageMgr.OnStageChanged += OnStageChanged;
+            cachedStageMgr.OnBossSpawned += OnBossSpawned;
+        }
+        if (cachedBattleMgr != null)
+            cachedBattleMgr.OnBattleStateChanged += OnBattleStateChanged;
+
+        cachedOfflineMgr = OfflineRewardManager.Instance;
+        if (cachedOfflineMgr != null)
+            cachedOfflineMgr.OnOfflineReward += OnOfflineReward;
+
+        UpdateGold(cachedGoldMgr != null ? cachedGoldMgr.Gold : 0);
+        UpdateGem(cachedGemMgr != null ? cachedGemMgr.Gem : 0);
+        if (cachedStageMgr != null)
+        {
+            if (stageText != null) stageText.text = cachedStageMgr.GetStageText();
+            if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
         }
     }
 
@@ -115,6 +146,7 @@ public class MainHUD : MonoBehaviour
         CreateKillCounter();
         CreateBottomNavBar();
         CreateTabPanels();
+        CreateOfflinePopup();
     }
 
     void CreateCanvas()
@@ -663,17 +695,19 @@ public class MainHUD : MonoBehaviour
 
     void OnDestroy()
     {
-        if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged -= UpdateGold;
-        if (GemManager.Instance != null)
-            GemManager.Instance.OnGemChanged -= UpdateGem;
-        if (StageManager.Instance != null)
+        if (cachedGoldMgr != null)
+            cachedGoldMgr.OnGoldChanged -= UpdateGold;
+        if (cachedGemMgr != null)
+            cachedGemMgr.OnGemChanged -= UpdateGem;
+        if (cachedStageMgr != null)
         {
-            StageManager.Instance.OnStageChanged -= OnStageChanged;
-            StageManager.Instance.OnBossSpawned -= OnBossSpawned;
+            cachedStageMgr.OnStageChanged -= OnStageChanged;
+            cachedStageMgr.OnBossSpawned -= OnBossSpawned;
         }
-        if (BattleManager.Instance != null)
-            BattleManager.Instance.OnBattleStateChanged -= OnBattleStateChanged;
+        if (cachedBattleMgr != null)
+            cachedBattleMgr.OnBattleStateChanged -= OnBattleStateChanged;
+        if (cachedOfflineMgr != null)
+            cachedOfflineMgr.OnOfflineReward -= OnOfflineReward;
     }
 
     // ════════════════════════════════════════
@@ -1228,8 +1262,15 @@ public class MainHUD : MonoBehaviour
     }
 
     // ════════════════════════════════════════
-    // 상점 탭 (index 5)
+    // 상점 탭 (index 4) - 서브탭: 상점/업적/설정
     // ════════════════════════════════════════
+
+    int shopSubTab; // 0=상점, 1=업적, 2=설정
+    Button[] shopSubTabBtns;
+    TextMeshProUGUI[] shopSubTabLabels;
+    GameObject shopRoot;
+    GameObject achieveRoot;
+    GameObject settingsRoot;
 
     GameObject shopListContainer;
     readonly List<GameObject> shopListItems = new();
@@ -1238,18 +1279,121 @@ public class MainHUD : MonoBehaviour
     {
         var content = UIHelper.MakeUI("ShopContent", parent);
         var contentRT = content.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0, 0);
-        contentRT.anchorMax = new Vector2(1, 1);
-        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
-        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
+        contentRT.anchorMin = Vector2.zero;
+        contentRT.anchorMax = Vector2.one;
+        contentRT.offsetMin = new Vector2(0, 0);
+        contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
-        // 스크롤
-        var scrollObj = UIHelper.MakeUI("ShopScroll", content.transform);
+        // 서브탭 바
+        float subTabH = 28f;
+        var subTabBar = UIHelper.MakePanel("ShopSubTabBar", content.transform, UIColors.Background_Dark);
+        var stbRT = subTabBar.GetComponent<RectTransform>();
+        stbRT.anchorMin = new Vector2(0, 1);
+        stbRT.anchorMax = new Vector2(1, 1);
+        stbRT.pivot = new Vector2(0.5f, 1);
+        stbRT.sizeDelta = new Vector2(0, subTabH);
+
+        string[] subNames = { "상점", "업적", "설정" };
+        shopSubTabBtns = new Button[3];
+        shopSubTabLabels = new TextMeshProUGUI[3];
+
+        for (int s = 0; s < 3; s++)
+        {
+            float xMin = s / 3f;
+            float xMax = (s + 1) / 3f;
+            var (btn, _) = UIHelper.MakeButton($"ShopSub_{subNames[s]}", subTabBar.transform,
+                UIColors.Tab_Inactive, "", 0);
+            var brt = btn.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(xMin, 0);
+            brt.anchorMax = new Vector2(xMax, 1);
+            brt.offsetMin = new Vector2(1, 0);
+            brt.offsetMax = new Vector2(-1, 0);
+
+            var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
+                UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+            label.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(label.GetComponent<RectTransform>());
+
+            shopSubTabBtns[s] = btn;
+            shopSubTabLabels[s] = label;
+
+            int captured = s;
+            btn.onClick.AddListener(() => SwitchShopSubTab(captured));
+        }
+
+        // 상점 루트
+        shopRoot = UIHelper.MakeUI("ShopRoot", content.transform);
+        var srRT = shopRoot.GetComponent<RectTransform>();
+        srRT.anchorMin = Vector2.zero;
+        srRT.anchorMax = Vector2.one;
+        srRT.offsetMin = Vector2.zero;
+        srRT.offsetMax = new Vector2(0, -subTabH);
+        BuildShopList(shopRoot.transform);
+
+        // 업적 루트
+        achieveRoot = UIHelper.MakeUI("AchieveRoot", content.transform);
+        var arRT = achieveRoot.GetComponent<RectTransform>();
+        arRT.anchorMin = Vector2.zero;
+        arRT.anchorMax = Vector2.one;
+        arRT.offsetMin = Vector2.zero;
+        arRT.offsetMax = new Vector2(0, -subTabH);
+        BuildAchievementList(achieveRoot.transform);
+
+        // 설정 루트
+        settingsRoot = UIHelper.MakeUI("SettingsRoot", content.transform);
+        var setRT = settingsRoot.GetComponent<RectTransform>();
+        setRT.anchorMin = Vector2.zero;
+        setRT.anchorMax = Vector2.one;
+        setRT.offsetMin = Vector2.zero;
+        setRT.offsetMax = new Vector2(0, -subTabH);
+        BuildSettingsContent(settingsRoot.transform);
+
+        shopSubTab = 0;
+        UpdateShopSubTabVisuals();
+    }
+
+    void SwitchShopSubTab(int subIdx)
+    {
+        SoundManager.Instance?.PlayButtonSFX();
+        shopSubTab = subIdx;
+        UpdateShopSubTabVisuals();
+        if (subIdx == 0) RefreshShopList();
+        else if (subIdx == 1) RefreshAchievementUI();
+        else RefreshSettingsUI();
+    }
+
+    void UpdateShopSubTabVisuals()
+    {
+        if (shopSubTabBtns == null) return;
+        for (int i = 0; i < 3; i++)
+        {
+            bool active = (i == shopSubTab);
+            shopSubTabBtns[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            shopSubTabLabels[i].color = active ? UIColors.Text_TabActive : UIColors.Text_Disabled;
+        }
+        if (shopRoot != null) shopRoot.SetActive(shopSubTab == 0);
+        if (achieveRoot != null) achieveRoot.SetActive(shopSubTab == 1);
+        if (settingsRoot != null) settingsRoot.SetActive(shopSubTab == 2);
+    }
+
+    void RefreshShopUI()
+    {
+        UpdateShopSubTabVisuals();
+        if (shopSubTab == 0) RefreshShopList();
+        else if (shopSubTab == 1) RefreshAchievementUI();
+        else RefreshSettingsUI();
+    }
+
+    // ── 상점 리스트 ──
+
+    void BuildShopList(Transform parent)
+    {
+        var scrollObj = UIHelper.MakeUI("ShopScroll", parent);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
         scrollRT.anchorMin = Vector2.zero;
         scrollRT.anchorMax = Vector2.one;
-        scrollRT.offsetMin = Vector2.zero;
-        scrollRT.offsetMax = Vector2.zero;
+        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
 
         var scrollRect = scrollObj.AddComponent<ScrollRect>();
         scrollRect.horizontal = false;
@@ -1269,7 +1413,7 @@ public class MainHUD : MonoBehaviour
         scrollRect.content = hcRT;
     }
 
-    void RefreshShopUI()
+    void RefreshShopList()
     {
         if (shopListContainer == null) return;
         var shop = ShopManager.Instance;
@@ -1298,7 +1442,6 @@ public class MainHUD : MonoBehaviour
             irt.anchoredPosition = new Vector2(0, y);
             irt.sizeDelta = new Vector2(0, itemH);
 
-            // 이름
             var nameText = UIHelper.MakeText("Name", item.transform, shopItem.displayName,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
             nameText.fontStyle = FontStyles.Bold;
@@ -1308,7 +1451,6 @@ public class MainHUD : MonoBehaviour
             nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             nrt.offsetMax = Vector2.zero;
 
-            // 설명
             var descText = UIHelper.MakeText("Desc", item.transform, shopItem.description,
                 8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
             var drt = descText.GetComponent<RectTransform>();
@@ -1317,7 +1459,6 @@ public class MainHUD : MonoBehaviour
             drt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             drt.offsetMax = Vector2.zero;
 
-            // 가격
             string priceStr = shopItem.gemCost > 0 ? $"{shopItem.gemCost} 보석" :
                               shopItem.goldCost > 0 ? $"{shopItem.goldCost}G" : "무료";
             var priceText = UIHelper.MakeText("Price", item.transform, priceStr,
@@ -1328,9 +1469,7 @@ public class MainHUD : MonoBehaviour
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
-            // 구매 버튼
             bool canBuy = shop.CanPurchase(shopItem);
-            // 쿨다운 체크
             float cooldown = shop.GetRemainingCooldown(shopItem);
             string btnLabel = cooldown > 0 ? $"{Mathf.CeilToInt(cooldown / 60f)}분" : "구매";
 
@@ -1355,7 +1494,7 @@ public class MainHUD : MonoBehaviour
                 {
                     shop.Purchase(capturedItem);
                     SoundManager.Instance?.PlayGoldSFX();
-                    RefreshShopUI();
+                    RefreshShopList();
                 });
             }
 
@@ -1365,4 +1504,371 @@ public class MainHUD : MonoBehaviour
         var srt2 = shopListContainer.GetComponent<RectTransform>();
         srt2.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
+
+    // ════════════════════════════════════════
+    // 업적 리스트
+    // ════════════════════════════════════════
+
+    void BuildAchievementList(Transform parent)
+    {
+        var scrollObj = UIHelper.MakeUI("AchieveScroll", parent);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = Vector2.zero;
+        scrollRT.anchorMax = Vector2.one;
+        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        achieveListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = achieveListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+    }
+
+    void RefreshAchievementUI()
+    {
+        if (achieveListContainer == null) return;
+        var am = AchievementManager.Instance;
+        if (am == null) return;
+
+        for (int i = 0; i < achieveListItems.Count; i++)
+            if (achieveListItems[i] != null) Object.Destroy(achieveListItems[i]);
+        achieveListItems.Clear();
+
+        var achievements = am.GetAchievements();
+        float itemH = 42f;
+        float spacing = 2f;
+        float y = 0;
+
+        for (int i = 0; i < achievements.Count; i++)
+        {
+            var ach = achievements[i];
+
+            Color bgColor = ach.claimed ? UIColors.Panel_Inner :
+                            ach.completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
+
+            var itemImg = UIHelper.MakePanel($"Ach_{i}", achieveListContainer.transform, bgColor);
+            var item = itemImg.gameObject;
+            achieveListItems.Add(item);
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            // 이름
+            Color nameColor = ach.completed ? UIColors.Text_Primary : UIColors.Text_Disabled;
+            var nameText = UIHelper.MakeText("Name", item.transform, ach.name,
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, nameColor);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0.5f);
+            nrt.anchorMax = new Vector2(0.45f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // 설명
+            var descText = UIHelper.MakeText("Desc", item.transform, ach.description,
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+            var drt2 = descText.GetComponent<RectTransform>();
+            drt2.anchorMin = new Vector2(0, 0);
+            drt2.anchorMax = new Vector2(0.45f, 0.5f);
+            drt2.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            drt2.offsetMax = Vector2.zero;
+
+            // 보상
+            var rewardText = UIHelper.MakeText("Reward", item.transform, $"{ach.gemReward} 보석",
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
+            var rrt = rewardText.GetComponent<RectTransform>();
+            rrt.anchorMin = new Vector2(0.45f, 0);
+            rrt.anchorMax = new Vector2(0.68f, 1);
+            rrt.offsetMin = Vector2.zero;
+            rrt.offsetMax = Vector2.zero;
+
+            // 버튼
+            string btnLabel;
+            Color btnColor;
+            if (ach.claimed) { btnLabel = "완료"; btnColor = UIColors.Button_Gray; }
+            else if (ach.completed) { btnLabel = "수령"; btnColor = UIColors.Button_Yellow; }
+            else { btnLabel = "미달성"; btnColor = UIColors.Button_Gray; }
+
+            var (btn, _) = UIHelper.MakeButton($"AchBtn_{i}", item.transform, btnColor, "", 10f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.70f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            Color btnTextColor = ach.completed && !ach.claimed ? UIColors.Background_Dark : UIColors.Text_Disabled;
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                UIConstants.Font_Cost, TextAlignmentOptions.Center, btnTextColor);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            if (ach.completed && !ach.claimed)
+            {
+                string capturedId = ach.id;
+                btn.onClick.AddListener(() =>
+                {
+                    am.ClaimReward(capturedId);
+                    SoundManager.Instance?.PlayGoldSFX();
+                    ToastNotification.Instance?.Show("보상 수령!", "", UIColors.Text_Diamond);
+                    RefreshAchievementUI();
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        var containerRT = achieveListContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 설정 패널 (상점 탭 서브탭)
+    // ════════════════════════════════════════
+
+    Slider settingsBgmSlider;
+    Slider settingsSfxSlider;
+    TextMeshProUGUI bgmValueText;
+    TextMeshProUGUI sfxValueText;
+
+    void BuildSettingsContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("SettingsContent", parent);
+        var crt = content.GetComponent<RectTransform>();
+        crt.anchorMin = Vector2.zero;
+        crt.anchorMax = Vector2.one;
+        crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
+
+        // BGM Volume
+        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.7f, 1f,
+            out settingsBgmSlider, out bgmValueText, (val) =>
+            {
+                SoundManager.Instance?.SetBGMVolume(val);
+                if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            });
+
+        // SFX Volume
+        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.4f, 1f,
+            out settingsSfxSlider, out sfxValueText, (val) =>
+            {
+                SoundManager.Instance?.SetSFXVolume(val);
+                if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
+            });
+
+        // 데이터 초기화 버튼
+        var (resetBtn, _) = UIHelper.MakeButton("ResetBtn", content.transform,
+            UIColors.Defeat_Red, "", UIConstants.Font_Button);
+        var rbrt = resetBtn.GetComponent<RectTransform>();
+        rbrt.anchorMin = new Vector2(0.15f, 0.05f);
+        rbrt.anchorMax = new Vector2(0.85f, 0.2f);
+        rbrt.offsetMin = Vector2.zero;
+        rbrt.offsetMax = Vector2.zero;
+
+        var resetText = UIHelper.MakeText("Label", resetBtn.transform, "데이터 초기화",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        resetText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(resetText.GetComponent<RectTransform>());
+
+        resetBtn.onClick.AddListener(OnResetData);
+    }
+
+    void BuildVolumeSlider(Transform parent, string label, float yMin, float yMax,
+        out Slider slider, out TextMeshProUGUI valueText, UnityEngine.Events.UnityAction<float> onChange)
+    {
+        // Row container
+        var row = UIHelper.MakePanel($"{label}Row", parent, UIColors.Panel_Inner);
+        var rrt = row.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, yMin);
+        rrt.anchorMax = new Vector2(1, yMax);
+        rrt.offsetMin = new Vector2(0, 2);
+        rrt.offsetMax = new Vector2(0, -2);
+
+        // Label
+        var labelText = UIHelper.MakeText("Label", row.transform, label,
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+        labelText.fontStyle = FontStyles.Bold;
+        var lrt = labelText.GetComponent<RectTransform>();
+        lrt.anchorMin = new Vector2(0, 0);
+        lrt.anchorMax = new Vector2(0.25f, 1);
+        lrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        lrt.offsetMax = Vector2.zero;
+
+        // Slider
+        var sliderObj = UIHelper.MakeUI("Slider", row.transform);
+        slider = sliderObj.AddComponent<Slider>();
+        slider.minValue = 0;
+        slider.maxValue = 1;
+        slider.wholeNumbers = false;
+
+        var srt = sliderObj.GetComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.27f, 0.2f);
+        srt.anchorMax = new Vector2(0.78f, 0.8f);
+        srt.offsetMin = Vector2.zero;
+        srt.offsetMax = Vector2.zero;
+
+        // Slider background
+        var bgObj = UIHelper.MakePanel("Background", sliderObj.transform, UIColors.ProgressBar_BG);
+        UIHelper.FillParent(bgObj.GetComponent<RectTransform>());
+        slider.targetGraphic = bgObj;
+
+        // Fill area
+        var fillArea = UIHelper.MakeUI("Fill Area", sliderObj.transform);
+        var fart = fillArea.GetComponent<RectTransform>();
+        fart.anchorMin = Vector2.zero;
+        fart.anchorMax = Vector2.one;
+        fart.offsetMin = Vector2.zero;
+        fart.offsetMax = Vector2.zero;
+
+        var fillObj = UIHelper.MakePanel("Fill", fillArea.transform, UIColors.ProgressBar_Fill);
+        var fillRT = fillObj.GetComponent<RectTransform>();
+        fillRT.anchorMin = Vector2.zero;
+        fillRT.anchorMax = Vector2.one;
+        fillRT.offsetMin = Vector2.zero;
+        fillRT.offsetMax = Vector2.zero;
+        slider.fillRect = fillRT;
+
+        // Handle area
+        var handleArea = UIHelper.MakeUI("Handle Slide Area", sliderObj.transform);
+        var hart = handleArea.GetComponent<RectTransform>();
+        hart.anchorMin = Vector2.zero;
+        hart.anchorMax = Vector2.one;
+        hart.offsetMin = Vector2.zero;
+        hart.offsetMax = Vector2.zero;
+
+        var handleObj = UIHelper.MakePanel("Handle", handleArea.transform, UIColors.Text_Primary);
+        var hrt = handleObj.GetComponent<RectTransform>();
+        hrt.sizeDelta = new Vector2(14, 0);
+        slider.handleRect = hrt;
+
+        // Value text
+        valueText = UIHelper.MakeText("Value", row.transform, "50%",
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        valueText.fontStyle = FontStyles.Bold;
+        var vrt = valueText.GetComponent<RectTransform>();
+        vrt.anchorMin = new Vector2(0.80f, 0);
+        vrt.anchorMax = new Vector2(1, 1);
+        vrt.offsetMin = Vector2.zero;
+        vrt.offsetMax = Vector2.zero;
+
+        slider.onValueChanged.AddListener(onChange);
+    }
+
+    void RefreshSettingsUI()
+    {
+        var sm = SoundManager.Instance;
+        if (sm == null) return;
+        if (settingsBgmSlider != null)
+        {
+            settingsBgmSlider.SetValueWithoutNotify(sm.bgmVolume);
+            if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(sm.bgmVolume * 100)}%";
+        }
+        if (settingsSfxSlider != null)
+        {
+            settingsSfxSlider.SetValueWithoutNotify(sm.sfxVolume);
+            if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(sm.sfxVolume * 100)}%";
+        }
+    }
+
+    void OnResetData()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        ToastNotification.Instance?.Show("데이터 초기화", "게임을 재시작합니다", UIColors.Defeat_Red);
+    }
+
+    // ════════════════════════════════════════
+    // 오프라인 보상 팝업
+    // ════════════════════════════════════════
+
+    void CreateOfflinePopup()
+    {
+        offlinePopup = UIHelper.MakeUI("OfflinePopup", safeAreaRoot.transform);
+        var bg = offlinePopup.AddComponent<Image>();
+        bg.color = UIColors.Overlay_Dark;
+        UIHelper.FillParent(offlinePopup.GetComponent<RectTransform>());
+
+        // Center panel
+        var panel = UIHelper.MakePanel("Panel", offlinePopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
+        var prt = panel.GetComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0.1f, 0.35f);
+        prt.anchorMax = new Vector2(0.9f, 0.65f);
+        prt.offsetMin = Vector2.zero;
+        prt.offsetMax = Vector2.zero;
+
+        // Title
+        var titleText = UIHelper.MakeText("Title", panel.transform, "오프라인 보상",
+            UIConstants.Font_HeaderLarge, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        titleText.fontStyle = FontStyles.Bold;
+        var trt = titleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.7f);
+        trt.anchorMax = new Vector2(1, 0.95f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        // Reward text
+        offlineText = UIHelper.MakeText("RewardText", panel.transform, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        var rrt = offlineText.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, 0.3f);
+        rrt.anchorMax = new Vector2(1, 0.7f);
+        rrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        rrt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
+
+        // Confirm button
+        var (confirmBtn, _) = UIHelper.MakeButton("ConfirmBtn", panel.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
+        var cbrt = confirmBtn.GetComponent<RectTransform>();
+        cbrt.anchorMin = new Vector2(0.25f, 0.05f);
+        cbrt.anchorMax = new Vector2(0.75f, 0.28f);
+        cbrt.offsetMin = Vector2.zero;
+        cbrt.offsetMax = Vector2.zero;
+
+        var confirmText = UIHelper.MakeText("Label", confirmBtn.transform, "확인",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        confirmText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(confirmText.GetComponent<RectTransform>());
+
+        confirmBtn.onClick.AddListener(() =>
+        {
+            offlinePopup.SetActive(false);
+            SoundManager.Instance?.PlayButtonSFX();
+        });
+
+        offlinePopup.SetActive(false);
+    }
+
+    void OnOfflineReward(int gold, int gem, float minutes)
+    {
+        if (offlinePopup == null || offlineText == null) return;
+        if (gold <= 0 && gem <= 0) return;
+
+        int mins = Mathf.FloorToInt(minutes);
+        string timeStr = mins >= 60 ? $"{mins / 60}시간 {mins % 60}분" : $"{mins}분";
+
+        string rewardStr = $"접속하지 않은 {timeStr} 동안\n";
+        if (gold > 0) rewardStr += $"<color=#FFD700>골드 +{gold}</color>  ";
+        if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>";
+
+        offlineText.text = rewardStr;
+        offlinePopup.SetActive(true);
+    }
+
 }

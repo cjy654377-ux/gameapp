@@ -31,8 +31,8 @@ public class TutorialOverlay : MonoBehaviour
         canvas.sortingOrder = 300;
         canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         var scaler = canvasObj.GetComponent<CanvasScaler>();
-        scaler.referenceResolution = new Vector2(390, 844);
-        scaler.matchWidthOrHeight = 0.5f;
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
         canvasObj.AddComponent<GraphicRaycaster>();
 
         // Dark overlay panel (full screen)

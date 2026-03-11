@@ -77,9 +77,8 @@ public class ToastNotification : MonoBehaviour
         canvas.sortingOrder = 250;
         var scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(390, 844);
-        scaler.matchWidthOrHeight = 0.5f;
-        canvasObj.AddComponent<GraphicRaycaster>();
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
 
         // Panel
         panelBG = UIHelper.MakePanel("ToastPanel", canvasObj.transform, UIColors.Background_Panel);

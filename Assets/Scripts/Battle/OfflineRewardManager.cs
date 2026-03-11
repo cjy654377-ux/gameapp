@@ -21,6 +21,14 @@ public class OfflineRewardManager : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(DeferredCalculate());
+    }
+
+    System.Collections.IEnumerator DeferredCalculate()
+    {
+        // 2프레임 대기: MainHUD 등 UI가 DeferredSubscribe(1프레임)로 구독한 뒤 이벤트 발생
+        yield return null;
+        yield return null;
         CalculateOfflineReward();
     }
 

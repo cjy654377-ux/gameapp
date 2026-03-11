@@ -36,6 +36,8 @@ public static class UIColors
     public static readonly Color Rarity_Common = HexColor("#607080");
     public static readonly Color Rarity_Uncommon = HexColor("#3A7A3A");
     public static readonly Color Rarity_Rare = HexColor("#6B3FA0");
+    public static readonly Color Rarity_Epic = HexColor("#E07020");
+    public static readonly Color Rarity_Legendary = HexColor("#FFD700");
     public static readonly Color Rarity_Locked = HexColor("#252525");
 
     // Text

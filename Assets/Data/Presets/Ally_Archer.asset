@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterPreset
   characterName: "\uAD81\uC218"
   isEnemy: 0
+  rarity: 0
   bodySprite: Human_2
   bodyColor: {r: 1, g: 1, b: 1, a: 1}
   eyeSprite: Eye1
@@ -29,9 +30,23 @@ MonoBehaviour:
   backSprite: 
   horseSprite: 
   attackAnimType: 4
-  maxHp: 160
+  maxHp: 80
   atk: 30
   def: 3
-  moveSpeed: 1.5
+  moveSpeed: 1.8
   attackRange: 4
   attackCooldown: 1.2
+  lightningResist: 0
+  poisonResist: 0
+  damageElement: 0
+  isHealer: 0
+  healAmount: 0
+  healCooldown: 3
+  healRange: 3
+  isBuffer: 0
+  buffAtkBonus: 0
+  buffDefBonus: 0
+  buffDuration: 5
+  buffCooldown: 8
+  buffRange: 4
+  skills: []

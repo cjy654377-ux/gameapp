@@ -61,35 +61,47 @@ public class AchievementManager : MonoBehaviour
         achievements.Add(a);
     }
 
+    // Cached references for safe unsubscribe
+    StageManager cachedStageMgr;
+    GachaManager cachedGachaMgr;
+    UpgradeManager cachedUpgradeMgr;
+
     void Start()
     {
-        // Subscribe to game events
-        if (StageManager.Instance != null)
+        StartCoroutine(DeferredSubscribe());
+    }
+
+    System.Collections.IEnumerator DeferredSubscribe()
+    {
+        // 다른 싱글톤이 Awake에서 초기화될 때까지 1프레임 대기
+        yield return null;
+
+        cachedStageMgr = StageManager.Instance;
+        cachedGachaMgr = GachaManager.Instance;
+        cachedUpgradeMgr = UpgradeManager.Instance;
+
+        if (cachedStageMgr != null)
         {
-            StageManager.Instance.OnStageChanged += OnStageChanged;
-            StageManager.Instance.OnBossSpawned += OnBossKillCheck;
+            cachedStageMgr.OnStageChanged += OnStageChanged;
+            cachedStageMgr.OnBossSpawned += OnBossKillCheck;
         }
-
-        if (GachaManager.Instance != null)
-            GachaManager.Instance.OnHeroPulled += OnHeroPulled;
-
-        if (UpgradeManager.Instance != null)
-            UpgradeManager.Instance.OnUpgraded += OnUpgraded;
+        if (cachedGachaMgr != null)
+            cachedGachaMgr.OnHeroPulled += OnHeroPulled;
+        if (cachedUpgradeMgr != null)
+            cachedUpgradeMgr.OnUpgraded += OnUpgraded;
     }
 
     void OnDestroy()
     {
-        if (StageManager.Instance != null)
+        if (cachedStageMgr != null)
         {
-            StageManager.Instance.OnStageChanged -= OnStageChanged;
-            StageManager.Instance.OnBossSpawned -= OnBossKillCheck;
+            cachedStageMgr.OnStageChanged -= OnStageChanged;
+            cachedStageMgr.OnBossSpawned -= OnBossKillCheck;
         }
-
-        if (GachaManager.Instance != null)
-            GachaManager.Instance.OnHeroPulled -= OnHeroPulled;
-
-        if (UpgradeManager.Instance != null)
-            UpgradeManager.Instance.OnUpgraded -= OnUpgraded;
+        if (cachedGachaMgr != null)
+            cachedGachaMgr.OnHeroPulled -= OnHeroPulled;
+        if (cachedUpgradeMgr != null)
+            cachedUpgradeMgr.OnUpgraded -= OnUpgraded;
     }
 
     void OnStageChanged(int area, int stage, int wave)

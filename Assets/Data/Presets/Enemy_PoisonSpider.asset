@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb52ce968e064fe19e5f439833532cb, type: 3}
+  m_Name: Enemy_PoisonSpider
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterPreset
+  characterName: "\uB3C5\uAC70\uBBF8"
+  isEnemy: 1
+  rarity: 0
+  bodySprite: Orc_2
+  bodyColor: {r: 0.3, g: 0.6, b: 0.3, a: 1}
+  eyeSprite: Eye6
+  eyeColor: {r: 0.28, g: 0.1, b: 0.1, a: 1}
+  hairSprite: 
+  hairColor: {r: 1, g: 1, b: 1, a: 1}
+  weaponSprite: Bow_1
+  shieldSprite: 
+  helmetSprite: 
+  armorSprite: 
+  clothSprite: Cloth_9
+  pantSprite: 
+  backSprite: 
+  horseSprite: 
+  attackAnimType: 4
+  maxHp: 70
+  atk: 18
+  def: 3
+  moveSpeed: 2.5
+  attackRange: 4
+  attackCooldown: 0.9
+  lightningResist: 0
+  poisonResist: 0.6
+  damageElement: 2
+  isHealer: 0
+  healAmount: 0
+  healCooldown: 3
+  healRange: 3
+  isBuffer: 0
+  buffAtkBonus: 0
+  buffDefBonus: 0
+  buffDuration: 5
+  buffCooldown: 8
+  buffRange: 4
+  skills: []

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterPreset
   characterName: "\uD574\uACE8 \uB9C8\uBC95\uC0AC"
   isEnemy: 1
+  rarity: 0
   bodySprite: Skelton_1
   bodyColor: {r: 1, g: 1, b: 1, a: 1}
   eyeSprite: Eye_Close
@@ -32,6 +33,20 @@ MonoBehaviour:
   maxHp: 75
   atk: 32
   def: 2
-  moveSpeed: 0.84
+  moveSpeed: 1.4
   attackRange: 5
   attackCooldown: 1.4
+  lightningResist: 0
+  poisonResist: 0
+  damageElement: 0
+  isHealer: 0
+  healAmount: 0
+  healCooldown: 3
+  healRange: 3
+  isBuffer: 0
+  buffAtkBonus: 0
+  buffDefBonus: 0
+  buffDuration: 5
+  buffCooldown: 8
+  buffRange: 4
+  skills: []

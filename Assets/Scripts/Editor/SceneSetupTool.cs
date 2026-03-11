@@ -49,19 +49,41 @@ public class SceneSetupTool
         stageMgr.desertEnemies.Clear();
         AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_Demon.asset");
         AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_DarkKnight.asset");
+        AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_SandScorpion.asset");
+        AddPreset(stageMgr.desertEnemies, "Assets/Data/Presets/Enemy_DesertMage.asset");
 
         stageMgr.caveEnemies.Clear();
+        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_CaveGolem.asset");
+        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_CaveBat.asset");
         AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_RedRider.asset");
-        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_Skeleton.asset");
+        AddPreset(stageMgr.caveEnemies, "Assets/Data/Presets/Enemy_PoisonSpider.asset");
 
-        // Boss presets (use existing strong enemies as placeholders)
+        // Boss presets
         stageMgr.grassMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_OrcChief.asset");
         stageMgr.grassAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_OrcChief.asset");
         stageMgr.desertMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_DarkKnight.asset");
-        stageMgr.desertAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_DarkKnight.asset");
+        stageMgr.desertAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_Demon.asset");
         stageMgr.caveMidBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_RedRider.asset");
-        stageMgr.caveAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_RedRider.asset");
+        stageMgr.caveAreaBoss = AssetDatabase.LoadAssetAtPath<CharacterPreset>("Assets/Data/Presets/Enemy_CaveGolem.asset");
         Debug.Log("StageManager presets assigned");
+
+        // GachaManager - assign hero pool (allies only)
+        var gachaMgr = EnsureComponent<GachaManager>(gm);
+        var heroPool = new System.Collections.Generic.List<CharacterPreset>();
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Swordsman.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Archer.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Mage.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Knight.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Lancer.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Healer.asset");
+        AddPreset(heroPool, "Assets/Data/Presets/Ally_Bard.asset");
+        gachaMgr.SetHeroPool(heroPool.ToArray());
+        Debug.Log($"GachaManager pool set: {heroPool.Count} heroes");
+
+        // DeckManager - assign roster
+        var deckMgr = EnsureComponent<DeckManager>(gm);
+        deckMgr.roster.Clear();
+        deckMgr.roster.AddRange(heroPool);
 
         // Ensure managers
         EnsureComponent<GoldManager>(gm);
@@ -93,10 +115,10 @@ public class SceneSetupTool
         if (skillMgr != null)
         {
             skillMgr.equippedSkills.Clear();
-            AddSkill(skillMgr, "Assets/Data/Skills/Skill_Fireball.asset");
-            AddSkill(skillMgr, "Assets/Data/Skills/Skill_IceBlast.asset");
-            AddSkill(skillMgr, "Assets/Data/Skills/Skill_Heal.asset");
-            AddSkill(skillMgr, "Assets/Data/Skills/Skill_PoisonCloud.asset");
+            AddSkill(skillMgr, "Assets/Resources/Skills/Skill_Fireball.asset");
+            AddSkill(skillMgr, "Assets/Resources/Skills/Skill_HealingLight.asset");
+            AddSkill(skillMgr, "Assets/Resources/Skills/Skill_LightningStorm.asset");
+            AddSkill(skillMgr, "Assets/Resources/Skills/Skill_PoisonFog.asset");
         }
 
         EditorUtility.SetDirty(gm);

@@ -48,16 +48,23 @@ public class SkillUI : MonoBehaviour
         CreateAutoToggle();
     }
 
+    SkillManager cachedSkillMgr;
+
     void Start()
     {
-        if (SkillManager.Instance != null)
+        StartCoroutine(DeferredSubscribe());
+    }
+
+    System.Collections.IEnumerator DeferredSubscribe()
+    {
+        yield return null;
+        cachedSkillMgr = SkillManager.Instance;
+        if (cachedSkillMgr != null)
         {
-            SkillManager.Instance.OnCooldownChanged += UpdateCooldown;
-            SkillManager.Instance.OnSkillUsed += OnSkillUsed;
+            cachedSkillMgr.OnCooldownChanged += UpdateCooldown;
+            cachedSkillMgr.OnSkillUsed += OnSkillUsed;
             RefreshSlots();
         }
-
-        // Apply initial tab panel state
         if (_isTabPanelOpen) HideSkillSlots();
     }
 
@@ -189,8 +196,8 @@ public class SkillUI : MonoBehaviour
                 {
                     SkillRarity.Common => UIColors.Rarity_Common,
                     SkillRarity.Rare => UIColors.Rarity_Rare,
-                    SkillRarity.Epic => UIColors.Rarity_Rare,
-                    SkillRarity.Legendary => UIColors.Text_Gold,
+                    SkillRarity.Epic => UIColors.Rarity_Epic,
+                    SkillRarity.Legendary => UIColors.Rarity_Legendary,
                     _ => UIColors.Rarity_Common
                 };
                 readyColors[i] = new Color(rarityColor.r * 0.6f, rarityColor.g * 0.6f, rarityColor.b * 0.6f, 0.95f);
@@ -254,10 +261,10 @@ public class SkillUI : MonoBehaviour
 
     void OnDestroy()
     {
-        if (SkillManager.Instance != null)
+        if (cachedSkillMgr != null)
         {
-            SkillManager.Instance.OnCooldownChanged -= UpdateCooldown;
-            SkillManager.Instance.OnSkillUsed -= OnSkillUsed;
+            cachedSkillMgr.OnCooldownChanged -= UpdateCooldown;
+            cachedSkillMgr.OnSkillUsed -= OnSkillUsed;
         }
     }
 }

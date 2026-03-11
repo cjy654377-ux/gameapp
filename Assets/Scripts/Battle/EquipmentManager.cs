@@ -82,6 +82,69 @@ public class EquipmentManager : MonoBehaviour
         LoadInventory();
     }
 
+    StageManager cachedStageMgr;
+
+    void Start()
+    {
+        StartCoroutine(DeferredSubscribe());
+    }
+
+    System.Collections.IEnumerator DeferredSubscribe()
+    {
+        yield return null;
+        cachedStageMgr = StageManager.Instance;
+        if (cachedStageMgr != null)
+        {
+            cachedStageMgr.OnStageCleared += OnStageCleared;
+            cachedStageMgr.OnBossSpawned += OnBossKilled;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (cachedStageMgr != null)
+        {
+            cachedStageMgr.OnStageCleared -= OnStageCleared;
+            cachedStageMgr.OnBossSpawned -= OnBossKilled;
+        }
+    }
+
+    /// <summary>
+    /// 스테이지 클리어 시 30% 확률로 장비 드롭 + 보스 드롭 처리
+    /// </summary>
+    void OnStageCleared(int waveIndex)
+    {
+        int area = cachedStageMgr != null ? cachedStageMgr.CurrentArea : 1;
+
+        // 보스 추가 드롭 (스폰 시 플래그 → 스테이지 클리어 시 지급)
+        if (bossDropPending > 0)
+        {
+            for (int i = 0; i < bossDropPending; i++)
+            {
+                var bossItem = GenerateRandomEquipment(area);
+                AddItem(bossItem);
+                ToastNotification.Instance?.Show($"보스 장비: {bossItem.itemName}", "");
+            }
+            bossDropPending = 0;
+        }
+
+        // 일반 웨이브 30% 확률 드롭
+        if (UnityEngine.Random.value > 0.30f) return;
+        var item = GenerateRandomEquipment(area);
+        AddItem(item);
+        ToastNotification.Instance?.Show($"장비 획득: {item.itemName}", "");
+    }
+
+    /// <summary>
+    /// 보스 스폰 시 드롭 플래그 설정 (실제 드롭은 OnStageCleared에서)
+    /// </summary>
+    void OnBossKilled(bool isAreaBoss)
+    {
+        bossDropPending = isAreaBoss ? 2 : 1;
+    }
+
+    int bossDropPending;
+
     /// <summary>
     /// 읽기 전용 인벤토리
     /// </summary>
