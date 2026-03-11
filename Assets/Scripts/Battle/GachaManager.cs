@@ -6,7 +6,9 @@ using System.Collections.Generic;
 /// 보석으로 영웅 소환 (가챠)
 /// - 단일 뽑기: 50보석
 /// - 10연차: 450보석 (1회 할인)
-/// - 중복 영웅 소환 시 경험치 보상 (HeroLevelManager 연동 예정)
+/// - 레어리티 가중치: Common 60%, Rare 25%, Epic 12%, Legendary 3%
+/// - 천장(pity): 10회 이내 Rare+ 미출 시 보장
+/// - 10연차: 최소 1 Rare+ 보장
 /// </summary>
 public class GachaManager : MonoBehaviour
 {
@@ -21,6 +23,15 @@ public class GachaManager : MonoBehaviour
     public event Action<CharacterPreset> OnHeroPulled;
     public event Action<CharacterPreset[]> OnMultiPulled;
 
+    // Pity counter
+    int pullsSinceRare;
+
+    // Rarity tiers sorted from pool
+    readonly List<CharacterPreset> commonPool = new();
+    readonly List<CharacterPreset> rarePool = new();
+    readonly List<CharacterPreset> epicPool = new();
+    readonly List<CharacterPreset> legendaryPool = new();
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -32,6 +43,29 @@ public class GachaManager : MonoBehaviour
             allHeroes = loaded;
         else if (allHeroes == null)
             allHeroes = Array.Empty<CharacterPreset>();
+
+        pullsSinceRare = PlayerPrefs.GetInt("PullsSinceRare", 0);
+        RebuildRarityPools();
+    }
+
+    void RebuildRarityPools()
+    {
+        commonPool.Clear();
+        rarePool.Clear();
+        epicPool.Clear();
+        legendaryPool.Clear();
+
+        for (int i = 0; i < allHeroes.Length; i++)
+        {
+            var hero = allHeroes[i];
+            switch (hero.rarity)
+            {
+                case HeroRarity.Common: commonPool.Add(hero); break;
+                case HeroRarity.Rare: rarePool.Add(hero); break;
+                case HeroRarity.Epic: epicPool.Add(hero); break;
+                case HeroRarity.Legendary: legendaryPool.Add(hero); break;
+            }
+        }
     }
 
     /// <summary>
@@ -40,6 +74,7 @@ public class GachaManager : MonoBehaviour
     public void SetHeroPool(CharacterPreset[] heroes)
     {
         allHeroes = heroes ?? Array.Empty<CharacterPreset>();
+        RebuildRarityPools();
     }
 
     /// <summary>
@@ -70,14 +105,16 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
-        var hero = PullOne();
+        var hero = PullOne(false);
         HandlePullResult(hero);
+        SoundManager.Instance?.PlayGachaSFX();
         OnHeroPulled?.Invoke(hero);
         return hero;
     }
 
     /// <summary>
     /// 10연차 (450보석, 1회 할인 포함)
+    /// 최소 1 Rare+ 보장
     /// </summary>
     public CharacterPreset[] MultiPull()
     {
@@ -100,23 +137,103 @@ public class GachaManager : MonoBehaviour
         }
 
         var results = new CharacterPreset[10];
+        bool hasRarePlus = false;
+
         for (int i = 0; i < 10; i++)
         {
-            results[i] = PullOne();
-            HandlePullResult(results[i]);
+            results[i] = PullOne(false);
+            if (results[i] != null && results[i].rarity >= HeroRarity.Rare)
+                hasRarePlus = true;
         }
 
+        // 10연차 Rare+ 보장: 없으면 마지막 슬롯을 Rare+로 교체
+        if (!hasRarePlus)
+            results[9] = PullOne(true);
+
+        // 결과 처리 (중복/신규)
+        for (int i = 0; i < 10; i++)
+            HandlePullResult(results[i]);
+
+        SoundManager.Instance?.PlayGachaSFX();
         OnMultiPulled?.Invoke(results);
         return results;
     }
 
     /// <summary>
-    /// 균등 확률로 1명 뽑기 (rarity 미구현, 추후 확률 테이블 추가)
+    /// 레어리티 가중치 뽑기
+    /// Common 60%, Rare 25%, Epic 12%, Legendary 3%
+    /// Pity: 10회 연속 Common이면 Rare+ 보장
     /// </summary>
-    CharacterPreset PullOne()
+    CharacterPreset PullOne(bool guaranteeRarePlus)
     {
-        int index = UnityEngine.Random.Range(0, allHeroes.Length);
-        return allHeroes[index];
+        if (allHeroes.Length == 0) return null;
+
+        HeroRarity selectedRarity;
+
+        if (guaranteeRarePlus || pullsSinceRare >= 9)
+        {
+            // Pity 발동: Rare+ 보장 (Rare 70%, Epic 22%, Legendary 8%)
+            float pityRoll = UnityEngine.Random.Range(0f, 100f);
+            if (pityRoll < 8f)
+                selectedRarity = HeroRarity.Legendary;
+            else if (pityRoll < 30f)
+                selectedRarity = HeroRarity.Epic;
+            else
+                selectedRarity = HeroRarity.Rare;
+
+            pullsSinceRare = 0;
+        }
+        else
+        {
+            float roll = UnityEngine.Random.Range(0f, 100f);
+            if (roll < 3f)
+                selectedRarity = HeroRarity.Legendary;
+            else if (roll < 15f) // 3 + 12
+                selectedRarity = HeroRarity.Epic;
+            else if (roll < 40f) // 15 + 25
+                selectedRarity = HeroRarity.Rare;
+            else
+                selectedRarity = HeroRarity.Common;
+
+            if (selectedRarity == HeroRarity.Common)
+                pullsSinceRare++;
+            else
+                pullsSinceRare = 0;
+        }
+
+        SavePity();
+
+        // Pick random from selected rarity pool, fallback if empty
+        var pool = GetPool(selectedRarity);
+        if (pool.Count > 0)
+            return pool[UnityEngine.Random.Range(0, pool.Count)];
+
+        // Fallback: try lower rarities, then any
+        for (int r = (int)selectedRarity - 1; r >= 0; r--)
+        {
+            var fallback = GetPool((HeroRarity)r);
+            if (fallback.Count > 0)
+                return fallback[UnityEngine.Random.Range(0, fallback.Count)];
+        }
+        // Last resort: any hero
+        return allHeroes[UnityEngine.Random.Range(0, allHeroes.Length)];
+    }
+
+    List<CharacterPreset> GetPool(HeroRarity rarity)
+    {
+        return rarity switch
+        {
+            HeroRarity.Common => commonPool,
+            HeroRarity.Rare => rarePool,
+            HeroRarity.Epic => epicPool,
+            HeroRarity.Legendary => legendaryPool,
+            _ => commonPool
+        };
+    }
+
+    void SavePity()
+    {
+        PlayerPrefs.SetInt("PullsSinceRare", pullsSinceRare);
     }
 
     /// <summary>

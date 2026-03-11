@@ -98,11 +98,13 @@ public class GoldDrop : MonoBehaviour
         if (GoldManager.Instance != null)
             GoldManager.Instance.AddGold(goldAmount);
 
+        SoundManager.Instance?.PlayGoldSFX();
         DamagePopup.CreateGold(transform.position + Vector3.up * 0.3f, goldAmount);
         Destroy(gameObject);
     }
 
-    void OnDestroy()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void CleanupStatic()
     {
         if (coinSprite != null)
         {

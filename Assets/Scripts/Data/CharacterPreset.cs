@@ -1,5 +1,7 @@
 using UnityEngine;
 
+public enum HeroRarity { Common, Rare, Epic, Legendary }
+
 public enum AttackAnimType
 {
     Melee,      // 0_Attack_Normal (검/기본)
@@ -15,6 +17,7 @@ public class CharacterPreset : ScriptableObject
 {
     public string characterName;
     public bool isEnemy;
+    public HeroRarity rarity = HeroRarity.Common;
 
     [Header("Body")]
     public string bodySprite = "Human_1"; // Human_1~5, Orc_1~4, Skelton_1, Devil_1, Elf_1~2
@@ -70,4 +73,7 @@ public class CharacterPreset : ScriptableObject
     public float buffDuration = 5f;
     public float buffCooldown = 8f;
     public float buffRange = 4f;
+
+    [Header("Skills")]
+    public SkillData[] skills;  // 영웅별 스킬 (최대 2개)
 }

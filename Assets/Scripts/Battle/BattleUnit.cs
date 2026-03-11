@@ -66,6 +66,14 @@ public class BattleUnit : MonoBehaviour
     [HideInInspector] public float buffDef;
     private float buffTimer;
 
+    // Per-unit skill system
+    [HideInInspector] public SkillData[] skills;
+    readonly float[] skillCooldowns = new float[2];
+    readonly List<BattleUnit> skillTargetBuffer = new();
+
+    public event System.Action<int, float, float> OnSkillCooldownChanged; // slot, remaining, total
+    public event System.Action<int, SkillData> OnSkillActivated;
+
     static readonly Dictionary<AttackAnimType, string> AttackClipPaths = new()
     {
         { AttackAnimType.Melee,     "Addons/Legacy/0_Unit/1_Animation/02_Attack/00_MeleeAttack/0_Attack_Normal" },
@@ -119,6 +127,9 @@ public class BattleUnit : MonoBehaviour
         if (IsDead || BattleManager.Instance == null ||
             BattleManager.Instance.CurrentState != BattleManager.BattleState.Fighting)
             return;
+
+        // Skill auto-use
+        UpdateSkills();
 
         // Buff timer
         if (buffTimer > 0f)
@@ -246,6 +257,88 @@ public class BattleUnit : MonoBehaviour
         }
 
         return false;
+    }
+
+    void UpdateSkills()
+    {
+        if (skills == null || CurrentTeam != Team.Ally) return;
+
+        for (int i = 0; i < skills.Length && i < 2; i++)
+        {
+            if (skills[i] == null) continue;
+            if (skillCooldowns[i] > 0f)
+            {
+                skillCooldowns[i] -= Time.deltaTime;
+                OnSkillCooldownChanged?.Invoke(i, skillCooldowns[i], skills[i].cooldown);
+            }
+            else
+            {
+                UseUnitSkill(i);
+            }
+        }
+    }
+
+    void UseUnitSkill(int slot)
+    {
+        var skill = skills[slot];
+        var sm = SkillManager.Instance;
+        if (sm == null) return;
+
+        // Delegate to SkillManager for consistent effect application
+        var targets = GetSkillTargets(skill);
+        if (targets == null || targets.Count == 0) return;
+
+        for (int i = 0; i < targets.Count; i++)
+            sm.ApplyEffect(skill, targets[i]);
+
+        skillCooldowns[slot] = skill.cooldown;
+        OnSkillActivated?.Invoke(slot, skill);
+    }
+
+    List<BattleUnit> GetSkillTargets(SkillData skill)
+    {
+        var manager = BattleManager.Instance;
+        if (manager == null) return null;
+
+        skillTargetBuffer.Clear();
+        var result = skillTargetBuffer;
+        switch (skill.targetType)
+        {
+            case SkillTargetType.SingleEnemy:
+                if (target != null && !target.IsDead) result.Add(target);
+                else
+                {
+                    var nearest = manager.FindNearestEnemy(this);
+                    if (nearest != null) result.Add(nearest);
+                }
+                break;
+            case SkillTargetType.AllEnemies:
+                var enemies = manager.enemyUnits;
+                for (int i = 0; i < enemies.Count; i++)
+                    if (!enemies[i].IsDead) result.Add(enemies[i]);
+                break;
+            case SkillTargetType.SingleAlly:
+                BattleUnit weakest = null;
+                float lowestRatio = 1f;
+                var allies = manager.allyUnits;
+                for (int i = 0; i < allies.Count; i++)
+                {
+                    if (allies[i].IsDead) continue;
+                    float ratio = allies[i].CurrentHp / allies[i].maxHp;
+                    if (ratio < lowestRatio) { lowestRatio = ratio; weakest = allies[i]; }
+                }
+                if (weakest != null) result.Add(weakest);
+                break;
+            case SkillTargetType.AllAllies:
+                var allAllies = manager.allyUnits;
+                for (int i = 0; i < allAllies.Count; i++)
+                    if (!allAllies[i].IsDead) result.Add(allAllies[i]);
+                break;
+            case SkillTargetType.Self:
+                result.Add(this);
+                break;
+        }
+        return result;
     }
 
     void ClampY()
@@ -380,6 +473,11 @@ public class BattleUnit : MonoBehaviour
             if (cachedRenderers[i] != null) cachedRenderers[i].color = originalColors[i];
 
         flashRoutine = null;
+    }
+
+    public void NotifyHpChanged()
+    {
+        OnHpChanged?.Invoke(CurrentHp, maxHp);
     }
 
     public void Heal(float amount)

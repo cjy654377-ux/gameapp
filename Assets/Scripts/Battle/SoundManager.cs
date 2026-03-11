@@ -37,7 +37,7 @@ public class SoundManager : MonoBehaviour
     {
         if (clipCache.TryGetValue(path, out var cached)) return cached;
         var clip = Resources.Load<AudioClip>(path);
-        clipCache[path] = clip;
+        if (clip != null) clipCache[path] = clip;
         return clip;
     }
 
@@ -73,6 +73,12 @@ public class SoundManager : MonoBehaviour
     public void PlayGoldSFX() => PlaySFX("gold");
     public void PlayLevelUpSFX() => PlaySFX("levelup");
     public void PlayButtonSFX() => PlaySFX("button");
+    public void PlayBossAppearSFX() => PlaySFX("boss_appear");
+    public void PlaySkillSFX() => PlaySFX("skill");
+    public void PlayGachaSFX() => PlaySFX("gacha");
+    public void PlayEquipSFX() => PlaySFX("equip");
+    public void PlayDefeatSFX() => PlaySFX("defeat");
+    public void PlayWaveClearSFX() => PlaySFX("wave_clear");
 
     public void SetBGMVolume(float v)
     {

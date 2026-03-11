@@ -12,6 +12,7 @@ public enum DamageNumberStyle
 public static class PixelNumberFont
 {
     static readonly Dictionary<string, Sprite> spriteCache = new();
+    const int MAX_CACHE_SIZE = 128;
 
     // 7x9 bold pixel font patterns for 0-9, + and -
     // Designed to be chunky and wide like MapleStory damage numbers
@@ -230,12 +231,26 @@ public static class PixelNumberFont
         int totalW = charCount * (scaledW + pad) + (charCount - 1) * spacing;
         int totalH = scaledH + pad;
 
+        // 캐시 크기 제한: 오래된 항목 일괄 제거
+        if (spriteCache.Count >= MAX_CACHE_SIZE)
+        {
+            foreach (var kvp in spriteCache)
+            {
+                if (kvp.Value != null)
+                {
+                    var t = kvp.Value.texture;
+                    Object.Destroy(kvp.Value);
+                    if (t != null) Object.Destroy(t);
+                }
+            }
+            spriteCache.Clear();
+        }
+
         var tex = new Texture2D(totalW, totalH, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Point;
 
-        // Clear
+        // 배열 기반 픽셀 조작 (SetPixel 개별 호출 대신)
         var pixels = new Color[totalW * totalH];
-        tex.SetPixels(pixels);
 
         for (int ci = 0; ci < charCount; ci++)
         {
@@ -264,7 +279,7 @@ public static class PixelNumberFont
                                 {
                                     int fx = sx + i, fy = sy - j;
                                     if (fx >= 0 && fx < totalW && fy >= 0 && fy < totalH)
-                                        tex.SetPixel(fx, fy, colors.outline);
+                                        pixels[fy * totalW + fx] = colors.outline;
                                 }
                             }
                         }
@@ -297,13 +312,14 @@ public static class PixelNumberFont
                         {
                             int fx = sx + i, fy = sy - j;
                             if (fx >= 0 && fx < totalW && fy >= 0 && fy < totalH)
-                                tex.SetPixel(fx, fy, fill);
+                                pixels[fy * totalW + fx] = fill;
                         }
                     }
                 }
             }
         }
 
+        tex.SetPixels(pixels);
         tex.Apply();
         float ppu = totalH * 0.5f;
         var sprite = Sprite.Create(tex, new Rect(0, 0, totalW, totalH), new Vector2(0.5f, 0.5f), ppu);

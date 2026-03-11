@@ -138,6 +138,7 @@ public class DeckManager : MonoBehaviour
     public void SetSlot(int slotIndex, CharacterPreset preset)
     {
         if (slotIndex < 0 || slotIndex >= MAX_DECK_SIZE) return;
+        if (preset == null) { RemoveFromDeck(slotIndex); return; }
 
         // 이미 다른 슬롯에 있으면 그 슬롯 비우기
         int existingSlot = GetSlotIndex(preset);

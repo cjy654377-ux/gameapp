@@ -37,16 +37,24 @@ public class MainHUD : MonoBehaviour
     int killCount;
 
     // Bottom Nav
-    readonly string[] tabNames = { "훈련", "영웅", "편성", "소환", "상점" };
-    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "♦" };
-    readonly Button[] tabButtons = new Button[5];
-    readonly Image[] tabIndicators = new Image[5];
-    readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[5];
-    readonly TextMeshProUGUI[] tabIconTexts = new TextMeshProUGUI[5];
+    readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점" };
+    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "$" };
+    const int TAB_COUNT = 5;
+    readonly Button[] tabButtons = new Button[TAB_COUNT];
+    readonly Image[] tabIndicators = new Image[TAB_COUNT];
+    readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[TAB_COUNT];
+    readonly TextMeshProUGUI[] tabIconTexts = new TextMeshProUGUI[TAB_COUNT];
 
     // Tab overlay panels
-    readonly GameObject[] tabPanels = new GameObject[5];
+    readonly GameObject[] tabPanels = new GameObject[TAB_COUNT];
     int activeTab = -1;
+
+    // 강화 탭 서브탭
+    int enhanceSubTab; // 0=영웅, 1=장비
+    Button[] enhanceSubTabBtns;
+    TextMeshProUGUI[] enhanceSubTabLabels;
+    GameObject enhanceHeroRoot;
+    GameObject enhanceEquipRoot;
 
     // 훈련 탭 업그레이드 UI
     TextMeshProUGUI tapUpText;
@@ -67,7 +75,10 @@ public class MainHUD : MonoBehaviour
         if (GemManager.Instance != null)
             GemManager.Instance.OnGemChanged += UpdateGem;
         if (StageManager.Instance != null)
+        {
             StageManager.Instance.OnStageChanged += OnStageChanged;
+            StageManager.Instance.OnBossSpawned += OnBossSpawned;
+        }
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged += OnBattleStateChanged;
 
@@ -210,7 +221,7 @@ public class MainHUD : MonoBehaviour
         irt.anchorMax = new Vector2(0, 0.85f);
         irt.pivot = new Vector2(0, 0.5f);
         irt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 0);
-        irt.sizeDelta = new Vector2(22, 0);
+        irt.sizeDelta = new Vector2(18, 0);
 
         var iconText = UIHelper.MakeText($"{name}IconText", iconBg.transform, iconChar,
             UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
@@ -237,8 +248,8 @@ public class MainHUD : MonoBehaviour
         bannerBg.color = new Color(0, 0, 0, 0.6f);
 
         var rt = waveBanner.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.15f, 0.75f);
-        rt.anchorMax = new Vector2(0.85f, 0.82f);
+        rt.anchorMin = new Vector2(0.2f, 0.78f);
+        rt.anchorMax = new Vector2(0.8f, 0.83f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
@@ -269,8 +280,8 @@ public class MainHUD : MonoBehaviour
         rt.anchorMin = new Vector2(0, 0.5f);
         rt.anchorMax = new Vector2(0, 0.5f);
         rt.pivot = new Vector2(0, 0.5f);
-        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Medium, 60);
-        rt.sizeDelta = new Vector2(70, 28);
+        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 50);
+        rt.sizeDelta = new Vector2(58, 22);
 
         var iconText = UIHelper.MakeText("KillIcon", container.transform, "KILL",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Defeat_Red);
@@ -308,11 +319,12 @@ public class MainHUD : MonoBehaviour
         brt.pivot = new Vector2(0.5f, 1);
         brt.sizeDelta = new Vector2(0, 2);
 
-        for (int i = 0; i < 5; i++)
+        float tabWidth = 1f / TAB_COUNT;
+        for (int i = 0; i < TAB_COUNT; i++)
         {
             int idx = i;
-            float xMin = i * 0.2f;
-            float xMax = (i + 1) * 0.2f;
+            float xMin = i * tabWidth;
+            float xMax = (i + 1) * tabWidth;
 
             var tabObj = UIHelper.MakeUI($"Tab_{tabNames[i]}", navBar.transform);
             var tabImg = tabObj.AddComponent<Image>();
@@ -342,8 +354,8 @@ public class MainHUD : MonoBehaviour
                 UIConstants.NavBar_IconSize, TextAlignmentOptions.Center, UIColors.Text_Disabled);
             tabIconTexts[i].fontStyle = FontStyles.Bold;
             var icrt = tabIconTexts[i].GetComponent<RectTransform>();
-            icrt.anchorMin = new Vector2(0, 0.35f);
-            icrt.anchorMax = new Vector2(1, 0.9f);
+            icrt.anchorMin = new Vector2(0, 0.32f);
+            icrt.anchorMax = new Vector2(1, 0.88f);
             icrt.offsetMin = Vector2.zero;
             icrt.offsetMax = Vector2.zero;
 
@@ -351,8 +363,8 @@ public class MainHUD : MonoBehaviour
             tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
                 UIConstants.Font_NavLabel, TextAlignmentOptions.Top, UIColors.Text_Disabled);
             var lrt = tabLabels[i].GetComponent<RectTransform>();
-            lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.35f);
+            lrt.anchorMin = new Vector2(0, 0.02f);
+            lrt.anchorMax = new Vector2(1, 0.32f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
         }
@@ -364,16 +376,16 @@ public class MainHUD : MonoBehaviour
         float refH = UIConstants.ReferenceResolution.y;
         float navRatio = UIConstants.NavBar_Height / refH;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < TAB_COUNT; i++)
         {
             var panel = UIHelper.MakeUI($"Panel_{tabNames[i]}", safeAreaRoot.transform);
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = UIColors.Background_Panel;
 
             var prt = panel.GetComponent<RectTransform>();
-            // 모든 탭 하단 절반만 사용
+            // 모든 탭 하단 절반 이하만 사용
             prt.anchorMin = new Vector2(0, navRatio);
-            prt.anchorMax = new Vector2(1, 0.55f);
+            prt.anchorMax = new Vector2(1, 0.48f);
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
@@ -416,7 +428,7 @@ public class MainHUD : MonoBehaviour
             if (i == 0)
                 BuildUpgradeContent(panel.transform);
             else if (i == 1)
-                BuildHeroContent(panel.transform);
+                BuildEnhanceContent(panel.transform);
             else if (i == 2)
             {
                 var deckUI = panel.AddComponent<DeckUI>();
@@ -424,16 +436,8 @@ public class MainHUD : MonoBehaviour
             }
             else if (i == 3)
                 BuildGachaContent(panel.transform);
-            else
-            {
-                var content = UIHelper.MakeText("Content", panel.transform, "준비 중...",
-                    UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Disabled);
-                var contrt = content.GetComponent<RectTransform>();
-                contrt.anchorMin = new Vector2(0, 0.4f);
-                contrt.anchorMax = new Vector2(1, 0.6f);
-                contrt.offsetMin = Vector2.zero;
-                contrt.offsetMax = Vector2.zero;
-            }
+            else if (i == 4)
+                BuildShopContent(panel.transform);
 
             tabPanels[i] = panel;
             panel.SetActive(false);
@@ -547,7 +551,6 @@ public class MainHUD : MonoBehaviour
     {
         if (state == BattleManager.BattleState.Defeat)
         {
-            ClosePanel();
             if (StageManager.Instance != null)
                 StageManager.Instance.RewindAndRestart();
         }
@@ -555,14 +558,17 @@ public class MainHUD : MonoBehaviour
 
     void OnTabClicked(int idx)
     {
+        SoundManager.Instance?.PlayButtonSFX();
         if (activeTab == idx) { ClosePanel(); return; }
         ClosePanel();
         activeTab = idx;
         tabPanels[idx].SetActive(true);
+        SkillUI.IsTabPanelOpen = true;
         UpdateTabVisuals();
         if (idx == 0) RefreshUpgradeUI();
-        if (idx == 1) RefreshHeroUI();
+        if (idx == 1) RefreshEnhanceTab();
         if (idx == 3) RefreshGachaUI();
+        if (idx == 4) RefreshShopUI();
     }
 
     void ClosePanel()
@@ -570,12 +576,13 @@ public class MainHUD : MonoBehaviour
         if (activeTab >= 0)
             tabPanels[activeTab].SetActive(false);
         activeTab = -1;
+        SkillUI.IsTabPanelOpen = false;
         UpdateTabVisuals();
     }
 
     void UpdateTabVisuals()
     {
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < TAB_COUNT; i++)
         {
             bool active = (i == activeTab);
             tabButtons[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
@@ -629,6 +636,22 @@ public class MainHUD : MonoBehaviour
         waveBannerTimer = 2f;
     }
 
+    void OnBossSpawned(bool isAreaBoss)
+    {
+        if (waveBanner == null || waveBannerText == null) return;
+        string bossLabel = isAreaBoss ? "AREA BOSS!" : "BOSS!";
+        waveBannerText.text = $"⚠ {bossLabel} ⚠";
+        waveBannerText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Defeat_Red;
+
+        var outline = waveBanner.GetComponent<Outline>();
+        if (outline != null)
+            outline.effectColor = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Defeat_Red;
+
+        if (waveBannerCG != null) waveBannerCG.alpha = 1f;
+        waveBanner.SetActive(true);
+        waveBannerTimer = 3f; // 보스는 더 오래 표시
+    }
+
     // ── Public API ──
 
     public void AddKill()
@@ -645,14 +668,116 @@ public class MainHUD : MonoBehaviour
         if (GemManager.Instance != null)
             GemManager.Instance.OnGemChanged -= UpdateGem;
         if (StageManager.Instance != null)
+        {
             StageManager.Instance.OnStageChanged -= OnStageChanged;
+            StageManager.Instance.OnBossSpawned -= OnBossSpawned;
+        }
         if (BattleManager.Instance != null)
             BattleManager.Instance.OnBattleStateChanged -= OnBattleStateChanged;
     }
 
     // ════════════════════════════════════════
-    // 영웅 탭 (index 1) - 영웅 강화
+    // 강화 탭 (index 1) - 서브탭: 영웅 / 장비
     // ════════════════════════════════════════
+
+    void BuildEnhanceContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("EnhanceContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = Vector2.zero;
+        contentRT.anchorMax = Vector2.one;
+        contentRT.offsetMin = new Vector2(0, 0);
+        contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
+
+        // 서브탭 바
+        float subTabH = 30f;
+        var subTabBar = UIHelper.MakePanel("SubTabBar", content.transform, UIColors.Background_Dark);
+        var stbRT = subTabBar.GetComponent<RectTransform>();
+        stbRT.anchorMin = new Vector2(0, 1);
+        stbRT.anchorMax = new Vector2(1, 1);
+        stbRT.pivot = new Vector2(0.5f, 1);
+        stbRT.sizeDelta = new Vector2(0, subTabH);
+
+        string[] subNames = { "영웅", "장비" };
+        enhanceSubTabBtns = new Button[2];
+        enhanceSubTabLabels = new TextMeshProUGUI[2];
+
+        for (int s = 0; s < 2; s++)
+        {
+            float xMin = s * 0.5f;
+            float xMax = (s + 1) * 0.5f;
+            var (btn, _) = UIHelper.MakeButton($"SubTab_{subNames[s]}", subTabBar.transform,
+                UIColors.Tab_Inactive, "", 0);
+            var brt = btn.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(xMin, 0);
+            brt.anchorMax = new Vector2(xMax, 1);
+            brt.offsetMin = new Vector2(1, 0);
+            brt.offsetMax = new Vector2(-1, 0);
+
+            var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
+                UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+            label.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(label.GetComponent<RectTransform>());
+
+            enhanceSubTabBtns[s] = btn;
+            enhanceSubTabLabels[s] = label;
+
+            int captured = s;
+            btn.onClick.AddListener(() => SwitchEnhanceSubTab(captured));
+        }
+
+        // 영웅 콘텐츠 루트
+        enhanceHeroRoot = UIHelper.MakeUI("HeroRoot", content.transform);
+        var heroRT = enhanceHeroRoot.GetComponent<RectTransform>();
+        heroRT.anchorMin = Vector2.zero;
+        heroRT.anchorMax = new Vector2(1, 1);
+        heroRT.offsetMin = Vector2.zero;
+        heroRT.offsetMax = new Vector2(0, -subTabH);
+        BuildHeroContent(enhanceHeroRoot.transform);
+
+        // 장비 콘텐츠 루트
+        enhanceEquipRoot = UIHelper.MakeUI("EquipRoot", content.transform);
+        var equipRT = enhanceEquipRoot.GetComponent<RectTransform>();
+        equipRT.anchorMin = Vector2.zero;
+        equipRT.anchorMax = new Vector2(1, 1);
+        equipRT.offsetMin = Vector2.zero;
+        equipRT.offsetMax = new Vector2(0, -subTabH);
+        BuildEquipmentContent(enhanceEquipRoot.transform);
+
+        enhanceSubTab = 0;
+        UpdateEnhanceSubTabVisuals();
+    }
+
+    void SwitchEnhanceSubTab(int subIdx)
+    {
+        SoundManager.Instance?.PlayButtonSFX();
+        enhanceSubTab = subIdx;
+        UpdateEnhanceSubTabVisuals();
+        if (subIdx == 0) RefreshHeroUI();
+        else RefreshEquipmentUI();
+    }
+
+    void UpdateEnhanceSubTabVisuals()
+    {
+        if (enhanceSubTabBtns == null) return;
+        for (int i = 0; i < 2; i++)
+        {
+            bool active = (i == enhanceSubTab);
+            enhanceSubTabBtns[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            enhanceSubTabLabels[i].color = active ? UIColors.Text_TabActive : UIColors.Text_Disabled;
+        }
+        if (enhanceHeroRoot != null) enhanceHeroRoot.SetActive(enhanceSubTab == 0);
+        if (enhanceEquipRoot != null) enhanceEquipRoot.SetActive(enhanceSubTab == 1);
+    }
+
+    void RefreshEnhanceTab()
+    {
+        UpdateEnhanceSubTabVisuals();
+        if (enhanceSubTab == 0) RefreshHeroUI();
+        else RefreshEquipmentUI();
+    }
+
+    // ── 영웅 서브탭 콘텐츠 ──
 
     GameObject heroListContainer;
     readonly List<GameObject> heroListItems = new();
@@ -679,8 +804,7 @@ public class MainHUD : MonoBehaviour
         scrollRect.vertical = true;
 
         var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
-        viewport.AddComponent<Image>().color = Color.clear;
-        viewport.AddComponent<Mask>().showMaskGraphic = false;
+        viewport.AddComponent<RectMask2D>();
         UIHelper.FillParent(viewport.GetComponent<RectTransform>());
         scrollRect.viewport = viewport.GetComponent<RectTransform>();
 
@@ -705,8 +829,8 @@ public class MainHUD : MonoBehaviour
             if (heroListItems[i] != null) Object.Destroy(heroListItems[i]);
         heroListItems.Clear();
 
-        float itemH = 50f;
-        float spacing = 3f;
+        float itemH = 42f;
+        float spacing = 2f;
         float y = 0;
 
         for (int i = 0; i < dm.roster.Count; i++)
@@ -817,7 +941,7 @@ public class MainHUD : MonoBehaviour
             UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Diamond);
         gachaGemText.fontStyle = FontStyles.Bold;
         var grt = gachaGemText.GetComponent<RectTransform>();
-        grt.anchorMin = new Vector2(0, 0.8f);
+        grt.anchorMin = new Vector2(0, 0.85f);
         grt.anchorMax = new Vector2(1, 1);
         grt.offsetMin = Vector2.zero;
         grt.offsetMax = Vector2.zero;
@@ -827,8 +951,8 @@ public class MainHUD : MonoBehaviour
             UIColors.Button_Green, "", UIConstants.Font_Button);
         singleBtn.onClick.AddListener(OnSinglePull);
         var sbrt = singleBtn.GetComponent<RectTransform>();
-        sbrt.anchorMin = new Vector2(0.05f, 0.45f);
-        sbrt.anchorMax = new Vector2(0.47f, 0.75f);
+        sbrt.anchorMin = new Vector2(0.05f, 0.5f);
+        sbrt.anchorMax = new Vector2(0.47f, 0.8f);
         sbrt.offsetMin = Vector2.zero;
         sbrt.offsetMax = Vector2.zero;
         var sText = UIHelper.MakeText("Label", singleBtn.transform, $"1회 소환\n{GachaManager.SINGLE_PULL_COST} 보석",
@@ -841,8 +965,8 @@ public class MainHUD : MonoBehaviour
             UIColors.Button_Yellow, "", UIConstants.Font_Button);
         multiBtn.onClick.AddListener(OnMultiPull);
         var mbrt = multiBtn.GetComponent<RectTransform>();
-        mbrt.anchorMin = new Vector2(0.53f, 0.45f);
-        mbrt.anchorMax = new Vector2(0.95f, 0.75f);
+        mbrt.anchorMin = new Vector2(0.53f, 0.5f);
+        mbrt.anchorMax = new Vector2(0.95f, 0.8f);
         mbrt.offsetMin = Vector2.zero;
         mbrt.offsetMax = Vector2.zero;
         var mText = UIHelper.MakeText("Label", multiBtn.transform, $"10연차\n{GachaManager.MULTI_PULL_COST} 보석",
@@ -855,7 +979,7 @@ public class MainHUD : MonoBehaviour
             9f, TextAlignmentOptions.Center, UIColors.Text_Green);
         var rrt = gachaResultText.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, 0);
-        rrt.anchorMax = new Vector2(1, 0.4f);
+        rrt.anchorMax = new Vector2(1, 0.45f);
         rrt.offsetMin = Vector2.zero;
         rrt.offsetMax = Vector2.zero;
     }
@@ -923,5 +1047,322 @@ public class MainHUD : MonoBehaviour
                 gachaResultText.text = "<color=#CC3333>보석이 부족합니다</color>";
         }
         RefreshGachaUI();
+    }
+
+    // ════════════════════════════════════════
+    // 장비 탭 (index 4) - 인벤토리/장착
+    // ════════════════════════════════════════
+
+    GameObject equipListContainer;
+    readonly List<GameObject> equipListItems = new();
+    TextMeshProUGUI equipInfoText;
+
+    void BuildEquipmentContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("EquipContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0);
+        contentRT.anchorMax = new Vector2(1, 1);
+        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
+
+        // 상단 요약
+        equipInfoText = UIHelper.MakeText("EquipInfo", content.transform, "장비: 0개",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+        equipInfoText.fontStyle = FontStyles.Bold;
+        var irt = equipInfoText.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0.88f);
+        irt.anchorMax = new Vector2(1, 1);
+        irt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        irt.offsetMax = Vector2.zero;
+
+        // 스크롤 리스트
+        var scrollObj = UIHelper.MakeUI("EquipScroll", content.transform);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = new Vector2(0, 0);
+        scrollRT.anchorMax = new Vector2(1, 0.87f);
+        scrollRT.offsetMin = Vector2.zero;
+        scrollRT.offsetMax = Vector2.zero;
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        equipListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = equipListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+    }
+
+    void RefreshEquipmentUI()
+    {
+        if (equipListContainer == null) return;
+        var em = EquipmentManager.Instance;
+        if (em == null) return;
+
+        // Clear
+        for (int i = 0; i < equipListItems.Count; i++)
+            if (equipListItems[i] != null) Object.Destroy(equipListItems[i]);
+        equipListItems.Clear();
+
+        var inv = em.Inventory;
+        if (equipInfoText != null)
+            equipInfoText.text = $"장비: {inv.Count}개";
+
+        float itemH = 40f;
+        float spacing = 2f;
+        float y = 0;
+
+        // 레어도별 색상
+        Color[] rarityColors = {
+            UIColors.Text_Secondary,        // 0 (unused)
+            UIColors.Text_Secondary,        // 1
+            UIColors.Rarity_Common,         // 2
+            new Color(0.3f, 0.6f, 1f),     // 3
+            UIColors.Rarity_Rare,           // 4
+            UIColors.Text_Gold              // 5
+        };
+
+        for (int i = 0; i < inv.Count; i++)
+        {
+            var equip = inv[i];
+            Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length ? rarityColors[equip.rarity] : UIColors.Text_Secondary;
+
+            var itemImg = UIHelper.MakePanel($"Equip_{i}", equipListContainer.transform, UIColors.Panel_Inner);
+            var item = itemImg.gameObject;
+            equipListItems.Add(item);
+            var ert = item.GetComponent<RectTransform>();
+            ert.anchorMin = new Vector2(0, 1);
+            ert.anchorMax = new Vector2(1, 1);
+            ert.pivot = new Vector2(0.5f, 1);
+            ert.anchoredPosition = new Vector2(0, y);
+            ert.sizeDelta = new Vector2(0, itemH);
+
+            // 이름 + 레어도
+            string stars = new string('★', equip.rarity);
+            var nameText = UIHelper.MakeText("Name", item.transform, $"{equip.itemName}",
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, rarityCol);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0.5f);
+            nrt.anchorMax = new Vector2(0.4f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // 레어도 별
+            var starText = UIHelper.MakeText("Stars", item.transform, stars,
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
+            var srt = starText.GetComponent<RectTransform>();
+            srt.anchorMin = new Vector2(0, 0);
+            srt.anchorMax = new Vector2(0.4f, 0.5f);
+            srt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            srt.offsetMax = Vector2.zero;
+
+            // 스탯
+            string statStr = "";
+            if (equip.bonusAtk > 0) statStr += $"ATK+{equip.bonusAtk:F0} ";
+            if (equip.bonusDef > 0) statStr += $"DEF+{equip.bonusDef:F0} ";
+            if (equip.bonusHp > 0) statStr += $"HP+{equip.bonusHp:F0}";
+            var statText = UIHelper.MakeText("Stats", item.transform, statStr,
+                8f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+            var strt = statText.GetComponent<RectTransform>();
+            strt.anchorMin = new Vector2(0.4f, 0);
+            strt.anchorMax = new Vector2(0.7f, 1);
+            strt.offsetMin = Vector2.zero;
+            strt.offsetMax = Vector2.zero;
+
+            // 장착 상태 / 버튼
+            bool isEquipped = !string.IsNullOrEmpty(equip.equippedTo);
+            string btnLabel = isEquipped ? $"{equip.equippedTo}" : "장착";
+            Color btnColor = isEquipped ? UIColors.Button_Brown : UIColors.Button_Green;
+
+            var (btn, _) = UIHelper.MakeButton($"Btn_{i}", item.transform, btnColor, "", 9f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.72f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                9f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            string capturedId = equip.id;
+            if (isEquipped)
+            {
+                btn.onClick.AddListener(() =>
+                {
+                    EquipmentManager.Instance?.UnequipItem(capturedId);
+                    RefreshEquipmentUI();
+                });
+            }
+            else
+            {
+                btn.onClick.AddListener(() =>
+                {
+                    // 첫 번째 덱 영웅에게 장착
+                    var dm = DeckManager.Instance;
+                    if (dm != null && dm.roster.Count > 0)
+                    {
+                        string heroName = dm.roster[0].characterName;
+                        EquipmentManager.Instance?.EquipItem(capturedId, heroName);
+                        RefreshEquipmentUI();
+                    }
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        var containerRT = equipListContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 상점 탭 (index 5)
+    // ════════════════════════════════════════
+
+    GameObject shopListContainer;
+    readonly List<GameObject> shopListItems = new();
+
+    void BuildShopContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("ShopContent", parent);
+        var contentRT = content.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0);
+        contentRT.anchorMax = new Vector2(1, 1);
+        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
+
+        // 스크롤
+        var scrollObj = UIHelper.MakeUI("ShopScroll", content.transform);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = Vector2.zero;
+        scrollRT.anchorMax = Vector2.one;
+        scrollRT.offsetMin = Vector2.zero;
+        scrollRT.offsetMax = Vector2.zero;
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        shopListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = shopListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+    }
+
+    void RefreshShopUI()
+    {
+        if (shopListContainer == null) return;
+        var shop = ShopManager.Instance;
+        if (shop == null) return;
+
+        for (int i = 0; i < shopListItems.Count; i++)
+            if (shopListItems[i] != null) Object.Destroy(shopListItems[i]);
+        shopListItems.Clear();
+
+        var items = shop.GetStockItems();
+        float itemH = 44f;
+        float spacing = 2f;
+        float y = 0;
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            var shopItem = items[i];
+
+            var itemImg = UIHelper.MakePanel($"Shop_{i}", shopListContainer.transform, UIColors.Panel_Inner);
+            var item = itemImg.gameObject;
+            shopListItems.Add(item);
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            // 이름
+            var nameText = UIHelper.MakeText("Name", item.transform, shopItem.displayName,
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0.5f);
+            nrt.anchorMax = new Vector2(0.4f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // 설명
+            var descText = UIHelper.MakeText("Desc", item.transform, shopItem.description,
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+            var drt = descText.GetComponent<RectTransform>();
+            drt.anchorMin = new Vector2(0, 0);
+            drt.anchorMax = new Vector2(0.4f, 0.5f);
+            drt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            drt.offsetMax = Vector2.zero;
+
+            // 가격
+            string priceStr = shopItem.gemCost > 0 ? $"{shopItem.gemCost} 보석" :
+                              shopItem.goldCost > 0 ? $"{shopItem.goldCost}G" : "무료";
+            var priceText = UIHelper.MakeText("Price", item.transform, priceStr,
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
+            var prt = priceText.GetComponent<RectTransform>();
+            prt.anchorMin = new Vector2(0.4f, 0);
+            prt.anchorMax = new Vector2(0.65f, 1);
+            prt.offsetMin = Vector2.zero;
+            prt.offsetMax = Vector2.zero;
+
+            // 구매 버튼
+            bool canBuy = shop.CanPurchase(shopItem);
+            // 쿨다운 체크
+            float cooldown = shop.GetRemainingCooldown(shopItem);
+            string btnLabel = cooldown > 0 ? $"{Mathf.CeilToInt(cooldown / 60f)}분" : "구매";
+
+            var (btn, _) = UIHelper.MakeButton($"Buy_{i}", item.transform,
+                canBuy ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.68f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                UIConstants.Font_Cost, TextAlignmentOptions.Center,
+                canBuy ? UIColors.Text_Primary : UIColors.Text_Disabled);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            if (canBuy)
+            {
+                var capturedItem = shopItem;
+                btn.onClick.AddListener(() =>
+                {
+                    shop.Purchase(capturedItem);
+                    SoundManager.Instance?.PlayGoldSFX();
+                    RefreshShopUI();
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        var srt2 = shopListContainer.GetComponent<RectTransform>();
+        srt2.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
 }

@@ -24,7 +24,6 @@ public class UpgradeManager : MonoBehaviour
         HpLevel = PlayerPrefs.GetInt("UpgradeHp", 0);
         AtkLevel = PlayerPrefs.GetInt("UpgradeAtk", 0);
         DefLevel = PlayerPrefs.GetInt("UpgradeDef", 0);
-        PlayerPrefs.DeleteKey("UpgradeSpeed");
     }
 
     public int GetCost(int level)
@@ -41,6 +40,7 @@ public class UpgradeManager : MonoBehaviour
         PlayerPrefs.SetInt("UpgradeHp", HpLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
+        SoundManager.Instance?.PlayLevelUpSFX();
         return true;
     }
 
@@ -53,6 +53,7 @@ public class UpgradeManager : MonoBehaviour
         PlayerPrefs.SetInt("UpgradeAtk", AtkLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
+        SoundManager.Instance?.PlayLevelUpSFX();
         return true;
     }
 
@@ -65,6 +66,7 @@ public class UpgradeManager : MonoBehaviour
         PlayerPrefs.SetInt("UpgradeDef", DefLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
+        SoundManager.Instance?.PlayLevelUpSFX();
         return true;
     }
 
@@ -122,6 +124,8 @@ public class UpgradeManager : MonoBehaviour
 
         if (unit.CurrentHp > 0)
             unit.CurrentHp = unit.maxHp * hpRatio;
+
+        unit.NotifyHpChanged();
     }
 
     public float GetHpBonus() => HpLevel * HP_PER_LEVEL;

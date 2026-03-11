@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using TMPro;
@@ -74,3 +75,4 @@ public static class FontSetupTool
         Debug.Log("[FontSetup] Korean font fixed and registered as fallback.");
     }
 }
+#endif

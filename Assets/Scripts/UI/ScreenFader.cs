@@ -11,6 +11,7 @@ public class ScreenFader : MonoBehaviour
     public static ScreenFader Instance { get; private set; }
 
     Image fadeImage;
+    RectTransform fadeRT;
     Canvas fadeCanvas;
     bool isFading;
 
@@ -39,7 +40,8 @@ public class ScreenFader : MonoBehaviour
         fadeImage = obj.AddComponent<Image>();
         fadeImage.color = new Color(0, 0, 0, 0);
         fadeImage.raycastTarget = false;
-        UIHelper.FillParent(obj.GetComponent<RectTransform>());
+        fadeRT = obj.GetComponent<RectTransform>();
+        UIHelper.FillParent(fadeRT);
     }
 
     /// <summary>
@@ -55,6 +57,9 @@ public class ScreenFader : MonoBehaviour
     {
         isFading = true;
         fadeImage.raycastTarget = true;
+
+        // 탭 패널이 열려있으면 하단 제외
+        UpdateFadeArea();
 
         // Fade out (투명 → 검정)
         float t = 0;
@@ -84,5 +89,33 @@ public class ScreenFader : MonoBehaviour
         fadeImage.color = new Color(0, 0, 0, 0);
         fadeImage.raycastTarget = false;
         isFading = false;
+
+        // 페이드 끝나면 전체 화면으로 복원
+        ResetFadeArea();
+    }
+
+    const float TAB_PANEL_TOP_ANCHOR = 0.48f;
+
+    void UpdateFadeArea()
+    {
+        if (SkillUI.IsTabPanelOpen)
+        {
+            fadeRT.anchorMin = new Vector2(0, TAB_PANEL_TOP_ANCHOR);
+            fadeRT.anchorMax = Vector2.one;
+            fadeRT.offsetMin = Vector2.zero;
+            fadeRT.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            ResetFadeArea();
+        }
+    }
+
+    void ResetFadeArea()
+    {
+        fadeRT.anchorMin = Vector2.zero;
+        fadeRT.anchorMax = Vector2.one;
+        fadeRT.offsetMin = Vector2.zero;
+        fadeRT.offsetMax = Vector2.zero;
     }
 }

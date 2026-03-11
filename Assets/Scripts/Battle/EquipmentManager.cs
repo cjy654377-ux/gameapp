@@ -120,6 +120,7 @@ public class EquipmentManager : MonoBehaviour
         item.equippedTo = heroName;
         SaveInventory();
         OnEquipmentChanged?.Invoke();
+        SoundManager.Instance?.PlayEquipSFX();
         return true;
     }
 
@@ -266,8 +267,9 @@ public class EquipmentManager : MonoBehaviour
 
     void SaveInventory()
     {
+        if (!saveDirty)
+            saveTimer = SAVE_DEBOUNCE;
         saveDirty = true;
-        saveTimer = SAVE_DEBOUNCE;
     }
 
     void Update()

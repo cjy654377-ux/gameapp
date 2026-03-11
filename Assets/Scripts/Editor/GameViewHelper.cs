@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using System.Reflection;
@@ -18,3 +19,4 @@ public static class GameViewHelper
         Debug.Log("[GameView] Game View > Resolution dropdown > + > Type: Fixed Resolution > 390 x 844");
     }
 }
+#endif

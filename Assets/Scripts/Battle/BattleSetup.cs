@@ -22,6 +22,11 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<EquipmentManager>("EquipmentManager");
         EnsureSystem<EffectManager>("EffectManager");
         EnsureSystem<SoundManager>("SoundManager");
+        EnsureSystem<ShopManager>("ShopManager");
+        EnsureSystem<AchievementManager>("AchievementManager");
+        EnsureSystem<TutorialManager>("TutorialManager");
+        EnsureSystem<ObjectPool>("ObjectPool");
+        EnsureSystem<ToastNotification>("ToastNotification");
 
         // DeckManager가 없으면 생성 + fallback 프리셋을 로스터로
         if (DeckManager.Instance == null)

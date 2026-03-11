@@ -6,6 +6,25 @@ public class SkillUI : MonoBehaviour
 {
     public static SkillUI Instance { get; private set; }
 
+    /// <summary>
+    /// Set to true when MainHUD tab panels are open.
+    /// Other scripts can set this to hide/show skill slots accordingly.
+    /// </summary>
+    public static bool IsTabPanelOpen
+    {
+        get => _isTabPanelOpen;
+        set
+        {
+            _isTabPanelOpen = value;
+            if (Instance != null)
+            {
+                if (value) Instance.HideSkillSlots();
+                else Instance.ShowSkillSlots();
+            }
+        }
+    }
+    static bool _isTabPanelOpen;
+
     GameObject[] slotObjects = new GameObject[4];
     Image[] cooldownOverlays = new Image[4];
     TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4];
@@ -15,6 +34,7 @@ public class SkillUI : MonoBehaviour
     readonly Color[] cooldownColors = new Color[4];
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
+    GameObject slotsContainer;
 
     Canvas canvas;
 
@@ -36,13 +56,16 @@ public class SkillUI : MonoBehaviour
             SkillManager.Instance.OnSkillUsed += OnSkillUsed;
             RefreshSlots();
         }
+
+        // Apply initial tab panel state
+        if (_isTabPanelOpen) HideSkillSlots();
     }
 
     void CreateCanvas()
     {
         canvas = gameObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 99;
+        canvas.sortingOrder = 50;
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -54,6 +77,14 @@ public class SkillUI : MonoBehaviour
 
     void CreateSkillSlots()
     {
+        // Container for all skill slots (for easy show/hide)
+        slotsContainer = UIHelper.MakeUI("SlotsContainer", canvas.transform);
+        var containerRT = slotsContainer.GetComponent<RectTransform>();
+        containerRT.anchorMin = Vector2.zero;
+        containerRT.anchorMax = Vector2.one;
+        containerRT.sizeDelta = Vector2.zero;
+        containerRT.anchoredPosition = Vector2.zero;
+
         float slotSize = UIConstants.MinTouchTarget;
         float spacing = UIConstants.Spacing_Medium;
         float totalWidth = 4 * slotSize + 3 * spacing;
@@ -61,7 +92,7 @@ public class SkillUI : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            var slot = UIHelper.MakeUI($"SkillSlot_{i}", canvas.transform);
+            var slot = UIHelper.MakeUI($"SkillSlot_{i}", slotsContainer.transform);
             slotObjects[i] = slot;
 
             var rt = slot.GetComponent<RectTransform>();
@@ -118,6 +149,28 @@ public class SkillUI : MonoBehaviour
         toggleRT.pivot = new Vector2(1f, 0f);
         toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
         toggleRT.sizeDelta = new Vector2(60f, 30f);
+    }
+
+    /// <summary>
+    /// Hide all skill slot UI elements (call when tab panels open)
+    /// </summary>
+    public void HideSkillSlots()
+    {
+        if (slotsContainer != null)
+            slotsContainer.SetActive(false);
+        if (autoToggleButton != null)
+            autoToggleButton.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Show all skill slot UI elements (call when tab panels close)
+    /// </summary>
+    public void ShowSkillSlots()
+    {
+        if (slotsContainer != null)
+            slotsContainer.SetActive(true);
+        if (autoToggleButton != null)
+            autoToggleButton.gameObject.SetActive(true);
     }
 
     public void RefreshSlots()

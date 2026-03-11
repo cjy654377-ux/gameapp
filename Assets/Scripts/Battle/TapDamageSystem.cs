@@ -61,11 +61,11 @@ public class TapDamageSystem : MonoBehaviour
 
         var enemies = BattleManager.Instance.enemyUnits;
         BattleUnit closest = null;
-        float closestDist = 1.5f;
+        float closestDist = float.MaxValue;
 
         for (int i = 0; i < enemies.Count; i++)
         {
-            if (enemies[i].IsDead) continue;
+            if (enemies[i] == null || enemies[i].IsDead) continue;
             float dist = Vector2.Distance(worldPos, enemies[i].transform.position);
             if (dist < closestDist)
             {

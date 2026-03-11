@@ -86,14 +86,15 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    void OnDestroy()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
     {
         if (fallbackSprite != null)
         {
             var tex = fallbackSprite.texture;
             Destroy(fallbackSprite);
-            fallbackSprite = null;
             if (tex != null) Destroy(tex);
+            fallbackSprite = null;
         }
     }
 

@@ -17,8 +17,8 @@ public class StageManager : MonoBehaviour
     public float fadeInTime = 0.4f;
 
     [Header("Difficulty")]
-    public float hpScalePerWave = 0.08f;
-    public float atkScalePerWave = 0.05f;
+    public float hpScalePerWave = 0.06f;
+    public float atkScalePerWave = 0.04f;
     public float midBossHpMult = 3f;
     public float midBossAtkMult = 3f;
     public float areaBossHpMult = 5f;
@@ -50,6 +50,7 @@ public class StageManager : MonoBehaviour
     float waveTimer;
     bool waitingForNextWave;
     bool isTransitioning;
+    BattleSetup cachedSetup;
     Camera cachedMainCamera;
 
     void Awake()
@@ -64,6 +65,7 @@ public class StageManager : MonoBehaviour
 
     void CalcStageFromTotal(int total)
     {
+        total = Mathf.Max(0, total);
         int wavesPerArea = wavesPerStage * stagesPerArea;
         CurrentArea = Mathf.Clamp(total / wavesPerArea + 1, 1, 3);
         int remaining = total % wavesPerArea;
@@ -73,7 +75,20 @@ public class StageManager : MonoBehaviour
 
     public void StartFirstWave()
     {
+        PlayAreaBGM();
         SpawnNextWave();
+    }
+
+    void PlayAreaBGM()
+    {
+        string bgm = CurrentArea switch
+        {
+            1 => "battle_grass",
+            2 => "battle_desert",
+            3 => "battle_cave",
+            _ => "battle_grass"
+        };
+        SoundManager.Instance?.PlayBGM(bgm);
     }
 
     void Update()
@@ -124,7 +139,10 @@ public class StageManager : MonoBehaviour
             DoStageTransition();
         }
         else
+        {
+            SoundManager.Instance?.PlayWaveClearSFX();
             SpawnNextWave();
+        }
     }
 
     void DoStageTransition()
@@ -136,7 +154,7 @@ public class StageManager : MonoBehaviour
             // ScreenFader 없으면 즉시 진행
             ResetBattlefield();
             SpawnNextWave();
-            isTransitioning = false;
+            isTransitioning = false; // SpawnWaveImmediate 후 해제
             return;
         }
 
@@ -144,6 +162,7 @@ public class StageManager : MonoBehaviour
         {
             // 페이드 아웃 완료 시점: 전장 리셋
             ResetBattlefield();
+            PlayAreaBGM();
             OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
             isTransitioning = false;
             SpawnWaveImmediate();
@@ -164,9 +183,9 @@ public class StageManager : MonoBehaviour
         manager.enemyUnits.Clear();
 
         // 아군 위치 리셋 + 체력 회복
-        var setup = FindFirstObjectByType<BattleSetup>();
-        float startX = setup != null ? setup.allyStartX : -1f;
-        float spacing = setup != null ? setup.unitSpacingY : 1f;
+        if (cachedSetup == null) cachedSetup = FindFirstObjectByType<BattleSetup>();
+        float startX = cachedSetup != null ? cachedSetup.allyStartX : -1f;
+        float spacing = cachedSetup != null ? cachedSetup.unitSpacingY : 1f;
 
         for (int i = 0; i < manager.allyUnits.Count; i++)
         {
@@ -182,7 +201,7 @@ public class StageManager : MonoBehaviour
         }
 
         // 카메라 리셋
-        var cam = Camera.main;
+        var cam = GetMainCamera();
         if (cam != null)
         {
             var camPos = cam.transform.position;
@@ -255,8 +274,26 @@ public class StageManager : MonoBehaviour
         unit.CurrentHp = unit.maxHp;
         unit.damageElement = GetAreaElement();
 
+        // 에리어별 적 특성
+        switch (CurrentArea)
+        {
+            case 2: // Desert: 빠르고 공격적
+                unit.moveSpeed *= 1.3f;
+                unit.attackCooldown *= 0.85f;
+                unit.lightningResist = 0.3f;
+                break;
+            case 3: // Cave: 단단하고 독 저항
+                unit.def *= 1.4f;
+                unit.poisonResist = 0.5f;
+                unit.maxHp *= 1.2f;
+                unit.CurrentHp = unit.maxHp;
+                break;
+        }
+
         manager.enemyUnits.Add(unit);
     }
+
+    public event System.Action<bool> OnBossSpawned; // true = area boss, false = mid boss
 
     void SpawnBoss(CharacterFactory factory, BattleManager manager, float spawnX, bool isAreaBoss)
     {
@@ -284,7 +321,28 @@ public class StageManager : MonoBehaviour
         float sizeScale = isAreaBoss ? 2f : 1.5f;
         unit.transform.localScale = Vector3.one * sizeScale * 0.8f;
 
+        // Boss rage: 30% HP 이하일 때 공격속도 1.5배
+        var bossUnit = unit;
+        float rageThreshold = unit.maxHp * 0.3f;
+        bool raged = false;
+        System.Action<float, float> rageHandler = null;
+        rageHandler = (hp, max) =>
+        {
+            if (!raged && hp <= rageThreshold && hp > 0)
+            {
+                raged = true;
+                bossUnit.attackCooldown *= 0.65f;
+                bossUnit.moveSpeed *= 1.3f;
+                if (EffectManager.Instance != null)
+                    EffectManager.Instance.SpawnLightningEffect(bossUnit.transform.position);
+                bossUnit.OnHpChanged -= rageHandler;
+            }
+        };
+        unit.OnHpChanged += rageHandler;
+
         manager.enemyUnits.Add(unit);
+        SoundManager.Instance?.PlayBossAppearSFX();
+        OnBossSpawned?.Invoke(isAreaBoss);
     }
 
     Camera GetMainCamera()
@@ -357,6 +415,10 @@ public class StageManager : MonoBehaviour
     /// </summary>
     public void RewindAndRestart()
     {
+        if (isTransitioning) return;
+        SoundManager.Instance?.PlayDefeatSFX();
+        AchievementManager.Instance?.ResetBossTracking();
+
         if (TotalWaveIndex > 0)
             TotalWaveIndex--;
         PlayerPrefs.SetInt("TotalWaveIndex", TotalWaveIndex);

@@ -80,9 +80,7 @@ public class DeckUI : MonoBehaviour
         scrollRect.vertical = false;
 
         var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
-        var vpImg = viewport.AddComponent<Image>();
-        vpImg.color = Color.clear;
-        viewport.AddComponent<Mask>().showMaskGraphic = false;
+        viewport.AddComponent<RectMask2D>();
         UIHelper.FillParent(viewport.GetComponent<RectTransform>());
         scrollRect.viewport = viewport.GetComponent<RectTransform>();
 
@@ -131,7 +129,7 @@ public class DeckUI : MonoBehaviour
             // 이름
             deckSlotTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
                 9f, TextAlignmentOptions.Center);
-            deckSlotTexts[i].enableWordWrapping = true;
+            deckSlotTexts[i].textWrappingMode = TextWrappingModes.Normal;
             UIHelper.FillParent(deckSlotTexts[i].GetComponent<RectTransform>());
         }
     }
@@ -168,9 +166,7 @@ public class DeckUI : MonoBehaviour
         scrollRect.vertical = true;
 
         var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
-        var vpImg = viewport.AddComponent<Image>();
-        vpImg.color = Color.clear;
-        viewport.AddComponent<Mask>().showMaskGraphic = false;
+        viewport.AddComponent<RectMask2D>();
         UIHelper.FillParent(viewport.GetComponent<RectTransform>());
         scrollRect.viewport = viewport.GetComponent<RectTransform>();
 

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,6 @@ public static class DebugBoostTool
         PlayerPrefs.SetInt("UpgradeHp", 50);
         PlayerPrefs.SetInt("UpgradeAtk", 50);
         PlayerPrefs.SetInt("UpgradeDef", 50);
-        PlayerPrefs.DeleteKey("UpgradeSpeed");
         PlayerPrefs.SetInt("TapDamageLevel", 50);
         PlayerPrefs.SetInt("Gold", 99999);
         PlayerPrefs.SetInt("TotalWaveIndex", 0);
@@ -23,7 +23,6 @@ public static class DebugBoostTool
         PlayerPrefs.SetInt("UpgradeHp", 0);
         PlayerPrefs.SetInt("UpgradeAtk", 0);
         PlayerPrefs.SetInt("UpgradeDef", 0);
-        PlayerPrefs.DeleteKey("UpgradeSpeed");
         PlayerPrefs.SetInt("TapDamageLevel", 1);
         PlayerPrefs.SetInt("TotalWaveIndex", 0);
         PlayerPrefs.SetInt("Gold", 0);
@@ -31,3 +30,4 @@ public static class DebugBoostTool
         Debug.Log("[DebugBoost] All progress reset to 0.");
     }
 }
+#endif

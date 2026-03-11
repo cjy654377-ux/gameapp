@@ -14,9 +14,11 @@ public class BattleBackground : MonoBehaviour
     private float scale;
     private readonly List<SpriteRenderer> tiles = new();
     private int currentArea = -1;
+    private Camera cachedCamera;
 
     void Awake()
     {
+        cachedCamera = Camera.main;
         SetArea(1);
     }
 
@@ -53,7 +55,7 @@ public class BattleBackground : MonoBehaviour
             if (tiles[i] != null) Destroy(tiles[i].gameObject);
         tiles.Clear();
 
-        var cam = Camera.main;
+        var cam = cachedCamera != null ? cachedCamera : Camera.main;
         if (cam == null) return;
 
         float camH = cam.orthographicSize * 2f;
@@ -79,7 +81,7 @@ public class BattleBackground : MonoBehaviour
     {
         if (tiles.Count == 0 || tileWidth <= 0) return;
 
-        var cam = Camera.main;
+        var cam = cachedCamera != null ? cachedCamera : Camera.main;
         if (cam == null) return;
 
         float camX = cam.transform.position.x;

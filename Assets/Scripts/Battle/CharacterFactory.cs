@@ -132,6 +132,10 @@ public class CharacterFactory : MonoBehaviour
             battleUnit.buffRange = preset.buffRange;
         }
 
+        // Assign skills from preset
+        if (preset.skills != null && preset.skills.Length > 0)
+            battleUnit.skills = preset.skills;
+
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
 
@@ -147,10 +151,14 @@ public class CharacterFactory : MonoBehaviour
         {
             var unitRef = battleUnit;
             int goldReward = Mathf.RoundToInt(preset.maxHp * 0.5f);
-            battleUnit.OnDeath += () =>
+            System.Action deathHandler = null;
+            deathHandler = () =>
             {
                 GoldDrop.Spawn(unitRef.transform.position, goldReward);
+                AchievementManager.Instance?.RegisterKill();
+                unitRef.OnDeath -= deathHandler;
             };
+            battleUnit.OnDeath += deathHandler;
         }
 
         return battleUnit;
@@ -291,7 +299,7 @@ public class CharacterFactory : MonoBehaviour
     {
         if (spriteCache.TryGetValue(path, out var cached))
             return cached;
-        var loaded = LoadSprites(path);
+        var loaded = Resources.LoadAll<Sprite>(path);
         spriteCache[path] = loaded;
         return loaded;
     }

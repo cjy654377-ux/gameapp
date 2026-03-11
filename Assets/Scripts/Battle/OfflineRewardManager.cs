@@ -32,7 +32,8 @@ public class OfflineRewardManager : MonoBehaviour
             return;
         }
 
-        long lastTime = long.Parse(PlayerPrefs.GetString("LastPlayTime", "0"));
+        if (!long.TryParse(PlayerPrefs.GetString("LastPlayTime", "0"), out long lastTime))
+            lastTime = 0;
         long now = GetUnixTimestamp();
         float elapsedSeconds = Mathf.Max(0f, now - lastTime);
         float elapsedMinutes = elapsedSeconds / 60f;

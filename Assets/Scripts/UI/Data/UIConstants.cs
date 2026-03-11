@@ -11,19 +11,19 @@ public static class UIConstants
     public const float MatchWidthOrHeight = 0.5f;
 
     // HUD Bar
-    public const float HUD_Height = 54f;
-    public const float HUD_AvatarSize = 44f;
+    public const float HUD_Height = 46f;
+    public const float HUD_AvatarSize = 36f;
     public const float HUD_AvatarBorder = 2f;
-    public const float HUD_IconSize = 20f;
-    public const float HUD_ProgressHeight = 6f;
+    public const float HUD_IconSize = 16f;
+    public const float HUD_ProgressHeight = 5f;
 
     // Bottom Nav Bar
-    public const float NavBar_Height = 60f;
-    public const float NavBar_IconSize = 28f;
+    public const float NavBar_Height = 50f;
+    public const float NavBar_IconSize = 18f;
     public const float NavBar_BorderTop = 1f;
 
     // Tab Bar
-    public const float Tab_Height = 42f;
+    public const float Tab_Height = 32f;
 
     // Panel
     public const float Panel_BorderWidth = 2f;
@@ -40,9 +40,9 @@ public static class UIConstants
     public const float Button_PressedScale = 0.95f;
 
     // Stat Upgrade Row
-    public const float StatRow_Height = 72f;
-    public const float StatRow_IconSize = 56f;
-    public const float StatRow_Padding = 8f;
+    public const float StatRow_Height = 56f;
+    public const float StatRow_IconSize = 40f;
+    public const float StatRow_Padding = 6f;
 
     // Item Grid
     public const float Grid_Padding = 32f;
@@ -56,17 +56,17 @@ public static class UIConstants
     public const float Summon_ButtonHeight = 44f;
 
     // Font Sizes
-    public const float Font_HeaderLarge = 22f;
-    public const float Font_HeaderMedium = 18f;
-    public const float Font_StatValue = 20f;
-    public const float Font_StatLabel = 13f;
-    public const float Font_Button = 16f;
-    public const float Font_Tab = 14f;
-    public const float Font_LevelBadge = 11f;
-    public const float Font_Cost = 13f;
-    public const float Font_SmallInfo = 11f;
-    public const float Font_NavLabel = 10f;
-    public const float Font_HUDResource = 14f;
+    public const float Font_HeaderLarge = 18f;
+    public const float Font_HeaderMedium = 15f;
+    public const float Font_StatValue = 16f;
+    public const float Font_StatLabel = 12f;
+    public const float Font_Button = 14f;
+    public const float Font_Tab = 12f;
+    public const float Font_LevelBadge = 9f;
+    public const float Font_Cost = 11f;
+    public const float Font_SmallInfo = 9f;
+    public const float Font_NavLabel = 8f;
+    public const float Font_HUDResource = 12f;
 
     // Spacing
     public const float Spacing_Small = 4f;

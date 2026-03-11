@@ -37,7 +37,7 @@ public class BattleManager : MonoBehaviour
             if (allyUnits[i] != null && !allyUnits[i].IsDead) { allAlliesDead = false; break; }
         }
 
-        if (allAlliesDead)
+        if (allAlliesDead && CurrentState == BattleState.Fighting)
             SetState(BattleState.Defeat);
     }
 

@@ -12,6 +12,9 @@ public class SkillManager : MonoBehaviour
     readonly float[] cooldownTimers = new float[4]; // max 4 skill slots
     static Material cachedVFXMaterial;
 
+    // All available skills loaded from Resources
+    SkillData[] allSkills;
+
     public event System.Action<int, float, float> OnCooldownChanged; // slot, remaining, total
     public event System.Action<int> OnSkillUsed;
 
@@ -23,6 +26,21 @@ public class SkillManager : MonoBehaviour
 
     void Start()
     {
+        // Load all skills from Resources/Skills
+        allSkills = Resources.LoadAll<SkillData>("Skills");
+
+        // Try to load saved equipped skills
+        LoadEquippedSkills();
+
+        // If still no skills equipped, auto-equip all available (up to 4)
+        if (equippedSkills.Count == 0 && allSkills != null && allSkills.Length > 0)
+        {
+            int count = Mathf.Min(allSkills.Length, 4);
+            for (int i = 0; i < count; i++)
+                equippedSkills.Add(allSkills[i]);
+            SaveEquippedSkills();
+        }
+
         // Start with skills on cooldown
         for (int i = 0; i < equippedSkills.Count && i < 4; i++)
             cooldownTimers[i] = equippedSkills[i].cooldown;
@@ -54,14 +72,59 @@ public class SkillManager : MonoBehaviour
         if (cooldownTimers[slotIndex] > 0f) return;
 
         var skill = equippedSkills[slotIndex];
+        if (skill == null) return;
         var targets = GetTargets(skill);
         if (targets == null || targets.Count == 0) return;
 
-        foreach (var target in targets)
-            ApplySkillEffect(skill, target);
+        for (int i = 0; i < targets.Count; i++)
+            ApplySkillEffect(skill, targets[i]);
 
+        SoundManager.Instance?.PlaySkillSFX();
         cooldownTimers[slotIndex] = skill.cooldown;
         OnSkillUsed?.Invoke(slotIndex);
+    }
+
+    /// <summary>
+    /// Save equipped skill names to PlayerPrefs (comma-separated)
+    /// </summary>
+    public void SaveEquippedSkills()
+    {
+        var names = new List<string>();
+        for (int i = 0; i < equippedSkills.Count; i++)
+        {
+            if (equippedSkills[i] != null)
+                names.Add(equippedSkills[i].skillName);
+        }
+        PlayerPrefs.SetString("EquippedSkills", string.Join(",", names));
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// Load equipped skills from PlayerPrefs
+    /// </summary>
+    public void LoadEquippedSkills()
+    {
+        string saved = PlayerPrefs.GetString("EquippedSkills", "");
+        if (string.IsNullOrEmpty(saved)) return;
+        if (allSkills == null || allSkills.Length == 0) return;
+
+        string[] names = saved.Split(',');
+        equippedSkills.Clear();
+
+        for (int i = 0; i < names.Length && i < 4; i++)
+        {
+            string n = names[i].Trim();
+            if (string.IsNullOrEmpty(n)) continue;
+
+            for (int j = 0; j < allSkills.Length; j++)
+            {
+                if (allSkills[j].skillName == n)
+                {
+                    equippedSkills.Add(allSkills[j]);
+                    break;
+                }
+            }
+        }
     }
 
     List<BattleUnit> GetTargets(SkillData skill)
@@ -95,6 +158,14 @@ public class SkillManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// BattleUnit에서도 호출 가능한 공개 스킬 효과 적용
+    /// </summary>
+    public void ApplyEffect(SkillData skill, BattleUnit target)
+    {
+        ApplySkillEffect(skill, target);
     }
 
     void ApplySkillEffect(SkillData skill, BattleUnit target)
@@ -146,8 +217,8 @@ public class SkillManager : MonoBehaviour
         SpawnSkillVFX(target.transform.position, skill.skillColor, skill.effectType);
     }
 
-    // Cartoon FX Remaster prefab paths
-    static readonly System.Collections.Generic.Dictionary<SkillEffectType, string> vfxPrefabPaths = new()
+    // Cartoon FX Remaster prefab paths + cache
+    static readonly Dictionary<SkillEffectType, string> vfxPrefabPaths = new()
     {
         { SkillEffectType.Damage,  "VFX/CFXR Hit A (Red)" },
         { SkillEffectType.Burn,    "VFX/CFXR3 Hit Fire B (Air)" },
@@ -156,13 +227,17 @@ public class SkillManager : MonoBehaviour
         { SkillEffectType.Slow,    "VFX/CFXR3 Hit Electric C (Air)" },
         { SkillEffectType.Heal,    "VFX/CFXR4 Falling Stars" },
     };
+    static readonly Dictionary<SkillEffectType, GameObject> vfxPrefabCache = new();
 
     void SpawnSkillVFX(Vector3 position, Color color, SkillEffectType effectType = SkillEffectType.Damage)
     {
-        // Try Cartoon FX Remaster prefab first
         if (vfxPrefabPaths.TryGetValue(effectType, out string path))
         {
-            var prefab = Resources.Load<GameObject>(path);
+            if (!vfxPrefabCache.TryGetValue(effectType, out var prefab))
+            {
+                prefab = Resources.Load<GameObject>(path);
+                vfxPrefabCache[effectType] = prefab;
+            }
             if (prefab != null)
             {
                 var vfx = Instantiate(prefab, position, Quaternion.identity);
@@ -205,9 +280,8 @@ public class SkillManager : MonoBehaviour
 
     BattleUnit FindNearestAlive(List<BattleUnit> units)
     {
-        // For auto-targeting, just pick first alive
         for (int i = 0; i < units.Count; i++)
-            if (!units[i].IsDead) return units[i];
+            if (units[i] != null && !units[i].IsDead) return units[i];
         return null;
     }
 
@@ -217,7 +291,7 @@ public class SkillManager : MonoBehaviour
         float lowestHpRatio = float.MaxValue;
         for (int i = 0; i < units.Count; i++)
         {
-            if (units[i].IsDead) continue;
+            if (units[i] == null || units[i].IsDead) continue;
             float ratio = units[i].CurrentHp / units[i].maxHp;
             if (ratio < lowestHpRatio)
             {
@@ -231,12 +305,12 @@ public class SkillManager : MonoBehaviour
     void AddAlive(List<BattleUnit> result, List<BattleUnit> source)
     {
         for (int i = 0; i < source.Count; i++)
-            if (!source[i].IsDead) result.Add(source[i]);
+            if (source[i] != null && !source[i].IsDead) result.Add(source[i]);
     }
 
     void OnDestroy()
     {
-        if (cachedVFXMaterial != null)
+        if (Instance == this && cachedVFXMaterial != null)
         {
             Destroy(cachedVFXMaterial);
             cachedVFXMaterial = null;

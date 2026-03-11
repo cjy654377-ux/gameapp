@@ -15,6 +15,19 @@ public class HpBar : MonoBehaviour
     private readonly List<SpriteRenderer> statusIcons = new();
 
     static Sprite pixelSprite;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        if (pixelSprite != null)
+        {
+            var tex = pixelSprite.texture;
+            Object.Destroy(pixelSprite);
+            if (tex != null) Object.Destroy(tex);
+            pixelSprite = null;
+        }
+    }
+
     const float BAR_WIDTH = 0.8f;
     const float BAR_HEIGHT = 0.08f;
     const float BORDER = 0.02f;
