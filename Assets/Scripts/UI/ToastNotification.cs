@@ -36,17 +36,25 @@ public class ToastNotification : MonoBehaviour
         BuildUI();
     }
 
+    AchievementManager cachedAchievementMgr;
+
     void Start()
     {
-        // Wire to achievement system
-        if (AchievementManager.Instance != null)
-            AchievementManager.Instance.OnAchievementCompleted += OnAchievementCompleted;
+        StartCoroutine(DeferredSubscribe());
+    }
+
+    System.Collections.IEnumerator DeferredSubscribe()
+    {
+        yield return null;
+        cachedAchievementMgr = AchievementManager.Instance;
+        if (cachedAchievementMgr != null)
+            cachedAchievementMgr.OnAchievementCompleted += OnAchievementCompleted;
     }
 
     void OnDestroy()
     {
-        if (AchievementManager.Instance != null)
-            AchievementManager.Instance.OnAchievementCompleted -= OnAchievementCompleted;
+        if (cachedAchievementMgr != null)
+            cachedAchievementMgr.OnAchievementCompleted -= OnAchievementCompleted;
     }
 
     void OnAchievementCompleted(string id)

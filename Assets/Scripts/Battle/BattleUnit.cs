@@ -315,7 +315,7 @@ public class BattleUnit : MonoBehaviour
             case SkillTargetType.AllEnemies:
                 var enemies = manager.enemyUnits;
                 for (int i = 0; i < enemies.Count; i++)
-                    if (!enemies[i].IsDead) result.Add(enemies[i]);
+                    if (enemies[i] != null && !enemies[i].IsDead) result.Add(enemies[i]);
                 break;
             case SkillTargetType.SingleAlly:
                 BattleUnit weakest = null;
@@ -323,7 +323,7 @@ public class BattleUnit : MonoBehaviour
                 var allies = manager.allyUnits;
                 for (int i = 0; i < allies.Count; i++)
                 {
-                    if (allies[i].IsDead) continue;
+                    if (allies[i] == null || allies[i].IsDead) continue;
                     float ratio = allies[i].CurrentHp / allies[i].maxHp;
                     if (ratio < lowestRatio) { lowestRatio = ratio; weakest = allies[i]; }
                 }
@@ -332,7 +332,7 @@ public class BattleUnit : MonoBehaviour
             case SkillTargetType.AllAllies:
                 var allAllies = manager.allyUnits;
                 for (int i = 0; i < allAllies.Count; i++)
-                    if (!allAllies[i].IsDead) result.Add(allAllies[i]);
+                    if (allAllies[i] != null && !allAllies[i].IsDead) result.Add(allAllies[i]);
                 break;
             case SkillTargetType.Self:
                 result.Add(this);

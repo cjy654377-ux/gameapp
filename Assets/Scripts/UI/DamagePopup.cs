@@ -95,6 +95,7 @@ public class DamagePopup : MonoBehaviour
         if (pool != null)
         {
             sr.sprite = null;
+            gameObject.SetActive(false);
             pool.Return(POOL_DMG, gameObject);
         }
         else

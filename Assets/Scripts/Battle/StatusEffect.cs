@@ -68,8 +68,9 @@ public class StatusEffect
         tickTimer += deltaTime;
         if (tickTimer >= tickInterval)
         {
-            tickTimer -= tickInterval;
-            return tickDamage;
+            int ticks = Mathf.FloorToInt(tickTimer / tickInterval);
+            tickTimer -= ticks * tickInterval;
+            return tickDamage * ticks;
         }
         return 0f;
     }

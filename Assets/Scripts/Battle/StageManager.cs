@@ -326,6 +326,7 @@ public class StageManager : MonoBehaviour
         float rageThreshold = unit.maxHp * 0.3f;
         bool raged = false;
         System.Action<float, float> rageHandler = null;
+        System.Action deathCleanup = null;
         rageHandler = (hp, max) =>
         {
             if (!raged && hp <= rageThreshold && hp > 0)
@@ -336,9 +337,15 @@ public class StageManager : MonoBehaviour
                 if (EffectManager.Instance != null)
                     EffectManager.Instance.SpawnLightningEffect(bossUnit.transform.position);
                 bossUnit.OnHpChanged -= rageHandler;
+                bossUnit.OnDeath -= deathCleanup;
             }
         };
+        deathCleanup = () =>
+        {
+            bossUnit.OnHpChanged -= rageHandler;
+        };
         unit.OnHpChanged += rageHandler;
+        unit.OnDeath += deathCleanup;
 
         manager.enemyUnits.Add(unit);
         SoundManager.Instance?.PlayBossAppearSFX();

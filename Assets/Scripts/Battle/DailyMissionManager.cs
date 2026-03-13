@@ -73,14 +73,19 @@ public class DailyMissionManager : MonoBehaviour
         }
     }
 
+    static void PopulateDefaultMissions(List<Mission> list)
+    {
+        list.Clear();
+        list.Add(new Mission { id = "kill_10", name = "적 10마리 처치", targetCount = 10, gemReward = 5 });
+        list.Add(new Mission { id = "wave_3", name = "3웨이브 클리어", targetCount = 3, gemReward = 5 });
+        list.Add(new Mission { id = "kill_50", name = "적 50마리 처치", targetCount = 50, gemReward = 10 });
+        list.Add(new Mission { id = "wave_10", name = "10웨이브 클리어", targetCount = 10, gemReward = 10 });
+        list.Add(new Mission { id = "gacha_1", name = "소환 1회", targetCount = 1, gemReward = 5 });
+    }
+
     void ResetMissions()
     {
-        missions.Clear();
-        missions.Add(new Mission { id = "kill_10", name = "적 10마리 처치", targetCount = 10, gemReward = 5 });
-        missions.Add(new Mission { id = "wave_3", name = "3웨이브 클리어", targetCount = 3, gemReward = 5 });
-        missions.Add(new Mission { id = "kill_50", name = "적 50마리 처치", targetCount = 50, gemReward = 10 });
-        missions.Add(new Mission { id = "wave_10", name = "10웨이브 클리어", targetCount = 10, gemReward = 10 });
-        missions.Add(new Mission { id = "gacha_1", name = "소환 1회", targetCount = 1, gemReward = 5 });
+        PopulateDefaultMissions(missions);
         SaveMissions();
     }
 
@@ -152,12 +157,7 @@ public class DailyMissionManager : MonoBehaviour
 
     void LoadMissions()
     {
-        missions.Clear();
-        missions.Add(new Mission { id = "kill_10", name = "적 10마리 처치", targetCount = 10, gemReward = 5 });
-        missions.Add(new Mission { id = "wave_3", name = "3웨이브 클리어", targetCount = 3, gemReward = 5 });
-        missions.Add(new Mission { id = "kill_50", name = "적 50마리 처치", targetCount = 50, gemReward = 10 });
-        missions.Add(new Mission { id = "wave_10", name = "10웨이브 클리어", targetCount = 10, gemReward = 10 });
-        missions.Add(new Mission { id = "gacha_1", name = "소환 1회", targetCount = 1, gemReward = 5 });
+        PopulateDefaultMissions(missions);
 
         for (int i = 0; i < missions.Count; i++)
         {
