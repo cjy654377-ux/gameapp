@@ -12,7 +12,7 @@ public class UpgradeManager : MonoBehaviour
     public const float DEF_PER_LEVEL = 1.5f;
 
     public const int BASE_COST = 50;
-    public const float COST_SCALE = 1.3f;
+    public const float COST_SCALE = 1.18f;
 
     public event System.Action OnUpgraded;
 

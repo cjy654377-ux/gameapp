@@ -20,6 +20,8 @@ public class Projectile : MonoBehaviour
 
     public static void Spawn(Vector3 from, BattleUnit target, float damage, ProjectileType type)
     {
+        if (target == null || target.IsDead) return;
+
         EnsureFallbackSprite();
 
         var pool = ObjectPool.Instance;
@@ -115,12 +117,14 @@ public class Projectile : MonoBehaviour
 
     void ReturnToPool()
     {
+        if (!gameObject.activeSelf) return; // 이미 풀에 반환됨
+
         var pool = ObjectPool.Instance;
         if (pool != null)
         {
-            sr.sprite = null;
             target = null;
             gameObject.SetActive(false);
+            sr.sprite = null;
             pool.Return(POOL_NAME, gameObject);
         }
         else

@@ -10,6 +10,25 @@ public class DamagePopup : MonoBehaviour
     const string POOL_DMG = "DmgPopup";
     const string POOL_GOLD = "GoldPopup";
 
+    public static DamagePopup Create(Vector3 position, float amount, bool isHeal, string customText)
+    {
+        var go = GetFromPool(POOL_DMG);
+        go.transform.position = position + Vector3.up * 0.5f;
+
+        var popup = go.GetComponent<DamagePopup>();
+        popup.sr.sortingOrder = 100;
+
+        var style = isHeal ? DamageNumberStyle.Heal : DamageNumberStyle.Damage;
+        popup.sr.sprite = PixelNumberFont.CreateNumberSprite(customText, style);
+        popup.sr.color = Color.white;
+        popup.spriteColor = Color.white;
+        popup.disappearTimer = 0.8f;
+        popup.moveVector = new Vector3(Random.Range(-0.3f, 0.3f), 0.8f, 0f);
+        go.transform.localScale = Vector3.one * 0.12f;
+
+        return popup;
+    }
+
     public static DamagePopup Create(Vector3 position, float amount, bool isHeal = false)
     {
         var go = GetFromPool(POOL_DMG);

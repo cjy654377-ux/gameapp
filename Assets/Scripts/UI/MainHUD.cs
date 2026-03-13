@@ -55,6 +55,10 @@ public class MainHUD : MonoBehaviour
     readonly GameObject[] tabPanels = new GameObject[TAB_COUNT];
     int activeTab = -1;
 
+    // Badge notifications
+    readonly GameObject[] tabBadges = new GameObject[TAB_COUNT];
+    readonly TextMeshProUGUI[] tabBadgeTexts = new TextMeshProUGUI[TAB_COUNT];
+
     // 강화 탭 서브탭
     int enhanceSubTab; // 0=영웅, 1=장비
     Button[] enhanceSubTabBtns;
@@ -79,6 +83,13 @@ public class MainHUD : MonoBehaviour
     GameObject heroSelectListContainer;
     readonly List<GameObject> heroSelectItems = new();
     string pendingEquipItemId;
+
+    // Confirm dialog
+    GameObject confirmPopup;
+    TextMeshProUGUI confirmTitleText;
+    TextMeshProUGUI confirmDescText;
+    Button confirmYesBtn;
+    System.Action pendingConfirmAction;
 
     // Offline reward popup
     GameObject offlinePopup;
@@ -136,13 +147,23 @@ public class MainHUD : MonoBehaviour
 
     void Update()
     {
-        if (waveBannerTimer <= 0) return;
+        // Wave banner fade
+        if (waveBannerTimer > 0)
+        {
+            waveBannerTimer -= Time.unscaledDeltaTime;
+            if (waveBannerTimer <= 0.5f && waveBannerCG != null)
+                waveBannerCG.alpha = waveBannerTimer / 0.5f;
+            if (waveBannerTimer <= 0 && waveBanner != null)
+                waveBanner.SetActive(false);
+        }
 
-        waveBannerTimer -= Time.unscaledDeltaTime;
-        if (waveBannerTimer <= 0.5f && waveBannerCG != null)
-            waveBannerCG.alpha = waveBannerTimer / 0.5f;
-        if (waveBannerTimer <= 0 && waveBanner != null)
-            waveBanner.SetActive(false);
+        // Badge update (every 2s)
+        badgeTimer -= Time.unscaledDeltaTime;
+        if (badgeTimer <= 0f)
+        {
+            badgeTimer = BADGE_INTERVAL;
+            UpdateBadges();
+        }
     }
 
     // ════════════════════════════════════════
@@ -161,6 +182,7 @@ public class MainHUD : MonoBehaviour
         CreateTabPanels();
         CreateOfflinePopup();
         CreateHeroSelectPopup();
+        CreateConfirmPopup();
     }
 
     void CreateCanvas()
@@ -447,6 +469,25 @@ public class MainHUD : MonoBehaviour
             lrt.anchorMax = new Vector2(1, 0.32f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
+
+            // Badge (red circle with count)
+            var badge = UIHelper.MakeUI($"Badge_{i}", tabObj.transform);
+            var badgeImg = badge.AddComponent<Image>();
+            badgeImg.color = UIColors.Defeat_Red;
+            var bdrt = badge.GetComponent<RectTransform>();
+            bdrt.anchorMin = new Vector2(0.65f, 0.65f);
+            bdrt.anchorMax = new Vector2(0.65f, 0.65f);
+            bdrt.pivot = new Vector2(0.5f, 0.5f);
+            bdrt.sizeDelta = new Vector2(16, 16);
+
+            var badgeText = UIHelper.MakeText("Count", badge.transform, "",
+                7f, TextAlignmentOptions.Center, Color.white);
+            badgeText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(badgeText.GetComponent<RectTransform>());
+
+            tabBadges[i] = badge;
+            tabBadgeTexts[i] = badgeText;
+            badge.SetActive(false);
         }
     }
 
@@ -536,7 +577,13 @@ public class MainHUD : MonoBehaviour
 
         float rowH = 1f; // 1행만
         BuildUpgradeRow(content.transform, "번개", 0, rowH,
-            ref tapUpText, ref tapUpBtn, () => { TapDamageSystem.Instance?.UpgradeTapDamage(); RefreshUpgradeUI(); });
+            ref tapUpText, ref tapUpBtn, () =>
+            {
+                var tap = TapDamageSystem.Instance;
+                if (tap != null && !tap.UpgradeTapDamage())
+                    ToastNotification.Instance?.Show("골드 부족!", $"{tap.UpgradeCost}G 필요", UIColors.Defeat_Red);
+                RefreshUpgradeUI();
+            });
     }
 
     void BuildUpgradeRow(Transform parent, string label, int index, float rowH,
@@ -738,7 +785,102 @@ public class MainHUD : MonoBehaviour
     {
         killCount++;
         if (killCountText != null)
-            killCountText.SetText("{0}", killCount);
+            killCountText.text = killCount.ToString();
+    }
+
+    float badgeTimer;
+    const float BADGE_INTERVAL = 2f;
+
+    // ── List pooling helpers ──
+    static void RecycleList(List<GameObject> items)
+    {
+        for (int i = 0; i < items.Count; i++)
+            if (items[i] != null) items[i].SetActive(false);
+    }
+
+    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
+        string name, Transform parent, Color color)
+    {
+        while (reuseIdx < items.Count)
+        {
+            var candidate = items[reuseIdx++];
+            if (candidate == null) continue;
+            // Clear children for fresh rebuild
+            for (int c = candidate.transform.childCount - 1; c >= 0; c--)
+                Object.Destroy(candidate.transform.GetChild(c).gameObject);
+            candidate.SetActive(true);
+            candidate.name = name;
+            candidate.GetComponent<Image>().color = color;
+            return candidate;
+        }
+        var img = UIHelper.MakePanel(name, parent, color);
+        items.Add(img.gameObject);
+        return img.gameObject;
+    }
+
+    static void TrimExcess(List<GameObject> items, int activeCount)
+    {
+        for (int i = items.Count - 1; i >= activeCount; i--)
+        {
+            if (items[i] != null && !items[i].activeSelf)
+                Object.Destroy(items[i]);
+            items.RemoveAt(i);
+        }
+    }
+
+    void UpdateBadges()
+    {
+        // 강화 탭 (index 1): 레벨업 가능한 영웅 수
+        var dm = DeckManager.Instance;
+        var hlm = HeroLevelManager.Instance;
+        int heroCount = 0;
+        if (dm != null && hlm != null)
+        {
+            for (int i = 0; i < dm.roster.Count; i++)
+            {
+                var p = dm.roster[i];
+                if (p == null || p.isEnemy) continue;
+                int lv = hlm.GetLevel(p.characterName);
+                if (lv >= HeroLevelManager.MAX_LEVEL) continue;
+                if (hlm.GetCopies(p.characterName) >= hlm.GetCopiesNeeded(lv))
+                    heroCount++;
+            }
+        }
+        SetBadge(1, heroCount);
+
+        // 상점 탭 (index 4): 미수령 업적 + 미션 보상 수
+        int rewardCount = 0;
+        var am = AchievementManager.Instance;
+        if (am != null)
+        {
+            var achs = am.GetAchievements();
+            for (int i = 0; i < achs.Count; i++)
+                if (achs[i].completed && !achs[i].claimed) rewardCount++;
+        }
+        var mm = DailyMissionManager.Instance;
+        if (mm != null)
+        {
+            var missions = mm.GetMissions();
+            for (int i = 0; i < missions.Count; i++)
+                if (missions[i].currentCount >= missions[i].targetCount && !missions[i].claimed)
+                    rewardCount++;
+        }
+        SetBadge(4, rewardCount);
+    }
+
+    void SetBadge(int tabIndex, int count)
+    {
+        if (tabIndex < 0 || tabIndex >= TAB_COUNT) return;
+        if (tabBadges[tabIndex] == null) return;
+
+        if (count <= 0)
+        {
+            tabBadges[tabIndex].SetActive(false);
+            return;
+        }
+        tabBadges[tabIndex].SetActive(true);
+        if (tabBadgeTexts[tabIndex] != null)
+            tabBadgeTexts[tabIndex].text = count.ToString();
     }
 
     void OnDestroy()
@@ -906,14 +1048,13 @@ public class MainHUD : MonoBehaviour
         var hlm = HeroLevelManager.Instance;
         if (dm == null) return;
 
-        // Clear
-        for (int i = 0; i < heroListItems.Count; i++)
-            if (heroListItems[i] != null) Object.Destroy(heroListItems[i]);
-        heroListItems.Clear();
+        RecycleList(heroListItems);
+        int heroReuse = 0;
 
         float itemH = 42f;
         float spacing = 2f;
         float y = 0;
+        int activeHeroCount = 0;
 
         for (int i = 0; i < dm.roster.Count; i++)
         {
@@ -921,9 +1062,9 @@ public class MainHUD : MonoBehaviour
             if (preset == null || preset.isEnemy) continue;
             string heroName = preset.characterName;
 
-            var itemImg = UIHelper.MakePanel($"Hero_{heroName}", heroListContainer.transform, UIColors.Panel_Inner);
-            var item = itemImg.gameObject;
-            heroListItems.Add(item);
+            var item = ReuseOrCreate(heroListItems, ref heroReuse,
+                $"Hero_{heroName}", heroListContainer.transform, UIColors.Panel_Inner);
+            activeHeroCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
             irt.anchorMax = new Vector2(1, 1);
@@ -998,6 +1139,7 @@ public class MainHUD : MonoBehaviour
             y -= (itemH + spacing);
         }
 
+        TrimExcess(heroListItems, activeHeroCount);
         var containerRT = heroListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -1075,6 +1217,18 @@ public class MainHUD : MonoBehaviour
     void OnSinglePull()
     {
         if (GachaManager.Instance == null) return;
+        int cost = GachaManager.SINGLE_PULL_COST;
+        if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
+        {
+            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
+            return;
+        }
+        ShowConfirm("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoSinglePull);
+    }
+
+    void DoSinglePull()
+    {
+        if (GachaManager.Instance == null) return;
         var hero = GachaManager.Instance.SinglePull();
         if (hero != null)
         {
@@ -1105,6 +1259,18 @@ public class MainHUD : MonoBehaviour
     }
 
     void OnMultiPull()
+    {
+        if (GachaManager.Instance == null) return;
+        int cost = GachaManager.MULTI_PULL_COST;
+        if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
+        {
+            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
+            return;
+        }
+        ShowConfirm("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoMultiPull);
+    }
+
+    void DoMultiPull()
     {
         if (GachaManager.Instance == null) return;
         var results = GachaManager.Instance.MultiPull();
@@ -1190,10 +1356,8 @@ public class MainHUD : MonoBehaviour
         var em = EquipmentManager.Instance;
         if (em == null) return;
 
-        // Clear
-        for (int i = 0; i < equipListItems.Count; i++)
-            if (equipListItems[i] != null) Object.Destroy(equipListItems[i]);
-        equipListItems.Clear();
+        RecycleList(equipListItems);
+        int equipReuse = 0;
 
         var inv = em.Inventory;
         if (equipInfoText != null)
@@ -1202,6 +1366,7 @@ public class MainHUD : MonoBehaviour
         float itemH = 40f;
         float spacing = 2f;
         float y = 0;
+        int activeEquipCount = 0;
 
         // 레어도별 색상
         Color[] rarityColors = {
@@ -1218,9 +1383,9 @@ public class MainHUD : MonoBehaviour
             var equip = inv[i];
             Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length ? rarityColors[equip.rarity] : UIColors.Text_Secondary;
 
-            var itemImg = UIHelper.MakePanel($"Equip_{i}", equipListContainer.transform, UIColors.Panel_Inner);
-            var item = itemImg.gameObject;
-            equipListItems.Add(item);
+            var item = ReuseOrCreate(equipListItems, ref equipReuse,
+                $"Equip_{i}", equipListContainer.transform, UIColors.Panel_Inner);
+            activeEquipCount++;
             var ert = item.GetComponent<RectTransform>();
             ert.anchorMin = new Vector2(0, 1);
             ert.anchorMax = new Vector2(1, 1);
@@ -1354,6 +1519,7 @@ public class MainHUD : MonoBehaviour
             y -= (itemH + spacing);
         }
 
+        TrimExcess(equipListItems, activeEquipCount);
         var containerRT = equipListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -1530,22 +1696,22 @@ public class MainHUD : MonoBehaviour
         var shop = ShopManager.Instance;
         if (shop == null) return;
 
-        for (int i = 0; i < shopListItems.Count; i++)
-            if (shopListItems[i] != null) Object.Destroy(shopListItems[i]);
-        shopListItems.Clear();
+        RecycleList(shopListItems);
+        int shopReuse = 0;
 
         var items = shop.GetStockItems();
         float itemH = 44f;
         float spacing = 2f;
         float y = 0;
+        int activeShopCount = 0;
 
         for (int i = 0; i < items.Count; i++)
         {
             var shopItem = items[i];
 
-            var itemImg = UIHelper.MakePanel($"Shop_{i}", shopListContainer.transform, UIColors.Panel_Inner);
-            var item = itemImg.gameObject;
-            shopListItems.Add(item);
+            var item = ReuseOrCreate(shopListItems, ref shopReuse,
+                $"Shop_{i}", shopListContainer.transform, UIColors.Panel_Inner);
+            activeShopCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
             irt.anchorMax = new Vector2(1, 1);
@@ -1598,20 +1764,38 @@ public class MainHUD : MonoBehaviour
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
-            if (canBuy)
             {
                 var capturedItem = shopItem;
                 btn.onClick.AddListener(() =>
                 {
-                    shop.Purchase(capturedItem);
-                    SoundManager.Instance?.PlayGoldSFX();
-                    RefreshShopList();
+                    if (!shop.CanPurchase(capturedItem))
+                    {
+                        string currency = capturedItem.gemCost > 0 ? "보석" : "골드";
+                        ToastNotification.Instance?.Show($"{currency} 부족!", "", UIColors.Defeat_Red);
+                        return;
+                    }
+                    if (capturedItem.gemCost > 0)
+                    {
+                        ShowConfirm("구매 확인", $"보석 {capturedItem.gemCost}개를 사용합니다.\n진행하시겠습니까?", () =>
+                        {
+                            shop.Purchase(capturedItem);
+                            SoundManager.Instance?.PlayGoldSFX();
+                            RefreshShopList();
+                        });
+                    }
+                    else
+                    {
+                        shop.Purchase(capturedItem);
+                        SoundManager.Instance?.PlayGoldSFX();
+                        RefreshShopList();
+                    }
                 });
             }
 
             y -= (itemH + spacing);
         }
 
+        TrimExcess(shopListItems, activeShopCount);
         var srt2 = shopListContainer.GetComponent<RectTransform>();
         srt2.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -1653,14 +1837,14 @@ public class MainHUD : MonoBehaviour
         var am = AchievementManager.Instance;
         if (am == null) return;
 
-        for (int i = 0; i < achieveListItems.Count; i++)
-            if (achieveListItems[i] != null) Object.Destroy(achieveListItems[i]);
-        achieveListItems.Clear();
+        RecycleList(achieveListItems);
+        int achReuse = 0;
 
         var achievements = am.GetAchievements();
         float itemH = 42f;
         float spacing = 2f;
         float y = 0;
+        int activeAchCount = 0;
 
         for (int i = 0; i < achievements.Count; i++)
         {
@@ -1669,9 +1853,9 @@ public class MainHUD : MonoBehaviour
             Color bgColor = ach.claimed ? UIColors.Panel_Inner :
                             ach.completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
 
-            var itemImg = UIHelper.MakePanel($"Ach_{i}", achieveListContainer.transform, bgColor);
-            var item = itemImg.gameObject;
-            achieveListItems.Add(item);
+            var item = ReuseOrCreate(achieveListItems, ref achReuse,
+                $"Ach_{i}", achieveListContainer.transform, bgColor);
+            activeAchCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
             irt.anchorMax = new Vector2(1, 1);
@@ -1743,6 +1927,7 @@ public class MainHUD : MonoBehaviour
             y -= (itemH + spacing);
         }
 
+        TrimExcess(achieveListItems, activeAchCount);
         var containerRT = achieveListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -1787,14 +1972,14 @@ public class MainHUD : MonoBehaviour
         var mm = DailyMissionManager.Instance;
         if (mm == null) return;
 
-        for (int i = 0; i < missionListItems.Count; i++)
-            if (missionListItems[i] != null) Object.Destroy(missionListItems[i]);
-        missionListItems.Clear();
+        RecycleList(missionListItems);
+        int missionReuse = 0;
 
         var missions = mm.GetMissions();
         float itemH = 42f;
         float spacing = 2f;
         float y = 0;
+        int activeMissionCount = 0;
 
         for (int i = 0; i < missions.Count; i++)
         {
@@ -1804,9 +1989,9 @@ public class MainHUD : MonoBehaviour
             Color bgColor = mission.claimed ? UIColors.Panel_Inner :
                             completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
 
-            var itemImg = UIHelper.MakePanel($"Mission_{i}", missionListContainer.transform, bgColor);
-            var item = itemImg.gameObject;
-            missionListItems.Add(item);
+            var item = ReuseOrCreate(missionListItems, ref missionReuse,
+                $"Mission_{i}", missionListContainer.transform, bgColor);
+            activeMissionCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
             irt.anchorMax = new Vector2(1, 1);
@@ -1880,6 +2065,7 @@ public class MainHUD : MonoBehaviour
             y -= (itemH + spacing);
         }
 
+        TrimExcess(missionListItems, activeMissionCount);
         var containerRT = missionListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -2270,5 +2456,96 @@ public class MainHUD : MonoBehaviour
 
         var containerRT = heroSelectListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 확인 팝업
+    // ════════════════════════════════════════
+
+    void CreateConfirmPopup()
+    {
+        confirmPopup = UIHelper.MakeUI("ConfirmPopup", safeAreaRoot.transform);
+        var bg = confirmPopup.AddComponent<Image>();
+        bg.color = UIColors.Overlay_Dark;
+        UIHelper.FillParent(confirmPopup.GetComponent<RectTransform>());
+
+        var panel = UIHelper.MakePanel("Panel", confirmPopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
+        var prt = panel.GetComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0.1f, 0.38f);
+        prt.anchorMax = new Vector2(0.9f, 0.62f);
+        prt.offsetMin = Vector2.zero;
+        prt.offsetMax = Vector2.zero;
+
+        confirmTitleText = UIHelper.MakeText("Title", panel.transform, "",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        confirmTitleText.fontStyle = FontStyles.Bold;
+        var trt = confirmTitleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.72f);
+        trt.anchorMax = new Vector2(1, 0.95f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        confirmDescText = UIHelper.MakeText("Desc", panel.transform, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        var drt = confirmDescText.GetComponent<RectTransform>();
+        drt.anchorMin = new Vector2(0.05f, 0.35f);
+        drt.anchorMax = new Vector2(0.95f, 0.72f);
+        drt.offsetMin = Vector2.zero;
+        drt.offsetMax = Vector2.zero;
+
+        // YES 버튼
+        var (yesBtn, _) = UIHelper.MakeButton("YesBtn", panel.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
+        var ybrt = yesBtn.GetComponent<RectTransform>();
+        ybrt.anchorMin = new Vector2(0.55f, 0.06f);
+        ybrt.anchorMax = new Vector2(0.92f, 0.3f);
+        ybrt.offsetMin = Vector2.zero;
+        ybrt.offsetMax = Vector2.zero;
+        var yesLabel = UIHelper.MakeText("Label", yesBtn.transform, "확인",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        yesLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(yesLabel.GetComponent<RectTransform>());
+        confirmYesBtn = yesBtn;
+        yesBtn.onClick.AddListener(() =>
+        {
+            confirmPopup.SetActive(false);
+            pendingConfirmAction?.Invoke();
+            pendingConfirmAction = null;
+            SoundManager.Instance?.PlayButtonSFX();
+        });
+
+        // NO 버튼
+        var (noBtn, _) = UIHelper.MakeButton("NoBtn", panel.transform,
+            UIColors.Defeat_Red, "", UIConstants.Font_Button);
+        var nbrt = noBtn.GetComponent<RectTransform>();
+        nbrt.anchorMin = new Vector2(0.08f, 0.06f);
+        nbrt.anchorMax = new Vector2(0.45f, 0.3f);
+        nbrt.offsetMin = Vector2.zero;
+        nbrt.offsetMax = Vector2.zero;
+        var noLabel = UIHelper.MakeText("Label", noBtn.transform, "취소",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        noLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(noLabel.GetComponent<RectTransform>());
+        noBtn.onClick.AddListener(() =>
+        {
+            confirmPopup.SetActive(false);
+            pendingConfirmAction = null;
+            SoundManager.Instance?.PlayButtonSFX();
+        });
+
+        confirmPopup.SetActive(false);
+    }
+
+    void ShowConfirm(string title, string desc, System.Action onConfirm)
+    {
+        if (confirmPopup == null) return;
+        confirmTitleText.text = title;
+        confirmDescText.text = desc;
+        pendingConfirmAction = onConfirm;
+        confirmPopup.SetActive(true);
+        SoundManager.Instance?.PlayButtonSFX();
     }
 }

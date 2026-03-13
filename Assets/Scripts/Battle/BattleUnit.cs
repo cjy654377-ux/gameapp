@@ -128,6 +128,13 @@ public class BattleUnit : MonoBehaviour
             BattleManager.Instance.CurrentState != BattleManager.BattleState.Fighting)
             return;
 
+        // Stun check
+        if (stunTimer > 0f)
+        {
+            stunTimer -= Time.deltaTime;
+            return;
+        }
+
         // Skill auto-use
         UpdateSkills();
 
@@ -490,6 +497,16 @@ public class BattleUnit : MonoBehaviour
             EffectManager.Instance.SpawnHealEffect(transform.position + Vector3.up * 0.5f);
     }
 
+    float stunTimer;
+
+    public void ApplyStun(float duration)
+    {
+        if (IsDead) return;
+        stunTimer = Mathf.Max(stunTimer, duration);
+    }
+
+    public bool IsStunned => stunTimer > 0f;
+
     public void ApplyBuff(float atkBonus, float defBonus, float duration)
     {
         if (buffTimer > 0f)
@@ -519,7 +536,45 @@ public class BattleUnit : MonoBehaviour
             animator.SetTrigger("4_Death");
         }
 
-        Invoke(nameof(DisableUnit), 1.5f);
+        // Death fade effect
+        StartCoroutine(DeathFadeOut());
+    }
+
+    System.Collections.IEnumerator DeathFadeOut()
+    {
+        float duration = 1.2f;
+        float elapsed = 0f;
+
+        // Collect all sprite renderers
+        var renderers = GetComponentsInChildren<SpriteRenderer>();
+        var originalColors = new Color[renderers.Length];
+        for (int i = 0; i < renderers.Length; i++)
+            originalColors[i] = renderers[i].color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = 1f - (elapsed / duration);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null)
+                {
+                    var c = originalColors[i];
+                    c.a = alpha;
+                    renderers[i].color = c;
+                }
+            }
+            yield return null;
+        }
+
+        // Restore colors before disable (for pool reuse)
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                renderers[i].color = originalColors[i];
+        }
+
+        DisableUnit();
     }
 
     void DisableUnit()
@@ -537,8 +592,19 @@ public class BattleUnit : MonoBehaviour
     /// </summary>
     public void Revive()
     {
-        CancelInvoke(nameof(DisableUnit));
+        StopAllCoroutines();
         gameObject.SetActive(true);
+        // Restore alpha after death fade
+        var renderers = GetComponentsInChildren<SpriteRenderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                var c = renderers[i].color;
+                c.a = 1f;
+                renderers[i].color = c;
+            }
+        }
         CurrentHp = maxHp;
         CurrentState = UnitState.Idle;
         target = null;

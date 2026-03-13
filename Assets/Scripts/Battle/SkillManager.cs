@@ -229,6 +229,8 @@ public class SkillManager : MonoBehaviour
     };
     static readonly Dictionary<SkillEffectType, GameObject> vfxPrefabCache = new();
 
+    const string VFX_POOL = "SkillVFX";
+
     void SpawnSkillVFX(Vector3 position, Color color, SkillEffectType effectType = SkillEffectType.Damage)
     {
         if (vfxPrefabPaths.TryGetValue(effectType, out string path))
@@ -247,19 +249,34 @@ public class SkillManager : MonoBehaviour
             }
         }
 
-        // Fallback: simple particle
-        var go = new GameObject("SkillVFX");
-        go.transform.position = position;
+        // Fallback: pooled simple particle
+        var pool = ObjectPool.Instance;
+        var go = pool != null
+            ? pool.Get(VFX_POOL, CreateFallbackVFX)
+            : CreateFallbackVFX();
 
+        go.transform.position = position;
+        go.transform.localScale = Vector3.one;
+        var ps = go.GetComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startColor = color;
+        ps.Play();
+
+        StartCoroutine(ReturnVFXAfterDelay(go, 1f));
+    }
+
+    GameObject CreateFallbackVFX()
+    {
+        var go = new GameObject("SkillVFX");
         var ps = go.AddComponent<ParticleSystem>();
         var main = ps.main;
         main.startLifetime = 0.5f;
         main.startSpeed = 3f;
         main.startSize = 0.15f;
-        main.startColor = color;
         main.maxParticles = 20;
         main.duration = 0.3f;
         main.loop = false;
+        main.playOnAwake = false;
 
         var emission = ps.emission;
         emission.rateOverTime = 0;
@@ -275,7 +292,22 @@ public class SkillManager : MonoBehaviour
         renderer.material = cachedVFXMaterial;
         renderer.sortingOrder = 100;
 
-        Destroy(go, 1f);
+        return go;
+    }
+
+    System.Collections.IEnumerator ReturnVFXAfterDelay(GameObject go, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        var pool = ObjectPool.Instance;
+        if (pool != null && go != null)
+        {
+            go.SetActive(false);
+            pool.Return(VFX_POOL, go);
+        }
+        else if (go != null)
+        {
+            Destroy(go);
+        }
     }
 
     BattleUnit FindNearestAlive(List<BattleUnit> units)

@@ -347,6 +347,12 @@ public class StageManager : MonoBehaviour
         unit.OnHpChanged += rageHandler;
         unit.OnDeath += deathCleanup;
 
+        // Boss special patterns
+        if (isAreaBoss)
+            StartCoroutine(BossAoePattern(bossUnit));
+        else
+            StartCoroutine(BossStunPattern(bossUnit));
+
         manager.enemyUnits.Add(unit);
         SoundManager.Instance?.PlayBossAppearSFX();
         OnBossSpawned?.Invoke(isAreaBoss);
@@ -512,5 +518,70 @@ public class StageManager : MonoBehaviour
         float areaJump = Mathf.Pow(1.5f, area);
 
         return 1f + curveMult * areaJump;
+    }
+
+    // ════════════════════════════════════════
+    // Boss Special Patterns
+    // ════════════════════════════════════════
+
+    /// <summary>
+    /// 미드보스: 5초마다 가장 가까운 아군에게 1초 스턴
+    /// </summary>
+    System.Collections.IEnumerator BossStunPattern(BattleUnit boss)
+    {
+        yield return new WaitForSeconds(3f);
+        while (boss != null && !boss.IsDead)
+        {
+            var manager = BattleManager.Instance;
+            if (manager != null && manager.CurrentState == BattleManager.BattleState.Fighting)
+            {
+                BattleUnit nearest = null;
+                float minDist = float.MaxValue;
+                for (int i = 0; i < manager.allyUnits.Count; i++)
+                {
+                    var ally = manager.allyUnits[i];
+                    if (ally == null || ally.IsDead) continue;
+                    float d = Vector3.Distance(boss.transform.position, ally.transform.position);
+                    if (d < minDist) { minDist = d; nearest = ally; }
+                }
+                if (nearest != null && minDist < boss.attackRange * 2f)
+                {
+                    nearest.ApplyStun(1f);
+                    DamagePopup.Create(nearest.transform.position + Vector3.up * 0.7f, 0f, false, "STUN!");
+                    EffectManager.Instance?.SpawnLightningEffect(nearest.transform.position);
+                }
+            }
+            yield return new WaitForSeconds(5f);
+        }
+    }
+
+    /// <summary>
+    /// 에리어 보스: 8초마다 전체 아군에게 ATK*0.3 광역 데미지
+    /// </summary>
+    System.Collections.IEnumerator BossAoePattern(BattleUnit boss)
+    {
+        yield return new WaitForSeconds(4f);
+        while (boss != null && !boss.IsDead)
+        {
+            var manager = BattleManager.Instance;
+            if (manager != null && manager.CurrentState == BattleManager.BattleState.Fighting)
+            {
+                float aoeDmg = boss.atk * 0.3f;
+                for (int i = 0; i < manager.allyUnits.Count; i++)
+                {
+                    var ally = manager.allyUnits[i];
+                    if (ally == null || ally.IsDead) continue;
+                    ally.TakeDamage(aoeDmg);
+                }
+                // 보스 위치에 이펙트
+                EffectManager.Instance?.SpawnLightningEffect(boss.transform.position);
+
+                // 카메라 셰이크
+                var cam = GetMainCamera();
+                var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
+                if (camShake != null) camShake.Shake(0.2f, 0.1f);
+            }
+            yield return new WaitForSeconds(8f);
+        }
     }
 }
