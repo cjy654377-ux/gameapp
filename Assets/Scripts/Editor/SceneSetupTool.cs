@@ -90,6 +90,7 @@ public class SceneSetupTool
         EnsureComponent<TapDamageSystem>(gm);
         EnsureComponent<SkillManager>(gm);
         EnsureComponent<UpgradeManager>(FindOrCreate("UpgradeManager"));
+        EnsureComponent<DailyMissionManager>(gm);
 
         // EventSystem
         if (GameObject.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)

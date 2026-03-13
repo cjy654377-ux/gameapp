@@ -74,6 +74,12 @@ public class MainHUD : MonoBehaviour
         BuildUI();
     }
 
+    // Hero select popup (for equipment)
+    GameObject heroSelectPopup;
+    GameObject heroSelectListContainer;
+    readonly List<GameObject> heroSelectItems = new();
+    string pendingEquipItemId;
+
     // Offline reward popup
     GameObject offlinePopup;
     TextMeshProUGUI offlineText;
@@ -154,6 +160,7 @@ public class MainHUD : MonoBehaviour
         CreateBottomNavBar();
         CreateTabPanels();
         CreateOfflinePopup();
+        CreateHeroSelectPopup();
     }
 
     void CreateCanvas()
@@ -1254,20 +1261,20 @@ public class MainHUD : MonoBehaviour
             strt.offsetMin = Vector2.zero;
             strt.offsetMax = Vector2.zero;
 
-            // 장착 상태 / 버튼
+            // 장착/해제 버튼
             bool isEquipped = !string.IsNullOrEmpty(equip.equippedTo);
             string btnLabel = isEquipped ? $"{equip.equippedTo}" : "장착";
             Color btnColor = isEquipped ? UIColors.Button_Brown : UIColors.Button_Green;
 
             var (btn, _) = UIHelper.MakeButton($"Btn_{i}", item.transform, btnColor, "", 9f);
             var btnRT = btn.GetComponent<RectTransform>();
-            btnRT.anchorMin = new Vector2(0.72f, 0.1f);
-            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.anchorMin = new Vector2(0.72f, 0.52f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.95f);
             btnRT.offsetMin = Vector2.zero;
             btnRT.offsetMax = Vector2.zero;
 
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
-                9f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+                8f, TextAlignmentOptions.Center, UIColors.Text_Primary);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -1282,16 +1289,34 @@ public class MainHUD : MonoBehaviour
             }
             else
             {
-                btn.onClick.AddListener(() =>
+                btn.onClick.AddListener(() => ShowHeroSelectPopup(capturedId));
+            }
+
+            // 분해 버튼 (미장착 아이템만)
+            if (!isEquipped)
+            {
+                var (disBtn, _2) = UIHelper.MakeButton($"Dis_{i}", item.transform,
+                    UIColors.Defeat_Red, "", 8f);
+                var disBtnRT = disBtn.GetComponent<RectTransform>();
+                disBtnRT.anchorMin = new Vector2(0.72f, 0.05f);
+                disBtnRT.anchorMax = new Vector2(0.97f, 0.48f);
+                disBtnRT.offsetMin = Vector2.zero;
+                disBtnRT.offsetMax = Vector2.zero;
+
+                string disLabel = $"분해 {equip.rarity * 50}G";
+                var disBtnText = UIHelper.MakeText("Label", disBtn.transform, disLabel,
+                    7f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+                disBtnText.fontStyle = FontStyles.Bold;
+                UIHelper.FillParent(disBtnText.GetComponent<RectTransform>());
+
+                string disId = equip.id;
+                disBtn.onClick.AddListener(() =>
                 {
-                    // 첫 번째 덱 영웅에게 장착
-                    var dm = DeckManager.Instance;
-                    if (dm != null && dm.roster.Count > 0)
-                    {
-                        string heroName = dm.roster[0].characterName;
-                        EquipmentManager.Instance?.EquipItem(capturedId, heroName);
-                        RefreshEquipmentUI();
-                    }
+                    int gold = EquipmentManager.Instance != null
+                        ? EquipmentManager.Instance.DismantleItem(disId) : 0;
+                    if (gold > 0)
+                        ToastNotification.Instance?.Show($"분해 완료!", $"+{gold}G", UIColors.Text_Gold);
+                    RefreshEquipmentUI();
                 });
             }
 
@@ -1912,4 +1937,156 @@ public class MainHUD : MonoBehaviour
         offlinePopup.SetActive(true);
     }
 
+    // ════════════════════════════════════════
+    // 영웅 선택 팝업 (장비 장착용)
+    // ════════════════════════════════════════
+
+    void CreateHeroSelectPopup()
+    {
+        heroSelectPopup = UIHelper.MakeUI("HeroSelectPopup", safeAreaRoot.transform);
+        var bg = heroSelectPopup.AddComponent<Image>();
+        bg.color = UIColors.Overlay_Dark;
+        UIHelper.FillParent(heroSelectPopup.GetComponent<RectTransform>());
+
+        // 닫기용 풀스크린 버튼
+        var tapClose = heroSelectPopup.AddComponent<Button>();
+        tapClose.targetGraphic = bg;
+        tapClose.onClick.AddListener(() => heroSelectPopup.SetActive(false));
+
+        // 패널
+        var panel = UIHelper.MakePanel("Panel", heroSelectPopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
+        var prt = panel.GetComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0.08f, 0.3f);
+        prt.anchorMax = new Vector2(0.92f, 0.7f);
+        prt.offsetMin = Vector2.zero;
+        prt.offsetMax = Vector2.zero;
+
+        // 타이틀
+        var titleText = UIHelper.MakeText("Title", panel.transform, "영웅 선택",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        titleText.fontStyle = FontStyles.Bold;
+        var trt = titleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.88f);
+        trt.anchorMax = new Vector2(1, 1);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        // 스크롤 리스트
+        var scrollObj = UIHelper.MakeUI("HeroScroll", panel.transform);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = new Vector2(0, 0);
+        scrollRT.anchorMax = new Vector2(1, 0.86f);
+        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        heroSelectListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = heroSelectListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+
+        heroSelectPopup.SetActive(false);
+    }
+
+    void ShowHeroSelectPopup(string equipItemId)
+    {
+        pendingEquipItemId = equipItemId;
+        RefreshHeroSelectList();
+        heroSelectPopup.SetActive(true);
+        SoundManager.Instance?.PlayButtonSFX();
+    }
+
+    void RefreshHeroSelectList()
+    {
+        if (heroSelectListContainer == null) return;
+        var dm = DeckManager.Instance;
+        if (dm == null) return;
+
+        for (int i = 0; i < heroSelectItems.Count; i++)
+            if (heroSelectItems[i] != null) Object.Destroy(heroSelectItems[i]);
+        heroSelectItems.Clear();
+
+        float itemH = 38f;
+        float spacing = 2f;
+        float y = 0;
+
+        for (int i = 0; i < dm.roster.Count; i++)
+        {
+            var preset = dm.roster[i];
+            if (preset == null || preset.isEnemy) continue;
+            string heroName = preset.characterName;
+
+            var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, UIColors.Panel_Inner);
+            var item = itemImg.gameObject;
+            heroSelectItems.Add(item);
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            // 이름
+            var nameText = UIHelper.MakeText("Name", item.transform, heroName,
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0);
+            nrt.anchorMax = new Vector2(0.55f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // 현재 장비 수
+            int equipCount = EquipmentManager.Instance != null
+                ? EquipmentManager.Instance.GetEquippedItems(heroName).Count : 0;
+            var eqText = UIHelper.MakeText("Equip", item.transform, $"장비 {equipCount}개",
+                9f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+            var ert = eqText.GetComponent<RectTransform>();
+            ert.anchorMin = new Vector2(0.55f, 0);
+            ert.anchorMax = new Vector2(0.75f, 1);
+            ert.offsetMin = Vector2.zero;
+            ert.offsetMax = Vector2.zero;
+
+            // 선택 버튼
+            var (btn, _) = UIHelper.MakeButton($"Select_{i}", item.transform,
+                UIColors.Button_Green, "", 10f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.77f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            var btnText = UIHelper.MakeText("Label", btn.transform, "선택",
+                UIConstants.Font_Cost, TextAlignmentOptions.Center, UIColors.Text_Primary);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            string capturedHero = heroName;
+            btn.onClick.AddListener(() =>
+            {
+                EquipmentManager.Instance?.EquipItem(pendingEquipItemId, capturedHero);
+                heroSelectPopup.SetActive(false);
+                RefreshEquipmentUI();
+            });
+
+            y -= (itemH + spacing);
+        }
+
+        var containerRT = heroSelectListContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
 }

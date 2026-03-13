@@ -109,6 +109,7 @@ public class GachaManager : MonoBehaviour
         HandlePullResult(hero);
         SoundManager.Instance?.PlayGachaSFX();
         OnHeroPulled?.Invoke(hero);
+        DailyMissionManager.Instance?.RegisterGacha();
         return hero;
     }
 

@@ -156,6 +156,7 @@ public class CharacterFactory : MonoBehaviour
             {
                 GoldDrop.Spawn(unitRef.transform.position, goldReward);
                 AchievementManager.Instance?.RegisterKill();
+                DailyMissionManager.Instance?.RegisterKill();
                 unitRef.OnDeath -= deathHandler;
             };
             battleUnit.OnDeath += deathHandler;

@@ -20,11 +20,12 @@ public class TutorialManager : MonoBehaviour
     bool tutorialComplete;
     TutorialOverlay overlay;
 
-    // Cached flags to avoid repeated checks
-    bool waitingForWaveClear;
-    bool subscribedToEvents;
-
     const int TOTAL_STEPS = 5;
+
+    // Cached references for safe unsubscribe
+    GoldManager cachedGoldMgr;
+    GemManager cachedGemMgr;
+    StageManager cachedStageMgr;
 
     void Awake()
     {
@@ -39,39 +40,37 @@ public class TutorialManager : MonoBehaviour
     {
         if (tutorialComplete) return;
 
-        // Create overlay
         var overlayObj = new GameObject("TutorialOverlay");
         overlayObj.transform.SetParent(transform);
         overlay = overlayObj.AddComponent<TutorialOverlay>();
 
-        SubscribeToEvents();
+        StartCoroutine(DeferredSubscribe());
     }
 
-    void SubscribeToEvents()
+    System.Collections.IEnumerator DeferredSubscribe()
     {
-        if (subscribedToEvents) return;
-        subscribedToEvents = true;
+        yield return null;
 
-        if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged += OnGoldChanged;
+        cachedGoldMgr = GoldManager.Instance;
+        cachedGemMgr = GemManager.Instance;
+        cachedStageMgr = StageManager.Instance;
 
-        if (GemManager.Instance != null)
-            GemManager.Instance.OnGemChanged += OnGemChanged;
-
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnStageChanged += OnStageChanged;
+        if (cachedGoldMgr != null)
+            cachedGoldMgr.OnGoldChanged += OnGoldChanged;
+        if (cachedGemMgr != null)
+            cachedGemMgr.OnGemChanged += OnGemChanged;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnStageChanged += OnStageChanged;
     }
 
     void OnDestroy()
     {
-        if (GoldManager.Instance != null)
-            GoldManager.Instance.OnGoldChanged -= OnGoldChanged;
-
-        if (GemManager.Instance != null)
-            GemManager.Instance.OnGemChanged -= OnGemChanged;
-
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnStageChanged -= OnStageChanged;
+        if (cachedGoldMgr != null)
+            cachedGoldMgr.OnGoldChanged -= OnGoldChanged;
+        if (cachedGemMgr != null)
+            cachedGemMgr.OnGemChanged -= OnGemChanged;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnStageChanged -= OnStageChanged;
     }
 
     void Update()
@@ -87,28 +86,13 @@ public class TutorialManager : MonoBehaviour
         switch (currentStep)
         {
             case 0:
-                // Show at game start
                 if (BattleManager.Instance != null &&
                     BattleManager.Instance.CurrentState == BattleManager.BattleState.Fighting)
                 {
                     ShowTutorial("적이 나타났다! 화면을 탭하여 번개를 내려보세요!");
                 }
                 break;
-
-            case 1:
-                // Triggered by OnStageChanged callback (wave clear)
-                break;
-
-            case 2:
-                // Triggered by OnGoldChanged callback
-                break;
-
-            case 3:
-                // Triggered by OnGemChanged callback
-                break;
-
             case 4:
-                // Check if skill equipped
                 if (SkillManager.Instance != null &&
                     SkillManager.Instance.equippedSkills.Count > 0)
                 {
@@ -121,25 +105,19 @@ public class TutorialManager : MonoBehaviour
     void OnStageChanged(int area, int stage, int wave)
     {
         if (currentStep == 1 && !IsTutorialActive)
-        {
             ShowTutorial("웨이브 클리어! 골드를 획득했습니다.");
-        }
     }
 
     void OnGoldChanged(int gold)
     {
         if (currentStep == 2 && gold >= 50 && !IsTutorialActive)
-        {
             ShowTutorial("하단의 훈련 탭에서 번개를 강화하세요.");
-        }
     }
 
     void OnGemChanged(int gems)
     {
         if (currentStep == 3 && gems >= 50 && !IsTutorialActive)
-        {
             ShowTutorial("소환 탭에서 새로운 영웅을 뽑아보세요!");
-        }
     }
 
     public void ShowTutorial(string message)
@@ -162,9 +140,6 @@ public class TutorialManager : MonoBehaviour
             tutorialComplete = true;
     }
 
-    /// <summary>
-    /// Reset tutorial progress (for debug)
-    /// </summary>
     public void ResetTutorial()
     {
         currentStep = 0;

@@ -320,6 +320,86 @@ public class EquipmentManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 장비 분해: 아이템 삭제 후 골드 획득 (rarity * 50)
+    /// </summary>
+    public int DismantleItem(string itemId)
+    {
+        var item = FindItem(itemId);
+        if (item == null) return 0;
+        if (!string.IsNullOrEmpty(item.equippedTo)) return 0; // 장착 중이면 분해 불가
+
+        int goldReward = item.rarity * 50;
+        inventory.Remove(item);
+        SaveInventory();
+        OnEquipmentChanged?.Invoke();
+
+        GoldManager.Instance?.AddGold(goldReward);
+        return goldReward;
+    }
+
+    /// <summary>
+    /// 장비 강화: 같은 슬롯+등급 아이템 2개 소모 → 1등급 상승
+    /// materialId를 소모하여 targetId의 등급을 올림
+    /// </summary>
+    public bool EnhanceItem(string targetId, string materialId)
+    {
+        var target = FindItem(targetId);
+        var material = FindItem(materialId);
+        if (target == null || material == null) return false;
+        if (target.id == material.id) return false;
+        if (target.rarity >= 5) return false; // 최대 등급
+        if (target.slot != material.slot) return false; // 같은 슬롯만
+        if (target.rarity != material.rarity) return false; // 같은 등급만
+        if (!string.IsNullOrEmpty(material.equippedTo)) return false; // 재료 장착 중 불가
+
+        // 등급 상승
+        target.rarity++;
+        float boost = 1.3f; // 30% 스탯 증가
+        target.bonusHp *= boost;
+        target.bonusAtk *= boost;
+        target.bonusDef *= boost;
+
+        // 이름 갱신
+        string prefix = target.rarity <= 5 ? new[] { "", "낡은", "일반", "고급", "희귀", "전설" }[target.rarity] : "전설";
+        string slotName = target.slot switch
+        {
+            EquipmentSlot.Weapon => "검",
+            EquipmentSlot.Armor => "갑옷",
+            EquipmentSlot.Shield => "방패",
+            _ => "장비"
+        };
+        target.itemName = $"{prefix} {slotName}";
+
+        // 재료 소모
+        inventory.Remove(material);
+        SaveInventory();
+        OnEquipmentChanged?.Invoke();
+        SoundManager.Instance?.PlayLevelUpSFX();
+        return true;
+    }
+
+    /// <summary>
+    /// 강화 가능한 재료 목록 (같은 슬롯+등급, 미장착, 자기 자신 제외)
+    /// </summary>
+    public List<EquipmentItem> GetEnhanceMaterials(string targetId)
+    {
+        var target = FindItem(targetId);
+        var result = new List<EquipmentItem>();
+        if (target == null || target.rarity >= 5) return result;
+
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            var other = inventory[i];
+            if (other.id == targetId) continue;
+            if (other.slot != target.slot) continue;
+            if (other.rarity != target.rarity) continue;
+            if (!string.IsNullOrEmpty(other.equippedTo)) continue;
+            result.Add(other);
+        }
+        return result;
+    }
+
     // ═══════════════════════════════════════
     // SAVE / LOAD (PlayerPrefs JSON)
     // ═══════════════════════════════════════
