@@ -146,8 +146,7 @@ public class ShopManager : MonoBehaviour
                 GoldManager.Instance?.AddGold(item.rewardAmount);
                 break;
             case ShopItemType.SkillBox:
-                // TODO: integrate with skill system when available
-                Debug.Log($"[ShopManager] Granted {item.rewardAmount} random skill(s)");
+                GrantRandomSkill(item.rewardAmount);
                 break;
             case ShopItemType.EquipmentBox:
                 if (EquipmentManager.Instance != null)
@@ -174,6 +173,43 @@ public class ShopManager : MonoBehaviour
         SoundManager.Instance?.PlayButtonSFX();
         OnPurchased?.Invoke(item);
         return true;
+    }
+
+    void GrantRandomSkill(int count)
+    {
+        var sm = SkillManager.Instance;
+        if (sm == null) return;
+
+        var allSkills = Resources.LoadAll<SkillData>("Skills");
+        if (allSkills == null || allSkills.Length == 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            // 장착 중이 아닌 스킬 우선
+            SkillData picked = null;
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                var candidate = allSkills[UnityEngine.Random.Range(0, allSkills.Length)];
+                if (!sm.equippedSkills.Contains(candidate))
+                {
+                    picked = candidate;
+                    break;
+                }
+            }
+            if (picked == null) picked = allSkills[UnityEngine.Random.Range(0, allSkills.Length)];
+
+            // 빈 슬롯에 장착, 없으면 교체 알림만
+            if (sm.equippedSkills.Count < 4)
+            {
+                sm.equippedSkills.Add(picked);
+                sm.SaveEquippedSkills();
+                ToastNotification.Instance?.Show($"스킬 획득!", picked.skillName, UIColors.Text_Diamond);
+            }
+            else
+            {
+                ToastNotification.Instance?.Show($"스킬 획득!", $"{picked.skillName} (슬롯 가득)", UIColors.Text_Gold);
+            }
+        }
     }
 
     /// <summary>

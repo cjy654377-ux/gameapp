@@ -7,8 +7,12 @@ public class Projectile : MonoBehaviour
     private float speed;
     private SpriteRenderer sr;
     private ProjectileType projType;
+    private float lifeTimer;
 
     static Sprite fallbackSprite;
+
+    const string POOL_NAME = "Projectile";
+    const float MAX_LIFETIME = 3f;
 
     // Hit VFX prefab paths (Cartoon FX Remaster)
     const string HIT_RED = "VFX/CFXR Hit A (Red)";
@@ -18,17 +22,21 @@ public class Projectile : MonoBehaviour
     {
         EnsureFallbackSprite();
 
-        var go = new GameObject("Projectile");
+        var pool = ObjectPool.Instance;
+        var go = pool != null
+            ? pool.Get(POOL_NAME, CreateNewProjectile)
+            : CreateNewProjectile();
+
         go.transform.position = from;
-        var proj = go.AddComponent<Projectile>();
+        var proj = go.GetComponent<Projectile>();
         proj.target = target;
         proj.damage = damage;
         proj.projType = type;
         proj.speed = type == ProjectileType.Arrow ? 12f : 8f;
+        proj.lifeTimer = MAX_LIFETIME;
 
-        proj.sr = go.AddComponent<SpriteRenderer>();
-        proj.sr.sortingOrder = 50;
         proj.sr.sprite = fallbackSprite;
+        proj.sr.sortingOrder = 50;
 
         if (type == ProjectileType.Arrow)
         {
@@ -45,8 +53,14 @@ public class Projectile : MonoBehaviour
         Vector3 dir = target.transform.position - from;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         go.transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
 
-        Destroy(go, 3f);
+    static GameObject CreateNewProjectile()
+    {
+        var go = new GameObject("Projectile");
+        var sr = go.AddComponent<SpriteRenderer>();
+        go.AddComponent<Projectile>();
+        return go;
     }
 
     static void EnsureFallbackSprite()
@@ -61,22 +75,35 @@ public class Projectile : MonoBehaviour
         fallbackSprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
     }
 
+    void Awake()
+    {
+        sr = GetComponent<SpriteRenderer>();
+        if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
+    }
+
     void Update()
     {
+        lifeTimer -= Time.deltaTime;
+        if (lifeTimer <= 0f)
+        {
+            ReturnToPool();
+            return;
+        }
+
         if (target == null || target.IsDead)
         {
-            Destroy(gameObject);
+            ReturnToPool();
             return;
         }
 
         Vector3 dir = target.transform.position - transform.position;
         float dist = dir.magnitude;
 
-        if (dist < 0.2f)
+        if (dist < 0.3f)
         {
             target.TakeDamage(damage);
             SpawnHitVFX();
-            Destroy(gameObject);
+            ReturnToPool();
             return;
         }
 
@@ -84,6 +111,22 @@ public class Projectile : MonoBehaviour
 
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    void ReturnToPool()
+    {
+        var pool = ObjectPool.Instance;
+        if (pool != null)
+        {
+            sr.sprite = null;
+            target = null;
+            gameObject.SetActive(false);
+            pool.Return(POOL_NAME, gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

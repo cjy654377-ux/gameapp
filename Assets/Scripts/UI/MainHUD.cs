@@ -1268,8 +1268,8 @@ public class MainHUD : MonoBehaviour
 
             var (btn, _) = UIHelper.MakeButton($"Btn_{i}", item.transform, btnColor, "", 9f);
             var btnRT = btn.GetComponent<RectTransform>();
-            btnRT.anchorMin = new Vector2(0.72f, 0.52f);
-            btnRT.anchorMax = new Vector2(0.97f, 0.95f);
+            btnRT.anchorMin = new Vector2(0.72f, 0.05f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.48f);
             btnRT.offsetMin = Vector2.zero;
             btnRT.offsetMax = Vector2.zero;
 
@@ -1292,18 +1292,49 @@ public class MainHUD : MonoBehaviour
                 btn.onClick.AddListener(() => ShowHeroSelectPopup(capturedId));
             }
 
-            // 분해 버튼 (미장착 아이템만)
+            // 강화/분해 버튼 (미장착 아이템만)
             if (!isEquipped)
             {
+                // 강화 버튼
+                var materials = em.GetEnhanceMaterials(equip.id);
+                bool canEnhance = materials.Count > 0 && equip.rarity < 5;
+
+                var (enhBtn, _3) = UIHelper.MakeButton($"Enh_{i}", item.transform,
+                    canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
+                var enhBtnRT = enhBtn.GetComponent<RectTransform>();
+                enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
+                enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
+                enhBtnRT.offsetMin = Vector2.zero;
+                enhBtnRT.offsetMax = Vector2.zero;
+
+                var enhBtnText = UIHelper.MakeText("Label", enhBtn.transform, "강화",
+                    7f, TextAlignmentOptions.Center,
+                    canEnhance ? UIColors.Text_Primary : UIColors.Text_Disabled);
+                enhBtnText.fontStyle = FontStyles.Bold;
+                UIHelper.FillParent(enhBtnText.GetComponent<RectTransform>());
+
+                if (canEnhance)
+                {
+                    string enhId = equip.id;
+                    string matId = materials[0].id;
+                    enhBtn.onClick.AddListener(() =>
+                    {
+                        if (EquipmentManager.Instance != null && EquipmentManager.Instance.EnhanceItem(enhId, matId))
+                            ToastNotification.Instance?.Show("강화 성공!", "등급 상승!", UIColors.Text_Gold);
+                        RefreshEquipmentUI();
+                    });
+                }
+
+                // 분해 버튼
                 var (disBtn, _2) = UIHelper.MakeButton($"Dis_{i}", item.transform,
-                    UIColors.Defeat_Red, "", 8f);
+                    UIColors.Defeat_Red, "", 7f);
                 var disBtnRT = disBtn.GetComponent<RectTransform>();
-                disBtnRT.anchorMin = new Vector2(0.72f, 0.05f);
-                disBtnRT.anchorMax = new Vector2(0.97f, 0.48f);
+                disBtnRT.anchorMin = new Vector2(0.85f, 0.52f);
+                disBtnRT.anchorMax = new Vector2(0.97f, 0.95f);
                 disBtnRT.offsetMin = Vector2.zero;
                 disBtnRT.offsetMax = Vector2.zero;
 
-                string disLabel = $"분해 {equip.rarity * 50}G";
+                string disLabel = $"{equip.rarity * 50}G";
                 var disBtnText = UIHelper.MakeText("Label", disBtn.transform, disLabel,
                     7f, TextAlignmentOptions.Center, UIColors.Text_Primary);
                 disBtnText.fontStyle = FontStyles.Bold;
@@ -1331,11 +1362,12 @@ public class MainHUD : MonoBehaviour
     // 상점 탭 (index 4) - 서브탭: 상점/업적/설정
     // ════════════════════════════════════════
 
-    int shopSubTab; // 0=상점, 1=업적, 2=설정
+    int shopSubTab; // 0=상점, 1=업적, 2=미션, 3=설정
     Button[] shopSubTabBtns;
     TextMeshProUGUI[] shopSubTabLabels;
     GameObject shopRoot;
     GameObject achieveRoot;
+    GameObject missionRoot;
     GameObject settingsRoot;
 
     GameObject shopListContainer;
@@ -1359,14 +1391,15 @@ public class MainHUD : MonoBehaviour
         stbRT.pivot = new Vector2(0.5f, 1);
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
-        string[] subNames = { "상점", "업적", "설정" };
-        shopSubTabBtns = new Button[3];
-        shopSubTabLabels = new TextMeshProUGUI[3];
+        string[] subNames = { "상점", "업적", "미션", "설정" };
+        int subCount = subNames.Length;
+        shopSubTabBtns = new Button[subCount];
+        shopSubTabLabels = new TextMeshProUGUI[subCount];
 
-        for (int s = 0; s < 3; s++)
+        for (int s = 0; s < subCount; s++)
         {
-            float xMin = s / 3f;
-            float xMax = (s + 1) / 3f;
+            float xMin = s / (float)subCount;
+            float xMax = (s + 1) / (float)subCount;
             var (btn, _) = UIHelper.MakeButton($"ShopSub_{subNames[s]}", subTabBar.transform,
                 UIColors.Tab_Inactive, "", 0);
             var brt = btn.GetComponent<RectTransform>();
@@ -1405,6 +1438,15 @@ public class MainHUD : MonoBehaviour
         arRT.offsetMax = new Vector2(0, -subTabH);
         BuildAchievementList(achieveRoot.transform);
 
+        // 미션 루트
+        missionRoot = UIHelper.MakeUI("MissionRoot", content.transform);
+        var mrRT = missionRoot.GetComponent<RectTransform>();
+        mrRT.anchorMin = Vector2.zero;
+        mrRT.anchorMax = Vector2.one;
+        mrRT.offsetMin = Vector2.zero;
+        mrRT.offsetMax = new Vector2(0, -subTabH);
+        BuildMissionList(missionRoot.transform);
+
         // 설정 루트
         settingsRoot = UIHelper.MakeUI("SettingsRoot", content.transform);
         var setRT = settingsRoot.GetComponent<RectTransform>();
@@ -1425,13 +1467,14 @@ public class MainHUD : MonoBehaviour
         UpdateShopSubTabVisuals();
         if (subIdx == 0) RefreshShopList();
         else if (subIdx == 1) RefreshAchievementUI();
+        else if (subIdx == 2) RefreshMissionUI();
         else RefreshSettingsUI();
     }
 
     void UpdateShopSubTabVisuals()
     {
         if (shopSubTabBtns == null) return;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < shopSubTabBtns.Length; i++)
         {
             bool active = (i == shopSubTab);
             shopSubTabBtns[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
@@ -1439,7 +1482,8 @@ public class MainHUD : MonoBehaviour
         }
         if (shopRoot != null) shopRoot.SetActive(shopSubTab == 0);
         if (achieveRoot != null) achieveRoot.SetActive(shopSubTab == 1);
-        if (settingsRoot != null) settingsRoot.SetActive(shopSubTab == 2);
+        if (missionRoot != null) missionRoot.SetActive(shopSubTab == 2);
+        if (settingsRoot != null) settingsRoot.SetActive(shopSubTab == 3);
     }
 
     void RefreshShopUI()
@@ -1447,6 +1491,7 @@ public class MainHUD : MonoBehaviour
         UpdateShopSubTabVisuals();
         if (shopSubTab == 0) RefreshShopList();
         else if (shopSubTab == 1) RefreshAchievementUI();
+        else if (shopSubTab == 2) RefreshMissionUI();
         else RefreshSettingsUI();
     }
 
@@ -1699,6 +1744,143 @@ public class MainHUD : MonoBehaviour
         }
 
         var containerRT = achieveListContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 미션 리스트
+    // ════════════════════════════════════════
+
+    GameObject missionListContainer;
+    readonly List<GameObject> missionListItems = new();
+
+    void BuildMissionList(Transform parent)
+    {
+        var scrollObj = UIHelper.MakeUI("MissionScroll", parent);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = Vector2.zero;
+        scrollRT.anchorMax = Vector2.one;
+        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        missionListContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var hcRT = missionListContainer.GetComponent<RectTransform>();
+        hcRT.anchorMin = new Vector2(0, 1);
+        hcRT.anchorMax = new Vector2(1, 1);
+        hcRT.pivot = new Vector2(0.5f, 1);
+        hcRT.anchoredPosition = Vector2.zero;
+        scrollRect.content = hcRT;
+    }
+
+    void RefreshMissionUI()
+    {
+        if (missionListContainer == null) return;
+        var mm = DailyMissionManager.Instance;
+        if (mm == null) return;
+
+        for (int i = 0; i < missionListItems.Count; i++)
+            if (missionListItems[i] != null) Object.Destroy(missionListItems[i]);
+        missionListItems.Clear();
+
+        var missions = mm.GetMissions();
+        float itemH = 42f;
+        float spacing = 2f;
+        float y = 0;
+
+        for (int i = 0; i < missions.Count; i++)
+        {
+            var mission = missions[i];
+            bool completed = mission.currentCount >= mission.targetCount;
+
+            Color bgColor = mission.claimed ? UIColors.Panel_Inner :
+                            completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
+
+            var itemImg = UIHelper.MakePanel($"Mission_{i}", missionListContainer.transform, bgColor);
+            var item = itemImg.gameObject;
+            missionListItems.Add(item);
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            // 미션명
+            Color nameColor = completed ? UIColors.Text_Primary : UIColors.Text_Disabled;
+            var nameText = UIHelper.MakeText("Name", item.transform, mission.name,
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, nameColor);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0.5f);
+            nrt.anchorMax = new Vector2(0.4f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            // 진행도
+            string progressStr = $"{mission.currentCount}/{mission.targetCount}";
+            Color progColor = completed ? UIColors.Text_Green : UIColors.Text_Secondary;
+            var progText = UIHelper.MakeText("Progress", item.transform, progressStr,
+                9f, TextAlignmentOptions.MidlineLeft, progColor);
+            var prt = progText.GetComponent<RectTransform>();
+            prt.anchorMin = new Vector2(0, 0);
+            prt.anchorMax = new Vector2(0.4f, 0.5f);
+            prt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            prt.offsetMax = Vector2.zero;
+
+            // 보상
+            var rewardText = UIHelper.MakeText("Reward", item.transform, $"{mission.gemReward} 보석",
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
+            var rrt = rewardText.GetComponent<RectTransform>();
+            rrt.anchorMin = new Vector2(0.4f, 0);
+            rrt.anchorMax = new Vector2(0.65f, 1);
+            rrt.offsetMin = Vector2.zero;
+            rrt.offsetMax = Vector2.zero;
+
+            // 버튼
+            string btnLabel;
+            Color btnColor;
+            if (mission.claimed) { btnLabel = "완료"; btnColor = UIColors.Button_Gray; }
+            else if (completed) { btnLabel = "수령"; btnColor = UIColors.Button_Yellow; }
+            else { btnLabel = "진행중"; btnColor = UIColors.Button_Gray; }
+
+            var (btn, _) = UIHelper.MakeButton($"MissionBtn_{i}", item.transform, btnColor, "", 10f);
+            var btnRT = btn.GetComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.68f, 0.1f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.offsetMin = Vector2.zero;
+            btnRT.offsetMax = Vector2.zero;
+
+            Color btnTextColor = completed && !mission.claimed ? UIColors.Background_Dark : UIColors.Text_Disabled;
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                UIConstants.Font_Cost, TextAlignmentOptions.Center, btnTextColor);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            if (completed && !mission.claimed)
+            {
+                string capturedId = mission.id;
+                btn.onClick.AddListener(() =>
+                {
+                    mm.ClaimReward(capturedId);
+                    SoundManager.Instance?.PlayGoldSFX();
+                    ToastNotification.Instance?.Show("미션 보상!", "", UIColors.Text_Diamond);
+                    RefreshMissionUI();
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        var containerRT = missionListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
 

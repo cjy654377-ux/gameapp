@@ -86,6 +86,7 @@ public class SceneSetupTool
         deckMgr.roster.AddRange(heroPool);
 
         // Ensure managers
+        EnsureComponent<ObjectPool>(gm);
         EnsureComponent<GoldManager>(gm);
         EnsureComponent<TapDamageSystem>(gm);
         EnsureComponent<SkillManager>(gm);
