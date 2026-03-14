@@ -198,7 +198,7 @@ public class ShopManager : MonoBehaviour
             }
             if (picked == null) picked = allSkills[UnityEngine.Random.Range(0, allSkills.Length)];
 
-            // 빈 슬롯에 장착, 없으면 교체 알림만
+            // 빈 슬롯에 장착, 없으면 최약 스킬 자동 교체
             if (sm.equippedSkills.Count < 4)
             {
                 sm.equippedSkills.Add(picked);
@@ -207,7 +207,34 @@ public class ShopManager : MonoBehaviour
             }
             else
             {
-                ToastNotification.Instance?.Show($"스킬 획득!", $"{picked.skillName} (슬롯 가득)", UIColors.Text_Gold);
+                // 가장 낮은 value 스킬을 교체
+                int weakIdx = 0;
+                float weakVal = float.MaxValue;
+                for (int j = 0; j < sm.equippedSkills.Count; j++)
+                {
+                    if (sm.equippedSkills[j] != null && sm.equippedSkills[j].value < weakVal)
+                    {
+                        weakVal = sm.equippedSkills[j].value;
+                        weakIdx = j;
+                    }
+                }
+                if (picked.value > weakVal)
+                {
+                    string oldName = sm.equippedSkills[weakIdx].skillName;
+                    sm.equippedSkills[weakIdx] = picked;
+                    sm.SaveEquippedSkills();
+                    ToastNotification.Instance?.Show($"스킬 교체!", $"{oldName} → {picked.skillName}", UIColors.Text_Diamond);
+                }
+                else
+                {
+                    // 스킬 업그레이드 재화로 전환
+                    var sum = SkillUpgradeManager.Instance;
+                    if (sum != null)
+                    {
+                        GoldManager.Instance?.AddGold(50);
+                        ToastNotification.Instance?.Show($"스킬 분해", $"{picked.skillName} → +50 골드", UIColors.Text_Gold);
+                    }
+                }
             }
         }
     }

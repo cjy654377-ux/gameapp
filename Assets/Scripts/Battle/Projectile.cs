@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Projectile : MonoBehaviour
 {
@@ -145,10 +146,16 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    static readonly Dictionary<string, GameObject> hitVfxCache = new();
+
     void SpawnHitVFX()
     {
         string prefabPath = projType == ProjectileType.Arrow ? HIT_RED : HIT_BLUE;
-        var prefab = Resources.Load<GameObject>(prefabPath);
+        if (!hitVfxCache.TryGetValue(prefabPath, out var prefab))
+        {
+            prefab = Resources.Load<GameObject>(prefabPath);
+            hitVfxCache[prefabPath] = prefab;
+        }
 
         if (prefab != null)
         {

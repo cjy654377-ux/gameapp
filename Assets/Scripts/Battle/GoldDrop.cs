@@ -10,6 +10,7 @@ public class GoldDrop : MonoBehaviour
     private float groundY;
 
     static Sprite coinSprite;
+    const string POOL_NAME = "GoldDrop";
 
     public static void Spawn(Vector3 position, int amount)
     {
@@ -24,28 +25,42 @@ public class GoldDrop : MonoBehaviour
             coinSprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 8f);
         }
 
-        var go = new GameObject("GoldDrop");
+        var pool = ObjectPool.Instance;
+        var go = pool != null
+            ? pool.Get(POOL_NAME, CreateNewGoldDrop)
+            : CreateNewGoldDrop();
+
         go.transform.position = position;
         go.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
 
-        var drop = go.AddComponent<GoldDrop>();
+        var drop = go.GetComponent<GoldDrop>();
         drop.goldAmount = amount;
         drop.groundY = position.y - 0.5f;
-
-        drop.sr = go.AddComponent<SpriteRenderer>();
+        drop.collected = false;
         drop.sr.sprite = coinSprite;
         drop.sr.color = new Color(1f, 0.85f, 0.2f);
+        drop.sr.enabled = true;
         drop.sr.sortingOrder = 80;
-
-        // Add collider for click detection
-        var col = go.AddComponent<BoxCollider2D>();
-        col.size = new Vector2(1f, 1f);
 
         // Pop up effect
         drop.velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(2f, 3f), 0);
         drop.lifetime = 5f;
+    }
 
-        Destroy(go, 6f);
+    static GameObject CreateNewGoldDrop()
+    {
+        var go = new GameObject("GoldDrop");
+        var sr = go.AddComponent<SpriteRenderer>();
+        go.AddComponent<GoldDrop>();
+        var col = go.AddComponent<BoxCollider2D>();
+        col.size = new Vector2(1f, 1f);
+        return go;
+    }
+
+    void Awake()
+    {
+        sr = GetComponent<SpriteRenderer>();
+        if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -85,6 +100,12 @@ public class GoldDrop : MonoBehaviour
             Collect();
     }
 
+    void OnEnable()
+    {
+        // 풀에서 꺼낼 때 상태 초기화
+        collected = false;
+    }
+
     void OnMouseDown()
     {
         Collect();
@@ -100,7 +121,22 @@ public class GoldDrop : MonoBehaviour
 
         SoundManager.Instance?.PlayGoldSFX();
         DamagePopup.CreateGold(transform.position + Vector3.up * 0.3f, goldAmount);
-        Destroy(gameObject);
+        ReturnToPool();
+    }
+
+    void ReturnToPool()
+    {
+        var pool = ObjectPool.Instance;
+        if (pool != null)
+        {
+            sr.sprite = null;
+            gameObject.SetActive(false);
+            pool.Return(POOL_NAME, gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

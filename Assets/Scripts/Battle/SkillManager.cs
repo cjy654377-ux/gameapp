@@ -56,8 +56,11 @@ public class SkillManager : MonoBehaviour
         {
             if (cooldownTimers[i] > 0f)
             {
+                float prev = cooldownTimers[i];
                 cooldownTimers[i] -= Time.deltaTime;
-                OnCooldownChanged?.Invoke(i, cooldownTimers[i], equippedSkills[i].cooldown);
+                // 0.1초 이상 변화 또는 쿨다운 완료 시에만 이벤트 (GC 절감)
+                if (prev - cooldownTimers[i] >= 0.1f || cooldownTimers[i] <= 0f)
+                    OnCooldownChanged?.Invoke(i, cooldownTimers[i], equippedSkills[i].cooldown);
             }
             else if (autoUse)
             {
@@ -133,12 +136,16 @@ public class SkillManager : MonoBehaviour
         }
     }
 
+    // 캐시된 타겟 버퍼 (GC 절감)
+    readonly List<BattleUnit> targetBuffer = new();
+
     List<BattleUnit> GetTargets(SkillData skill)
     {
         var manager = BattleManager.Instance;
         if (manager == null) return null;
 
-        var result = new List<BattleUnit>();
+        targetBuffer.Clear();
+        var result = targetBuffer;
 
         switch (skill.targetType)
         {

@@ -144,10 +144,9 @@ public class BattleUnit : MonoBehaviour
             buffTimer -= Time.deltaTime;
             if (buffTimer <= 0f)
             {
-                atk -= buffAtk;
-                def -= buffDef;
                 buffAtk = 0f;
                 buffDef = 0f;
+                UpgradeManager.ApplyAllBonuses(this);
             }
         }
 
@@ -367,9 +366,9 @@ public class BattleUnit : MonoBehaviour
         if (spriteRoot != null)
         {
             if (direction.x > 0)
-                spriteRoot.localScale = new Vector3(-1, 1, 1);
+                spriteRoot.localScale = new Vector3(1, 1, 1);  // 오른쪽 이동 → 오른쪽 보기
             else if (direction.x < 0)
-                spriteRoot.localScale = new Vector3(1, 1, 1);
+                spriteRoot.localScale = new Vector3(-1, 1, 1); // 왼쪽 이동 → 왼쪽 보기
         }
     }
 
@@ -382,7 +381,7 @@ public class BattleUnit : MonoBehaviour
         if (spriteRoot != null)
         {
             float dirX = target.transform.position.x - transform.position.x;
-            spriteRoot.localScale = new Vector3(dirX > 0 ? -1 : 1, 1, 1);
+            spriteRoot.localScale = new Vector3(dirX > 0 ? 1 : -1, 1, 1);
         }
 
         float atkSpeedMult = statusEffects != null ? statusEffects.GetAttackSpeedMultiplier() : 1f;
@@ -509,16 +508,12 @@ public class BattleUnit : MonoBehaviour
 
     public void ApplyBuff(float atkBonus, float defBonus, float duration)
     {
-        if (buffTimer > 0f)
-        {
-            atk -= buffAtk;
-            def -= buffDef;
-        }
+        // 기존 버프 제거 후 새 버프 적용 (base 기반 계산으로 마이너스 방지)
         buffAtk = atkBonus;
         buffDef = defBonus;
         buffTimer = duration;
-        atk += buffAtk;
-        def += buffDef;
+        // UpgradeManager가 base+bonus+buff를 재계산
+        UpgradeManager.ApplyAllBonuses(this);
     }
 
     void Die()

@@ -70,6 +70,13 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI tapUpText;
     Button tapUpBtn;
 
+    // Boss HP bar
+    GameObject bossHpBarRoot;
+    Image bossHpBarFill;
+    TextMeshProUGUI bossNameText;
+    TextMeshProUGUI bossHpText;
+    BattleUnit trackedBoss;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -183,6 +190,7 @@ public class MainHUD : MonoBehaviour
         CreateOfflinePopup();
         CreateHeroSelectPopup();
         CreateConfirmPopup();
+        CreateBossHpBar();
     }
 
     void CreateCanvas()
@@ -817,6 +825,55 @@ public class MainHUD : MonoBehaviour
         if (waveBannerCG != null) waveBannerCG.alpha = 1f;
         waveBanner.SetActive(true);
         waveBannerTimer = 3f; // 보스는 더 오래 표시
+
+        // Boss HP bar 활성화
+        TrackBoss(isAreaBoss);
+    }
+
+    void TrackBoss(bool isAreaBoss)
+    {
+        if (BattleManager.Instance == null) return;
+        // 가장 HP 높은 적 = 보스
+        BattleUnit boss = null;
+        float maxHp = 0f;
+        var enemies = BattleManager.Instance.enemyUnits;
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] != null && !enemies[i].IsDead && enemies[i].maxHp > maxHp)
+            {
+                maxHp = enemies[i].maxHp;
+                boss = enemies[i];
+            }
+        }
+        if (boss == null) return;
+
+        trackedBoss = boss;
+        if (bossHpBarRoot != null) bossHpBarRoot.SetActive(true);
+        if (bossNameText != null)
+            bossNameText.text = isAreaBoss ? $"AREA BOSS: {boss.unitName}" : $"BOSS: {boss.unitName}";
+        bossNameText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Text_Gold;
+
+        trackedBoss.OnHpChanged += UpdateBossHpBar;
+        trackedBoss.OnDeath += HideBossHpBar;
+    }
+
+    void UpdateBossHpBar(float hp, float maxHp)
+    {
+        if (bossHpBarFill != null)
+            bossHpBarFill.fillAmount = maxHp > 0 ? hp / maxHp : 0f;
+        if (bossHpText != null)
+            bossHpText.text = $"{Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}";
+    }
+
+    void HideBossHpBar()
+    {
+        if (bossHpBarRoot != null) bossHpBarRoot.SetActive(false);
+        if (trackedBoss != null)
+        {
+            trackedBoss.OnHpChanged -= UpdateBossHpBar;
+            trackedBoss.OnDeath -= HideBossHpBar;
+            trackedBoss = null;
+        }
     }
 
     // ── Public API ──
@@ -923,8 +980,64 @@ public class MainHUD : MonoBehaviour
             tabBadgeTexts[tabIndex].text = count.ToString();
     }
 
+    void CreateBossHpBar()
+    {
+        bossHpBarRoot = UIHelper.MakeUI("BossHpBar", safeAreaRoot.transform);
+        var rt = bossHpBarRoot.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.1f, 0.78f);
+        rt.anchorMax = new Vector2(0.9f, 0.84f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        // 배경
+        var bg = bossHpBarRoot.AddComponent<Image>();
+        bg.color = new Color(0.15f, 0.05f, 0.05f, 0.85f);
+
+        // 이름 텍스트
+        var nameObj = UIHelper.MakeUI("BossName", bossHpBarRoot.transform);
+        var nameRt = nameObj.GetComponent<RectTransform>();
+        nameRt.anchorMin = new Vector2(0f, 1f);
+        nameRt.anchorMax = new Vector2(1f, 1.8f);
+        nameRt.offsetMin = Vector2.zero;
+        nameRt.offsetMax = Vector2.zero;
+        bossNameText = nameObj.AddComponent<TextMeshProUGUI>();
+        bossNameText.text = "BOSS";
+        bossNameText.fontSize = UIConstants.Font_StatLabel;
+        bossNameText.alignment = TextAlignmentOptions.Center;
+        bossNameText.color = UIColors.Text_Gold;
+
+        // HP바 fill
+        var fillObj = UIHelper.MakeUI("Fill", bossHpBarRoot.transform);
+        var fillRt = fillObj.GetComponent<RectTransform>();
+        fillRt.anchorMin = new Vector2(0.02f, 0.15f);
+        fillRt.anchorMax = new Vector2(0.98f, 0.85f);
+        fillRt.offsetMin = Vector2.zero;
+        fillRt.offsetMax = Vector2.zero;
+        bossHpBarFill = fillObj.AddComponent<Image>();
+        bossHpBarFill.color = new Color(0.9f, 0.15f, 0.15f);
+        bossHpBarFill.type = Image.Type.Filled;
+        bossHpBarFill.fillMethod = Image.FillMethod.Horizontal;
+
+        // HP 텍스트
+        var hpObj = UIHelper.MakeUI("BossHpText", bossHpBarRoot.transform);
+        var hpRt = hpObj.GetComponent<RectTransform>();
+        hpRt.anchorMin = Vector2.zero;
+        hpRt.anchorMax = Vector2.one;
+        hpRt.offsetMin = Vector2.zero;
+        hpRt.offsetMax = Vector2.zero;
+        bossHpText = hpObj.AddComponent<TextMeshProUGUI>();
+        bossHpText.text = "";
+        bossHpText.fontSize = UIConstants.Font_SmallInfo;
+        bossHpText.alignment = TextAlignmentOptions.Center;
+        bossHpText.color = Color.white;
+
+        bossHpBarRoot.SetActive(false);
+    }
+
     void OnDestroy()
     {
+        HideBossHpBar(); // 보스 이벤트 구독 해제
+
         if (cachedGoldMgr != null)
             cachedGoldMgr.OnGoldChanged -= UpdateGold;
         if (cachedGemMgr != null)
