@@ -487,22 +487,27 @@ public class EquipmentManager : MonoBehaviour
         saveTimer -= Time.deltaTime;
         if (saveTimer <= 0f)
         {
-            var data = new EquipmentInventoryData { items = inventory };
-            string json = JsonUtility.ToJson(data);
-            PlayerPrefs.SetString(SAVE_KEY, json);
-            saveDirty = false;
+            FlushSave();
         }
+    }
+
+    void FlushSave()
+    {
+        if (!saveDirty) return;
+        var data = new EquipmentInventoryData { items = inventory };
+        PlayerPrefs.SetString(SAVE_KEY, JsonUtility.ToJson(data));
+        PlayerPrefs.Save();
+        saveDirty = false;
     }
 
     void OnApplicationPause(bool pause)
     {
-        if (pause && saveDirty)
-        {
-            var data = new EquipmentInventoryData { items = inventory };
-            PlayerPrefs.SetString(SAVE_KEY, JsonUtility.ToJson(data));
-            PlayerPrefs.Save();
-            saveDirty = false;
-        }
+        if (pause) FlushSave();
+    }
+
+    void OnApplicationQuit()
+    {
+        FlushSave();
     }
 
     void LoadInventory()
