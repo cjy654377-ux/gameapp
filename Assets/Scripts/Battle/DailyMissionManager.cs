@@ -166,4 +166,15 @@ public class DailyMissionManager : MonoBehaviour
             m.claimed = PlayerPrefs.GetInt($"DM_{m.id}_claimed", 0) == 1;
         }
     }
+
+    void OnApplicationPause(bool pause)
+    {
+        if (pause) { SaveMissions(); PlayerPrefs.Save(); }
+    }
+
+    void OnApplicationQuit()
+    {
+        SaveMissions();
+        PlayerPrefs.Save();
+    }
 }

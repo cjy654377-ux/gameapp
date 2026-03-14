@@ -49,6 +49,7 @@ public class GoldManager : MonoBehaviour
     {
         if (!isDirty) return;
         PlayerPrefs.SetInt("Gold", Gold);
+        PlayerPrefs.Save();
         isDirty = false;
         saveTimer = 0f;
     }

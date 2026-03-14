@@ -49,6 +49,7 @@ public class GemManager : MonoBehaviour
     {
         if (!isDirty) return;
         PlayerPrefs.SetInt("Gem", Gem);
+        PlayerPrefs.Save();
         isDirty = false;
         saveTimer = 0f;
     }

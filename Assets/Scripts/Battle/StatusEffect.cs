@@ -116,18 +116,25 @@ public class StatusEffectController : MonoBehaviour
 
     public float GetSpeedMultiplier()
     {
-        float mult = 1f;
+        // 가장 강한 감속 효과만 적용 (곱셈 누적 방지: Freeze+Slow = 0.12배 → 0.3배)
+        float minMult = 1f;
         for (int i = 0; i < activeEffects.Count; i++)
-            mult *= activeEffects[i].speedMultiplier;
-        return mult;
+        {
+            if (activeEffects[i].speedMultiplier < minMult)
+                minMult = activeEffects[i].speedMultiplier;
+        }
+        return minMult;
     }
 
     public float GetAttackSpeedMultiplier()
     {
-        float mult = 1f;
+        float minMult = 1f;
         for (int i = 0; i < activeEffects.Count; i++)
-            mult *= activeEffects[i].attackSpeedMultiplier;
-        return mult;
+        {
+            if (activeEffects[i].attackSpeedMultiplier < minMult)
+                minMult = activeEffects[i].attackSpeedMultiplier;
+        }
+        return minMult;
     }
 
     void Update()

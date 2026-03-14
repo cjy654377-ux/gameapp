@@ -160,15 +160,13 @@ public class HeroLevelManager : MonoBehaviour
         return (GetLevel(heroName) - 1) * 1f * GetStarMultiplier(heroName);
     }
 
+    /// <summary>
+    /// 단독 사용 금지 — UpgradeManager.ApplyAllBonuses() 사용 권장
+    /// (버프/장비/업그레이드 통합 계산)
+    /// </summary>
     public void ApplyToUnit(BattleUnit unit)
     {
-        string heroName = unit.unitName;
-        unit.maxHp = unit.baseMaxHp + GetHpBonus(heroName);
-        unit.atk = unit.baseAtk + GetAtkBonus(heroName);
-        unit.def = unit.baseDef + GetDefBonus(heroName);
-
-        if (unit.CurrentHp > 0)
-            unit.CurrentHp = unit.maxHp;
+        UpgradeManager.ApplyAllBonuses(unit);
     }
 
     // ═══ Save/Load ═══

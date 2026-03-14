@@ -157,6 +157,7 @@ public class GachaManager : MonoBehaviour
 
         SoundManager.Instance?.PlayGachaSFX();
         OnMultiPulled?.Invoke(results);
+        DailyMissionManager.Instance?.RegisterGacha();
         return results;
     }
 
@@ -268,7 +269,6 @@ public class GachaManager : MonoBehaviour
         {
             // 신규 영웅: roster에 추가
             deck.roster.Add(hero);
-            Debug.Log($"[GachaManager] New hero acquired: {hero.characterName}");
         }
     }
 }

@@ -144,6 +144,7 @@ public class Projectile : MonoBehaviour
             if (tex != null) Destroy(tex);
             fallbackSprite = null;
         }
+        hitVfxCache.Clear();
     }
 
     static readonly Dictionary<string, GameObject> hitVfxCache = new();

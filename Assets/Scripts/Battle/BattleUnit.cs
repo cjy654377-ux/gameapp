@@ -297,7 +297,10 @@ public class BattleUnit : MonoBehaviour
         for (int i = 0; i < targets.Count; i++)
             sm.ApplyEffect(skill, targets[i]);
 
-        skillCooldowns[slot] = skill.cooldown;
+        // 스킬 업그레이드 쿨타임 배율 적용
+        float cdMult = SkillUpgradeManager.Instance != null
+            ? SkillUpgradeManager.Instance.GetCooldownMultiplier(skill.skillName) : 1f;
+        skillCooldowns[slot] = skill.cooldown * cdMult;
         OnSkillActivated?.Invoke(slot, skill);
     }
 
@@ -521,9 +524,13 @@ public class BattleUnit : MonoBehaviour
         SetState(UnitState.Dead);
         OnDeath?.Invoke();
 
-        // Track kills for HUD
-        if (CurrentTeam == Team.Enemy && MainHUD.Instance != null)
-            MainHUD.Instance.AddKill();
+        // Track kills for HUD + daily missions + achievements
+        if (CurrentTeam == Team.Enemy)
+        {
+            MainHUD.Instance?.AddKill();
+            DailyMissionManager.Instance?.RegisterKill();
+            AchievementManager.Instance?.RegisterKill();
+        }
 
         if (animator != null)
         {
