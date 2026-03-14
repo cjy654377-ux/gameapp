@@ -76,11 +76,17 @@ public class SkillManager : MonoBehaviour
         var targets = GetTargets(skill);
         if (targets == null || targets.Count == 0) return;
 
+        // 스킬 레벨 배율 적용
+        float dmgMult = SkillUpgradeManager.Instance != null
+            ? SkillUpgradeManager.Instance.GetDamageMultiplier(skill.skillName) : 1f;
+        float cdMult = SkillUpgradeManager.Instance != null
+            ? SkillUpgradeManager.Instance.GetCooldownMultiplier(skill.skillName) : 1f;
+
         for (int i = 0; i < targets.Count; i++)
-            ApplySkillEffect(skill, targets[i]);
+            ApplySkillEffect(skill, targets[i], dmgMult);
 
         SoundManager.Instance?.PlaySkillSFX();
-        cooldownTimers[slotIndex] = skill.cooldown;
+        cooldownTimers[slotIndex] = skill.cooldown * cdMult;
         OnSkillUsed?.Invoke(slotIndex);
     }
 
@@ -165,19 +171,19 @@ public class SkillManager : MonoBehaviour
     /// </summary>
     public void ApplyEffect(SkillData skill, BattleUnit target)
     {
-        ApplySkillEffect(skill, target);
+        ApplySkillEffect(skill, target, 1f);
     }
 
-    void ApplySkillEffect(SkillData skill, BattleUnit target)
+    void ApplySkillEffect(SkillData skill, BattleUnit target, float dmgMult = 1f)
     {
         switch (skill.effectType)
         {
             case SkillEffectType.Damage:
-                target.TakeDamage(skill.value);
+                target.TakeDamage(skill.value * dmgMult);
                 SpawnSkillVFX(target.transform.position, skill.skillColor, SkillEffectType.Damage);
                 break;
             case SkillEffectType.Heal:
-                target.Heal(skill.value);
+                target.Heal(skill.value * dmgMult);
                 SpawnSkillVFX(target.transform.position, Color.green, SkillEffectType.Heal);
                 break;
             case SkillEffectType.Burn:
@@ -342,10 +348,14 @@ public class SkillManager : MonoBehaviour
 
     void OnDestroy()
     {
-        if (Instance == this && cachedVFXMaterial != null)
+        if (Instance == this)
         {
-            Destroy(cachedVFXMaterial);
-            cachedVFXMaterial = null;
+            if (cachedVFXMaterial != null)
+            {
+                Destroy(cachedVFXMaterial);
+                cachedVFXMaterial = null;
+            }
+            vfxPrefabCache.Clear();
         }
     }
 }

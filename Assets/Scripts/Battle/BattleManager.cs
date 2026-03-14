@@ -50,6 +50,12 @@ public class BattleManager : MonoBehaviour
     public BattleUnit FindNearestEnemy(BattleUnit unit)
     {
         var enemies = unit.CurrentTeam == BattleUnit.Team.Ally ? enemyUnits : allyUnits;
+
+        // 적 유닛이 아군을 타겟: 가장 가까운 전방 아군 우선 (탱커 어그로)
+        if (unit.CurrentTeam == BattleUnit.Team.Enemy)
+            return FindFrontmostAlive(enemies);
+
+        // 아군: 기본 가장 가까운 적
         BattleUnit nearest = null;
         float minDist = float.MaxValue;
 
@@ -66,5 +72,54 @@ public class BattleManager : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    /// <summary>
+    /// 가장 전방(X가 작은/큰)에 있는 생존 유닛 반환 - 탱커 어그로용
+    /// </summary>
+    BattleUnit FindFrontmostAlive(List<BattleUnit> units)
+    {
+        BattleUnit frontmost = null;
+        float bestX = float.MinValue;
+
+        for (int i = 0; i < units.Count; i++)
+        {
+            var u = units[i];
+            if (u == null || u.IsDead) continue;
+            // 아군은 오른쪽으로 전진하므로, 가장 오른쪽(X 큰) = 전방
+            // 적은 왼쪽에서 오므로, 아군 중 가장 왼쪽(X 작은) = 가장 가까운 적
+            // 여기서는 "적이 아군을 찾는" 경우이므로, 아군 중 가장 앞(X 큰) 유닛
+            if (u.transform.position.x > bestX)
+            {
+                bestX = u.transform.position.x;
+                frontmost = u;
+            }
+        }
+
+        return frontmost;
+    }
+
+    /// <summary>
+    /// 힐러용: 가장 HP 비율이 낮은 아군 반환
+    /// </summary>
+    public BattleUnit FindWeakestAlly(BattleUnit healer)
+    {
+        var allies = healer.CurrentTeam == BattleUnit.Team.Ally ? allyUnits : enemyUnits;
+        BattleUnit weakest = null;
+        float lowestRatio = 1f;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var ally = allies[i];
+            if (ally == null || ally.IsDead) continue;
+            float ratio = ally.CurrentHp / ally.maxHp;
+            if (ratio < lowestRatio)
+            {
+                lowestRatio = ratio;
+                weakest = ally;
+            }
+        }
+
+        return weakest;
     }
 }

@@ -566,6 +566,10 @@ public class MainHUD : MonoBehaviour
     }
 
     // ── 훈련 탭 콘텐츠 ──
+    // 스킬 강화 UI
+    GameObject skillUpgradeContainer;
+    readonly List<GameObject> skillUpgradeItems = new();
+
     void BuildUpgradeContent(Transform parent)
     {
         var content = UIHelper.MakeUI("UpgradeContent", parent);
@@ -575,8 +579,8 @@ public class MainHUD : MonoBehaviour
         contentRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
         contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -UIConstants.Tab_Height);
 
-        float rowH = 1f; // 1행만
-        BuildUpgradeRow(content.transform, "번개", 0, rowH,
+        // 번개 업그레이드 (상단 25%)
+        BuildUpgradeRow(content.transform, "번개", 0, 0.25f,
             ref tapUpText, ref tapUpBtn, () =>
             {
                 var tap = TapDamageSystem.Instance;
@@ -584,6 +588,41 @@ public class MainHUD : MonoBehaviour
                     ToastNotification.Instance?.Show("골드 부족!", $"{tap.UpgradeCost}G 필요", UIColors.Defeat_Red);
                 RefreshUpgradeUI();
             });
+
+        // 스킬 강화 라벨
+        var skillLabel = UIHelper.MakeText("SkillLabel", content.transform, "스킬 강화",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
+        skillLabel.fontStyle = FontStyles.Bold;
+        var slrt = skillLabel.GetComponent<RectTransform>();
+        slrt.anchorMin = new Vector2(0, 0.7f);
+        slrt.anchorMax = new Vector2(1, 0.75f);
+        slrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        slrt.offsetMax = Vector2.zero;
+
+        // 스킬 강화 스크롤
+        var scrollObj = UIHelper.MakeUI("SkillUpScroll", content.transform);
+        var scrollRT = scrollObj.GetComponent<RectTransform>();
+        scrollRT.anchorMin = new Vector2(0, 0);
+        scrollRT.anchorMax = new Vector2(1, 0.7f);
+        scrollRT.offsetMin = Vector2.zero;
+        scrollRT.offsetMax = Vector2.zero;
+
+        var scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        var viewport = UIHelper.MakeUI("Viewport", scrollObj.transform);
+        viewport.AddComponent<RectMask2D>();
+        UIHelper.FillParent(viewport.GetComponent<RectTransform>());
+        scrollRect.viewport = viewport.GetComponent<RectTransform>();
+
+        skillUpgradeContainer = UIHelper.MakeUI("Content", viewport.transform);
+        var crt2 = skillUpgradeContainer.GetComponent<RectTransform>();
+        crt2.anchorMin = new Vector2(0, 1);
+        crt2.anchorMax = new Vector2(1, 1);
+        crt2.pivot = new Vector2(0.5f, 1);
+        crt2.anchoredPosition = Vector2.zero;
+        scrollRect.content = crt2;
     }
 
     void BuildUpgradeRow(Transform parent, string label, int index, float rowH,
@@ -643,6 +682,7 @@ public class MainHUD : MonoBehaviour
 
     void RefreshUpgradeUI()
     {
+        RefreshSkillUpgradeUI();
         var tap = TapDamageSystem.Instance;
         if (tap != null && tapUpText != null)
             tapUpText.text = $"Lv.{tap.tapDamageLevel}  DMG:{tap.TapDamage:F0}";
@@ -1086,8 +1126,10 @@ public class MainHUD : MonoBehaviour
             nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             nrt.offsetMax = Vector2.zero;
 
-            // Level badge
-            var lvText = UIHelper.MakeText("Lv", item.transform, $"Lv.{level}",
+            // Level badge + Star
+            int star = hlm != null ? hlm.GetStarRank(heroName) : 1;
+            string starStr = new string('\u2605', star); // ★
+            var lvText = UIHelper.MakeText("Lv", item.transform, $"Lv.{level} {starStr}",
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
             lvText.fontStyle = FontStyles.Bold;
             var lvrt = lvText.GetComponent<RectTransform>();
@@ -1528,12 +1570,14 @@ public class MainHUD : MonoBehaviour
     // 상점 탭 (index 4) - 서브탭: 상점/업적/설정
     // ════════════════════════════════════════
 
-    int shopSubTab; // 0=상점, 1=업적, 2=미션, 3=설정
+    int shopSubTab; // 0=상점, 1=업적, 2=미션, 3=도감, 4=아레나, 5=설정
     Button[] shopSubTabBtns;
     TextMeshProUGUI[] shopSubTabLabels;
     GameObject shopRoot;
     GameObject achieveRoot;
     GameObject missionRoot;
+    GameObject collectionRoot;
+    GameObject arenaRoot;
     GameObject settingsRoot;
 
     GameObject shopListContainer;
@@ -1557,7 +1601,7 @@ public class MainHUD : MonoBehaviour
         stbRT.pivot = new Vector2(0.5f, 1);
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
-        string[] subNames = { "상점", "업적", "미션", "설정" };
+        string[] subNames = { "상점", "업적", "미션", "도감", "아레나", "설정" };
         int subCount = subNames.Length;
         shopSubTabBtns = new Button[subCount];
         shopSubTabLabels = new TextMeshProUGUI[subCount];
@@ -1613,6 +1657,24 @@ public class MainHUD : MonoBehaviour
         mrRT.offsetMax = new Vector2(0, -subTabH);
         BuildMissionList(missionRoot.transform);
 
+        // 도감 루트
+        collectionRoot = UIHelper.MakeUI("CollectionRoot", content.transform);
+        var crRT = collectionRoot.GetComponent<RectTransform>();
+        crRT.anchorMin = Vector2.zero;
+        crRT.anchorMax = Vector2.one;
+        crRT.offsetMin = Vector2.zero;
+        crRT.offsetMax = new Vector2(0, -subTabH);
+        BuildCollectionContent(collectionRoot.transform);
+
+        // 아레나 루트
+        arenaRoot = UIHelper.MakeUI("ArenaRoot", content.transform);
+        var anRT = arenaRoot.GetComponent<RectTransform>();
+        anRT.anchorMin = Vector2.zero;
+        anRT.anchorMax = Vector2.one;
+        anRT.offsetMin = Vector2.zero;
+        anRT.offsetMax = new Vector2(0, -subTabH);
+        BuildArenaContent(arenaRoot.transform);
+
         // 설정 루트
         settingsRoot = UIHelper.MakeUI("SettingsRoot", content.transform);
         var setRT = settingsRoot.GetComponent<RectTransform>();
@@ -1631,10 +1693,7 @@ public class MainHUD : MonoBehaviour
         SoundManager.Instance?.PlayButtonSFX();
         shopSubTab = subIdx;
         UpdateShopSubTabVisuals();
-        if (subIdx == 0) RefreshShopList();
-        else if (subIdx == 1) RefreshAchievementUI();
-        else if (subIdx == 2) RefreshMissionUI();
-        else RefreshSettingsUI();
+        RefreshCurrentShopSubTab();
     }
 
     void UpdateShopSubTabVisuals()
@@ -1649,16 +1708,28 @@ public class MainHUD : MonoBehaviour
         if (shopRoot != null) shopRoot.SetActive(shopSubTab == 0);
         if (achieveRoot != null) achieveRoot.SetActive(shopSubTab == 1);
         if (missionRoot != null) missionRoot.SetActive(shopSubTab == 2);
-        if (settingsRoot != null) settingsRoot.SetActive(shopSubTab == 3);
+        if (collectionRoot != null) collectionRoot.SetActive(shopSubTab == 3);
+        if (arenaRoot != null) arenaRoot.SetActive(shopSubTab == 4);
+        if (settingsRoot != null) settingsRoot.SetActive(shopSubTab == 5);
+    }
+
+    void RefreshCurrentShopSubTab()
+    {
+        switch (shopSubTab)
+        {
+            case 0: RefreshShopList(); break;
+            case 1: RefreshAchievementUI(); break;
+            case 2: RefreshMissionUI(); break;
+            case 3: RefreshCollectionUI(); break;
+            case 4: RefreshArenaUI(); break;
+            case 5: RefreshSettingsUI(); break;
+        }
     }
 
     void RefreshShopUI()
     {
         UpdateShopSubTabVisuals();
-        if (shopSubTab == 0) RefreshShopList();
-        else if (shopSubTab == 1) RefreshAchievementUI();
-        else if (shopSubTab == 2) RefreshMissionUI();
-        else RefreshSettingsUI();
+        RefreshCurrentShopSubTab();
     }
 
     // ── 상점 리스트 ──
@@ -2546,6 +2617,234 @@ public class MainHUD : MonoBehaviour
         confirmDescText.text = desc;
         pendingConfirmAction = onConfirm;
         confirmPopup.SetActive(true);
+        SoundManager.Instance?.PlayButtonSFX();
+    }
+
+    // ════════════════════════════════════════
+    // 스킬 강화 UI (훈련 탭)
+    // ════════════════════════════════════════
+
+    void RefreshSkillUpgradeUI()
+    {
+        if (skillUpgradeContainer == null) return;
+        var sm = SkillManager.Instance;
+        var sum = SkillUpgradeManager.Instance;
+        if (sm == null) return;
+
+        RecycleList(skillUpgradeItems);
+        int reuse = 0;
+        float itemH = 38f;
+        float spacing = 2f;
+        float y = 0;
+        int activeCount = 0;
+
+        for (int i = 0; i < sm.equippedSkills.Count && i < 4; i++)
+        {
+            var skill = sm.equippedSkills[i];
+            if (skill == null) continue;
+
+            var item = ReuseOrCreate(skillUpgradeItems, ref reuse,
+                $"SkillUp_{i}", skillUpgradeContainer.transform, UIColors.Panel_Inner);
+            activeCount++;
+            var irt = item.GetComponent<RectTransform>();
+            irt.anchorMin = new Vector2(0, 1);
+            irt.anchorMax = new Vector2(1, 1);
+            irt.pivot = new Vector2(0.5f, 1);
+            irt.anchoredPosition = new Vector2(0, y);
+            irt.sizeDelta = new Vector2(0, itemH);
+
+            int level = sum != null ? sum.GetLevel(skill.skillName) : 1;
+            int cost = sum != null ? sum.GetUpgradeCost(skill.skillName) : 0;
+            bool canUp = sum != null && sum.CanUpgrade(skill.skillName);
+            float dmgMult = sum != null ? sum.GetDamageMultiplier(skill.skillName) : 1f;
+
+            var nameText = UIHelper.MakeText("Name", item.transform,
+                $"{skill.iconChar} {skill.skillName}",
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+            nameText.fontStyle = FontStyles.Bold;
+            var nrt = nameText.GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0);
+            nrt.anchorMax = new Vector2(0.35f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.offsetMax = Vector2.zero;
+
+            string info = $"Lv.{level} DMG:{dmgMult:P0}";
+            var infoText = UIHelper.MakeText("Info", item.transform, info,
+                9f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+            var inrt = infoText.GetComponent<RectTransform>();
+            inrt.anchorMin = new Vector2(0.35f, 0);
+            inrt.anchorMax = new Vector2(0.65f, 1);
+            inrt.offsetMin = Vector2.zero;
+            inrt.offsetMax = Vector2.zero;
+
+            string btnLabel = level >= SkillUpgradeManager.MAX_SKILL_LEVEL ? "MAX" : $"{cost}G";
+            Color btnColor = canUp ? UIColors.Button_Green : UIColors.Button_Gray;
+            var (btn, _) = UIHelper.MakeButton($"Up_{i}", item.transform, btnColor, "", 10f);
+            var brt = btn.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(0.68f, 0.1f);
+            brt.anchorMax = new Vector2(0.97f, 0.9f);
+            brt.offsetMin = Vector2.zero;
+            brt.offsetMax = Vector2.zero;
+            var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
+                UIConstants.Font_Cost, TextAlignmentOptions.Center,
+                canUp ? UIColors.Text_Primary : UIColors.Text_Disabled);
+            btnText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+            if (canUp)
+            {
+                string capturedName = skill.skillName;
+                btn.onClick.AddListener(() =>
+                {
+                    if (sum != null && !sum.TryUpgrade(capturedName))
+                        ToastNotification.Instance?.Show("골드 부족!", "", UIColors.Defeat_Red);
+                    RefreshSkillUpgradeUI();
+                    RefreshUpgradeUI();
+                });
+            }
+
+            y -= (itemH + spacing);
+        }
+
+        TrimExcess(skillUpgradeItems, activeCount);
+        var containerRT = skillUpgradeContainer.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    // ════════════════════════════════════════
+    // 도감 UI (상점 탭 서브탭)
+    // ════════════════════════════════════════
+
+    TextMeshProUGUI collectionText;
+
+    void BuildCollectionContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("CollectionContent", parent);
+        var crt = content.GetComponent<RectTransform>();
+        crt.anchorMin = Vector2.zero;
+        crt.anchorMax = Vector2.one;
+        crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
+
+        collectionText = UIHelper.MakeText("Info", content.transform, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Primary);
+        UIHelper.FillParent(collectionText.GetComponent<RectTransform>());
+    }
+
+    void RefreshCollectionUI()
+    {
+        if (collectionText == null) return;
+        var cm = CollectionManager.Instance;
+        if (cm == null) { collectionText.text = "도감 로딩 중..."; return; }
+
+        collectionText.text =
+            $"<color=#FFD700>═══ 도감 ═══</color>\n\n" +
+            $"<color=#7FD44C>영웅</color>  {cm.HeroCount}/{CollectionManager.TOTAL_HEROES}  " +
+            $"({cm.HeroProgress:P0})\n" +
+            $"<color=#FF6B6B>몬스터</color>  {cm.MonsterCount}/{CollectionManager.TOTAL_MONSTERS}  " +
+            $"({cm.MonsterProgress:P0})\n" +
+            $"<color=#87CEEB>장비</color>  {cm.EquipCount}/{CollectionManager.TOTAL_EQUIP_TYPES}  " +
+            $"({cm.EquipProgress:P0})\n\n" +
+            $"<color=#FFD700>전체 완성도: {cm.TotalProgress:P0}</color>\n\n" +
+            $"마일스톤 보상: 3/5/7/10/13종 달성 시 보석!";
+    }
+
+    // ════════════════════════════════════════
+    // 아레나 UI (상점 탭 서브탭)
+    // ════════════════════════════════════════
+
+    TextMeshProUGUI arenaInfoText;
+    Button arenaBattleBtn;
+
+    void BuildArenaContent(Transform parent)
+    {
+        var content = UIHelper.MakeUI("ArenaContent", parent);
+        var crt = content.GetComponent<RectTransform>();
+        crt.anchorMin = Vector2.zero;
+        crt.anchorMax = Vector2.one;
+        crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
+
+        arenaInfoText = UIHelper.MakeText("Info", content.transform, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Primary);
+        var irt = arenaInfoText.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0.35f);
+        irt.anchorMax = new Vector2(1, 1);
+        irt.offsetMin = Vector2.zero;
+        irt.offsetMax = Vector2.zero;
+
+        var (btn, _) = UIHelper.MakeButton("BattleBtn", content.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
+        arenaBattleBtn = btn;
+        var brt = btn.GetComponent<RectTransform>();
+        brt.anchorMin = new Vector2(0.2f, 0.08f);
+        brt.anchorMax = new Vector2(0.8f, 0.28f);
+        brt.offsetMin = Vector2.zero;
+        brt.offsetMax = Vector2.zero;
+        var btnText = UIHelper.MakeText("Label", btn.transform, "도전!",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        btnText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(btnText.GetComponent<RectTransform>());
+
+        btn.onClick.AddListener(OnArenaBattle);
+    }
+
+    void RefreshArenaUI()
+    {
+        if (arenaInfoText == null) return;
+        var am = ArenaManager.Instance;
+        if (am == null) { arenaInfoText.text = "아레나 로딩 중..."; return; }
+
+        arenaInfoText.text =
+            $"<color=#FFD700>═══ 아레나 ═══</color>\n\n" +
+            $"랭크: <color=#{ColorUtility.ToHtmlStringRGB(am.GetRankColor())}>{am.GetRankName()}</color>\n" +
+            $"포인트: {am.ArenaPoints}P\n" +
+            $"연승: {am.WinStreak}\n" +
+            $"남은 도전: {am.RemainingAttempts}/{10}\n\n" +
+            $"상대 난이도: {am.GetDifficulty() + 1}단계";
+
+        if (arenaBattleBtn != null)
+        {
+            arenaBattleBtn.GetComponent<Image>().color =
+                am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
+        }
+    }
+
+    void OnArenaBattle()
+    {
+        var am = ArenaManager.Instance;
+        if (am == null || !am.CanBattle)
+        {
+            ToastNotification.Instance?.Show("도전 횟수 소진!", "내일 다시 도전", UIColors.Defeat_Red);
+            return;
+        }
+
+        // 승률 시뮬레이션: 덱 파워 vs 상대 스케일
+        float myPower = 0f;
+        var dm = DeckManager.Instance;
+        var hlm = HeroLevelManager.Instance;
+        if (dm != null)
+        {
+            var deck = dm.GetActiveDeck();
+            for (int i = 0; i < deck.Count; i++)
+            {
+                float hp = deck[i].maxHp;
+                float atk = deck[i].atk;
+                if (hlm != null)
+                {
+                    hp += hlm.GetHpBonus(deck[i].characterName);
+                    atk += hlm.GetAtkBonus(deck[i].characterName);
+                }
+                myPower += hp + atk * 5f;
+            }
+        }
+
+        float opponentPower = am.GetOpponentDeck().Length * 200f * am.GetOpponentStatScale();
+        float winChance = Mathf.Clamp01(myPower / (myPower + opponentPower + 0.01f));
+        bool won = Random.value < winChance;
+
+        am.ReportResult(won);
+        RefreshArenaUI();
         SoundManager.Instance?.PlayButtonSFX();
     }
 }

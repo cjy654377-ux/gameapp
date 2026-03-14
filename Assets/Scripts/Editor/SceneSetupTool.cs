@@ -92,6 +92,9 @@ public class SceneSetupTool
         EnsureComponent<SkillManager>(gm);
         EnsureComponent<UpgradeManager>(FindOrCreate("UpgradeManager"));
         EnsureComponent<DailyMissionManager>(gm);
+        EnsureComponent<CollectionManager>(gm);
+        EnsureComponent<SkillUpgradeManager>(gm);
+        EnsureComponent<ArenaManager>(gm);
 
         // EventSystem
         if (GameObject.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)

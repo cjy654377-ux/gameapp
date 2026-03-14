@@ -17,11 +17,13 @@ public class EquipmentItem
     public float bonusAtk;
     public float bonusDef;
     public string equippedTo;   // heroName, empty if unequipped
+    public string setId;        // 세트 ID (전사/마법사/수호자)
 
     public EquipmentItem()
     {
         id = Guid.NewGuid().ToString();
         equippedTo = "";
+        setId = "";
     }
 }
 
@@ -307,7 +309,68 @@ public class EquipmentManager : MonoBehaviour
                 break;
         }
 
+        // 세트 ID 부여 (33% 확률)
+        if (UnityEngine.Random.value < 0.33f)
+        {
+            string[] sets = { "전사", "마법사", "수호자" };
+            item.setId = sets[UnityEngine.Random.Range(0, sets.Length)];
+            item.itemName = $"{item.itemName} [{item.setId}]";
+        }
+
+        // 도감 등록
+        CollectionManager.Instance?.RegisterEquipment(item.slot, item.rarity);
+
         return item;
+    }
+
+    // ═══ 세트 효과 ═══
+
+    static readonly string[] SET_IDS = { "전사", "마법사", "수호자" };
+    readonly Dictionary<string, int> setCountCache = new();
+
+    /// <summary>
+    /// 영웅의 세트 보너스 합산 (2세트/4세트 효과)
+    /// </summary>
+    public void GetSetBonuses(string heroName, out float bonusHp, out float bonusAtk, out float bonusDef)
+    {
+        bonusHp = 0f;
+        bonusAtk = 0f;
+        bonusDef = 0f;
+
+        // 세트별 착용 수 카운트 (캐시 재사용)
+        setCountCache.Clear();
+        var setCounts = setCountCache;
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            var eq = inventory[i];
+            if (eq.equippedTo != heroName || string.IsNullOrEmpty(eq.setId)) continue;
+            if (!setCounts.ContainsKey(eq.setId)) setCounts[eq.setId] = 0;
+            setCounts[eq.setId]++;
+        }
+
+        foreach (var kv in setCounts)
+        {
+            // 2세트 효과
+            if (kv.Value >= 2)
+            {
+                switch (kv.Key)
+                {
+                    case "전사": bonusAtk += 15f; break;
+                    case "마법사": bonusAtk += 10f; bonusDef += 5f; break;
+                    case "수호자": bonusDef += 12f; bonusHp += 30f; break;
+                }
+            }
+            // 4세트 효과
+            if (kv.Value >= 4)
+            {
+                switch (kv.Key)
+                {
+                    case "전사": bonusAtk += 30f; break;
+                    case "마법사": bonusAtk += 20f; bonusDef += 10f; break;
+                    case "수호자": bonusDef += 25f; bonusHp += 80f; break;
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -369,7 +432,9 @@ public class EquipmentManager : MonoBehaviour
             EquipmentSlot.Shield => "방패",
             _ => "장비"
         };
-        target.itemName = $"{prefix} {slotName}";
+        target.itemName = string.IsNullOrEmpty(target.setId)
+            ? $"{prefix} {slotName}"
+            : $"{prefix} {slotName} [{target.setId}]";
 
         // 재료 소모
         inventory.Remove(material);

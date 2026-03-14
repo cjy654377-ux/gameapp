@@ -6,6 +6,7 @@ public class DamagePopup : MonoBehaviour
     private float disappearTimer;
     private Color spriteColor;
     private Vector3 moveVector;
+    private string poolName = POOL_DMG;
 
     const string POOL_DMG = "DmgPopup";
     const string POOL_GOLD = "GoldPopup";
@@ -57,6 +58,7 @@ public class DamagePopup : MonoBehaviour
 
         var popup = go.GetComponent<DamagePopup>();
         popup.sr.sortingOrder = 100;
+        popup.poolName = POOL_GOLD;
 
         popup.sr.sprite = PixelNumberFont.CreateNumberSprite("+" + amount, DamageNumberStyle.Gold);
         popup.sr.color = Color.white;
@@ -115,7 +117,8 @@ public class DamagePopup : MonoBehaviour
         {
             sr.sprite = null;
             gameObject.SetActive(false);
-            pool.Return(POOL_DMG, gameObject);
+            pool.Return(poolName, gameObject);
+            poolName = POOL_DMG; // reset for reuse
         }
         else
         {

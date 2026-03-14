@@ -145,6 +145,16 @@ public class CharacterFactory : MonoBehaviour
         // Add HP bar
         unitObj.AddComponent<HpBar>();
 
+        // 도감 등록
+        var collection = CollectionManager.Instance;
+        if (collection != null)
+        {
+            if (team == BattleUnit.Team.Ally)
+                collection.RegisterHero(preset.characterName);
+            else
+                collection.RegisterMonster(preset.characterName);
+        }
+
         // Enemy gold drops handled by StageManager for bosses,
         // default drop for normal enemies
         if (team == BattleUnit.Team.Enemy)

@@ -114,6 +114,12 @@ public class UpgradeManager : MonoBehaviour
             hpBonus += em.GetTotalBonusHp(heroName);
             atkBonus += em.GetTotalBonusAtk(heroName);
             defBonus += em.GetTotalBonusDef(heroName);
+
+            // 세트 효과
+            em.GetSetBonuses(heroName, out float setHp, out float setAtk, out float setDef);
+            hpBonus += setHp;
+            atkBonus += setAtk;
+            defBonus += setDef;
         }
 
         // HP 비율 유지

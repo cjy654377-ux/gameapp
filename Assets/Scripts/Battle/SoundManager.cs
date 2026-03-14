@@ -93,4 +93,22 @@ public class SoundManager : MonoBehaviour
         sfxSource.volume = sfxVolume;
         PlayerPrefs.SetFloat("SFXVolume", sfxVolume);
     }
+
+    // ═══ 에리어별 BGM ═══
+    static readonly string[] AREA_BGM = { "", "bgm_grass", "bgm_desert", "bgm_cave" };
+    int currentAreaBGM = -1;
+
+    public void PlayAreaBGM(int area)
+    {
+        if (area == currentAreaBGM) return;
+        currentAreaBGM = area;
+        string clipName = area > 0 && area < AREA_BGM.Length ? AREA_BGM[area] : AREA_BGM[1];
+        PlayBGM(clipName);
+    }
+
+    public void PlayArenaBGM()
+    {
+        currentAreaBGM = -1;
+        PlayBGM("bgm_arena");
+    }
 }

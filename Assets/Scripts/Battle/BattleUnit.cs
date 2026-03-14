@@ -536,7 +536,12 @@ public class BattleUnit : MonoBehaviour
             animator.SetTrigger("4_Death");
         }
 
-        // Death fade effect
+        // Stop flash before fade to preserve original colors
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+            flashRoutine = null;
+        }
         StartCoroutine(DeathFadeOut());
     }
 
@@ -612,6 +617,8 @@ public class BattleUnit : MonoBehaviour
         buffTimer = 0f;
         buffAtk = 0f;
         buffDef = 0f;
+        stunTimer = 0f;
+        for (int i = 0; i < skillCooldowns.Length; i++) skillCooldowns[i] = 0f;
         OnHpChanged?.Invoke(CurrentHp, maxHp);
 
         if (animator != null)

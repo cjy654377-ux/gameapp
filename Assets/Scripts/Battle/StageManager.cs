@@ -61,6 +61,7 @@ public class StageManager : MonoBehaviour
         int saved = PlayerPrefs.GetInt("TotalWaveIndex", 0);
         TotalWaveIndex = saved;
         CalcStageFromTotal(saved);
+        SoundManager.Instance?.PlayAreaBGM(CurrentArea);
     }
 
     void CalcStageFromTotal(int total)
@@ -129,7 +130,10 @@ public class StageManager : MonoBehaviour
         CalcStageFromTotal(TotalWaveIndex);
 
         if (CurrentArea != prevArea)
+        {
             OnAreaChanged?.Invoke(CurrentArea);
+            SoundManager.Instance?.PlayAreaBGM(CurrentArea);
+        }
 
         // 스테이지가 바뀌면 페이드 전환 (1-1의 3웨이브 끝 → 1-2로)
         bool stageChanged = (CurrentStage != prevStage) || (CurrentArea != prevArea);
@@ -171,6 +175,9 @@ public class StageManager : MonoBehaviour
 
     void ResetBattlefield()
     {
+        // 보스 패턴 코루틴 정리 (누적 방지)
+        StopAllCoroutines();
+
         var manager = BattleManager.Instance;
         if (manager == null) return;
 
