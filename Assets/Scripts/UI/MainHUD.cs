@@ -150,6 +150,11 @@ public class MainHUD : MonoBehaviour
             if (stageText != null) stageText.text = cachedStageMgr.GetStageText();
             if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
         }
+
+        // 출석 체크 팝업 (2프레임 지연 - UI 구독 완료 후)
+        yield return null;
+        if (DailyLoginManager.Instance != null && DailyLoginManager.Instance.ShouldShowPopup())
+            ShowDailyLoginPopup();
     }
 
     void Update()
@@ -1353,12 +1358,25 @@ public class MainHUD : MonoBehaviour
         mText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(mText.GetComponent<RectTransform>());
 
+        // 확률 정보 버튼 (법적 의무)
+        var (probBtn, _) = UIHelper.MakeButton("ProbInfoBtn", content.transform,
+            UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
+        probBtn.onClick.AddListener(ShowProbabilityInfo);
+        var pbrt = probBtn.GetComponent<RectTransform>();
+        pbrt.anchorMin = new Vector2(0.3f, 0.42f);
+        pbrt.anchorMax = new Vector2(0.7f, 0.5f);
+        pbrt.offsetMin = Vector2.zero;
+        pbrt.offsetMax = Vector2.zero;
+        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        UIHelper.FillParent(probLabel.GetComponent<RectTransform>());
+
         // 결과 텍스트
         gachaResultText = UIHelper.MakeText("Result", content.transform, "",
             9f, TextAlignmentOptions.Center, UIColors.Text_Green);
         var rrt = gachaResultText.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, 0);
-        rrt.anchorMax = new Vector2(1, 0.45f);
+        rrt.anchorMax = new Vector2(1, 0.4f);
         rrt.offsetMin = Vector2.zero;
         rrt.offsetMax = Vector2.zero;
     }
@@ -2958,6 +2976,154 @@ public class MainHUD : MonoBehaviour
 
         am.ReportResult(won);
         RefreshArenaUI();
+        SoundManager.Instance?.PlayButtonSFX();
+    }
+
+    // ════════════════════════════════════════
+    // 일일 출석 체크 팝업
+    // ════════════════════════════════════════
+
+    void ShowDailyLoginPopup()
+    {
+        var dlm = DailyLoginManager.Instance;
+        if (dlm == null || dlm.ClaimedToday) return;
+
+        var reward = dlm.GetTodayReward();
+        int day = dlm.CurrentDay + 1; // 1-based 표시
+
+        string rewardStr = reward.type switch
+        {
+            DailyLoginManager.RewardType.Gold => $"골드 {reward.amount}",
+            DailyLoginManager.RewardType.Gem => $"보석 {reward.amount}",
+            DailyLoginManager.RewardType.GachaTikcet => "소환권 1장",
+            _ => ""
+        };
+
+        Color rewardColor = reward.type == DailyLoginManager.RewardType.Gem
+            ? UIColors.Text_Diamond : UIColors.Text_Gold;
+
+        // 7일 단위 대보상 표시
+        bool isMilestone = day % 7 == 0;
+
+        string desc = isMilestone
+            ? $"축하합니다! {day}일 출석!\n<size=14><color=#{ColorUtility.ToHtmlStringRGB(rewardColor)}>{rewardStr}</color></size>"
+            : $"출석 {day}일차\n<size=12><color=#{ColorUtility.ToHtmlStringRGB(rewardColor)}>{rewardStr}</color></size>";
+
+        ShowConfirm("출석 체크", desc, () =>
+        {
+            dlm.ClaimReward();
+            ToastNotification.Instance?.Show("출석 보상!", rewardStr, rewardColor);
+            UpdateGold(cachedGoldMgr != null ? cachedGoldMgr.Gold : 0);
+            UpdateGem(cachedGemMgr != null ? cachedGemMgr.Gem : 0);
+        });
+    }
+
+    // ════════════════════════════════════════
+    // 확률 공시 팝업 (법적 의무)
+    // ════════════════════════════════════════
+
+    GameObject probPopup;
+
+    void ShowProbabilityInfo()
+    {
+        if (probPopup != null)
+        {
+            probPopup.SetActive(true);
+            return;
+        }
+
+        // 풀스크린 오버레이
+        var overlay = UIHelper.MakePanel("ProbPopup", canvas.transform, UIColors.Overlay_Dark);
+        probPopup = overlay.gameObject;
+        var overlayRT = probPopup.GetComponent<RectTransform>();
+        UIHelper.FillParent(overlayRT);
+
+        // 탭하여 닫기
+        var closeBtn = probPopup.AddComponent<Button>();
+        closeBtn.targetGraphic = overlay;
+        closeBtn.onClick.AddListener(() => probPopup.SetActive(false));
+
+        // 중앙 패널
+        var panel = UIHelper.MakePanel("Panel", probPopup.transform, UIColors.Background_Panel);
+        var panelRT = panel.GetComponent<RectTransform>();
+        panelRT.anchorMin = new Vector2(0.05f, 0.1f);
+        panelRT.anchorMax = new Vector2(0.95f, 0.9f);
+        panelRT.offsetMin = Vector2.zero;
+        panelRT.offsetMax = Vector2.zero;
+
+        // 패널 내부 클릭 시 닫히지 않도록
+        var panelBtn = panel.gameObject.AddComponent<Button>();
+        panelBtn.targetGraphic = panel;
+        panelBtn.onClick.AddListener(() => { }); // 이벤트 소비
+
+        // 테두리
+        var border = UIHelper.MakePanel("Border", panel.transform, UIColors.Panel_Border);
+        var borderRT = border.GetComponent<RectTransform>();
+        UIHelper.FillParent(borderRT);
+        var inner = UIHelper.MakePanel("Inner", border.transform, UIColors.Background_Panel);
+        var innerRT = inner.GetComponent<RectTransform>();
+        innerRT.anchorMin = Vector2.zero;
+        innerRT.anchorMax = Vector2.one;
+        innerRT.offsetMin = new Vector2(2, 2);
+        innerRT.offsetMax = new Vector2(-2, -2);
+
+        // 타이틀
+        var title = UIHelper.MakeText("Title", inner.transform, "소환 확률 정보",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        title.fontStyle = FontStyles.Bold;
+        var titleRT = title.GetComponent<RectTransform>();
+        titleRT.anchorMin = new Vector2(0, 0.9f);
+        titleRT.anchorMax = new Vector2(1, 1);
+        titleRT.offsetMin = Vector2.zero;
+        titleRT.offsetMax = Vector2.zero;
+
+        // 확률 내용 텍스트
+        string content =
+            "<color=#FFD700>[ 기본 소환 확률 ]</color>\n" +
+            $"  <color=#607080>Common</color>    60.00%\n" +
+            $"  <color=#6B3FA0>Rare</color>          25.00%\n" +
+            $"  <color=#E07020>Epic</color>          12.00%\n" +
+            $"  <color=#FFD700>Legendary</color>   3.00%\n" +
+            "\n" +
+            "<color=#FFD700>[ 천장 시스템 (Pity) ]</color>\n" +
+            "  10회 연속 Common 출현 시\n" +
+            "  다음 소환은 Rare 이상 보장:\n" +
+            $"  <color=#6B3FA0>Rare</color>          70.00%\n" +
+            $"  <color=#E07020>Epic</color>          22.00%\n" +
+            $"  <color=#FFD700>Legendary</color>   8.00%\n" +
+            "\n" +
+            "<color=#FFD700>[ 10연차 보장 ]</color>\n" +
+            "  10회 소환 중 Rare 이상이\n" +
+            "  1회도 없을 경우\n" +
+            "  마지막 소환은 Rare 이상 보장\n" +
+            "\n" +
+            "<color=#FFD700>[ 소환 비용 ]</color>\n" +
+            $"  1회 소환: {GachaManager.SINGLE_PULL_COST}보석\n" +
+            $"  10연차:   {GachaManager.MULTI_PULL_COST}보석 (1회 할인)\n" +
+            "\n" +
+            "<color=#FFD700>[ 중복 소환 ]</color>\n" +
+            "  이미 보유한 영웅 소환 시\n" +
+            "  해당 영웅의 강화 카드 +1 획득";
+
+        var contentText = UIHelper.MakeText("Content", inner.transform, content,
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Left, UIColors.Text_Primary);
+        contentText.lineSpacing = 5f;
+        var contentRT = contentText.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0, 0.05f);
+        contentRT.anchorMax = new Vector2(1, 0.88f);
+        contentRT.offsetMin = new Vector2(12, 0);
+        contentRT.offsetMax = new Vector2(-12, 0);
+
+        // 닫기 버튼
+        var (cBtn, _) = UIHelper.MakeButton("CloseBtn", inner.transform,
+            UIColors.Button_Green, "닫기", UIConstants.Font_Button);
+        cBtn.onClick.AddListener(() => probPopup.SetActive(false));
+        var cbrt = cBtn.GetComponent<RectTransform>();
+        cbrt.anchorMin = new Vector2(0.25f, 0.01f);
+        cbrt.anchorMax = new Vector2(0.75f, 0.07f);
+        cbrt.offsetMin = Vector2.zero;
+        cbrt.offsetMax = Vector2.zero;
+
         SoundManager.Instance?.PlayButtonSFX();
     }
 }

@@ -92,6 +92,7 @@ public class SceneSetupTool
         EnsureComponent<SkillManager>(gm);
         EnsureComponent<UpgradeManager>(FindOrCreate("UpgradeManager"));
         EnsureComponent<DailyMissionManager>(gm);
+        EnsureComponent<DailyLoginManager>(gm);
         EnsureComponent<CollectionManager>(gm);
         EnsureComponent<SkillUpgradeManager>(gm);
         EnsureComponent<ArenaManager>(gm);
