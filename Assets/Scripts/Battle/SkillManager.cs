@@ -41,6 +41,10 @@ public class SkillManager : MonoBehaviour
             SaveEquippedSkills();
         }
 
+        // Remove null entries from loaded skills
+        for (int i = equippedSkills.Count - 1; i >= 0; i--)
+            if (equippedSkills[i] == null) equippedSkills.RemoveAt(i);
+
         // Start with skills on cooldown
         for (int i = 0; i < equippedSkills.Count && i < 4; i++)
             cooldownTimers[i] = equippedSkills[i].cooldown;

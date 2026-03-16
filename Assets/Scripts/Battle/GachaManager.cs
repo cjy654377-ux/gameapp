@@ -58,6 +58,7 @@ public class GachaManager : MonoBehaviour
         for (int i = 0; i < allHeroes.Length; i++)
         {
             var hero = allHeroes[i];
+            if (hero == null) continue;
             switch (hero.rarity)
             {
                 case HeroRarity.Common: commonPool.Add(hero); break;
