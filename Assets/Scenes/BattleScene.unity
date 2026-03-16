@@ -410,15 +410,19 @@ MonoBehaviour:
   desertEnemies:
   - {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
   - {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  - {fileID: 11400000, guid: 601e3ee674ea546d5929783fe620c41a, type: 2}
+  - {fileID: 11400000, guid: 23bb23fe9c70a419da384e61779608ac, type: 2}
   caveEnemies:
+  - {fileID: 11400000, guid: eedb94eaf58da4d69b0eb4a85913dc44, type: 2}
+  - {fileID: 11400000, guid: 1f5e4d6d8010044dea54fe3ccee1af3e, type: 2}
   - {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
-  - {fileID: 11400000, guid: f3dfa9d12b98f4986b6bb118dbe4b493, type: 2}
+  - {fileID: 11400000, guid: 80e6a25a512c84d5391f0fd9dc531c79, type: 2}
   grassMidBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
   grassAreaBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
   desertMidBoss: {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
-  desertAreaBoss: {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  desertAreaBoss: {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
   caveMidBoss: {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
-  caveAreaBoss: {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
+  caveAreaBoss: {fileID: 11400000, guid: eedb94eaf58da4d69b0eb4a85913dc44, type: 2}
 --- !u!4 &1242652072
 Transform:
   m_ObjectHideFlags: 0
@@ -449,6 +453,14 @@ GameObject:
   - component: {fileID: 1286532216}
   - component: {fileID: 1286532215}
   - component: {fileID: 1286532214}
+  - component: {fileID: 1286532224}
+  - component: {fileID: 1286532223}
+  - component: {fileID: 1286532222}
+  - component: {fileID: 1286532221}
+  - component: {fileID: 1286532220}
+  - component: {fileID: 1286532219}
+  - component: {fileID: 1286532218}
+  - component: {fileID: 1286532217}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -530,9 +542,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillManager
   equippedSkills:
   - {fileID: 11400000, guid: 90a7945c9f49a4aaea811197d4b1c0be, type: 2}
-  - {fileID: 11400000, guid: e6b3de02c7b16440fb5f18177c032405, type: 2}
-  - {fileID: 11400000, guid: 7b971e6260eb64e1a9c10b451a0ffe7b, type: 2}
-  - {fileID: 11400000, guid: a85eeca4040ce46ca8faae747aefb791, type: 2}
+  - {fileID: 11400000, guid: 99edc5498083141808c392c1279d278c, type: 2}
+  - {fileID: 11400000, guid: dd31e56ba23174772aaf41a2f7302862, type: 2}
+  - {fileID: 11400000, guid: fa7d3faa1a6c344caa55cdaf02dbdaa6, type: 2}
   autoUse: 1
 --- !u!114 &1286532215
 MonoBehaviour:
@@ -560,6 +572,118 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 726f96a08723e4b7fa7cced3a48110a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldManager
+--- !u!114 &1286532217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c355b547ecf634d1aaf8755f0093dcca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaManager
+--- !u!114 &1286532218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50cd6130c1c6e490fbc49a3dab87eaaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkillUpgradeManager
+--- !u!114 &1286532219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b0b16f10d8a451db443a18fc752aab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollectionManager
+--- !u!114 &1286532220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a65b9ba68d0524d88955352c2adfa49f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DailyLoginManager
+--- !u!114 &1286532221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91d795af384504a93852f9efb9ee48f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DailyMissionManager
+--- !u!114 &1286532222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f1063700e13442a08f70bae9ac2c02d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectPool
+--- !u!114 &1286532223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b154029ad4004f208e2d954cb8ff6c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckManager
+  roster:
+  - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
+  - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
+  - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
+  - {fileID: 11400000, guid: af6bb6b4828e749b786241f988726cec, type: 2}
+  - {fileID: 11400000, guid: 8e783e3f52e604f1f851b24f72b2671a, type: 2}
+  - {fileID: 11400000, guid: 53d3f0f81818d43d8958508ed0f0cbe2, type: 2}
+  - {fileID: 11400000, guid: a2f57204e4d1a4a619381cebda27861c, type: 2}
+--- !u!114 &1286532224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286532209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb75039314a1e42e8a435e59f542588c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GachaManager
+  allHeroes:
+  - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
+  - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
+  - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
+  - {fileID: 11400000, guid: af6bb6b4828e749b786241f988726cec, type: 2}
+  - {fileID: 11400000, guid: 8e783e3f52e604f1f851b24f72b2671a, type: 2}
+  - {fileID: 11400000, guid: 53d3f0f81818d43d8958508ed0f0cbe2, type: 2}
+  - {fileID: 11400000, guid: a2f57204e4d1a4a619381cebda27861c, type: 2}
 --- !u!1 &1559018407
 GameObject:
   m_ObjectHideFlags: 0

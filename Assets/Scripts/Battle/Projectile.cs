@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour
     static Sprite fallbackSprite;
 
     const string POOL_NAME = "Projectile";
+    const string VFX_POOL_PREFIX = "HitVFX_";
     const float MAX_LIFETIME = 3f;
 
     // Hit VFX prefab paths (Cartoon FX Remaster)
@@ -84,6 +85,30 @@ public class Projectile : MonoBehaviour
         if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
     }
 
+    void OnEnable()
+    {
+        // 풀에서 재활성화 시 상태 리셋
+        lifeTimer = MAX_LIFETIME;
+        target = null;
+        damage = 0f;
+        speed = 0f;
+        projType = ProjectileType.Arrow;
+        if (sr != null)
+        {
+            sr.sprite = null;
+            sr.color = Color.white;
+        }
+        transform.rotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
+    }
+
+    void OnDisable()
+    {
+        // 비활성화 시 참조 정리
+        target = null;
+        if (sr != null) sr.sprite = null;
+    }
+
     void Update()
     {
         lifeTimer -= Time.deltaTime;
@@ -123,10 +148,7 @@ public class Projectile : MonoBehaviour
         var pool = ObjectPool.Instance;
         if (pool != null)
         {
-            target = null;
-            gameObject.SetActive(false);
-            sr.sprite = null;
-            pool.Return(POOL_NAME, gameObject);
+            pool.Return(POOL_NAME, gameObject); // Return()이 SetActive(false) 처리 → OnDisable에서 정리
         }
         else
         {
@@ -158,12 +180,45 @@ public class Projectile : MonoBehaviour
             hitVfxCache[prefabPath] = prefab;
         }
 
-        if (prefab != null)
+        if (prefab == null) return;
+
+        string vfxPoolName = VFX_POOL_PREFIX + prefabPath;
+        var pool = ObjectPool.Instance;
+        GameObject vfx;
+
+        if (pool != null)
         {
-            var vfx = Instantiate(prefab, transform.position, Quaternion.identity);
+            vfx = pool.Get(vfxPoolName, () => Instantiate(prefab));
+            vfx.transform.position = transform.position;
+            vfx.transform.rotation = Quaternion.identity;
+            vfx.transform.localScale = Vector3.one * 0.5f;
+            // 파티클 재시작
+            var ps = vfx.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Clear();
+                ps.Play();
+            }
+            // 코루틴을 ObjectPool(영속 싱글톤)에서 실행 — Projectile은 풀 반환 시 비활성화됨
+            pool.StartCoroutine(ReturnVFXAfterDelay(vfxPoolName, vfx, 1.5f));
+        }
+        else
+        {
+            vfx = Instantiate(prefab, transform.position, Quaternion.identity);
             vfx.transform.localScale = Vector3.one * 0.5f;
             Destroy(vfx, 1.5f);
         }
+    }
+
+    System.Collections.IEnumerator ReturnVFXAfterDelay(string poolName, GameObject vfx, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (vfx == null) yield break;
+        var pool = ObjectPool.Instance;
+        if (pool != null)
+            pool.Return(poolName, vfx);
+        else if (vfx != null)
+            Destroy(vfx);
     }
 }
 

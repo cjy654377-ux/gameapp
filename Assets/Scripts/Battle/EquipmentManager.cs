@@ -161,6 +161,7 @@ public class EquipmentManager : MonoBehaviour
         inventory.Add(item);
         SaveInventory();
         OnEquipmentChanged?.Invoke();
+        DailyMissionManager.Instance?.RegisterEquipDrop();
     }
 
     /// <summary>

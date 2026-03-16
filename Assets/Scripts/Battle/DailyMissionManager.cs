@@ -76,11 +76,11 @@ public class DailyMissionManager : MonoBehaviour
     static void PopulateDefaultMissions(List<Mission> list)
     {
         list.Clear();
-        list.Add(new Mission { id = "kill_10", name = "적 10마리 처치", targetCount = 10, gemReward = 5 });
-        list.Add(new Mission { id = "wave_3", name = "3웨이브 클리어", targetCount = 3, gemReward = 5 });
-        list.Add(new Mission { id = "kill_50", name = "적 50마리 처치", targetCount = 50, gemReward = 10 });
-        list.Add(new Mission { id = "wave_10", name = "10웨이브 클리어", targetCount = 10, gemReward = 10 });
-        list.Add(new Mission { id = "gacha_1", name = "소환 1회", targetCount = 1, gemReward = 5 });
+        list.Add(new Mission { id = "kill_10", name = "적 10마리 처치", targetCount = 10, gemReward = 10 });
+        list.Add(new Mission { id = "wave_3", name = "3웨이브 클리어", targetCount = 3, gemReward = 15 });
+        list.Add(new Mission { id = "gacha_1", name = "소환 1회", targetCount = 1, gemReward = 10 });
+        list.Add(new Mission { id = "skill_5", name = "스킬 5회 사용", targetCount = 5, gemReward = 20 });
+        list.Add(new Mission { id = "equip_1", name = "장비 1개 획득", targetCount = 1, gemReward = 30 });
     }
 
     void ResetMissions()
@@ -129,18 +129,31 @@ public class DailyMissionManager : MonoBehaviour
     void OnStageChanged(int area, int stage, int wave)
     {
         AddProgress("wave_3");
-        AddProgress("wave_10");
     }
 
     public void RegisterKill()
     {
         AddProgress("kill_10");
-        AddProgress("kill_50");
     }
 
     public void RegisterGacha()
     {
         AddProgress("gacha_1");
+    }
+
+    public void RegisterWaveClear()
+    {
+        AddProgress("wave_3");
+    }
+
+    public void RegisterSkillUse()
+    {
+        AddProgress("skill_5");
+    }
+
+    public void RegisterEquipDrop()
+    {
+        AddProgress("equip_1");
     }
 
     // ── Save/Load ──

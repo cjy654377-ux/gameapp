@@ -80,7 +80,7 @@ public class BattleUnit : MonoBehaviour
         { AttackAnimType.Axe,       "Addons/Ver300/0_Unit/1_Animation/02_Attack/00_MeleeAttack/AxeAttack_1" },
         { AttackAnimType.Spear,     "Addons/Ver300/0_Unit/1_Animation/02_Attack/00_MeleeAttack/LongSpearAttack_1" },
         { AttackAnimType.ShotSword, "Addons/Ver300/0_Unit/1_Animation/02_Attack/00_MeleeAttack/ShotSwordAttack_1" },
-        { AttackAnimType.Bow,       "Addons/Legacy/0_Unit/1_Animation/02_Attack/01_LongRangeAttack/0_Attack_Bow" },
+        { AttackAnimType.Bow,       "Addons/Legacy/0_Unit/1_Animation/02_Attack/01_LongRangeAttack/1_Skill_Bow" },
         { AttackAnimType.Magic,     "Addons/Legacy/0_Unit/1_Animation/02_Attack/02_MagicAttack/0_Attack_Magic" },
     };
 
@@ -112,14 +112,24 @@ public class BattleUnit : MonoBehaviour
                 overrideCtrl["ATTACK"] = clip;
                 animator.runtimeAnimatorController = overrideCtrl;
             }
+            else
+            {
+                Debug.LogWarning($"[BattleUnit] Attack clip not found: {clipPath} for {unitName}");
+            }
+        }
+        else if (animator == null)
+        {
+            Debug.LogWarning($"[BattleUnit] No Animator found for {unitName}");
         }
     }
 
     public void SetTeam(Team team)
     {
         CurrentTeam = team;
-        if (team == Team.Enemy && spriteRoot != null)
-            spriteRoot.localScale = new Vector3(-1, 1, 1);
+        // SPUM 스프라이트 기본 방향: 왼쪽
+        // 아군(오른쪽 전진) = -1 (반전), 적(왼쪽 전진) = 1 (기본)
+        if (spriteRoot != null)
+            spriteRoot.localScale = new Vector3(team == Team.Ally ? -1 : 1, 1, 1);
     }
 
     void Update()
@@ -183,7 +193,7 @@ public class BattleUnit : MonoBehaviour
                     SetState(UnitState.Moving);
                     transform.position += Vector3.right * advanceSpeed * Time.deltaTime;
                     if (spriteRoot != null)
-                        spriteRoot.localScale = new Vector3(1, 1, 1);
+                        spriteRoot.localScale = new Vector3(-1, 1, 1); // 오른쪽 전진 = 반전
                 }
                 else
                 {
@@ -368,10 +378,11 @@ public class BattleUnit : MonoBehaviour
 
         if (spriteRoot != null)
         {
+            // SPUM 기본 방향 왼쪽: 오른쪽 이동 = -1(반전), 왼쪽 이동 = 1(기본)
             if (direction.x > 0)
-                spriteRoot.localScale = new Vector3(1, 1, 1);  // 오른쪽 이동 → 오른쪽 보기
+                spriteRoot.localScale = new Vector3(-1, 1, 1);
             else if (direction.x < 0)
-                spriteRoot.localScale = new Vector3(-1, 1, 1); // 왼쪽 이동 → 왼쪽 보기
+                spriteRoot.localScale = new Vector3(1, 1, 1);
         }
     }
 
@@ -383,8 +394,9 @@ public class BattleUnit : MonoBehaviour
 
         if (spriteRoot != null)
         {
+            // SPUM 기본 방향 왼쪽: 적이 오른쪽에 있으면 -1(반전), 왼쪽이면 1(기본)
             float dirX = target.transform.position.x - transform.position.x;
-            spriteRoot.localScale = new Vector3(dirX > 0 ? 1 : -1, 1, 1);
+            spriteRoot.localScale = new Vector3(dirX > 0 ? -1 : 1, 1, 1);
         }
 
         float atkSpeedMult = statusEffects != null ? statusEffects.GetAttackSpeedMultiplier() : 1f;
@@ -392,6 +404,10 @@ public class BattleUnit : MonoBehaviour
 
         if (attackTimer <= 0f)
         {
+            // 매 공격마다 애니메이션 트리거 발동
+            if (animator != null)
+                animator.SetTrigger("2_Attack");
+
             float damage = CalcDamage(target);
 
             if (IsRanged)

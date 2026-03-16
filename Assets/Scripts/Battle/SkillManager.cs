@@ -95,6 +95,7 @@ public class SkillManager : MonoBehaviour
         SoundManager.Instance?.PlaySkillSFX();
         cooldownTimers[slotIndex] = skill.cooldown * cdMult;
         OnSkillUsed?.Invoke(slotIndex);
+        DailyMissionManager.Instance?.RegisterSkillUse();
     }
 
     /// <summary>

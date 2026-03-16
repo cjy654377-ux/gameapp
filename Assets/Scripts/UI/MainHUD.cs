@@ -36,11 +36,6 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI killCountText;
     int killCount;
 
-    // Speed toggle
-    Button speedButton;
-    TextMeshProUGUI speedButtonText;
-    int speedIndex; // 0=1x, 1=2x
-    static readonly float[] SPEED_OPTIONS = { 1f, 2f };
 
     // Bottom Nav
     readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점" };
@@ -189,7 +184,7 @@ public class MainHUD : MonoBehaviour
         CreateHUDBar();
         CreateWaveBanner();
         CreateKillCounter();
-        CreateSpeedButton();
+
         CreateBottomNavBar();
         CreateTabPanels();
         CreateOfflinePopup();
@@ -383,39 +378,6 @@ public class MainHUD : MonoBehaviour
         krt.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
     }
 
-    // ── Speed Button (우측 중앙) ──
-    void CreateSpeedButton()
-    {
-        var (btn, btnImg) = UIHelper.MakeButton("SpeedBtn", safeAreaRoot.transform,
-            UIColors.Panel_Inner, "", 0);
-        speedButton = btn;
-        var btnOutline = btn.gameObject.AddComponent<Outline>();
-        btnOutline.effectColor = UIColors.Panel_Border;
-        btnOutline.effectDistance = new Vector2(1, 1);
-
-        var rt = btn.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(1, 0.5f);
-        rt.anchorMax = new Vector2(1, 0.5f);
-        rt.pivot = new Vector2(1, 0.5f);
-        rt.anchoredPosition = new Vector2(-UIConstants.Spacing_Small, 50);
-        rt.sizeDelta = new Vector2(40, 22);
-
-        speedButtonText = UIHelper.MakeText("Label", btn.transform, "1x",
-            UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Gold);
-        speedButtonText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(speedButtonText.GetComponent<RectTransform>());
-
-        btn.onClick.AddListener(OnSpeedToggle);
-    }
-
-    void OnSpeedToggle()
-    {
-        speedIndex = (speedIndex + 1) % SPEED_OPTIONS.Length;
-        Time.timeScale = SPEED_OPTIONS[speedIndex];
-        if (speedButtonText != null)
-            speedButtonText.text = $"{SPEED_OPTIONS[speedIndex]:F0}x";
-        SoundManager.Instance?.PlayButtonSFX();
-    }
 
     // ── Bottom Nav Bar (하단) ──
     void CreateBottomNavBar()
@@ -2529,20 +2491,43 @@ public class MainHUD : MonoBehaviour
         panelOutline.effectColor = UIColors.Panel_Border;
         panelOutline.effectDistance = new Vector2(2, 2);
         var prt = panel.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0.08f, 0.3f);
-        prt.anchorMax = new Vector2(0.92f, 0.7f);
+        prt.anchorMin = new Vector2(0.08f, 0.25f);
+        prt.anchorMax = new Vector2(0.92f, 0.75f);
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
-        // 타이틀
-        var titleText = UIHelper.MakeText("Title", panel.transform, "영웅 선택",
+        // 타이틀 바
+        var titleBar = UIHelper.MakeUI("TitleBar", panel.transform);
+        var titleBarRT = titleBar.GetComponent<RectTransform>();
+        titleBarRT.anchorMin = new Vector2(0, 0.88f);
+        titleBarRT.anchorMax = new Vector2(1, 1);
+        titleBarRT.offsetMin = Vector2.zero;
+        titleBarRT.offsetMax = Vector2.zero;
+
+        var titleText = UIHelper.MakeText("Title", titleBar.transform, "장비 장착할 영웅 선택",
             UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
         titleText.fontStyle = FontStyles.Bold;
         var trt = titleText.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0, 0.88f);
-        trt.anchorMax = new Vector2(1, 1);
+        trt.anchorMin = new Vector2(0.1f, 0);
+        trt.anchorMax = new Vector2(0.9f, 1);
         trt.offsetMin = Vector2.zero;
         trt.offsetMax = Vector2.zero;
+
+        // X 닫기 버튼
+        var (closeBtn, _) = UIHelper.MakeButton("CloseBtn", titleBar.transform,
+            UIColors.Button_Brown, "", 10f);
+        var closeBtnRT = closeBtn.GetComponent<RectTransform>();
+        closeBtnRT.anchorMin = new Vector2(1, 0);
+        closeBtnRT.anchorMax = new Vector2(1, 1);
+        closeBtnRT.pivot = new Vector2(1, 0.5f);
+        closeBtnRT.sizeDelta = new Vector2(36, 0);
+        closeBtnRT.anchoredPosition = new Vector2(-4, 0);
+
+        var closeBtnText = UIHelper.MakeText("X", closeBtn.transform, "X",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        closeBtnText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(closeBtnText.GetComponent<RectTransform>());
+        closeBtn.onClick.AddListener(() => heroSelectPopup.SetActive(false));
 
         // 스크롤 리스트
         var scrollObj = UIHelper.MakeUI("HeroScroll", panel.transform);
@@ -2580,6 +2565,36 @@ public class MainHUD : MonoBehaviour
         SoundManager.Instance?.PlayButtonSFX();
     }
 
+    /// <summary>
+    /// HeroRarity → 표시용 컬러 매핑
+    /// </summary>
+    static Color GetHeroRarityColor(HeroRarity rarity)
+    {
+        return rarity switch
+        {
+            HeroRarity.Common    => UIColors.Rarity_Common,
+            HeroRarity.Rare      => UIColors.Rarity_Rare,
+            HeroRarity.Epic      => UIColors.Rarity_Epic,
+            HeroRarity.Legendary => UIColors.Rarity_Legendary,
+            _                    => UIColors.Text_Secondary
+        };
+    }
+
+    /// <summary>
+    /// HeroRarity → 한글 표시
+    /// </summary>
+    static string GetHeroRarityLabel(HeroRarity rarity)
+    {
+        return rarity switch
+        {
+            HeroRarity.Common    => "일반",
+            HeroRarity.Rare      => "레어",
+            HeroRarity.Epic      => "에픽",
+            HeroRarity.Legendary => "전설",
+            _                    => ""
+        };
+    }
+
     void RefreshHeroSelectList()
     {
         if (heroSelectListContainer == null) return;
@@ -2590,16 +2605,53 @@ public class MainHUD : MonoBehaviour
             if (heroSelectItems[i] != null) Object.Destroy(heroSelectItems[i]);
         heroSelectItems.Clear();
 
-        float itemH = 38f;
-        float spacing = 2f;
+        float itemH = 48f;
+        float spacing = 3f;
         float y = 0;
+
+        // 장착 대상 장비 정보 표시
+        EquipmentItem pendingItem = null;
+        if (EquipmentManager.Instance != null)
+        {
+            var inv = EquipmentManager.Instance.Inventory;
+            for (int i = 0; i < inv.Count; i++)
+                if (inv[i].id == pendingEquipItemId) { pendingItem = inv[i]; break; }
+        }
+
+        if (pendingItem != null)
+        {
+            var infoImg = UIHelper.MakePanel("EquipInfo", heroSelectListContainer.transform, UIColors.Background_Dark);
+            heroSelectItems.Add(infoImg.gameObject);
+            var infoRT = infoImg.GetComponent<RectTransform>();
+            infoRT.anchorMin = new Vector2(0, 1);
+            infoRT.anchorMax = new Vector2(1, 1);
+            infoRT.pivot = new Vector2(0.5f, 1);
+            infoRT.anchoredPosition = new Vector2(0, y);
+            infoRT.sizeDelta = new Vector2(0, 32f);
+
+            string stars = new string('\u2605', pendingItem.rarity);
+            string statStr = "";
+            if (pendingItem.bonusAtk > 0) statStr += $"ATK+{pendingItem.bonusAtk:F0} ";
+            if (pendingItem.bonusDef > 0) statStr += $"DEF+{pendingItem.bonusDef:F0} ";
+            if (pendingItem.bonusHp > 0) statStr += $"HP+{pendingItem.bonusHp:F0}";
+
+            var infoText = UIHelper.MakeText("Info", infoImg.transform,
+                $"{stars} {pendingItem.itemName}  {statStr}",
+                9f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+            UIHelper.FillParent(infoText.GetComponent<RectTransform>());
+
+            y -= (32f + spacing);
+        }
 
         for (int i = 0; i < dm.roster.Count; i++)
         {
             var preset = dm.roster[i];
             if (preset == null || preset.isEnemy) continue;
             string heroName = preset.characterName;
+            Color rarityCol = GetHeroRarityColor(preset.rarity);
+            string rarityLabel = GetHeroRarityLabel(preset.rarity);
 
+            // 아이템 행 - 레어리티 색상 왼쪽 바
             var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, UIColors.Panel_Inner);
             var item = itemImg.gameObject;
             heroSelectItems.Add(item);
@@ -2610,24 +2662,54 @@ public class MainHUD : MonoBehaviour
             irt.anchoredPosition = new Vector2(0, y);
             irt.sizeDelta = new Vector2(0, itemH);
 
-            // 이름
+            // 왼쪽 레어리티 컬러 바
+            var rarityBar = UIHelper.MakeUI("RarityBar", item.transform);
+            var rarityBarImg = rarityBar.AddComponent<Image>();
+            rarityBarImg.color = rarityCol;
+            var rbRT = rarityBar.GetComponent<RectTransform>();
+            rbRT.anchorMin = new Vector2(0, 0);
+            rbRT.anchorMax = new Vector2(0, 1);
+            rbRT.pivot = new Vector2(0, 0.5f);
+            rbRT.sizeDelta = new Vector2(4f, 0);
+            rbRT.anchoredPosition = Vector2.zero;
+
+            // 레어리티 뱃지
+            var badge = UIHelper.MakeUI("Badge", item.transform);
+            var badgeImg = badge.AddComponent<Image>();
+            badgeImg.color = rarityCol;
+            var badgeRT = badge.GetComponent<RectTransform>();
+            badgeRT.anchorMin = new Vector2(0, 0.55f);
+            badgeRT.anchorMax = new Vector2(0, 1);
+            badgeRT.pivot = new Vector2(0, 1);
+            badgeRT.sizeDelta = new Vector2(32f, 0);
+            badgeRT.anchoredPosition = new Vector2(8f, -2f);
+
+            var badgeText = UIHelper.MakeText("BadgeLabel", badge.transform, rarityLabel,
+                7f, TextAlignmentOptions.Center, UIColors.Text_Primary);
+            badgeText.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(badgeText.GetComponent<RectTransform>());
+
+            // 영웅 이름 (레어리티 컬러)
             var nameText = UIHelper.MakeText("Name", item.transform, heroName,
-                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, rarityCol);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0, 0);
-            nrt.anchorMax = new Vector2(0.55f, 1);
-            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+            nrt.anchorMax = new Vector2(0.50f, 0.55f);
+            nrt.offsetMin = new Vector2(8f, 0);
             nrt.offsetMax = Vector2.zero;
 
-            // 현재 장비 수
+            // 현재 장비 수 + 역할
             int equipCount = EquipmentManager.Instance != null
                 ? EquipmentManager.Instance.GetEquippedItems(heroName).Count : 0;
-            var eqText = UIHelper.MakeText("Equip", item.transform, $"장비 {equipCount}개",
-                9f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+            string roleStr = preset.isHealer ? "힐러" : preset.isBuffer ? "버퍼" :
+                preset.attackRange > 3f ? "원거리" : "근거리";
+            var eqText = UIHelper.MakeText("Equip", item.transform,
+                $"{roleStr} | 장비 {equipCount}개",
+                8f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
             var ert = eqText.GetComponent<RectTransform>();
-            ert.anchorMin = new Vector2(0.55f, 0);
-            ert.anchorMax = new Vector2(0.75f, 1);
+            ert.anchorMin = new Vector2(0.50f, 0);
+            ert.anchorMax = new Vector2(0.76f, 1);
             ert.offsetMin = Vector2.zero;
             ert.offsetMax = Vector2.zero;
 
@@ -2635,8 +2717,8 @@ public class MainHUD : MonoBehaviour
             var (btn, _) = UIHelper.MakeButton($"Select_{i}", item.transform,
                 UIColors.Button_Green, "", 10f);
             var btnRT = btn.GetComponent<RectTransform>();
-            btnRT.anchorMin = new Vector2(0.77f, 0.1f);
-            btnRT.anchorMax = new Vector2(0.97f, 0.9f);
+            btnRT.anchorMin = new Vector2(0.77f, 0.12f);
+            btnRT.anchorMax = new Vector2(0.97f, 0.88f);
             btnRT.offsetMin = Vector2.zero;
             btnRT.offsetMax = Vector2.zero;
 
@@ -2651,6 +2733,7 @@ public class MainHUD : MonoBehaviour
                 EquipmentManager.Instance?.EquipItem(pendingEquipItemId, capturedHero);
                 heroSelectPopup.SetActive(false);
                 RefreshEquipmentUI();
+                ToastNotification.Instance?.Show($"{capturedHero}에게 장비 장착!", "");
             });
 
             y -= (itemH + spacing);
