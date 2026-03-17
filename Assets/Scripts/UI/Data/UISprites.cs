@@ -22,6 +22,7 @@ public static class UISprites
 
     // ── Board / Panel ──────────────────────────────────────────
     public static Sprite Board       => Load("UI/Board_20x20");
+    public static Sprite BasicBG     => Load("UI/Basic_BG");
     public static Sprite BoxBasic1   => Load("UI/Box_Basic1");
     public static Sprite BoxBasic2   => Load("UI/Box_Basic2");
     public static Sprite BoxBasic3   => Load("UI/Box_Basic3");
@@ -29,6 +30,12 @@ public static class UISprites
     public static Sprite BoxIcon1    => Load("UI/Box_Icon1");
     public static Sprite BoxIcon2    => Load("UI/Box_Icon2");
     public static Sprite BoxProfile  => Load("UI/Box_Profile");
+    public static Sprite BoxInside   => Load("UI/Box_Inside");
+    public static Sprite TitleInven  => Load("UI/Title_Inven");
+
+    // ── Inventory ─────────────────────────────────────────────
+    public static Sprite BoxInven    => Load("UI/Box_Inven");
+    public static Sprite BoxInven_WS => Load("UI/Box_Inven_WS");
 
     // ── Button ─────────────────────────────────────────────────
     /// 기본 버튼 (Normal 상태, 15×15 슬라이스용)
@@ -87,6 +94,8 @@ public static class UISprites
     public static Sprite IconPotion1_WS => Load("UI/Icon_Potion1_WS");
     public static Sprite IconPotion2   => Load("UI/Icon_Potion2");
     public static Sprite IconPotion2_WS => Load("UI/Icon_Potion2_WS");
+    public static Sprite IconMoney     => Load("UI/Icon_Money");
+    public static Sprite IconTime      => Load("UI/Icon_Time");
 
     // ── Icons (Theme2 / System) ────────────────────────────────
     /// 숫자 인덱스 아이콘 (Spum_Icon131 ~ Spum_Icon207). 범위 밖이면 null.

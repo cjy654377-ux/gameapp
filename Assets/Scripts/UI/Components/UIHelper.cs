@@ -186,6 +186,43 @@ public static class UIHelper
         rt.offsetMax = Vector2.zero;
     }
 
+    /// <summary>
+    /// 텍스트에 Outline 컴포넌트를 추가하여 가독성을 높인다.
+    /// </summary>
+    public static Outline AddTextOutline(TextMeshProUGUI tmp, Color outlineColor, Vector2 distance)
+    {
+        var outline = tmp.gameObject.AddComponent<Outline>();
+        outline.effectColor = outlineColor;
+        outline.effectDistance = distance;
+        return outline;
+    }
+
+    /// <summary>
+    /// 텍스트에 기본 어두운 Outline을 추가 (밝은 텍스트 가독성용).
+    /// </summary>
+    public static Outline AddTextShadow(TextMeshProUGUI tmp)
+    {
+        return AddTextOutline(tmp, new Color(0, 0, 0, 0.5f), new Vector2(1, -1));
+    }
+
+    /// <summary>
+    /// 9-slice 스프라이트 패널 + LayoutGroup 패딩이 적용된 컨테이너.
+    /// </summary>
+    public static (Image panel, RectTransform contentArea) MakeFramedPanel(
+        string name, Transform parent, Sprite sprite, Color fallbackColor, RectOffset padding)
+    {
+        var panel = MakeSpritePanel(name, parent, sprite, fallbackColor);
+
+        var contentObj = MakeUI("Content", panel.transform);
+        var contentRT = contentObj.GetComponent<RectTransform>();
+        contentRT.anchorMin = Vector2.zero;
+        contentRT.anchorMax = Vector2.one;
+        contentRT.offsetMin = new Vector2(padding.left, padding.bottom);
+        contentRT.offsetMax = new Vector2(-padding.right, -padding.top);
+
+        return (panel, contentRT);
+    }
+
     public static string FormatNumber(int n)
     {
         if (n >= 1000000) return (n / 1000000f).ToString("F1") + "M";
