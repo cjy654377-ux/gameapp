@@ -205,7 +205,7 @@ public class CharacterFactory : MonoBehaviour
             }
         }
 
-        // Weapon
+        // Weapon (Right hand)
         if (!string.IsNullOrEmpty(preset.weaponSprite))
         {
             var weaponSprite = FindWeaponSprite(preset.weaponSprite);
@@ -216,6 +216,23 @@ public class CharacterFactory : MonoBehaviour
                     if (sr.gameObject.name == "R_Weapon")
                     {
                         sr.sprite = weaponSprite;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Shield / Left-hand weapon
+        if (!string.IsNullOrEmpty(preset.shieldSprite))
+        {
+            var leftSprite = FindWeaponSprite(preset.shieldSprite);
+            if (leftSprite != null)
+            {
+                foreach (var sr in renderers)
+                {
+                    if (sr.gameObject.name == "L_Weapon")
+                    {
+                        sr.sprite = leftSprite;
                         break;
                     }
                 }
