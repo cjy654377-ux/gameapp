@@ -58,10 +58,65 @@ public class StageManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
+        // Inspector에서 할당 안 된 경우 Resources에서 자동 로드
+        AutoLoadPresets();
+
         int saved = PlayerPrefs.GetInt("TotalWaveIndex", 0);
         TotalWaveIndex = saved;
         CalcStageFromTotal(saved);
         SoundManager.Instance?.PlayAreaBGM(CurrentArea);
+    }
+
+    void AutoLoadPresets()
+    {
+        if (grassEnemies.Count > 0) return;
+
+        // 에디터에서 AssetDatabase로 직접 로드
+        #if UNITY_EDITOR
+        var guids = UnityEditor.AssetDatabase.FindAssets("t:CharacterPreset", new[] { "Assets/Data/Presets" });
+        Debug.Log($"[StageManager] Found {guids.Length} presets in Data/Presets");
+        foreach (var guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            var p = UnityEditor.AssetDatabase.LoadAssetAtPath<CharacterPreset>(path);
+            if (p == null || !p.isEnemy) continue;
+
+            string n = p.name;
+            // 보스
+            if (n == "Enemy_UndeadGeneral") { grassMidBoss = p; continue; }
+            if (n == "Enemy_OrcChieftain") { grassAreaBoss = p; continue; }
+            if (n == "Enemy_DesertGuardian") { desertMidBoss = p; continue; }
+            if (n == "Enemy_PharaohUndead") { desertAreaBoss = p; continue; }
+            if (n == "Enemy_CaveWarden") { caveMidBoss = p; continue; }
+            if (n == "Enemy_LichKing") { caveAreaBoss = p; continue; }
+            // 보스급 스킵 (다른 보스들)
+            if (n == "Enemy_FlameGeneral" || n == "Enemy_VolcanoLord" || n == "Enemy_DeathKnight" || n == "Enemy_SubterraneanLord") continue;
+
+            // 에리어 분류
+            if (n.Contains("Skeleton") && !n.Contains("Cave") && !n.Contains("Desert") && !n.Contains("Flame") && !n.Contains("Dark"))
+                grassEnemies.Add(p);
+            else if (n.Contains("Orc") && !n.Contains("Cave") && !n.Contains("Desert") && !n.Contains("Lava"))
+                grassEnemies.Add(p);
+            else if (n.Contains("Zombie") && !n.Contains("Fungus") && !n.Contains("Magma") && !n.Contains("Dark"))
+                grassEnemies.Add(p);
+            else if (n.Contains("Desert") || n.Contains("Mummy") || n.Contains("Pharaoh"))
+                desertEnemies.Add(p);
+            else
+                caveEnemies.Add(p);
+        }
+        #else
+        // 빌드에서는 Resources 로드
+        var allPresets = Resources.LoadAll<CharacterPreset>("Presets");
+        if (allPresets == null) return;
+        foreach (var p in allPresets)
+        {
+            if (p == null || !p.isEnemy) continue;
+            grassEnemies.Add(p); // 빌드에서는 전부 1에리어로 (임시)
+        }
+        #endif
+
+        Debug.Log($"[StageManager] AutoLoad: grass={grassEnemies.Count}, desert={desertEnemies.Count}, cave={caveEnemies.Count}, " +
+                  $"bosses: gM={grassMidBoss != null} gA={grassAreaBoss != null} dM={desertMidBoss != null} dA={desertAreaBoss != null} cM={caveMidBoss != null} cA={caveAreaBoss != null}");
     }
 
     void CalcStageFromTotal(int total)

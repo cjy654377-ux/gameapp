@@ -235,15 +235,18 @@ public class SkillManager : MonoBehaviour
         SpawnSkillVFX(target.transform.position, skill.skillColor, skill.effectType);
     }
 
-    // Cartoon FX Remaster prefab paths + cache
+    // SPUM Ultimate Resource Bundle 이펙트 프리팹 경로 (Resources/VFX/ 복사 필요)
+    // 복사: Tools > Copy SPUM VFX to Resources
     static readonly Dictionary<SkillEffectType, string> vfxPrefabPaths = new()
     {
-        { SkillEffectType.Damage,  "VFX/CFXR Hit A (Red)" },
-        { SkillEffectType.Burn,    "VFX/CFXR3 Hit Fire B (Air)" },
-        { SkillEffectType.Freeze,  "VFX/CFXR3 Hit Ice B (Air)" },
-        { SkillEffectType.Poison,  "VFX/CFXR3 Hit Fire B (Air)" },
-        { SkillEffectType.Slow,    "VFX/CFXR3 Hit Electric C (Air)" },
-        { SkillEffectType.Heal,    "VFX/CFXR4 Falling Stars" },
+        { SkillEffectType.Damage,   "VFX/Eff_Damaged" },
+        { SkillEffectType.Burn,     "VFX/Eff_FireDamaged" },
+        { SkillEffectType.Freeze,   "VFX/Eff_SaintDamaged" },  // 냉기 대체
+        { SkillEffectType.Poison,   "VFX/Eff_Vampire" },        // 독 대체
+        { SkillEffectType.Slow,     "VFX/Eff_Slow" },
+        { SkillEffectType.Heal,     "VFX/Eff_SaintHeal" },
+        { SkillEffectType.Buff_Atk, "VFX/Eff_MagicCast" },
+        { SkillEffectType.Buff_Def, "VFX/Eff_SaintCast" },
     };
     static readonly Dictionary<SkillEffectType, GameObject> vfxPrefabCache = new();
 

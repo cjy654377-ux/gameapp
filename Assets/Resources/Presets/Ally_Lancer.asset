@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb52ce968e064fe19e5f439833532cb, type: 3}
+  m_Name: Ally_Lancer
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterPreset
+  characterName: "\uCC3D\uAE30\uC0AC"
+  isEnemy: 0
+  rarity: 2
+  bodySprite: Human_5
+  bodyColor: {r: 1, g: 1, b: 1, a: 1}
+  eyeSprite: Eye4
+  eyeColor: {r: 0.28, g: 0.1, b: 0.1, a: 1}
+  hairSprite: Hair_2
+  hairColor: {r: 1, g: 1, b: 1, a: 1}
+  weaponSprite: Spear_1
+  shieldSprite: 
+  helmetSprite: 
+  armorSprite: Armor_3
+  clothSprite: 
+  pantSprite: 
+  backSprite: 
+  horseSprite: Horse1
+  attackAnimType: 2
+  maxHp: 150
+  atk: 32
+  def: 10
+  moveSpeed: 2.8
+  attackRange: 2
+  attackCooldown: 0.8
+  lightningResist: 0
+  poisonResist: 0
+  damageElement: 0
+  isHealer: 0
+  healAmount: 0
+  healCooldown: 3
+  healRange: 3
+  isBuffer: 0
+  buffAtkBonus: 0
+  buffDefBonus: 0
+  buffDuration: 5
+  buffCooldown: 8
+  buffRange: 4
+  skills: []

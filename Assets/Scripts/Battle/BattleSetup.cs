@@ -28,6 +28,9 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<ObjectPool>("ObjectPool");
         EnsureSystem<ToastNotification>("ToastNotification");
 
+        // 프리셋 자동 로드 (Inspector 할당이 깨진 경우)
+        AutoLoadAllyPresets();
+
         // DeckManager가 없으면 생성 + fallback 프리셋을 로스터로
         if (DeckManager.Instance == null)
         {
@@ -36,22 +39,57 @@ public class BattleSetup : MonoBehaviour
             dm.roster.AddRange(allyPresets);
             dm.Initialize();
         }
+        else if (DeckManager.Instance.roster.Count == 0 || DeckManager.Instance.roster.TrueForAll(p => p == null))
+        {
+            DeckManager.Instance.roster.Clear();
+            DeckManager.Instance.roster.AddRange(allyPresets);
+            DeckManager.Instance.Initialize();
+        }
 
         // 가챠 풀에 아군 프리셋 설정
-        if (GachaManager.Instance != null && GachaManager.Instance.HeroPoolCount == 0)
+        if (GachaManager.Instance != null && (GachaManager.Instance.HeroPoolCount == 0 || !HasValidHeroes()))
         {
-            var allPresets = Resources.LoadAll<CharacterPreset>("Presets");
-            if (allPresets == null || allPresets.Length == 0)
-            {
-                // fallback: allyPresets 사용
-                GachaManager.Instance.SetHeroPool(allyPresets.ToArray());
-            }
+            GachaManager.Instance.SetHeroPool(allyPresets.ToArray());
         }
 
         SpawnAllies();
 
         if (StageManager.Instance != null)
             StageManager.Instance.StartFirstWave();
+    }
+
+    void AutoLoadAllyPresets()
+    {
+        // allyPresets에 유효한 프리셋이 없으면 자동 로드
+        bool hasValid = false;
+        for (int i = 0; i < allyPresets.Count; i++)
+            if (allyPresets[i] != null) { hasValid = true; break; }
+
+        if (!hasValid)
+        {
+            allyPresets.Clear();
+            #if UNITY_EDITOR
+            var guids = UnityEditor.AssetDatabase.FindAssets("t:CharacterPreset", new[] { "Assets/Data/Presets" });
+            foreach (var guid in guids)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                var p = UnityEditor.AssetDatabase.LoadAssetAtPath<CharacterPreset>(path);
+                if (p != null && !p.isEnemy)
+                    allyPresets.Add(p);
+            }
+            #else
+            var all = Resources.LoadAll<CharacterPreset>("Presets");
+            foreach (var p in all)
+                if (p != null && !p.isEnemy) allyPresets.Add(p);
+            #endif
+            Debug.Log($"[BattleSetup] AutoLoad allies: {allyPresets.Count}");
+        }
+    }
+
+    bool HasValidHeroes()
+    {
+        // GachaManager의 히어로 풀에 유효한 프리셋이 있는지
+        return GachaManager.Instance != null && GachaManager.Instance.HeroPoolCount > 0;
     }
 
     void EnsureSystem<T>(string name) where T : MonoBehaviour
