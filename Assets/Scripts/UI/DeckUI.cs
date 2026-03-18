@@ -64,7 +64,6 @@ public class DeckUI : MonoBehaviour
         // 헤더 — BoxBanner 스타일
         var headerBg = UIHelper.MakeSpritePanel("DeckHeaderBG", root.transform,
             UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
-        if (UISprites.BoxIcon1 != null) headerBg.color = new Color(0.42f, 0.30f, 0.20f, 0.9f);
         var hbrt = headerBg.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.02f, 0.88f);
         hbrt.anchorMax = new Vector2(0.98f, 0.98f);
@@ -114,7 +113,7 @@ public class DeckUI : MonoBehaviour
             {
                 bg.sprite = UISprites.BoxProfile;
                 bg.type = Image.Type.Sliced;
-                bg.color = new Color(0.55f, 0.42f, 0.30f);
+                bg.color = Color.white;
             }
             else
             {
@@ -181,7 +180,6 @@ public class DeckUI : MonoBehaviour
     {
         var headerBg = UIHelper.MakeSpritePanel("RosterHeaderBG", root.transform,
             UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
-        if (UISprites.BoxIcon1 != null) headerBg.color = new Color(0.42f, 0.30f, 0.20f, 0.9f);
         var hbrt = headerBg.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.02f, 0.47f);
         hbrt.anchorMax = new Vector2(0.98f, 0.54f);
@@ -242,7 +240,7 @@ public class DeckUI : MonoBehaviour
             {
                 count++;
                 if (UISprites.BoxProfile != null)
-                    deckSlotBgs[i].color = new Color(0.55f, 0.42f, 0.30f);
+                    deckSlotBgs[i].color = Color.white;
                 else
                     deckSlotBgs[i].color = UIColors.Panel_Inner;
                 deckSlotTexts[i].text = preset.characterName;
@@ -267,7 +265,7 @@ public class DeckUI : MonoBehaviour
             else
             {
                 if (UISprites.BoxProfile != null)
-                    deckSlotBgs[i].color = new Color(0.35f, 0.25f, 0.18f);
+                    deckSlotBgs[i].color = new Color(0.92f, 0.90f, 0.88f); // 미세한 어두운 tint로 빈 슬롯 구분
                 else
                     deckSlotBgs[i].color = UIColors.Background_Dark;
                 deckSlotTexts[i].text = "+";
@@ -340,8 +338,8 @@ public class DeckUI : MonoBehaviour
             if (UISprites.BoxBasic3 != null)
             {
                 itemBg.sprite = UISprites.BoxBasic3;
-                itemBg.type = Image.Type.Sliced;
-                itemBg.color = inDeck ? new Color(0.50f, 0.60f, 0.38f) : new Color(0.68f, 0.58f, 0.45f);
+                itemBg.type = Image.Type.Simple; // BoxBasic3는 border=0이므로 Sliced 사용 불가
+                itemBg.color = inDeck ? new Color(0.92f, 0.96f, 0.90f) : Color.white;
             }
             else
             {
@@ -394,7 +392,7 @@ public class DeckUI : MonoBehaviour
             Color statusFallback = inDeck ? UIColors.Button_Gray : UIColors.Button_Green;
             var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
                 statusSprite, statusFallback, "", 9f);
-            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
             var strt2 = statusBtn.GetComponent<RectTransform>();
             strt2.anchorMin = new Vector2(0.72f, 0.1f);

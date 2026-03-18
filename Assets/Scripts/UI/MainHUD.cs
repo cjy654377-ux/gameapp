@@ -220,7 +220,7 @@ public class MainHUD : MonoBehaviour
         // Board_20x20 스프라이트로 배경 — 어두운 나무 프레임
         var hudBg = UIHelper.MakeSpritePanel("HUDBg", hudBar.transform, UISprites.Board, UIColors.Background_Dark);
         UIHelper.FillParent(hudBg.GetComponent<RectTransform>());
-        if (UISprites.Board != null) hudBg.color = new Color(0.55f, 0.42f, 0.30f, 0.95f);
+        // Board 스프라이트 원본 색상 유지 (9-slice)
         var hudImg = hudBar.AddComponent<Image>();
         hudImg.color = Color.clear;
         UIHelper.SetAnchors(hudBar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1));
@@ -228,7 +228,7 @@ public class MainHUD : MonoBehaviour
 
         // 스테이지 정보 영역 (왼쪽) — BoxBanner로 감싼다
         var stageContainer = UIHelper.MakeSpritePanel("StageBG", hudBar.transform, UISprites.BoxBanner, UIColors.Background_Dark);
-        if (UISprites.BoxBanner != null) stageContainer.color = new Color(0.45f, 0.32f, 0.20f, 0.9f);
+        // BoxBanner 스프라이트 원본 색상 유지
         var scrt = stageContainer.GetComponent<RectTransform>();
         scrt.anchorMin = new Vector2(0, 0.08f);
         scrt.anchorMax = new Vector2(0.38f, 0.92f);
@@ -297,7 +297,7 @@ public class MainHUD : MonoBehaviour
         // BoxIcon1 스프라이트로 리소스 컨테이너
         var container = UIHelper.MakeSpritePanel($"{name}BG", parent,
             UISprites.BoxIcon1, UIColors.Panel_Inner);
-        if (UISprites.BoxIcon1 != null) container.color = new Color(0.42f, 0.30f, 0.20f, 0.9f);
+        // BoxIcon1 스프라이트 원본 색상 유지
         var crt = container.GetComponent<RectTransform>();
         crt.anchorMin = anchorMin;
         crt.anchorMax = anchorMax;
@@ -355,7 +355,7 @@ public class MainHUD : MonoBehaviour
         var bannerBgImg = UIHelper.MakeSpritePanel("BannerBG", waveBanner.transform,
             UISprites.Board, new Color(0.2f, 0.12f, 0.08f, 0.92f));
         UIHelper.FillParent(bannerBgImg.GetComponent<RectTransform>());
-        if (UISprites.Board != null) bannerBgImg.color = new Color(0.45f, 0.32f, 0.22f, 0.95f);
+        // Board 스프라이트 원본 색상 유지
         var bannerBg = waveBanner.AddComponent<Image>();
         bannerBg.color = Color.clear;
 
@@ -385,7 +385,7 @@ public class MainHUD : MonoBehaviour
         var killBg = UIHelper.MakeSpritePanel("KillBG", container.transform,
             UISprites.BoxIcon1, new Color(0.15f, 0.08f, 0.05f, 0.85f));
         UIHelper.FillParent(killBg.GetComponent<RectTransform>());
-        if (UISprites.BoxIcon1 != null) killBg.color = new Color(0.35f, 0.22f, 0.14f, 0.9f);
+        // BoxIcon1 스프라이트 원본 색상 유지
         var bg = container.AddComponent<Image>();
         bg.color = Color.clear;
 
@@ -428,7 +428,7 @@ public class MainHUD : MonoBehaviour
         // Board_20x20 — 어두운 나무 프레임 배경
         var navBg = UIHelper.MakeSpritePanel("NavBG", navBar.transform, UISprites.Board, UIColors.NavBar_BG);
         UIHelper.FillParent(navBg.GetComponent<RectTransform>());
-        if (UISprites.Board != null) navBg.color = new Color(0.45f, 0.32f, 0.22f, 0.95f);
+        // Board 스프라이트 원본 색상 유지
         var navImg = navBar.AddComponent<Image>();
         navImg.color = Color.clear;
         UIHelper.SetAnchors(navBar, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0));
@@ -549,7 +549,7 @@ public class MainHUD : MonoBehaviour
             var panelBg = UIHelper.MakeSpritePanel("PanelBG", panel.transform,
                 UISprites.BoxBasic1, UIColors.Background_Panel);
             UIHelper.FillParent(panelBg.GetComponent<RectTransform>());
-            if (UISprites.BoxBasic1 != null) panelBg.color = new Color(0.82f, 0.72f, 0.58f);
+            // BoxBasic1 스프라이트 원본 색상 유지
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = Color.clear;
 
@@ -562,7 +562,7 @@ public class MainHUD : MonoBehaviour
             // Header bar — Board 스프라이트 (진한 나무 프레임)
             var header = UIHelper.MakeSpritePanel("Header", panel.transform,
                 UISprites.Board, UIColors.Background_Dark);
-            if (UISprites.Board != null) header.color = new Color(0.45f, 0.32f, 0.22f);
+            // Board 스프라이트 원본 색상 유지
             var hrt = header.GetComponent<RectTransform>();
             hrt.anchorMin = new Vector2(0, 1);
             hrt.anchorMax = new Vector2(1, 1);
@@ -587,7 +587,7 @@ public class MainHUD : MonoBehaviour
                 closeImg.sprite = UISprites.BtnX;
                 closeImg.type = Image.Type.Simple;
                 closeImg.preserveAspect = true;
-                closeImg.color = new Color(1f, 0.9f, 0.8f);
+                closeImg.color = Color.white;
             }
             else
             {
@@ -699,7 +699,7 @@ public class MainHUD : MonoBehaviour
 
         var rowImg = UIHelper.MakeSpritePanel($"{label}Row", parent,
             UISprites.BoxBasic3, UIColors.Panel_Inner);
-        if (UISprites.BoxBasic3 != null) rowImg.color = new Color(0.72f, 0.62f, 0.48f);
+        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
         var row = rowImg;
         var rrt = row.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, yMin);
@@ -764,7 +764,7 @@ public class MainHUD : MonoBehaviour
         bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
         var img = btn.GetComponent<Image>();
         if (img.sprite != null)
-            img.color = canAfford ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+            img.color = canAfford ? Color.white : new Color(0.90f, 0.90f, 0.90f);
         else
             img.color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
@@ -826,8 +826,8 @@ public class MainHUD : MonoBehaviour
 
             if (UISprites.Btn1_WS != null)
             {
-                // 선택: 어두운 톤 + 축소 (눌린 느낌), 미선택: 밝은 톤
-                tabImg.color = active ? new Color(0.55f, 0.45f, 0.35f) : Color.white;
+                // 선택: 미세한 어두운 tint + 축소 (눌린 느낌), 미선택: 원본
+                tabImg.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
                 tabButtons[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -849,7 +849,7 @@ public class MainHUD : MonoBehaviour
             {
                 var iconImg = iconImgObj.GetComponent<Image>();
                 if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? Color.white : new Color(0.85f, 0.78f, 0.65f);
+                    iconImg.color = active ? Color.white : new Color(0.92f, 0.90f, 0.88f);
             }
 
             tabIndicators[i].gameObject.SetActive(active);
@@ -1165,7 +1165,7 @@ public class MainHUD : MonoBehaviour
         float subTabH = 30f;
         var subTabBarBg = UIHelper.MakeSpritePanel("SubTabBar", content.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) subTabBarBg.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var subTabBar = subTabBarBg;
         var stbRT = subTabBar.GetComponent<RectTransform>();
         stbRT.anchorMin = new Vector2(0, 1);
@@ -1242,7 +1242,7 @@ public class MainHUD : MonoBehaviour
             var img = enhanceSubTabBtns[i].GetComponent<Image>();
             if (img.sprite != null)
             {
-                img.color = active ? new Color(0.55f, 0.45f, 0.35f) : Color.white;
+                img.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
                 enhanceSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -1374,7 +1374,7 @@ public class MainHUD : MonoBehaviour
             Sprite heroBtnSprite = canLevelUp ? UISprites.Btn2_WS : UISprites.Btn1_WS;
             var (btn, heroBtnImg) = UIHelper.MakeSpriteButton($"LvUp_{heroName}", item.transform,
                 heroBtnSprite, btnColor, "", 10f);
-            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -1427,7 +1427,7 @@ public class MainHUD : MonoBehaviour
         // 보석 보유량 표시 — BoxIcon1 배경
         var gemContainer = UIHelper.MakeSpritePanel("GemContainer", content.transform,
             UISprites.BoxIcon1, UIColors.Panel_Inner);
-        if (UISprites.BoxIcon1 != null) gemContainer.color = new Color(0.42f, 0.30f, 0.20f, 0.9f);
+        // BoxIcon1 스프라이트 원본 색상 유지
         var gcrt = gemContainer.GetComponent<RectTransform>();
         gcrt.anchorMin = new Vector2(0.2f, 0.86f);
         gcrt.anchorMax = new Vector2(0.8f, 0.98f);
@@ -1496,7 +1496,7 @@ public class MainHUD : MonoBehaviour
         // 결과 텍스트 — BoxBasic3 배경
         var resultBg = UIHelper.MakeSpritePanel("ResultBG", content.transform,
             UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
-        if (UISprites.BoxBasic3 != null) resultBg.color = new Color(0.55f, 0.45f, 0.32f, 0.8f);
+        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
         var rbrt = resultBg.GetComponent<RectTransform>();
         rbrt.anchorMin = new Vector2(0.05f, 0.02f);
         rbrt.anchorMax = new Vector2(0.95f, 0.38f);
@@ -1769,7 +1769,7 @@ public class MainHUD : MonoBehaviour
                 var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
                     canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                     canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
-                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.6f, 0.6f, 0.6f);
+                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.90f, 0.90f, 0.90f);
                 var enhBtnRT = enhBtn.GetComponent<RectTransform>();
                 enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
                 enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
@@ -1858,7 +1858,7 @@ public class MainHUD : MonoBehaviour
         float subTabH = 28f;
         var shopSubBg = UIHelper.MakeSpritePanel("ShopSubTabBar", content.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) shopSubBg.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var subTabBar = shopSubBg;
         var stbRT = subTabBar.GetComponent<RectTransform>();
         stbRT.anchorMin = new Vector2(0, 1);
@@ -1971,7 +1971,7 @@ public class MainHUD : MonoBehaviour
             var img = shopSubTabBtns[i].GetComponent<Image>();
             if (img.sprite != null)
             {
-                img.color = active ? new Color(0.55f, 0.45f, 0.35f) : Color.white;
+                img.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
                 shopSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -2097,7 +2097,7 @@ public class MainHUD : MonoBehaviour
             var (btn, shopBtnImg) = UIHelper.MakeSpriteButton($"Buy_{i}", item.transform,
                 canBuy ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canBuy ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2247,7 +2247,7 @@ public class MainHUD : MonoBehaviour
             else { btnLabel = "미달성"; btnSprite = UISprites.Btn1_WS; btnFallback = UIColors.Button_Gray; }
 
             var (btn, achBtnImg) = UIHelper.MakeSpriteButton($"AchBtn_{i}", item.transform, btnSprite, btnFallback, "", 10f);
-            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.70f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2387,7 +2387,7 @@ public class MainHUD : MonoBehaviour
             else { btnLabel = "진행중"; mBtnSprite = UISprites.Btn1_WS; mBtnFallback = UIColors.Button_Gray; }
 
             var (btn, mBtnImg) = UIHelper.MakeSpriteButton($"MissionBtn_{i}", item.transform, mBtnSprite, mBtnFallback, "", 10f);
-            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2477,7 +2477,7 @@ public class MainHUD : MonoBehaviour
         // Row container — BoxBasic3 스프라이트
         var rowBg = UIHelper.MakeSpritePanel($"{label}Row", parent,
             UISprites.BoxBasic3, UIColors.Panel_Inner);
-        if (UISprites.BoxBasic3 != null) rowBg.color = new Color(0.72f, 0.62f, 0.48f);
+        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
         var row = rowBg;
         var rrt = row.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, yMin);
@@ -2592,7 +2592,7 @@ public class MainHUD : MonoBehaviour
         // Center panel — BoxBasic1 스프라이트
         var panelBg = UIHelper.MakeSpritePanel("Panel", offlinePopup.transform,
             UISprites.BoxBasic1, UIColors.Background_Panel);
-        if (UISprites.BoxBasic1 != null) panelBg.color = new Color(0.78f, 0.68f, 0.52f);
+        // BoxBasic1 스프라이트 원본 색상 유지
         var panel = panelBg;
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.1f, 0.35f);
@@ -2603,7 +2603,7 @@ public class MainHUD : MonoBehaviour
         // Title — Board 배경 (진한 나무)
         var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", panel.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) titleBanner.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var trt = titleBanner.GetComponent<RectTransform>();
         trt.anchorMin = new Vector2(0, 1f);
         trt.anchorMax = new Vector2(1, 1f);
@@ -2690,7 +2690,7 @@ public class MainHUD : MonoBehaviour
         // 패널 — BoxBasic1 스프라이트
         var panelBg = UIHelper.MakeSpritePanel("Panel", heroSelectPopup.transform,
             UISprites.BoxBasic1, UIColors.Background_Panel);
-        if (UISprites.BoxBasic1 != null) panelBg.color = new Color(0.78f, 0.68f, 0.52f);
+        // BoxBasic1 스프라이트 원본 색상 유지
         var panel = panelBg;
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.08f, 0.25f);
@@ -2701,7 +2701,7 @@ public class MainHUD : MonoBehaviour
         // 타이틀 바 — Board 스프라이트 (진한 나무)
         var titleBar = UIHelper.MakeSpritePanel("TitleBar", panel.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) titleBar.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var titleBarRT = titleBar.GetComponent<RectTransform>();
         titleBarRT.anchorMin = new Vector2(0, 0.88f);
         titleBarRT.anchorMax = new Vector2(1, 1);
@@ -2726,7 +2726,7 @@ public class MainHUD : MonoBehaviour
             closeBtnImg.sprite = UISprites.BtnX;
             closeBtnImg.type = Image.Type.Simple;
             closeBtnImg.preserveAspect = true;
-            closeBtnImg.color = new Color(1f, 0.9f, 0.8f);
+            closeBtnImg.color = Color.white;
         }
         else closeBtnImg.color = UIColors.Button_Brown;
         var closeBtn = closeObj.AddComponent<Button>();
@@ -2967,7 +2967,7 @@ public class MainHUD : MonoBehaviour
         // 패널 — BoxBasic1 스프라이트
         var panelBg = UIHelper.MakeSpritePanel("Panel", confirmPopup.transform,
             UISprites.BoxBasic1, UIColors.Background_Panel);
-        if (UISprites.BoxBasic1 != null) panelBg.color = new Color(0.78f, 0.68f, 0.52f);
+        // BoxBasic1 스프라이트 원본 색상 유지
         var panel = panelBg;
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.1f, 0.36f);
@@ -2978,7 +2978,7 @@ public class MainHUD : MonoBehaviour
         // 타이틀 — Board 스프라이트 (진한 나무)
         var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", panel.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) titleBanner.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var trt2 = titleBanner.GetComponent<RectTransform>();
         trt2.anchorMin = new Vector2(0, 0.72f);
         trt2.anchorMax = new Vector2(1, 1);
@@ -3114,7 +3114,7 @@ public class MainHUD : MonoBehaviour
             var (btn, skillBtnImg) = UIHelper.MakeSpriteButton($"Up_{i}", item.transform,
                 canUp ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canUp ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.6f, 0.6f, 0.6f);
+            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(0.68f, 0.1f);
             brt.anchorMax = new Vector2(0.97f, 0.9f);
@@ -3242,7 +3242,7 @@ public class MainHUD : MonoBehaviour
         {
             var img = arenaBattleBtn.GetComponent<Image>();
             if (img.sprite != null)
-                img.color = am.CanBattle ? Color.white : new Color(0.5f, 0.5f, 0.5f);
+                img.color = am.CanBattle ? Color.white : new Color(0.90f, 0.90f, 0.90f);
             else
                 img.color = am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
         }
@@ -3353,7 +3353,7 @@ public class MainHUD : MonoBehaviour
         // 중앙 패널 — BoxBasic1 스프라이트
         var panelBg = UIHelper.MakeSpritePanel("Panel", probPopup.transform,
             UISprites.BoxBasic1, UIColors.Background_Panel);
-        if (UISprites.BoxBasic1 != null) panelBg.color = new Color(0.78f, 0.68f, 0.52f);
+        // BoxBasic1 스프라이트 원본 색상 유지
         var panel = panelBg;
         var panelRT = panel.GetComponent<RectTransform>();
         panelRT.anchorMin = new Vector2(0.05f, 0.1f);
@@ -3377,7 +3377,7 @@ public class MainHUD : MonoBehaviour
         // 타이틀 — Board 스프라이트 (진한 나무)
         var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", inner.transform,
             UISprites.Board, UIColors.Background_Dark);
-        if (UISprites.Board != null) titleBanner.color = new Color(0.42f, 0.30f, 0.20f);
+        // Board 스프라이트 원본 색상 유지
         var title = UIHelper.MakeText("Title", titleBanner.transform, "소환 확률 정보",
             UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
         title.fontStyle = FontStyles.Bold;
