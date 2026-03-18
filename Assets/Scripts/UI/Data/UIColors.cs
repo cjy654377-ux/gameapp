@@ -67,10 +67,10 @@ public static class UIColors
     public static readonly Color ProgressBar_Fill = HexColor("#5DC054");
     public static readonly Color ProgressBar_Border = HexColor("#4A3020");
 
-    // List Items
-    public static readonly Color ListItem_Normal = new Color(0.68f, 0.58f, 0.45f);
-    public static readonly Color ListItem_Completed = new Color(0.55f, 0.70f, 0.40f);
-    public static readonly Color ListItem_Claimed = new Color(0.60f, 0.52f, 0.40f);
+    // List Items (밝은 톤 — 텍스트 대비 확보)
+    public static readonly Color ListItem_Normal = new Color(0.92f, 0.88f, 0.82f);
+    public static readonly Color ListItem_Completed = new Color(0.82f, 0.92f, 0.75f);
+    public static readonly Color ListItem_Claimed = new Color(0.82f, 0.78f, 0.72f);
 
     // Defeat
     public static readonly Color Defeat_Red = HexColor("#CC3333");

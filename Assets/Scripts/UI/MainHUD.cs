@@ -484,10 +484,10 @@ public class MainHUD : MonoBehaviour
             // 아이콘 — SPUM 스프라이트 사용, 없으면 유니코드 폴백
             if (tabSpriteIcons[i] != null)
             {
-                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], UIColors.Text_Secondary);
+                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], Color.white);
                 var icrt = iconImg.GetComponent<RectTransform>();
-                icrt.anchorMin = new Vector2(0.15f, 0.38f);
-                icrt.anchorMax = new Vector2(0.85f, 0.90f);
+                icrt.anchorMin = new Vector2(0.10f, 0.32f);
+                icrt.anchorMax = new Vector2(0.90f, 0.92f);
                 icrt.offsetMin = Vector2.zero;
                 icrt.offsetMax = Vector2.zero;
                 // 미선택: 원래 색, 선택: 밝게 (UpdateTabVisuals에서 처리)
@@ -507,11 +507,11 @@ public class MainHUD : MonoBehaviour
 
             // Label — 밝은 크림색 (어두운 배경)
             tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
-                UIConstants.Font_NavLabel, TextAlignmentOptions.Top, UIColors.Text_Secondary);
+                9f, TextAlignmentOptions.Top, UIColors.Text_Secondary);
             tabLabels[i].fontStyle = FontStyles.Bold;
             var lrt = tabLabels[i].GetComponent<RectTransform>();
             lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.38f);
+            lrt.anchorMax = new Vector2(1, 0.35f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
 
@@ -764,7 +764,7 @@ public class MainHUD : MonoBehaviour
         bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
         var img = btn.GetComponent<Image>();
         if (img.sprite != null)
-            img.color = canAfford ? Color.white : new Color(0.90f, 0.90f, 0.90f);
+            img.color = canAfford ? Color.white : new Color(0.70f, 0.70f, 0.70f);
         else
             img.color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
@@ -826,8 +826,8 @@ public class MainHUD : MonoBehaviour
 
             if (UISprites.Btn1_WS != null)
             {
-                // 선택: 미세한 어두운 tint + 축소 (눌린 느낌), 미선택: 원본
-                tabImg.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
+                // 선택: 확실한 어두운 tint + 축소 (눌린 느낌), 미선택: 원본
+                tabImg.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
                 tabButtons[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -849,7 +849,7 @@ public class MainHUD : MonoBehaviour
             {
                 var iconImg = iconImgObj.GetComponent<Image>();
                 if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? Color.white : new Color(0.92f, 0.90f, 0.88f);
+                    iconImg.color = active ? Color.white : new Color(0.85f, 0.82f, 0.78f);
             }
 
             tabIndicators[i].gameObject.SetActive(active);
@@ -1242,7 +1242,7 @@ public class MainHUD : MonoBehaviour
             var img = enhanceSubTabBtns[i].GetComponent<Image>();
             if (img.sprite != null)
             {
-                img.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
+                img.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
                 enhanceSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -1322,7 +1322,7 @@ public class MainHUD : MonoBehaviour
             string heroName = preset.characterName;
 
             var item = ReuseOrCreate(heroListItems, ref heroReuse,
-                $"Hero_{heroName}", heroListContainer.transform, new Color(0.68f, 0.58f, 0.45f));
+                $"Hero_{heroName}", heroListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeHeroCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -1374,7 +1374,7 @@ public class MainHUD : MonoBehaviour
             Sprite heroBtnSprite = canLevelUp ? UISprites.Btn2_WS : UISprites.Btn1_WS;
             var (btn, heroBtnImg) = UIHelper.MakeSpriteButton($"LvUp_{heroName}", item.transform,
                 heroBtnSprite, btnColor, "", 10f);
-            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -1685,7 +1685,7 @@ public class MainHUD : MonoBehaviour
             Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length ? rarityColors[equip.rarity] : UIColors.Text_DarkSecondary;
 
             var item = ReuseOrCreate(equipListItems, ref equipReuse,
-                $"Equip_{i}", equipListContainer.transform, new Color(0.68f, 0.58f, 0.45f));
+                $"Equip_{i}", equipListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeEquipCount++;
             var ert = item.GetComponent<RectTransform>();
             ert.anchorMin = new Vector2(0, 1);
@@ -1769,7 +1769,7 @@ public class MainHUD : MonoBehaviour
                 var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
                     canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                     canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
-                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.90f, 0.90f, 0.90f);
+                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.70f, 0.70f, 0.70f);
                 var enhBtnRT = enhBtn.GetComponent<RectTransform>();
                 enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
                 enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
@@ -1971,7 +1971,7 @@ public class MainHUD : MonoBehaviour
             var img = shopSubTabBtns[i].GetComponent<Image>();
             if (img.sprite != null)
             {
-                img.color = active ? new Color(0.90f, 0.90f, 0.90f) : Color.white;
+                img.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
                 shopSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
             }
             else
@@ -2054,7 +2054,7 @@ public class MainHUD : MonoBehaviour
             var shopItem = items[i];
 
             var item = ReuseOrCreate(shopListItems, ref shopReuse,
-                $"Shop_{i}", shopListContainer.transform, new Color(0.68f, 0.58f, 0.45f));
+                $"Shop_{i}", shopListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeShopCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -2097,7 +2097,7 @@ public class MainHUD : MonoBehaviour
             var (btn, shopBtnImg) = UIHelper.MakeSpriteButton($"Buy_{i}", item.transform,
                 canBuy ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canBuy ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2196,8 +2196,8 @@ public class MainHUD : MonoBehaviour
         {
             var ach = achievements[i];
 
-            Color bgColor = ach.claimed ? new Color(0.65f, 0.55f, 0.42f) :
-                            ach.completed ? new Color(0.55f, 0.70f, 0.40f) : new Color(0.68f, 0.58f, 0.45f);
+            Color bgColor = ach.claimed ? new Color(0.82f, 0.78f, 0.72f) :
+                            ach.completed ? new Color(0.82f, 0.92f, 0.75f) : new Color(0.92f, 0.88f, 0.82f);
 
             var item = ReuseOrCreate(achieveListItems, ref achReuse,
                 $"Ach_{i}", achieveListContainer.transform, bgColor);
@@ -2247,7 +2247,7 @@ public class MainHUD : MonoBehaviour
             else { btnLabel = "미달성"; btnSprite = UISprites.Btn1_WS; btnFallback = UIColors.Button_Gray; }
 
             var (btn, achBtnImg) = UIHelper.MakeSpriteButton($"AchBtn_{i}", item.transform, btnSprite, btnFallback, "", 10f);
-            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.70f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2334,8 +2334,8 @@ public class MainHUD : MonoBehaviour
             var mission = missions[i];
             bool completed = mission.currentCount >= mission.targetCount;
 
-            Color bgColor = mission.claimed ? new Color(0.65f, 0.55f, 0.42f) :
-                            completed ? new Color(0.55f, 0.70f, 0.40f) : new Color(0.68f, 0.58f, 0.45f);
+            Color bgColor = mission.claimed ? new Color(0.82f, 0.78f, 0.72f) :
+                            completed ? new Color(0.82f, 0.92f, 0.75f) : new Color(0.92f, 0.88f, 0.82f);
 
             var item = ReuseOrCreate(missionListItems, ref missionReuse,
                 $"Mission_{i}", missionListContainer.transform, bgColor);
@@ -2387,7 +2387,7 @@ public class MainHUD : MonoBehaviour
             else { btnLabel = "진행중"; mBtnSprite = UISprites.Btn1_WS; mBtnFallback = UIColors.Button_Gray; }
 
             var (btn, mBtnImg) = UIHelper.MakeSpriteButton($"MissionBtn_{i}", item.transform, mBtnSprite, mBtnFallback, "", 10f);
-            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2830,7 +2830,7 @@ public class MainHUD : MonoBehaviour
 
         if (pendingItem != null)
         {
-            var infoImg = UIHelper.MakePanel("EquipInfo", heroSelectListContainer.transform, new Color(0.65f, 0.52f, 0.38f));
+            var infoImg = UIHelper.MakePanel("EquipInfo", heroSelectListContainer.transform, new Color(0.85f, 0.78f, 0.68f));
             heroSelectItems.Add(infoImg.gameObject);
             var infoRT = infoImg.GetComponent<RectTransform>();
             infoRT.anchorMin = new Vector2(0, 1);
@@ -2862,7 +2862,7 @@ public class MainHUD : MonoBehaviour
             string rarityLabel = GetHeroRarityLabel(preset.rarity);
 
             // 아이템 행 - 레어리티 색상 왼쪽 바
-            var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, new Color(0.68f, 0.58f, 0.45f));
+            var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             var item = itemImg.gameObject;
             heroSelectItems.Add(item);
             var irt = item.GetComponent<RectTransform>();
@@ -3077,7 +3077,7 @@ public class MainHUD : MonoBehaviour
             if (skill == null) continue;
 
             var item = ReuseOrCreate(skillUpgradeItems, ref reuse,
-                $"SkillUp_{i}", skillUpgradeContainer.transform, new Color(0.68f, 0.58f, 0.45f));
+                $"SkillUp_{i}", skillUpgradeContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -3114,7 +3114,7 @@ public class MainHUD : MonoBehaviour
             var (btn, skillBtnImg) = UIHelper.MakeSpriteButton($"Up_{i}", item.transform,
                 canUp ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canUp ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(0.68f, 0.1f);
             brt.anchorMax = new Vector2(0.97f, 0.9f);
@@ -3242,7 +3242,7 @@ public class MainHUD : MonoBehaviour
         {
             var img = arenaBattleBtn.GetComponent<Image>();
             if (img.sprite != null)
-                img.color = am.CanBattle ? Color.white : new Color(0.90f, 0.90f, 0.90f);
+                img.color = am.CanBattle ? Color.white : new Color(0.70f, 0.70f, 0.70f);
             else
                 img.color = am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
         }

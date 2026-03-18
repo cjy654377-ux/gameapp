@@ -265,7 +265,7 @@ public class DeckUI : MonoBehaviour
             else
             {
                 if (UISprites.BoxProfile != null)
-                    deckSlotBgs[i].color = new Color(0.92f, 0.90f, 0.88f); // 미세한 어두운 tint로 빈 슬롯 구분
+                    deckSlotBgs[i].color = new Color(0.80f, 0.80f, 0.80f); // 빈 슬롯: 확실한 어두운 tint로 구분
                 else
                     deckSlotBgs[i].color = UIColors.Background_Dark;
                 deckSlotTexts[i].text = "+";
@@ -333,13 +333,13 @@ public class DeckUI : MonoBehaviour
             var item = UIHelper.MakeUI($"Hero_{preset.characterName}", rosterContainer.transform);
             rosterItems.Add(item);
 
-            // BoxBasic3 배경
+            // BoxBasic3 배경 — 밝은 톤으로 텍스트 대비 확보
             var itemBg = item.AddComponent<Image>();
             if (UISprites.BoxBasic3 != null)
             {
                 itemBg.sprite = UISprites.BoxBasic3;
                 itemBg.type = Image.Type.Simple; // BoxBasic3는 border=0이므로 Sliced 사용 불가
-                itemBg.color = inDeck ? new Color(0.92f, 0.96f, 0.90f) : Color.white;
+                itemBg.color = inDeck ? new Color(0.88f, 0.94f, 0.85f) : Color.white;
             }
             else
             {
@@ -366,9 +366,9 @@ public class DeckUI : MonoBehaviour
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
-            // Name
+            // Name — 진한 갈색으로 확실한 대비
             var nameText = UIHelper.MakeText("Info", item.transform, preset.characterName,
-                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, new Color(0.17f, 0.09f, 0.04f));
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0.11f, 0.5f);
@@ -376,10 +376,10 @@ public class DeckUI : MonoBehaviour
             nrt.offsetMin = Vector2.zero;
             nrt.offsetMax = Vector2.zero;
 
-            // Stats
+            // Stats — 중간 갈색으로 가독성 확보
             var statText = UIHelper.MakeText("Stats", item.transform,
                 $"HP:{preset.maxHp:F0} ATK:{preset.atk:F0}",
-                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+                8f, TextAlignmentOptions.MidlineLeft, new Color(0.35f, 0.24f, 0.16f));
             var strt = statText.GetComponent<RectTransform>();
             strt.anchorMin = new Vector2(0.11f, 0);
             strt.anchorMax = new Vector2(0.55f, 0.5f);
@@ -392,7 +392,7 @@ public class DeckUI : MonoBehaviour
             Color statusFallback = inDeck ? UIColors.Button_Gray : UIColors.Button_Green;
             var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
                 statusSprite, statusFallback, "", 9f);
-            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.90f, 0.90f, 0.90f);
+            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
             var strt2 = statusBtn.GetComponent<RectTransform>();
             strt2.anchorMin = new Vector2(0.72f, 0.1f);
@@ -400,7 +400,7 @@ public class DeckUI : MonoBehaviour
             strt2.offsetMin = Vector2.zero;
             strt2.offsetMax = Vector2.zero;
             var statusLabel = UIHelper.MakeText("Label", statusBtn.transform, statusStr,
-                9f, TextAlignmentOptions.Center, inDeck ? UIColors.Text_Secondary : Color.white);
+                9f, TextAlignmentOptions.Center, inDeck ? new Color(0.60f, 0.60f, 0.60f) : Color.white);
             statusLabel.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(statusLabel.GetComponent<RectTransform>());
 

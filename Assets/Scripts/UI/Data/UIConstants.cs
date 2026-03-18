@@ -65,7 +65,7 @@ public static class UIConstants
     public const float Font_LevelBadge = 9f;
     public const float Font_Cost = 11f;
     public const float Font_SmallInfo = 9f;
-    public const float Font_NavLabel = 8f;
+    public const float Font_NavLabel = 9f;
     public const float Font_HUDResource = 12f;
 
     // Spacing
