@@ -30,6 +30,7 @@ public class SkillUI : MonoBehaviour
     TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4];
     TextMeshProUGUI[] nameTexts = new TextMeshProUGUI[4];
     Image[] slotBgs = new Image[4];
+    Image[] iconImages = new Image[4];
     readonly Color[] readyColors = new Color[4];
     readonly Color[] cooldownColors = new Color[4];
     Button autoToggleButton;
@@ -118,12 +119,26 @@ public class SkillUI : MonoBehaviour
             btn.onClick.AddListener(() => OnSlotClicked(slotIdx));
             btn.targetGraphic = bg;
 
-            // Skill name
+            // Skill icon image
+            var iconObj = UIHelper.MakeUI("Icon", slot.transform);
+            iconImages[i] = iconObj.AddComponent<Image>();
+            iconImages[i].preserveAspect = true;
+            iconImages[i].raycastTarget = false;
+            var iconRT = iconObj.GetComponent<RectTransform>();
+            iconRT.anchorMin = new Vector2(0.1f, 0.2f);
+            iconRT.anchorMax = new Vector2(0.9f, 0.95f);
+            iconRT.offsetMin = Vector2.zero;
+            iconRT.offsetMax = Vector2.zero;
+
+            // Skill name (small, below icon)
             nameTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
-                UIConstants.Font_Tab, TextAlignmentOptions.Center);
+                8, TextAlignmentOptions.Bottom);
             var nameRT = nameTexts[i].GetComponent<RectTransform>();
-            UIHelper.FillParent(nameRT);
-            nameRT.anchoredPosition = new Vector2(0, 3);
+            nameRT.anchorMin = new Vector2(0f, 0f);
+            nameRT.anchorMax = new Vector2(1f, 0.25f);
+            nameRT.offsetMin = Vector2.zero;
+            nameRT.offsetMax = Vector2.zero;
+            nameTexts[i].color = UIColors.Text_Beige;
 
             // Cooldown overlay
             var cdObj = UIHelper.MakeUI("CooldownOverlay", slot.transform);
@@ -190,7 +205,19 @@ public class SkillUI : MonoBehaviour
             if (i < skills.Count && skills[i] != null)
             {
                 slotObjects[i].SetActive(true);
-                nameTexts[i].text = $"{skills[i].iconChar}\n<size=10>{skills[i].skillName}</size>";
+
+                // Set skill icon sprite based on effect type
+                var iconSprite = UISprites.GetSkillIcon(skills[i].effectType);
+                if (iconSprite != null)
+                {
+                    iconImages[i].sprite = iconSprite;
+                    iconImages[i].enabled = true;
+                }
+                else
+                {
+                    iconImages[i].enabled = false;
+                }
+                nameTexts[i].text = skills[i].skillName;
 
                 Color rarityColor = skills[i].rarity switch
                 {

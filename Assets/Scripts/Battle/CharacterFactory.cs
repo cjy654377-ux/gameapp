@@ -78,6 +78,9 @@ public class CharacterFactory : MonoBehaviour
         }
         Destroy(spumInstance);
 
+        // Shadow 오브젝트 전부 비활성화 (재귀 탐색)
+        DisableShadows(unitObj.transform);
+
         // 스프라이트 적용
         ApplySprites(unitObj, preset);
 
@@ -350,6 +353,18 @@ public class CharacterFactory : MonoBehaviour
         for (int i = 0; i < sprites.Length; i++)
             if (sprites[i].name == subName) return sprites[i];
         return sprites.Length > 0 ? sprites[0] : null;
+    }
+
+    static void DisableShadows(Transform root)
+    {
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var child = root.GetChild(i);
+            if (child.name == "Shadow")
+                child.gameObject.SetActive(false);
+            else
+                DisableShadows(child);
+        }
     }
 
     Sprite FindWeaponSprite(string weaponName)

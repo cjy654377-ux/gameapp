@@ -340,10 +340,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 630ee87e60b154ff188269f3fc17137e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoldUI
-  goldText: {fileID: 0}
-  tapDmgText: {fileID: 0}
-  upgradeButton: {fileID: 0}
-  upgradeCostText: {fileID: 0}
 --- !u!4 &795496867
 Transform:
   m_ObjectHideFlags: 0
@@ -401,28 +397,15 @@ MonoBehaviour:
   midBossAtkMult: 3
   areaBossHpMult: 5
   areaBossAtkMult: 5
-  grassEnemies:
-  - {fileID: 11400000, guid: 461080f6035ee48ba9d36af221ed4e06, type: 2}
-  - {fileID: 11400000, guid: f3dfa9d12b98f4986b6bb118dbe4b493, type: 2}
-  - {fileID: 11400000, guid: 3152c13db379a424d84822d92910ff31, type: 2}
-  - {fileID: 11400000, guid: b81e776125d1f40c899502099bfd40b8, type: 2}
-  - {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
-  desertEnemies:
-  - {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
-  - {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
-  - {fileID: 11400000, guid: 601e3ee674ea546d5929783fe620c41a, type: 2}
-  - {fileID: 11400000, guid: 23bb23fe9c70a419da384e61779608ac, type: 2}
-  caveEnemies:
-  - {fileID: 11400000, guid: eedb94eaf58da4d69b0eb4a85913dc44, type: 2}
-  - {fileID: 11400000, guid: 1f5e4d6d8010044dea54fe3ccee1af3e, type: 2}
-  - {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
-  - {fileID: 11400000, guid: 80e6a25a512c84d5391f0fd9dc531c79, type: 2}
+  grassEnemies: []
+  desertEnemies: []
+  caveEnemies: []
   grassMidBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
   grassAreaBoss: {fileID: 11400000, guid: 7bc8c5098f8fe4af88c10179fb35c486, type: 2}
-  desertMidBoss: {fileID: 11400000, guid: ae082258985d94792bed5796aa235f8c, type: 2}
+  desertMidBoss: {fileID: 0}
   desertAreaBoss: {fileID: 11400000, guid: e4db4986e7f1e4403aa433f4ed4f4457, type: 2}
   caveMidBoss: {fileID: 11400000, guid: 551ad971f07d44c728d1ed08e211728a, type: 2}
-  caveAreaBoss: {fileID: 11400000, guid: eedb94eaf58da4d69b0eb4a85913dc44, type: 2}
+  caveAreaBoss: {fileID: 0}
 --- !u!4 &1242652072
 Transform:
   m_ObjectHideFlags: 0
@@ -481,9 +464,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetup
   allyPresets:
-  - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
-  - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
-  - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   allyStartX: -3
   unitSpacingY: 1.5
 --- !u!114 &1286532211
@@ -657,13 +640,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckManager
   roster:
-  - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
-  - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
-  - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
-  - {fileID: 11400000, guid: af6bb6b4828e749b786241f988726cec, type: 2}
-  - {fileID: 11400000, guid: 8e783e3f52e604f1f851b24f72b2671a, type: 2}
-  - {fileID: 11400000, guid: 53d3f0f81818d43d8958508ed0f0cbe2, type: 2}
-  - {fileID: 11400000, guid: a2f57204e4d1a4a619381cebda27861c, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1286532224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,13 +660,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GachaManager
   allHeroes:
-  - {fileID: 11400000, guid: f67c30f2345d648f6af259c28c4dcd5a, type: 2}
-  - {fileID: 11400000, guid: b8401cf1e995f49e4ab1e403b6146912, type: 2}
-  - {fileID: 11400000, guid: f77ddc1ddfe664ac8a333a13dca4a245, type: 2}
-  - {fileID: 11400000, guid: af6bb6b4828e749b786241f988726cec, type: 2}
-  - {fileID: 11400000, guid: 8e783e3f52e604f1f851b24f72b2671a, type: 2}
-  - {fileID: 11400000, guid: 53d3f0f81818d43d8958508ed0f0cbe2, type: 2}
-  - {fileID: 11400000, guid: a2f57204e4d1a4a619381cebda27861c, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1559018407
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,12 +740,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5063989dbf03a40438039b782e615bb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleHUD
-  resultPanel: {fileID: 0}
-  resultText: {fileID: 0}
-  resultSubText: {fileID: 0}
-  retryButton: {fileID: 0}
-  stageText: {fileID: 0}
-  canvas: {fileID: 0}
 --- !u!4 &1674680649
 Transform:
   m_ObjectHideFlags: 0

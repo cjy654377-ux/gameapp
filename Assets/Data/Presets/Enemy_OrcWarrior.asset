@@ -15,27 +15,27 @@ MonoBehaviour:
   characterName: "\uC624\uD06C \uC804\uC0AC"
   isEnemy: 1
   rarity: 0
-  bodySprite: Orc_1
+  bodySprite: Orc_2
   bodyColor: {r: 0.6, g: 0.8, b: 0.5, a: 1}
-  eyeSprite: Eye5
+  eyeSprite: Eye6
   eyeColor: {r: 0.28, g: 0.1, b: 0.1, a: 1}
   hairSprite: 
   hairColor: {r: 1, g: 1, b: 1, a: 1}
-  weaponSprite: Axe_1
-  shieldSprite: 
-  helmetSprite: Helmet_6
-  armorSprite: Armor_4
+  weaponSprite: Sword_2
+  shieldSprite: Shield_1
+  helmetSprite: 
+  armorSprite: Armor_1
   clothSprite: 
   pantSprite: 
   backSprite: 
   horseSprite: 
-  attackAnimType: 1
+  attackAnimType: 3
   maxHp: 150
   atk: 22
   def: 10
   moveSpeed: 1.5
   attackRange: 1.5
-  attackCooldown: 1.1
+  attackCooldown: 1
   lightningResist: 0
   poisonResist: 0
   damageElement: 0

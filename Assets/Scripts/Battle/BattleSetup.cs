@@ -52,6 +52,9 @@ public class BattleSetup : MonoBehaviour
             GachaManager.Instance.SetHeroPool(allyPresets.ToArray());
         }
 
+        // 이전 세션 잔해 정리 (골드드롭, VFX 등)
+        CleanupLeftovers();
+
         SpawnAllies();
 
         if (StageManager.Instance != null)
@@ -90,6 +93,22 @@ public class BattleSetup : MonoBehaviour
     {
         // GachaManager의 히어로 풀에 유효한 프리셋이 있는지
         return GachaManager.Instance != null && GachaManager.Instance.HeroPoolCount > 0;
+    }
+
+    void CleanupLeftovers()
+    {
+        // 골드 드롭
+        foreach (var gd in FindObjectsByType<GoldDrop>(FindObjectsSortMode.None))
+            if (gd != null) Destroy(gd.gameObject);
+        // VFX 잔해 (SkillVFX, Eff_ 프리팹 인스턴스)
+        foreach (var ps in FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
+            if (ps != null && ps.gameObject.name.StartsWith("SkillVFX"))
+                Destroy(ps.gameObject);
+        foreach (var go in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+        {
+            if (go != null && go.gameObject.name.StartsWith("Eff_"))
+                Destroy(go.gameObject);
+        }
     }
 
     void EnsureSystem<T>(string name) where T : MonoBehaviour

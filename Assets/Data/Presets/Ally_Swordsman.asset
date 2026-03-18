@@ -22,8 +22,8 @@ MonoBehaviour:
   hairSprite: Hair_3
   hairColor: {r: 1, g: 1, b: 1, a: 1}
   weaponSprite: Sword_1
-  shieldSprite: 
-  helmetSprite: Helmet_1
+  shieldSprite: Sword_2
+  helmetSprite: 
   armorSprite: Armor_1
   clothSprite: 
   pantSprite: 

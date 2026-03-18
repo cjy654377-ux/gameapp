@@ -2620,15 +2620,20 @@ public class MainHUD : MonoBehaviour
         UIHelper.AddTextShadow(titleText);
         UIHelper.FillParent(titleText.GetComponent<RectTransform>());
 
-        // Reward text — 중앙, 어두운 색 (밝은 패널 대비)
-        offlineText = UIHelper.MakeText("RewardText", panel.transform, "",
+        // 본문 영역 밝은 배경
+        var contentBg = UIHelper.MakeSpritePanel("ContentBg", panel.transform,
+            UISprites.BoxBasic1, UIColors.Background_Panel);
+        var cbgrt = contentBg.GetComponent<RectTransform>();
+        cbgrt.anchorMin = new Vector2(0.05f, 0.22f);
+        cbgrt.anchorMax = new Vector2(0.95f, 0.78f);
+        cbgrt.offsetMin = Vector2.zero;
+        cbgrt.offsetMax = Vector2.zero;
+
+        // Reward text — 중앙
+        offlineText = UIHelper.MakeText("RewardText", contentBg.transform, "",
             UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
         offlineText.fontStyle = FontStyles.Bold;
-        var rrt = offlineText.GetComponent<RectTransform>();
-        rrt.anchorMin = new Vector2(0.05f, 0.3f);
-        rrt.anchorMax = new Vector2(0.95f, 0.75f);
-        rrt.offsetMin = Vector2.zero;
-        rrt.offsetMax = Vector2.zero;
+        UIHelper.FillParent(offlineText.GetComponent<RectTransform>());
 
         // Confirm button — Btn2_WS (녹색)
         var (confirmBtn, _) = UIHelper.MakeSpriteButton("ConfirmBtn", panel.transform,

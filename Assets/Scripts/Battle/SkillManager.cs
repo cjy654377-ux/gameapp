@@ -264,7 +264,7 @@ public class SkillManager : MonoBehaviour
             if (prefab != null)
             {
                 var vfx = Instantiate(prefab, position, Quaternion.identity);
-                vfx.transform.localScale = Vector3.one * 0.4f;
+                vfx.transform.localScale = Vector3.one * 0.8f;
                 Destroy(vfx, 2f);
                 return;
             }

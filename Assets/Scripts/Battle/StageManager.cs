@@ -233,6 +233,11 @@ public class StageManager : MonoBehaviour
         // 보스 패턴 코루틴 정리 (누적 방지)
         StopAllCoroutines();
 
+        // 남아있는 골드 드롭 전부 제거
+        var goldDrops = FindObjectsByType<GoldDrop>(FindObjectsSortMode.None);
+        for (int i = 0; i < goldDrops.Length; i++)
+            if (goldDrops[i] != null) Destroy(goldDrops[i].gameObject);
+
         var manager = BattleManager.Instance;
         if (manager == null) return;
 

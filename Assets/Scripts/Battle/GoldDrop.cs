@@ -16,13 +16,19 @@ public class GoldDrop : MonoBehaviour
     {
         if (coinSprite == null)
         {
-            var tex = new Texture2D(4, 4);
-            for (int x = 0; x < 4; x++)
-                for (int y = 0; y < 4; y++)
-                    tex.SetPixel(x, y, (x + y) % 2 == 0 ? new Color(1f, 0.85f, 0.2f) : new Color(0.9f, 0.7f, 0.1f));
-            tex.Apply();
-            tex.filterMode = FilterMode.Point;
-            coinSprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 8f);
+            // SPUM Icon_Money 스프라이트 사용
+            coinSprite = Resources.Load<Sprite>("UI/Icon_Money");
+            if (coinSprite == null)
+            {
+                // 폴백: 프로시저럴 코인
+                var tex = new Texture2D(4, 4);
+                for (int x = 0; x < 4; x++)
+                    for (int y = 0; y < 4; y++)
+                        tex.SetPixel(x, y, (x + y) % 2 == 0 ? new Color(1f, 0.85f, 0.2f) : new Color(0.9f, 0.7f, 0.1f));
+                tex.Apply();
+                tex.filterMode = FilterMode.Point;
+                coinSprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 8f);
+            }
         }
 
         var pool = ObjectPool.Instance;
@@ -31,7 +37,7 @@ public class GoldDrop : MonoBehaviour
             : CreateNewGoldDrop();
 
         go.transform.position = position;
-        go.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
+        go.transform.localScale = new Vector3(0.15f, 0.15f, 1f);
 
         var drop = go.GetComponent<GoldDrop>();
         drop.goldAmount = amount;

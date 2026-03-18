@@ -22,7 +22,7 @@ MonoBehaviour:
   hairSprite: 
   hairColor: {r: 1, g: 1, b: 1, a: 1}
   weaponSprite: Sword_1
-  shieldSprite: 
+  shieldSprite: Sword_4
   helmetSprite: 
   armorSprite: 
   clothSprite: Cloth_5
@@ -30,9 +30,9 @@ MonoBehaviour:
   backSprite: 
   horseSprite: 
   attackAnimType: 0
-  maxHp: 60
+  maxHp: 55
   atk: 22
-  def: 2
+  def: 1
   moveSpeed: 3
   attackRange: 1.5
   attackCooldown: 0.5
