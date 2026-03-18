@@ -132,7 +132,7 @@ public class SkillManager : MonoBehaviour
 
             for (int j = 0; j < allSkills.Length; j++)
             {
-                if (allSkills[j].skillName == n)
+                if (allSkills[j] != null && allSkills[j].skillName == n)
                 {
                     equippedSkills.Add(allSkills[j]);
                     break;

@@ -522,8 +522,8 @@ public class StageManager : MonoBehaviour
             ResetBattlefield();
             BattleManager.Instance?.StartBattle();
             OnStageChanged?.Invoke(CurrentArea, CurrentStage, CurrentWave);
-            isTransitioning = false;
             SpawnWaveImmediate();
+            isTransitioning = false; // SpawnWaveImmediate 이후 해제 (waitingForNextWave 동기화)
         });
     }
 

@@ -287,16 +287,29 @@ public class DeckUI : MonoBehaviour
 
     /// <summary>
     /// CharacterPreset의 바디 스프라이트를 로드하여 초상화로 사용.
+    /// 반복 호출 방지를 위해 로컬 캐시 사용.
     /// </summary>
+    static readonly System.Collections.Generic.Dictionary<string, Sprite> portraitCache = new();
+
     static Sprite LoadCharacterPortrait(CharacterPreset preset)
     {
         if (preset == null || string.IsNullOrEmpty(preset.bodySprite)) return null;
+        if (portraitCache.TryGetValue(preset.bodySprite, out var cached)) return cached;
+
         var sprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/1_Body/{preset.bodySprite}");
-        if (sprites == null || sprites.Length == 0) return null;
+        if (sprites == null || sprites.Length == 0)
+        {
+            portraitCache[preset.bodySprite] = null;
+            return null;
+        }
         // "Body" 서브스프라이트 찾기, 없으면 첫 번째
+        Sprite result = sprites[0];
         for (int i = 0; i < sprites.Length; i++)
-            if (sprites[i].name.Contains("Body")) return sprites[i];
-        return sprites[0];
+        {
+            if (sprites[i].name.Contains("Body")) { result = sprites[i]; break; }
+        }
+        portraitCache[preset.bodySprite] = result;
+        return result;
     }
 
     void RefreshRoster()

@@ -237,6 +237,7 @@ public class GachaManager : MonoBehaviour
     void SavePity()
     {
         PlayerPrefs.SetInt("PullsSinceRare", pullsSinceRare);
+        PlayerPrefs.Save();
     }
 
     /// <summary>

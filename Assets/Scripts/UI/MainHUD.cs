@@ -90,7 +90,6 @@ public class MainHUD : MonoBehaviour
     GameObject confirmPopup;
     TextMeshProUGUI confirmTitleText;
     TextMeshProUGUI confirmDescText;
-    Button confirmYesBtn;
     System.Action pendingConfirmAction;
 
     // Offline reward popup
@@ -877,8 +876,8 @@ public class MainHUD : MonoBehaviour
         int total = StageManager.Instance != null ? StageManager.Instance.wavesPerStage : 10;
         if (progressBarFill != null)
         {
-            var rt = progressBarFill.GetComponent<RectTransform>();
-            rt.anchorMax = new Vector2((float)wave / total, 1);
+            // Image.Type.Filled 이므로 fillAmount 사용 (anchorMax 조작은 Filled 타입에서 무효)
+            progressBarFill.fillAmount = total > 0 ? (float)wave / total : 0f;
         }
         if (progressText != null)
             progressText.SetText("{0}/{1}", wave, total);
@@ -939,8 +938,10 @@ public class MainHUD : MonoBehaviour
         trackedBoss = boss;
         if (bossHpBarRoot != null) bossHpBarRoot.SetActive(true);
         if (bossNameText != null)
+        {
             bossNameText.text = isAreaBoss ? $"AREA BOSS: {boss.unitName}" : $"BOSS: {boss.unitName}";
-        bossNameText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Text_Gold;
+            bossNameText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Text_Gold;
+        }
 
         trackedBoss.OnHpChanged += UpdateBossHpBar;
         trackedBoss.OnDeath += HideBossHpBar;
@@ -3011,7 +3012,6 @@ public class MainHUD : MonoBehaviour
         yesLabel.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(yesLabel);
         UIHelper.FillParent(yesLabel.GetComponent<RectTransform>());
-        confirmYesBtn = yesBtn;
         yesBtn.onClick.AddListener(() =>
         {
             confirmPopup.SetActive(false);
