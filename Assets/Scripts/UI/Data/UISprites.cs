@@ -97,50 +97,6 @@ public static class UISprites
     public static Sprite IconMoney     => Load("UI/Icon_Money");
     public static Sprite IconTime      => Load("UI/Icon_Time");
 
-    // ── RPG GUI Atlas (커스텀 아틀라스) ──────────────────────────
-    public static Sprite GUI_HPBar_Frame    => LoadAtlas("GUI_HPBar_Frame");
-    public static Sprite GUI_HPBar_Fill     => LoadAtlas("GUI_HPBar_Fill");
-    public static Sprite GUI_EXPBar_Frame   => LoadAtlas("GUI_EXPBar_Frame");
-    public static Sprite GUI_EXPBar_Fill    => LoadAtlas("GUI_EXPBar_Fill");
-    public static Sprite GUI_CoinIcon       => LoadAtlas("GUI_CoinIcon");
-    public static Sprite GUI_DiamondIcon    => LoadAtlas("GUI_DiamondIcon");
-    public static Sprite GUI_Panel_Large    => LoadAtlas("GUI_Panel_Large");
-    public static Sprite GUI_Panel_Parchment => LoadAtlas("GUI_Panel_Parchment");
-    public static Sprite GUI_TitleBar       => LoadAtlas("GUI_TitleBar");
-    public static Sprite GUI_ItemSlot       => LoadAtlas("GUI_ItemSlot");
-    public static Sprite GUI_BottomBar      => LoadAtlas("GUI_BottomBar");
-    public static Sprite GUI_TabSlot        => LoadAtlas("GUI_TabSlot");
-
-    // ── Tab Icons (Extra 아이콘) ─────────────────────────────────
-    public static Sprite TabIcon_Train    => Load("UI/Tab_Icon_34"); // 망치 (훈련)
-    public static Sprite TabIcon_Enhance  => Load("UI/Tab_Icon_35"); // 도끼 (강화)
-    public static Sprite TabIcon_Deck     => Load("UI/Tab_Icon_31"); // 교차검 (편성)
-    public static Sprite TabIcon_Summon   => Load("UI/Tab_Icon_22"); // 별 (소환)
-    public static Sprite TabIcon_Shop     => Load("UI/Tab_Icon_9");  // 돈주머니 (상점)
-
-    // ── Skill Icons ─────────────────────────────────────────────
-    public static Sprite SkillIcon1 => Load("UI/Icon_Skill_1");
-    public static Sprite SkillIcon2 => Load("UI/Icon_Skill_2");
-    public static Sprite SkillIcon3 => Load("UI/Icon_Skill_3");
-    public static Sprite SkillIcon4 => Load("UI/Icon_Skill_4");
-
-    /// 스킬 효과 타입별 아이콘 매핑
-    public static Sprite GetSkillIcon(SkillEffectType type)
-    {
-        return type switch
-        {
-            SkillEffectType.Damage   => SkillIcon1,  // 화염
-            SkillEffectType.Burn     => SkillIcon1,  // 화염
-            SkillEffectType.Freeze   => SkillIcon4,  // 번개/얼음
-            SkillEffectType.Poison   => SkillIcon2,  // 독
-            SkillEffectType.Slow     => SkillIcon4,  // 번개
-            SkillEffectType.Heal     => SkillIcon3,  // 힐
-            SkillEffectType.Buff_Atk => SkillIcon1,  // 공격 버프
-            SkillEffectType.Buff_Def => SkillIcon3,  // 방어 버프
-            _                        => SkillIcon1
-        };
-    }
-
     // ── Icons (Theme2 / System) ────────────────────────────────
     /// 숫자 인덱스 아이콘 (Spum_Icon131 ~ Spum_Icon207). 범위 밖이면 null.
     public static Sprite SpumIcon(int index)
@@ -166,31 +122,7 @@ public static class UISprites
         if (!cache.TryGetValue(path, out Sprite s))
         {
             s = Resources.Load<Sprite>(path);
-            cache[path] = s;
-        }
-        return s;
-    }
-
-    static Sprite LoadAtlas(string spriteName)
-    {
-        string key = $"atlas_{spriteName}";
-        if (!cache.TryGetValue(key, out Sprite s))
-        {
-            // 아틀라스에서 이름으로 서브스프라이트 로드
-            var all = Resources.LoadAll<Sprite>("UI/CustomGUI/RPG_GUI_Atlas");
-            s = null;
-            if (all != null)
-            {
-                for (int i = 0; i < all.Length; i++)
-                {
-                    if (all[i].name == spriteName)
-                    {
-                        s = all[i];
-                        break;
-                    }
-                }
-            }
-            cache[key] = s;
+            cache[path] = s; // null도 캐싱해서 반복 로드 방지
         }
         return s;
     }

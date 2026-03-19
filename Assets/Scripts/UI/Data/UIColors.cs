@@ -55,10 +55,6 @@ public static class UIColors
     public static readonly Color Text_TabInactive = HexColor("#E0C8A0"); // 밝은 베이지
     public static readonly Color Text_Diamond = HexColor("#87CEEB");
 
-    // Text Beige / Gold (어두운 나무 배경 위 밝은 텍스트)
-    public static readonly Color Text_Beige = HexColor("#F5F5DC");
-    public static readonly Color Text_LightGold = HexColor("#D4AF37");
-
     // Text Dark (밝은 나무 패널 위에서 잘 보이는 어두운 색)
     public static readonly Color Text_Dark = HexColor("#2B1810");          // 어두운 나무색
     public static readonly Color Text_DarkSecondary = HexColor("#5A3D28"); // 중간 고동색

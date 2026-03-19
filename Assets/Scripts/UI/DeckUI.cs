@@ -61,16 +61,9 @@ public class DeckUI : MonoBehaviour
 
     void CreateDeckSection()
     {
-        // 헤더 — GUI_TitleBar 스타일
-        var guiDeckTitleBar = UISprites.GUI_TitleBar;
+        // 헤더 — BoxBanner 스타일
         var headerBg = UIHelper.MakeSpritePanel("DeckHeaderBG", root.transform,
-            guiDeckTitleBar != null ? guiDeckTitleBar : UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
-        if (guiDeckTitleBar != null)
-        {
-            var deckTitleImg = headerBg.GetComponent<Image>();
-            deckTitleImg.type = Image.Type.Sliced;
-            deckTitleImg.color = Color.white;
-        }
+            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
         var hbrt = headerBg.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.02f, 0.88f);
         hbrt.anchorMax = new Vector2(0.98f, 0.98f);
@@ -78,7 +71,7 @@ public class DeckUI : MonoBehaviour
         hbrt.offsetMax = Vector2.zero;
 
         deckHeaderText = UIHelper.MakeText("DeckHeader", headerBg.transform, "편성 (3/8)",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Beige);
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         deckHeaderText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(deckHeaderText.GetComponent<RectTransform>());
 
@@ -114,16 +107,9 @@ public class DeckUI : MonoBehaviour
             var slot = UIHelper.MakeUI($"Slot_{i}", content.transform);
             deckSlotObjs[i] = slot;
 
-            // GUI_ItemSlot 스프라이트로 슬롯 배경
+            // BoxProfile 스프라이트로 슬롯 배경
             var bg = slot.AddComponent<Image>();
-            var guiItemSlot = UISprites.GUI_ItemSlot;
-            if (guiItemSlot != null)
-            {
-                bg.sprite = guiItemSlot;
-                bg.type = Image.Type.Sliced;
-                bg.color = Color.white;
-            }
-            else if (UISprites.BoxProfile != null)
+            if (UISprites.BoxProfile != null)
             {
                 bg.sprite = UISprites.BoxProfile;
                 bg.type = Image.Type.Sliced;
@@ -169,7 +155,7 @@ public class DeckUI : MonoBehaviour
 
             // 이름 (하단에 배치)
             deckSlotTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
-                7f, TextAlignmentOptions.Bottom, UIColors.Text_Beige);
+                7f, TextAlignmentOptions.Bottom, Color.white);
             deckSlotTexts[i].textWrappingMode = TextWrappingModes.Normal;
             deckSlotTexts[i].fontStyle = FontStyles.Bold;
             var nrt = deckSlotTexts[i].GetComponent<RectTransform>();
@@ -192,15 +178,8 @@ public class DeckUI : MonoBehaviour
 
     void CreateRosterSection()
     {
-        var guiRosterTitleBar = UISprites.GUI_TitleBar;
         var headerBg = UIHelper.MakeSpritePanel("RosterHeaderBG", root.transform,
-            guiRosterTitleBar != null ? guiRosterTitleBar : UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
-        if (guiRosterTitleBar != null)
-        {
-            var rosterTitleImg = headerBg.GetComponent<Image>();
-            rosterTitleImg.type = Image.Type.Sliced;
-            rosterTitleImg.color = Color.white;
-        }
+            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
         var hbrt = headerBg.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.02f, 0.47f);
         hbrt.anchorMax = new Vector2(0.98f, 0.54f);
@@ -208,7 +187,7 @@ public class DeckUI : MonoBehaviour
         hbrt.offsetMax = Vector2.zero;
 
         var header = UIHelper.MakeText("RosterHeader", headerBg.transform, "보유 영웅",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Beige);
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         header.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(header.GetComponent<RectTransform>());
 
@@ -260,12 +239,12 @@ public class DeckUI : MonoBehaviour
             if (preset != null)
             {
                 count++;
-                if (deckSlotBgs[i].sprite != null)
+                if (UISprites.BoxProfile != null)
                     deckSlotBgs[i].color = Color.white;
                 else
                     deckSlotBgs[i].color = UIColors.Panel_Inner;
                 deckSlotTexts[i].text = preset.characterName;
-                deckSlotTexts[i].color = UIColors.Text_Beige;
+                deckSlotTexts[i].color = Color.white;
 
                 // 캐릭터 바디 스프라이트 표시
                 if (deckSlotPortraits[i] != null)
@@ -285,7 +264,7 @@ public class DeckUI : MonoBehaviour
             }
             else
             {
-                if (deckSlotBgs[i].sprite != null)
+                if (UISprites.BoxProfile != null)
                     deckSlotBgs[i].color = new Color(0.80f, 0.80f, 0.80f); // 빈 슬롯: 확실한 어두운 tint로 구분
                 else
                     deckSlotBgs[i].color = UIColors.Background_Dark;

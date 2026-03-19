@@ -12,28 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb52ce968e064fe19e5f439833532cb, type: 3}
   m_Name: Enemy_DarkKnight
   m_EditorClassIdentifier: Assembly-CSharp::CharacterPreset
-  characterName: "\uC554\uD751 \uC804\uC0AC"
+  characterName: "\uD751\uAE30\uC0AC"
   isEnemy: 1
   rarity: 0
-  bodySprite: Skelton_1
-  bodyColor: {r: 0.3, g: 0.3, b: 0.4, a: 1}
-  eyeSprite: Eye_Close
+  bodySprite: Human_4
+  bodyColor: {r: 0.5, g: 0.5, b: 0.6, a: 1}
+  eyeSprite: Eye3
   eyeColor: {r: 0.28, g: 0.1, b: 0.1, a: 1}
   hairSprite: 
   hairColor: {r: 1, g: 1, b: 1, a: 1}
-  weaponSprite: Sword_6
-  shieldSprite: Shield_1
-  helmetSprite: 
+  weaponSprite: Sword_1
+  shieldSprite: 
+  helmetSprite: Helmet_3
   armorSprite: Armor_5
   clothSprite: 
   pantSprite: 
   backSprite: 
-  horseSprite: 
+  horseSprite: BlackHorse
   attackAnimType: 3
-  maxHp: 220
-  atk: 32
-  def: 16
-  moveSpeed: 1.8
+  maxHp: 200
+  atk: 30
+  def: 12
+  moveSpeed: 2.5
   attackRange: 1.8
   attackCooldown: 1
   lightningResist: 0.4
