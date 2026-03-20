@@ -18,7 +18,7 @@ public class PresetCreator
         // ══════════════════════════════════════
 
         CreatePreset(dir, "Ally_Swordsman", new CharacterPresetDef {
-            name = "검사", rarity = HeroRarity.Common,
+            name = "검사", rarity = StarGrade.Star1,
             body = "Human_1", eye = "Eye0", hair = "Hair_3",
             weapon = "Sword_1", shield = "Sword_2", armor = "Armor_1",
             hp = 120, atk = 25, def = 8, speed = 2f, range = 1.5f, cooldown = 0.9f,
@@ -26,7 +26,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Archer", new CharacterPresetDef {
-            name = "궁수", rarity = HeroRarity.Common,
+            name = "궁수", rarity = StarGrade.Star1,
             body = "Human_2", eye = "Eye1", hair = "Hair_5",
             weapon = "Bow_1", cloth = "Cloth_7",
             hp = 80, atk = 30, def = 3, speed = 1.8f, range = 4f, cooldown = 1.2f,
@@ -34,7 +34,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Mage", new CharacterPresetDef {
-            name = "마법사", rarity = HeroRarity.Rare,
+            name = "마법사", rarity = StarGrade.Star2,
             body = "Human_3", eye = "Eye2", hair = "Hair_7",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
             hp = 70, atk = 35, def = 2, speed = 1.5f, range = 5f, cooldown = 1.5f,
@@ -42,7 +42,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Knight", new CharacterPresetDef {
-            name = "기사", rarity = HeroRarity.Rare,
+            name = "기사", rarity = StarGrade.Star3,
             body = "Human_4", eye = "Eye3", hair = "Hair_1",
             weapon = "Sword_3", armor = "Armor_5", helmet = "Helmet_3", shield = "Shield_1",
             hp = 180, atk = 18, def = 15, speed = 1.6f, range = 1.5f, cooldown = 1.0f,
@@ -50,7 +50,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Lancer", new CharacterPresetDef {
-            name = "창기사", rarity = HeroRarity.Epic,
+            name = "창기사", rarity = StarGrade.Star4,
             body = "Human_5", eye = "Eye4", hair = "Hair_2",
             weapon = "Spear_1", armor = "Armor_3", horse = "Horse1",
             hp = 150, atk = 32, def = 10, speed = 2.8f, range = 2f, cooldown = 0.8f,
@@ -58,7 +58,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Healer", new CharacterPresetDef {
-            name = "사제", rarity = HeroRarity.Rare,
+            name = "사제", rarity = StarGrade.Star2,
             body = "Human_2", eye = "Eye1", hair = "Hair_9",
             weapon = "Ward_1", cloth = "Cloth_7", back = "Back_1",
             hp = 90, atk = 10, def = 5, speed = 1.4f, range = 3f, cooldown = 2.0f,
@@ -67,7 +67,7 @@ public class PresetCreator
         });
 
         CreatePreset(dir, "Ally_Bard", new CharacterPresetDef {
-            name = "음유시인", rarity = HeroRarity.Epic,
+            name = "음유시인", rarity = StarGrade.Star3,
             body = "Elf_1", eye = "Eye2", hair = "Hair_6",
             weapon = "Ward_1", cloth = "Cloth_3",
             hp = 85, atk = 12, def = 4, speed = 1.6f, range = 3f, cooldown = 2.0f,
@@ -475,7 +475,7 @@ public class PresetCreator
     {
         public string name;
         public bool isEnemy;
-        public HeroRarity rarity;
+        public StarGrade rarity;
         public string body, eye, hair, weapon, shield, helmet, armor, cloth, pant, back, horse;
         public Color bodyColor;
         public float hp, atk, def, speed, range, cooldown;
@@ -495,7 +495,7 @@ public class PresetCreator
         var preset = ScriptableObject.CreateInstance<CharacterPreset>();
         preset.characterName = def.name;
         preset.isEnemy = def.isEnemy;
-        preset.rarity = def.rarity;
+        preset.starGrade = def.rarity;
         preset.bodySprite = def.body;
         preset.bodyColor = def.bodyColor == default ? Color.white : def.bodyColor;
         preset.eyeSprite = def.eye;

@@ -15,22 +15,13 @@ public enum WeaponType
     Sword, Axe, Bow, Shield, Spear, Wand, Hammer, Dagger, Mace
 }
 
-public enum Rarity
-{
-    Common,
-    Uncommon,
-    Rare,
-    Epic,
-    Legendary
-}
-
 [CreateAssetMenu(fileName = "NewEquipment", menuName = "Game/Equipment Data")]
 public class EquipmentData : ScriptableObject
 {
     public string equipmentName;
     public EquipmentSlot slot;
     public WeaponType weaponType;
-    public Rarity rarity;
+    public StarGrade starGrade = StarGrade.Star1;
 
     [Header("Sprites")]
     public string spritePath; // SPUM Resources path

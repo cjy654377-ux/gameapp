@@ -21,12 +21,15 @@ public enum SkillEffectType
     Buff_Def,       // 방어력 버프
 }
 
-public enum SkillRarity
+public enum SkillElement
 {
-    Common,
-    Rare,
-    Epic,
-    Legendary
+    None,
+    Fire,
+    Ice,
+    Lightning,
+    Poison,
+    Holy,
+    Dark
 }
 
 [CreateAssetMenu(fileName = "NewSkill", menuName = "Game/Skill Data")]
@@ -34,7 +37,9 @@ public class SkillData : ScriptableObject
 {
     public string skillName;
     [TextArea] public string description;
-    public SkillRarity rarity = SkillRarity.Common;
+    public StarGrade starGrade = StarGrade.Star1;
+    public SkillElement element = SkillElement.None;
+    public string[] tags;
 
     [Header("Targeting")]
     public SkillTargetType targetType = SkillTargetType.SingleEnemy;

@@ -2776,32 +2776,34 @@ public class MainHUD : MonoBehaviour
     }
 
     /// <summary>
-    /// HeroRarity → 표시용 컬러 매핑
+    /// StarGrade → 표시용 컬러 매핑
     /// </summary>
-    static Color GetHeroRarityColor(HeroRarity rarity)
+    static Color GetStarGradeColor(StarGrade starGrade)
     {
-        return rarity switch
+        return starGrade switch
         {
-            HeroRarity.Common    => UIColors.Rarity_Common,
-            HeroRarity.Rare      => UIColors.Rarity_Rare,
-            HeroRarity.Epic      => UIColors.Rarity_Epic,
-            HeroRarity.Legendary => UIColors.Rarity_Legendary,
-            _                    => UIColors.Text_DarkSecondary
+            StarGrade.Star1 => UIColors.Rarity_Common,
+            StarGrade.Star2 => UIColors.Rarity_Rare,
+            StarGrade.Star3 => UIColors.Rarity_Epic,
+            StarGrade.Star4 => UIColors.Rarity_Legendary,
+            StarGrade.Star5 => UIColors.Rarity_Legendary,
+            _               => UIColors.Text_DarkSecondary
         };
     }
 
     /// <summary>
-    /// HeroRarity → 한글 표시
+    /// StarGrade → 한글 표시
     /// </summary>
-    static string GetHeroRarityLabel(HeroRarity rarity)
+    static string GetStarGradeLabel(StarGrade starGrade)
     {
-        return rarity switch
+        return starGrade switch
         {
-            HeroRarity.Common    => "일반",
-            HeroRarity.Rare      => "레어",
-            HeroRarity.Epic      => "에픽",
-            HeroRarity.Legendary => "전설",
-            _                    => ""
+            StarGrade.Star1 => "1성",
+            StarGrade.Star2 => "2성",
+            StarGrade.Star3 => "3성",
+            StarGrade.Star4 => "4성",
+            StarGrade.Star5 => "5성",
+            _               => ""
         };
     }
 
@@ -2858,8 +2860,8 @@ public class MainHUD : MonoBehaviour
             var preset = dm.roster[i];
             if (preset == null || preset.isEnemy) continue;
             string heroName = preset.characterName;
-            Color rarityCol = GetHeroRarityColor(preset.rarity);
-            string rarityLabel = GetHeroRarityLabel(preset.rarity);
+            Color rarityCol = GetStarGradeColor(preset.starGrade);
+            string rarityLabel = GetStarGradeLabel(preset.starGrade);
 
             // 아이템 행 - 레어리티 색상 왼쪽 바
             var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, new Color(0.92f, 0.88f, 0.82f));

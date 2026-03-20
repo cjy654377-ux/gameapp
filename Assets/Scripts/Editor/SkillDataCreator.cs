@@ -16,7 +16,7 @@ public class SkillDataCreator
         // 1. 화염구 - 단일 고데미지
         CreateSkill(dir, "Skill_Fireball", new SkillDef {
             name = "화염구", desc = "적 1명에게 강력한 화염 데미지",
-            rarity = SkillRarity.Rare,
+            rarity = StarGrade.Star2,
             target = SkillTargetType.SingleEnemy,
             effect = SkillEffectType.Damage,
             value = 80f, statusDur = 0f, cooldown = 5f,
@@ -26,7 +26,7 @@ public class SkillDataCreator
         // 2. 치유의 빛 - 단일 힐
         CreateSkill(dir, "Skill_HealingLight", new SkillDef {
             name = "치유의 빛", desc = "가장 약한 아군의 HP를 회복",
-            rarity = SkillRarity.Common,
+            rarity = StarGrade.Star1,
             target = SkillTargetType.SingleAlly,
             effect = SkillEffectType.Heal,
             value = 60f, statusDur = 0f, cooldown = 8f,
@@ -36,7 +36,7 @@ public class SkillDataCreator
         // 3. 번개 폭풍 - 전체 데미지
         CreateSkill(dir, "Skill_LightningStorm", new SkillDef {
             name = "번개 폭풍", desc = "적 전체에 번개 데미지",
-            rarity = SkillRarity.Epic,
+            rarity = StarGrade.Star3,
             target = SkillTargetType.AllEnemies,
             effect = SkillEffectType.Damage,
             value = 40f, statusDur = 0f, cooldown = 12f,
@@ -46,7 +46,7 @@ public class SkillDataCreator
         // 4. 독안개 - 전체 독
         CreateSkill(dir, "Skill_PoisonFog", new SkillDef {
             name = "독안개", desc = "적 전체에 독 안개를 뿌려 지속 피해",
-            rarity = SkillRarity.Rare,
+            rarity = StarGrade.Star2,
             target = SkillTargetType.AllEnemies,
             effect = SkillEffectType.Poison,
             value = 30f, statusDur = 4f, cooldown = 10f,
@@ -56,7 +56,7 @@ public class SkillDataCreator
         // 5. 빙결 - 단일 동결
         CreateSkill(dir, "Skill_FrostBite", new SkillDef {
             name = "빙결", desc = "적 1명을 얼려 이동/공격 정지",
-            rarity = SkillRarity.Rare,
+            rarity = StarGrade.Star2,
             target = SkillTargetType.SingleEnemy,
             effect = SkillEffectType.Freeze,
             value = 25f, statusDur = 3f, cooldown = 9f,
@@ -66,7 +66,7 @@ public class SkillDataCreator
         // 6. 화염 장막 - 전체 화상
         CreateSkill(dir, "Skill_FireWall", new SkillDef {
             name = "화염 장막", desc = "적 전체에 화상을 입혀 지속 피해",
-            rarity = SkillRarity.Epic,
+            rarity = StarGrade.Star3,
             target = SkillTargetType.AllEnemies,
             effect = SkillEffectType.Burn,
             value = 35f, statusDur = 5f, cooldown = 14f,
@@ -76,7 +76,7 @@ public class SkillDataCreator
         // 7. 전투함성 - 전체 공격 버프
         CreateSkill(dir, "Skill_WarCry", new SkillDef {
             name = "전투함성", desc = "아군 전체의 공격력을 일시적으로 강화",
-            rarity = SkillRarity.Epic,
+            rarity = StarGrade.Star3,
             target = SkillTargetType.AllAllies,
             effect = SkillEffectType.Buff_Atk,
             value = 15f, statusDur = 6f, cooldown = 15f,
@@ -86,7 +86,7 @@ public class SkillDataCreator
         // 8. 수호의 방패 - 전체 방어 버프
         CreateSkill(dir, "Skill_GuardShield", new SkillDef {
             name = "수호의 방패", desc = "아군 전체의 방어력을 일시적으로 강화",
-            rarity = SkillRarity.Common,
+            rarity = StarGrade.Star1,
             target = SkillTargetType.AllAllies,
             effect = SkillEffectType.Buff_Def,
             value = 10f, statusDur = 6f, cooldown = 12f,
@@ -96,7 +96,7 @@ public class SkillDataCreator
         // 9. 둔화의 안개 - 전체 슬로우
         CreateSkill(dir, "Skill_SlowMist", new SkillDef {
             name = "둔화의 안개", desc = "적 전체의 이동/공격 속도를 낮춤",
-            rarity = SkillRarity.Common,
+            rarity = StarGrade.Star1,
             target = SkillTargetType.AllEnemies,
             effect = SkillEffectType.Slow,
             value = 20f, statusDur = 4f, cooldown = 10f,
@@ -106,7 +106,7 @@ public class SkillDataCreator
         // 10. 심판의 벼락 - 단일 전설급 데미지
         CreateSkill(dir, "Skill_DivineBolt", new SkillDef {
             name = "심판의 벼락", desc = "가장 강한 적에게 천벌 데미지",
-            rarity = SkillRarity.Legendary,
+            rarity = StarGrade.Star4,
             target = SkillTargetType.SingleEnemy,
             effect = SkillEffectType.Damage,
             value = 200f, statusDur = 0f, cooldown = 20f,
@@ -116,7 +116,7 @@ public class SkillDataCreator
         // 11. 대자연의 축복 - 전체 힐 (전설)
         CreateSkill(dir, "Skill_NatureBlessing", new SkillDef {
             name = "대자연의 축복", desc = "아군 전체의 HP를 대량 회복",
-            rarity = SkillRarity.Legendary,
+            rarity = StarGrade.Star4,
             target = SkillTargetType.AllAllies,
             effect = SkillEffectType.Heal,
             value = 100f, statusDur = 0f, cooldown = 25f,
@@ -131,7 +131,7 @@ public class SkillDataCreator
     struct SkillDef
     {
         public string name, desc, icon;
-        public SkillRarity rarity;
+        public StarGrade rarity;
         public SkillTargetType target;
         public SkillEffectType effect;
         public float value, statusDur, cooldown;
@@ -149,7 +149,7 @@ public class SkillDataCreator
         var skill = ScriptableObject.CreateInstance<SkillData>();
         skill.skillName = def.name;
         skill.description = def.desc;
-        skill.rarity = def.rarity;
+        skill.starGrade = def.rarity;
         skill.targetType = def.target;
         skill.effectType = def.effect;
         skill.value = def.value;

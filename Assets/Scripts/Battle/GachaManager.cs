@@ -6,9 +6,8 @@ using System.Collections.Generic;
 /// 보석으로 영웅 소환 (가챠)
 /// - 단일 뽑기: 50보석
 /// - 10연차: 450보석 (1회 할인)
-/// - 레어리티 가중치: Common 60%, Rare 25%, Epic 12%, Legendary 3%
-/// - 천장(pity): 10회 이내 Rare+ 미출 시 보장
-/// - 10연차: 최소 1 Rare+ 보장
+/// - StarGrade 확률: 1성 60%, 2성 30%, 3성 9%, 4성 0.97%, 5성 0.03%
+/// - 천장(pity) 없음 — F2P 무한반복 모델
 /// </summary>
 public class GachaManager : MonoBehaviour
 {
@@ -23,14 +22,12 @@ public class GachaManager : MonoBehaviour
     public event Action<CharacterPreset> OnHeroPulled;
     public event Action<CharacterPreset[]> OnMultiPulled;
 
-    // Pity counter
-    int pullsSinceRare;
-
-    // Rarity tiers sorted from pool
-    readonly List<CharacterPreset> commonPool = new();
-    readonly List<CharacterPreset> rarePool = new();
-    readonly List<CharacterPreset> epicPool = new();
-    readonly List<CharacterPreset> legendaryPool = new();
+    // StarGrade tiers sorted from pool
+    readonly List<CharacterPreset> star1Pool = new();
+    readonly List<CharacterPreset> star2Pool = new();
+    readonly List<CharacterPreset> star3Pool = new();
+    readonly List<CharacterPreset> star4Pool = new();
+    readonly List<CharacterPreset> star5Pool = new();
 
     void Awake()
     {
@@ -44,27 +41,28 @@ public class GachaManager : MonoBehaviour
         else if (allHeroes == null)
             allHeroes = Array.Empty<CharacterPreset>();
 
-        pullsSinceRare = PlayerPrefs.GetInt("PullsSinceRare", 0);
-        RebuildRarityPools();
+        RebuildStarPools();
     }
 
-    void RebuildRarityPools()
+    void RebuildStarPools()
     {
-        commonPool.Clear();
-        rarePool.Clear();
-        epicPool.Clear();
-        legendaryPool.Clear();
+        star1Pool.Clear();
+        star2Pool.Clear();
+        star3Pool.Clear();
+        star4Pool.Clear();
+        star5Pool.Clear();
 
         for (int i = 0; i < allHeroes.Length; i++)
         {
             var hero = allHeroes[i];
             if (hero == null || hero.isEnemy) continue;
-            switch (hero.rarity)
+            switch (hero.starGrade)
             {
-                case HeroRarity.Common: commonPool.Add(hero); break;
-                case HeroRarity.Rare: rarePool.Add(hero); break;
-                case HeroRarity.Epic: epicPool.Add(hero); break;
-                case HeroRarity.Legendary: legendaryPool.Add(hero); break;
+                case StarGrade.Star1: star1Pool.Add(hero); break;
+                case StarGrade.Star2: star2Pool.Add(hero); break;
+                case StarGrade.Star3: star3Pool.Add(hero); break;
+                case StarGrade.Star4: star4Pool.Add(hero); break;
+                case StarGrade.Star5: star5Pool.Add(hero); break;
             }
         }
     }
@@ -75,7 +73,7 @@ public class GachaManager : MonoBehaviour
     public void SetHeroPool(CharacterPreset[] heroes)
     {
         allHeroes = heroes ?? Array.Empty<CharacterPreset>();
-        RebuildRarityPools();
+        RebuildStarPools();
     }
 
     /// <summary>
@@ -106,7 +104,7 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
-        var hero = PullOne(false);
+        var hero = PullOne();
         HandlePullResult(hero);
         SoundManager.Instance?.PlayGachaSFX();
         OnHeroPulled?.Invoke(hero);
@@ -116,7 +114,6 @@ public class GachaManager : MonoBehaviour
 
     /// <summary>
     /// 10연차 (450보석, 1회 할인 포함)
-    /// 최소 1 Rare+ 보장
     /// </summary>
     public CharacterPreset[] MultiPull()
     {
@@ -139,18 +136,8 @@ public class GachaManager : MonoBehaviour
         }
 
         var results = new CharacterPreset[10];
-        bool hasRarePlus = false;
-
         for (int i = 0; i < 10; i++)
-        {
-            results[i] = PullOne(false);
-            if (results[i] != null && results[i].rarity >= HeroRarity.Rare)
-                hasRarePlus = true;
-        }
-
-        // 10연차 Rare+ 보장: 없으면 마지막 슬롯을 Rare+로 교체
-        if (!hasRarePlus)
-            results[9] = PullOne(true);
+            results[i] = PullOne();
 
         // 결과 처리 (중복/신규)
         for (int i = 0; i < 10; i++)
@@ -163,58 +150,37 @@ public class GachaManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 레어리티 가중치 뽑기
-    /// Common 60%, Rare 25%, Epic 12%, Legendary 3%
-    /// Pity: 10회 연속 Common이면 Rare+ 보장
+    /// StarGrade 가중치 뽑기
+    /// 1성 60%, 2성 30%, 3성 9%, 4성 0.97%, 5성 0.03%
+    /// 천장 없음
     /// </summary>
-    CharacterPreset PullOne(bool guaranteeRarePlus)
+    CharacterPreset PullOne()
     {
         if (allHeroes.Length == 0) return null;
 
-        HeroRarity selectedRarity;
+        float roll = UnityEngine.Random.Range(0f, 100f);
 
-        if (guaranteeRarePlus || pullsSinceRare >= 9)
-        {
-            // Pity 발동: Rare+ 보장 (Rare 70%, Epic 22%, Legendary 8%)
-            float pityRoll = UnityEngine.Random.Range(0f, 100f);
-            if (pityRoll < 8f)
-                selectedRarity = HeroRarity.Legendary;
-            else if (pityRoll < 30f)
-                selectedRarity = HeroRarity.Epic;
-            else
-                selectedRarity = HeroRarity.Rare;
-
-            pullsSinceRare = 0;
-        }
+        StarGrade selectedGrade;
+        if (roll < 0.03f)
+            selectedGrade = StarGrade.Star5;
+        else if (roll < 1f)       // 0.03 + 0.97
+            selectedGrade = StarGrade.Star4;
+        else if (roll < 10f)      // 1 + 9
+            selectedGrade = StarGrade.Star3;
+        else if (roll < 40f)      // 10 + 30
+            selectedGrade = StarGrade.Star2;
         else
-        {
-            float roll = UnityEngine.Random.Range(0f, 100f);
-            if (roll < 3f)
-                selectedRarity = HeroRarity.Legendary;
-            else if (roll < 15f) // 3 + 12
-                selectedRarity = HeroRarity.Epic;
-            else if (roll < 40f) // 15 + 25
-                selectedRarity = HeroRarity.Rare;
-            else
-                selectedRarity = HeroRarity.Common;
+            selectedGrade = StarGrade.Star1;
 
-            if (selectedRarity == HeroRarity.Common)
-                pullsSinceRare++;
-            else
-                pullsSinceRare = 0;
-        }
-
-        SavePity();
-
-        // Pick random from selected rarity pool, fallback if empty
-        var pool = GetPool(selectedRarity);
+        // Pick random from selected grade pool, fallback if empty
+        var pool = GetPool(selectedGrade);
         if (pool.Count > 0)
             return pool[UnityEngine.Random.Range(0, pool.Count)];
 
-        // Fallback: try lower rarities, then any
-        for (int r = (int)selectedRarity - 1; r >= 0; r--)
+        // Fallback: try lower grades, then any
+        for (int g = (int)selectedGrade - 1; g >= 1; g--)
         {
-            var fallback = GetPool((HeroRarity)r);
+            var fallback = GetPool((StarGrade)g);
             if (fallback.Count > 0)
                 return fallback[UnityEngine.Random.Range(0, fallback.Count)];
         }
@@ -222,22 +188,17 @@ public class GachaManager : MonoBehaviour
         return allHeroes[UnityEngine.Random.Range(0, allHeroes.Length)];
     }
 
-    List<CharacterPreset> GetPool(HeroRarity rarity)
+    List<CharacterPreset> GetPool(StarGrade grade)
     {
-        return rarity switch
+        return grade switch
         {
-            HeroRarity.Common => commonPool,
-            HeroRarity.Rare => rarePool,
-            HeroRarity.Epic => epicPool,
-            HeroRarity.Legendary => legendaryPool,
-            _ => commonPool
+            StarGrade.Star1 => star1Pool,
+            StarGrade.Star2 => star2Pool,
+            StarGrade.Star3 => star3Pool,
+            StarGrade.Star4 => star4Pool,
+            StarGrade.Star5 => star5Pool,
+            _ => star1Pool
         };
-    }
-
-    void SavePity()
-    {
-        PlayerPrefs.SetInt("PullsSinceRare", pullsSinceRare);
-        PlayerPrefs.Save();
     }
 
     /// <summary>

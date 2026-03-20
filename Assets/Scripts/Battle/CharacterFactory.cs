@@ -120,9 +120,32 @@ public class CharacterFactory : MonoBehaviour
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
 
-        // 성급 기반 크기 (적만)
+        // 성급 기반 크기 스케일 적용
         float baseScale = 0.8f;
-        unitObj.transform.localScale = Vector3.one * baseScale;
+        float starScale = preset.starGrade switch
+        {
+            StarGrade.Star3 => 1.4f,
+            StarGrade.Star4 => 1.7f,
+            StarGrade.Star5 => 2.0f,
+            _ => 1.0f
+        };
+        unitObj.transform.localScale = Vector3.one * baseScale * starScale;
+
+        // 적 유닛 성급 스탯 배율 적용
+        if (team == BattleUnit.Team.Enemy)
+        {
+            float statMult = preset.starGrade switch
+            {
+                StarGrade.Star2 => 1.3f,
+                StarGrade.Star3 => 2.0f,
+                StarGrade.Star4 => 3.5f,
+                StarGrade.Star5 => 6.0f,
+                _ => 1.0f
+            };
+            battleUnit.maxHp *= statMult;
+            battleUnit.atk *= statMult;
+            battleUnit.def *= statMult;
+        }
 
         unitObj.AddComponent<HpBar>();
 

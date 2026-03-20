@@ -1,7 +1,5 @@
 using UnityEngine;
 
-public enum HeroRarity { Common, Rare, Epic, Legendary }
-
 public enum AttackAnimType
 {
     Melee,      // 0_Attack_Normal (검/기본)
@@ -17,7 +15,7 @@ public class CharacterPreset : ScriptableObject
 {
     public string characterName;
     public bool isEnemy;
-    public HeroRarity rarity = HeroRarity.Common;
+    public StarGrade starGrade = StarGrade.Star1;
 
     [Header("Body")]
     public string bodySprite = "Human_1"; // Human_1~5, Orc_1~4, Skelton_1, Devil_1, Elf_1~2

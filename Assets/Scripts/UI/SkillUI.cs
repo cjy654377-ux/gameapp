@@ -192,12 +192,13 @@ public class SkillUI : MonoBehaviour
                 slotObjects[i].SetActive(true);
                 nameTexts[i].text = $"{skills[i].iconChar}\n<size=10>{skills[i].skillName}</size>";
 
-                Color rarityColor = skills[i].rarity switch
+                Color rarityColor = skills[i].starGrade switch
                 {
-                    SkillRarity.Common => UIColors.Rarity_Common,
-                    SkillRarity.Rare => UIColors.Rarity_Rare,
-                    SkillRarity.Epic => UIColors.Rarity_Epic,
-                    SkillRarity.Legendary => UIColors.Rarity_Legendary,
+                    StarGrade.Star1 => UIColors.Rarity_Common,
+                    StarGrade.Star2 => UIColors.Rarity_Rare,
+                    StarGrade.Star3 => UIColors.Rarity_Epic,
+                    StarGrade.Star4 => UIColors.Rarity_Legendary,
+                    StarGrade.Star5 => UIColors.Rarity_Legendary,
                     _ => UIColors.Rarity_Common
                 };
                 readyColors[i] = new Color(rarityColor.r * 0.6f, rarityColor.g * 0.6f, rarityColor.b * 0.6f, 0.95f);
