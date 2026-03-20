@@ -406,7 +406,7 @@ public class DeckUI : MonoBehaviour
             strt2.offsetMin = Vector2.zero;
             strt2.offsetMax = Vector2.zero;
             var statusLabel = UIHelper.MakeText("Label", statusBtn.transform, statusStr,
-                9f, TextAlignmentOptions.Center, inDeck ? new Color(0.60f, 0.60f, 0.60f) : Color.white);
+                9f, TextAlignmentOptions.Center, inDeck ? COLOR_LABEL_DISABLED : Color.white);
             statusLabel.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(statusLabel.GetComponent<RectTransform>());
 
