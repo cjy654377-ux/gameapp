@@ -168,6 +168,16 @@ public static class PixelNumberFont
     const int SCALE = 2;
     const int OUTLINE = 2;
 
+    // 그래디언트 임계값
+    const float HIGHLIGHT_THRESHOLD = 0.15f;
+    const float MIDDLE_THRESHOLD = 0.5f;
+    const float TOP_MID_RANGE = 0.35f;
+    const float MID_BOTTOM_RANGE = 0.5f;
+
+    // 스프라이트 설정
+    const float PPU_MULTIPLIER = 0.5f;
+    static readonly Vector2 SPRITE_PIVOT = new Vector2(0.5f, 0.5f);
+
     struct StyleColors
     {
         public Color top, mid, bottom, highlight, outline;
@@ -296,12 +306,12 @@ public static class PixelNumberFont
 
                     float t = (float)py / (CHAR_H - 1);
                     Color fill;
-                    if (t < 0.15f)
+                    if (t < HIGHLIGHT_THRESHOLD)
                         fill = colors.highlight;
-                    else if (t < 0.5f)
-                        fill = Color.Lerp(colors.top, colors.mid, (t - 0.15f) / 0.35f);
+                    else if (t < MIDDLE_THRESHOLD)
+                        fill = Color.Lerp(colors.top, colors.mid, (t - HIGHLIGHT_THRESHOLD) / TOP_MID_RANGE);
                     else
-                        fill = Color.Lerp(colors.mid, colors.bottom, (t - 0.5f) / 0.5f);
+                        fill = Color.Lerp(colors.mid, colors.bottom, (t - MIDDLE_THRESHOLD) / MID_BOTTOM_RANGE);
 
                     int sx = offsetX + OUTLINE + px * SCALE;
                     int sy = totalH - 1 - (OUTLINE + py * SCALE);
@@ -321,8 +331,8 @@ public static class PixelNumberFont
 
         tex.SetPixels(pixels);
         tex.Apply();
-        float ppu = totalH * 0.5f;
-        var sprite = Sprite.Create(tex, new Rect(0, 0, totalW, totalH), new Vector2(0.5f, 0.5f), ppu);
+        float ppu = totalH * PPU_MULTIPLIER;
+        var sprite = Sprite.Create(tex, new Rect(0, 0, totalW, totalH), SPRITE_PIVOT, ppu);
         spriteCache[cacheKey] = sprite;
         return sprite;
     }

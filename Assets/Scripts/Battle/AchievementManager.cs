@@ -20,6 +20,22 @@ public class AchievementManager : MonoBehaviour
         public bool claimed;
     }
 
+    // Achievement 임계값 상수
+    const int KILL_SAVE_INTERVAL  = 10;
+    const int KILL_100_THRESHOLD  = 100;
+    const int FULL_PARTY_SIZE     = 5;
+    const int WAVE_10_THRESHOLD   = 10;
+
+    // Achievement ID 상수
+    const string ACH_FIRST_WAVE   = "first_wave";
+    const string ACH_WAVE_10      = "wave_10";
+    const string ACH_FIRST_GACHA  = "first_gacha";
+    const string ACH_FIRST_BOSS   = "first_boss";
+    const string ACH_KILL_100     = "kill_100";
+    const string ACH_FULL_PARTY   = "full_party";
+    const string ACH_FIRST_UPGRADE = "first_upgrade";
+    const string ACH_STAGE_5      = "stage_5";
+
     readonly List<Achievement> achievements = new();
     int killCount;
 
@@ -37,14 +53,14 @@ public class AchievementManager : MonoBehaviour
     void InitAchievements()
     {
         achievements.Clear();
-        AddAchievement("first_wave", "첫 번째 웨이브", "첫 웨이브를 클리어하세요", 10);
-        AddAchievement("wave_10", "10웨이브 돌파", "10웨이브에 도달하세요", 20);
-        AddAchievement("first_gacha", "첫 소환", "영웅을 소환하세요", 5);
-        AddAchievement("first_boss", "보스 처치", "보스를 처치하세요", 30);
-        AddAchievement("kill_100", "100킬 달성", "적 100마리를 처치하세요", 15);
-        AddAchievement("full_party", "풀 파티", "영웅 5명을 보유하세요", 25);
-        AddAchievement("first_upgrade", "첫 강화", "번개를 강화하세요", 10);
-        AddAchievement("stage_5", "5스테이지 돌파", "스테이지 5에 도달하세요", 20);
+        AddAchievement(ACH_FIRST_WAVE,    "첫 번째 웨이브", "첫 웨이브를 클리어하세요", 10);
+        AddAchievement(ACH_WAVE_10,       "10웨이브 돌파",  "10웨이브에 도달하세요",   20);
+        AddAchievement(ACH_FIRST_GACHA,   "첫 소환",        "영웅을 소환하세요",        5);
+        AddAchievement(ACH_FIRST_BOSS,    "보스 처치",      "보스를 처치하세요",        30);
+        AddAchievement(ACH_KILL_100,      "100킬 달성",     "적 100마리를 처치하세요", 15);
+        AddAchievement(ACH_FULL_PARTY,    "풀 파티",        "영웅 5명을 보유하세요",   25);
+        AddAchievement(ACH_FIRST_UPGRADE, "첫 강화",        "번개를 강화하세요",        10);
+        AddAchievement(ACH_STAGE_5,       "5스테이지 돌파", "스테이지 5에 도달하세요", 20);
     }
 
     void AddAchievement(string id, string name, string desc, int gems)
@@ -93,6 +109,7 @@ public class AchievementManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedStageMgr != null)
         {
             cachedStageMgr.OnStageChanged -= OnStageChanged;
@@ -106,22 +123,22 @@ public class AchievementManager : MonoBehaviour
 
     void OnStageChanged(int area, int stage, int wave)
     {
-        int totalWave = StageManager.Instance != null ? StageManager.Instance.TotalWaveIndex : 0;
+        int totalWave = cachedStageMgr != null ? cachedStageMgr.TotalWaveIndex : 0;
 
         if (totalWave >= 1)
-            CheckAchievement("first_wave");
+            CheckAchievement(ACH_FIRST_WAVE);
 
-        if (totalWave >= 10)
-            CheckAchievement("wave_10");
+        if (totalWave >= WAVE_10_THRESHOLD)
+            CheckAchievement(ACH_WAVE_10);
 
         if (stage >= 5 || area > 1)
-            CheckAchievement("stage_5");
+            CheckAchievement(ACH_STAGE_5);
 
         // 보스 웨이브 클리어 시 보스 처치 업적
         if (bossWaveActive)
         {
             bossWaveActive = false;
-            CheckAchievement("first_boss");
+            CheckAchievement(ACH_FIRST_BOSS);
         }
     }
 
@@ -138,16 +155,15 @@ public class AchievementManager : MonoBehaviour
 
     void OnHeroPulled(CharacterPreset preset)
     {
-        CheckAchievement("first_gacha");
+        CheckAchievement(ACH_FIRST_GACHA);
 
-        // Check full party (roster 기준)
-        if (DeckManager.Instance != null && DeckManager.Instance.roster.Count >= 5)
-            CheckAchievement("full_party");
+        if (DeckManager.Instance != null && DeckManager.Instance.roster.Count >= FULL_PARTY_SIZE)
+            CheckAchievement(ACH_FULL_PARTY);
     }
 
     void OnUpgraded()
     {
-        CheckAchievement("first_upgrade");
+        CheckAchievement(ACH_FIRST_UPGRADE);
     }
 
     /// <summary>
@@ -156,11 +172,11 @@ public class AchievementManager : MonoBehaviour
     public void RegisterKill()
     {
         killCount++;
-        if (killCount % 10 == 0)
+        if (killCount % KILL_SAVE_INTERVAL == 0)
             PlayerPrefs.SetInt(SaveKeys.AchievementKillCount, killCount);
 
-        if (killCount >= 100 && !IsCompleted("kill_100"))
-            CheckAchievement("kill_100");
+        if (killCount >= KILL_100_THRESHOLD && !IsCompleted(ACH_KILL_100))
+            CheckAchievement(ACH_KILL_100);
     }
 
     void OnApplicationPause(bool pause)

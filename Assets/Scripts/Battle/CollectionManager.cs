@@ -20,6 +20,10 @@ public class CollectionManager : MonoBehaviour
     public const int TOTAL_MONSTERS = 13;
     public const int TOTAL_EQUIP_TYPES = 18; // 6슬롯 x 3등급대(1-2, 3, 4-5)
 
+    // 마일스톤 상수
+    static readonly int[] MILESTONES = { 3, 5, 7, 10, 13 };
+    const int GEM_PER_MILESTONE_COUNT = 5;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -89,15 +93,14 @@ public class CollectionManager : MonoBehaviour
 
     void CheckMilestone(string type, int count)
     {
-        int[] milestones = { 3, 5, 7, 10, 13 };
-        for (int i = 0; i < milestones.Length; i++)
+        for (int i = 0; i < MILESTONES.Length; i++)
         {
-            if (count != milestones[i]) continue;
+            if (count != MILESTONES[i]) continue;
             string key = $"Collection_{type}_{count}";
             if (PlayerPrefs.GetInt(key, 0) == 1) continue;
 
             PlayerPrefs.SetInt(key, 1);
-            int gemReward = count * 5;
+            int gemReward = count * GEM_PER_MILESTONE_COUNT;
             GemManager.Instance?.AddGem(gemReward);
             ToastNotification.Instance?.Show($"도감 보상!", $"+{gemReward} 보석", UIColors.Text_Diamond);
         }

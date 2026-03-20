@@ -9,6 +9,13 @@ public class BattleBackground : MonoBehaviour
         "Backgrounds/bg_dungeon"      // Cave area
     };
 
+    const int DEFAULT_AREA = 1;
+    const float BG_SPRITE_PIVOT = 0.5f;
+    const float BG_SPRITE_PPU = 100f;
+    const float CAM_HEIGHT_MULT = 2f;
+    const int TILE_BUFFER_COUNT = 3;
+    const int BG_SORTING_ORDER = -100;
+
     private Sprite bgSprite;
     private float tileWidth;
     private float scale;
@@ -19,7 +26,7 @@ public class BattleBackground : MonoBehaviour
     void Awake()
     {
         cachedCamera = Camera.main;
-        SetArea(1);
+        SetArea(DEFAULT_AREA);
     }
 
     void Start()
@@ -43,7 +50,7 @@ public class BattleBackground : MonoBehaviour
             if (tex != null)
             {
                 tex.filterMode = FilterMode.Point;
-                bgSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+                bgSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(BG_SPRITE_PIVOT, BG_SPRITE_PIVOT), BG_SPRITE_PPU);
             }
         }
 
@@ -58,12 +65,12 @@ public class BattleBackground : MonoBehaviour
         var cam = cachedCamera != null ? cachedCamera : Camera.main;
         if (cam == null) return;
 
-        float camH = cam.orthographicSize * 2f;
+        float camH = cam.orthographicSize * CAM_HEIGHT_MULT;
         scale = camH / bgSprite.bounds.size.y;
         tileWidth = bgSprite.bounds.size.x * scale;
 
         float camW = camH * cam.aspect;
-        int tileCount = Mathf.CeilToInt(camW / tileWidth) + 3;
+        int tileCount = Mathf.CeilToInt(camW / tileWidth) + TILE_BUFFER_COUNT;
 
         for (int i = 0; i < tileCount; i++)
         {
@@ -71,7 +78,7 @@ public class BattleBackground : MonoBehaviour
             tileObj.transform.SetParent(transform, false);
             var sr = tileObj.AddComponent<SpriteRenderer>();
             sr.sprite = bgSprite;
-            sr.sortingOrder = -100;
+            sr.sortingOrder = BG_SORTING_ORDER;
             tileObj.transform.localScale = Vector3.one * scale;
             tiles.Add(sr);
         }

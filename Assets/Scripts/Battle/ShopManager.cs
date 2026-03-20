@@ -237,13 +237,9 @@ public class ShopManager : MonoBehaviour
                 }
                 else
                 {
-                    // 스킬 업그레이드 재화로 전환
-                    var sum = SkillUpgradeManager.Instance;
-                    if (sum != null)
-                    {
-                        GoldManager.Instance?.AddGold(SKILL_DISMANTLE_GOLD);
-                        ToastNotification.Instance?.Show($"스킬 분해", $"{picked.skillName} → +{SKILL_DISMANTLE_GOLD} 골드", UIColors.Text_Gold);
-                    }
+                    // 더 좋은 스킬 없음 → 골드로 분해
+                    GoldManager.Instance?.AddGold(SKILL_DISMANTLE_GOLD);
+                    ToastNotification.Instance?.Show($"스킬 분해", $"{picked.skillName} → +{SKILL_DISMANTLE_GOLD} 골드", UIColors.Text_Gold);
                 }
             }
         }

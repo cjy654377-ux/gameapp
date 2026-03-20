@@ -27,6 +27,19 @@ public class DeckUI : MonoBehaviour
     const float SLOT_SIZE = 44f;
     const float SLOT_SPACING = 5f;
     const float ROSTER_ITEM_H = 40f;
+    const float ROSTER_ITEM_SPACING = 3f;
+
+    static readonly Color COLOR_HEADER_BG   = new Color(0.38f, 0.28f, 0.18f, 0.80f);
+    static readonly Color COLOR_DIVIDER      = new Color(0.50f, 0.38f, 0.25f);
+    static readonly Color COLOR_SLOT_EMPTY   = new Color(0.80f, 0.80f, 0.80f);
+    static readonly Color COLOR_ITEM_IN_DECK = new Color(0.88f, 0.94f, 0.85f);
+    static readonly Color COLOR_NAME_DARK    = new Color(0.17f, 0.09f, 0.04f);
+    static readonly Color COLOR_STAT_MID     = new Color(0.35f, 0.24f, 0.16f);
+    static readonly Color COLOR_SELECT_BORDER  = new Color(0.5f,  0.85f, 0.3f,  0.6f);
+    static readonly Color COLOR_ITEM_FALLBACK_DECK = new Color(0.35f, 0.45f, 0.28f);
+    static readonly Color COLOR_ITEM_FALLBACK_FREE = new Color(0.55f, 0.45f, 0.32f);
+    static readonly Color COLOR_BTN_DIM        = new Color(0.70f, 0.70f, 0.70f);
+    static readonly Color COLOR_LABEL_DISABLED = new Color(0.60f, 0.60f, 0.60f);
 
     void Awake()
     {
@@ -59,21 +72,26 @@ public class DeckUI : MonoBehaviour
     // 슬롯 바디 스프라이트 이미지 (캐릭터 초상화용)
     readonly Image[] deckSlotPortraits = new Image[DeckManager.MAX_DECK_SIZE];
 
-    void CreateDeckSection()
+    // 섹션 헤더 (BoxBanner 스타일) 생성 헬퍼
+    GameObject CreateSectionHeader(string objName, string text, float yMin, float yMax)
     {
-        // 헤더 — BoxBanner 스타일
-        var headerBg = UIHelper.MakeSpritePanel("DeckHeaderBG", root.transform,
-            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
+        var headerBg = UIHelper.MakeSpritePanel(objName, root.transform, UISprites.BoxIcon1, COLOR_HEADER_BG);
         var hbrt = headerBg.GetComponent<RectTransform>();
-        hbrt.anchorMin = new Vector2(0.02f, 0.88f);
-        hbrt.anchorMax = new Vector2(0.98f, 0.98f);
+        hbrt.anchorMin = new Vector2(0.02f, yMin);
+        hbrt.anchorMax = new Vector2(0.98f, yMax);
         hbrt.offsetMin = Vector2.zero;
         hbrt.offsetMax = Vector2.zero;
-
-        deckHeaderText = UIHelper.MakeText("DeckHeader", headerBg.transform, "편성 (3/8)",
+        var label = UIHelper.MakeText("Label", headerBg.transform, text,
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
-        deckHeaderText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(deckHeaderText.GetComponent<RectTransform>());
+        label.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(label.GetComponent<RectTransform>());
+        return headerBg;
+    }
+
+    void CreateDeckSection()
+    {
+        var headerBg = CreateSectionHeader("DeckHeaderBG", "편성 (3/8)", 0.88f, 0.98f);
+        deckHeaderText = headerBg.GetComponentInChildren<TextMeshProUGUI>();
 
         // 8슬롯 1줄 스크롤
         var scrollObj = UIHelper.MakeUI("DeckScroll", root.transform);
@@ -168,7 +186,7 @@ public class DeckUI : MonoBehaviour
 
     void CreateDivider()
     {
-        var divider = UIHelper.MakePanel("Divider", root.transform, new Color(0.50f, 0.38f, 0.25f));
+        var divider = UIHelper.MakePanel("Divider", root.transform, COLOR_DIVIDER);
         var drt = divider.GetComponent<RectTransform>();
         drt.anchorMin = new Vector2(0.04f, 0.55f);
         drt.anchorMax = new Vector2(0.96f, 0.55f);
@@ -178,18 +196,7 @@ public class DeckUI : MonoBehaviour
 
     void CreateRosterSection()
     {
-        var headerBg = UIHelper.MakeSpritePanel("RosterHeaderBG", root.transform,
-            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
-        var hbrt = headerBg.GetComponent<RectTransform>();
-        hbrt.anchorMin = new Vector2(0.02f, 0.47f);
-        hbrt.anchorMax = new Vector2(0.98f, 0.54f);
-        hbrt.offsetMin = Vector2.zero;
-        hbrt.offsetMax = Vector2.zero;
-
-        var header = UIHelper.MakeText("RosterHeader", headerBg.transform, "보유 영웅",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
-        header.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(header.GetComponent<RectTransform>());
+        CreateSectionHeader("RosterHeaderBG", "보유 영웅", 0.47f, 0.54f);
 
         var scrollObj = UIHelper.MakeUI("RosterScroll", root.transform);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
@@ -265,7 +272,7 @@ public class DeckUI : MonoBehaviour
             else
             {
                 if (UISprites.BoxProfile != null)
-                    deckSlotBgs[i].color = new Color(0.80f, 0.80f, 0.80f); // 빈 슬롯: 확실한 어두운 tint로 구분
+                    deckSlotBgs[i].color = COLOR_SLOT_EMPTY;
                 else
                     deckSlotBgs[i].color = UIColors.Background_Dark;
                 deckSlotTexts[i].text = "+";
@@ -320,7 +327,6 @@ public class DeckUI : MonoBehaviour
         if (dm == null) return;
 
         float y = 0;
-        float spacing = 3f;
 
         for (int i = 0; i < dm.roster.Count; i++)
         {
@@ -339,11 +345,11 @@ public class DeckUI : MonoBehaviour
             {
                 itemBg.sprite = UISprites.BoxBasic3;
                 itemBg.type = Image.Type.Simple; // BoxBasic3는 border=0이므로 Sliced 사용 불가
-                itemBg.color = inDeck ? new Color(0.88f, 0.94f, 0.85f) : Color.white;
+                itemBg.color = inDeck ? COLOR_ITEM_IN_DECK : Color.white;
             }
             else
             {
-                itemBg.color = inDeck ? new Color(0.35f, 0.45f, 0.28f) : new Color(0.55f, 0.45f, 0.32f);
+                itemBg.color = inDeck ? COLOR_ITEM_FALLBACK_DECK : COLOR_ITEM_FALLBACK_FREE;
             }
 
             var itemBtn = item.AddComponent<Button>();
@@ -368,7 +374,7 @@ public class DeckUI : MonoBehaviour
 
             // Name — 진한 갈색으로 확실한 대비
             var nameText = UIHelper.MakeText("Info", item.transform, preset.characterName,
-                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, new Color(0.17f, 0.09f, 0.04f));
+                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, COLOR_NAME_DARK);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0.11f, 0.5f);
@@ -379,7 +385,7 @@ public class DeckUI : MonoBehaviour
             // Stats — 중간 갈색으로 가독성 확보
             var statText = UIHelper.MakeText("Stats", item.transform,
                 $"HP:{preset.maxHp:F0} ATK:{preset.atk:F0}",
-                8f, TextAlignmentOptions.MidlineLeft, new Color(0.35f, 0.24f, 0.16f));
+                8f, TextAlignmentOptions.MidlineLeft, COLOR_STAT_MID);
             var strt = statText.GetComponent<RectTransform>();
             strt.anchorMin = new Vector2(0.11f, 0);
             strt.anchorMax = new Vector2(0.55f, 0.5f);
@@ -392,7 +398,7 @@ public class DeckUI : MonoBehaviour
             Color statusFallback = inDeck ? UIColors.Button_Gray : UIColors.Button_Green;
             var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
                 statusSprite, statusFallback, "", 9f);
-            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = COLOR_BTN_DIM;
             statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
             var strt2 = statusBtn.GetComponent<RectTransform>();
             strt2.anchorMin = new Vector2(0.72f, 0.1f);
@@ -404,7 +410,7 @@ public class DeckUI : MonoBehaviour
             statusLabel.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(statusLabel.GetComponent<RectTransform>());
 
-            y -= (ROSTER_ITEM_H + spacing);
+            y -= (ROSTER_ITEM_H + ROSTER_ITEM_SPACING);
         }
 
         var contentRT = rosterContainer.GetComponent<RectTransform>();
@@ -471,7 +477,7 @@ public class DeckUI : MonoBehaviour
         {
             bool selected = (i == selectedDeckSlot);
             if (deckSlotBorders[i] != null)
-                deckSlotBorders[i].color = selected ? new Color(0.5f, 0.85f, 0.3f, 0.6f) : Color.clear;
+                deckSlotBorders[i].color = selected ? COLOR_SELECT_BORDER : Color.clear;
         }
     }
 

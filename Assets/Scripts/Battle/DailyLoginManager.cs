@@ -17,8 +17,9 @@ public class DailyLoginManager : MonoBehaviour
     public event Action<int, DailyReward> OnRewardClaimed;
 
     const int CYCLE_DAYS = 28;
-    const string KEY_DAY = "DailyLogin_Day";
+    const string KEY_DAY       = "DailyLogin_Day";
     const string KEY_LAST_DATE = "DailyLogin_LastDate";
+    const string DATE_FORMAT   = "yyyy-MM-dd";
 
     [Serializable]
     public struct DailyReward
@@ -27,7 +28,7 @@ public class DailyLoginManager : MonoBehaviour
         public int amount;
     }
 
-    public enum RewardType { Gold, Gem, GachaTikcet }
+    public enum RewardType { Gold, Gem, GachaTicket }
 
     // 28일 보상 테이블
     static readonly DailyReward[] REWARDS = new DailyReward[CYCLE_DAYS]
@@ -86,7 +87,7 @@ public class DailyLoginManager : MonoBehaviour
     {
         CurrentDay = PlayerPrefs.GetInt(KEY_DAY, 0);
         string lastDate = PlayerPrefs.GetString(KEY_LAST_DATE, "");
-        string today = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        string today = DateTime.UtcNow.ToString(DATE_FORMAT);
 
         if (lastDate == today)
         {
@@ -132,13 +133,13 @@ public class DailyLoginManager : MonoBehaviour
             case RewardType.Gem:
                 GemManager.Instance?.AddGem(reward.amount);
                 break;
-            case RewardType.GachaTikcet:
+            case RewardType.GachaTicket:
                 GemManager.Instance?.AddGem(GachaManager.SINGLE_PULL_COST);
                 break;
         }
 
         ClaimedToday = true;
-        string today = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        string today = DateTime.UtcNow.ToString(DATE_FORMAT);
         PlayerPrefs.SetString(KEY_LAST_DATE, today);
         PlayerPrefs.SetInt(KEY_DAY, CurrentDay);
         PlayerPrefs.Save();

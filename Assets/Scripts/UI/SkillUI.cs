@@ -25,13 +25,20 @@ public class SkillUI : MonoBehaviour
     }
     static bool _isTabPanelOpen;
 
-    GameObject[] slotObjects = new GameObject[4];
-    Image[] cooldownOverlays = new Image[4];
-    TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[4];
-    TextMeshProUGUI[] nameTexts = new TextMeshProUGUI[4];
-    Image[] slotBgs = new Image[4];
-    readonly Color[] readyColors = new Color[4];
-    readonly Color[] cooldownColors = new Color[4];
+    const int SLOT_COUNT = 4;
+    const int CANVAS_SORT_ORDER = 50;
+    const float READY_COLOR_MULT = 0.60f;
+    const float COOLDOWN_COLOR_MULT = 0.15f;
+    const float AUTO_BTN_W = 60f;
+    const float AUTO_BTN_H = 30f;
+
+    GameObject[] slotObjects = new GameObject[SLOT_COUNT];
+    Image[] cooldownOverlays = new Image[SLOT_COUNT];
+    TextMeshProUGUI[] cooldownTexts = new TextMeshProUGUI[SLOT_COUNT];
+    TextMeshProUGUI[] nameTexts = new TextMeshProUGUI[SLOT_COUNT];
+    Image[] slotBgs = new Image[SLOT_COUNT];
+    readonly Color[] readyColors = new Color[SLOT_COUNT];
+    readonly Color[] cooldownColors = new Color[SLOT_COUNT];
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
     GameObject slotsContainer;
@@ -72,7 +79,7 @@ public class SkillUI : MonoBehaviour
     {
         canvas = gameObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 50;
+        canvas.sortingOrder = CANVAS_SORT_ORDER;
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -94,10 +101,10 @@ public class SkillUI : MonoBehaviour
 
         float slotSize = UIConstants.MinTouchTarget;
         float spacing = UIConstants.Spacing_Medium;
-        float totalWidth = 4 * slotSize + 3 * spacing;
+        float totalWidth = SLOT_COUNT * slotSize + (SLOT_COUNT - 1) * spacing;
         float startX = -totalWidth * 0.5f + slotSize * 0.5f;
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < SLOT_COUNT; i++)
         {
             var slot = UIHelper.MakeUI($"SkillSlot_{i}", slotsContainer.transform);
             slotObjects[i] = slot;
@@ -155,7 +162,7 @@ public class SkillUI : MonoBehaviour
         toggleRT.anchorMax = new Vector2(1f, 0f);
         toggleRT.pivot = new Vector2(1f, 0f);
         toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
-        toggleRT.sizeDelta = new Vector2(60f, 30f);
+        toggleRT.sizeDelta = new Vector2(AUTO_BTN_W, AUTO_BTN_H);
     }
 
     /// <summary>
@@ -185,7 +192,7 @@ public class SkillUI : MonoBehaviour
         if (SkillManager.Instance == null) return;
         var skills = SkillManager.Instance.equippedSkills;
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < SLOT_COUNT; i++)
         {
             if (i < skills.Count && skills[i] != null)
             {
@@ -201,8 +208,8 @@ public class SkillUI : MonoBehaviour
                     StarGrade.Star5 => UIColors.Rarity_Legendary,
                     _ => UIColors.Rarity_Common
                 };
-                readyColors[i] = new Color(rarityColor.r * 0.6f, rarityColor.g * 0.6f, rarityColor.b * 0.6f, 0.95f);
-                cooldownColors[i] = new Color(rarityColor.r * 0.15f, rarityColor.g * 0.15f, rarityColor.b * 0.15f, 0.9f);
+                readyColors[i] = new Color(rarityColor.r * READY_COLOR_MULT, rarityColor.g * READY_COLOR_MULT, rarityColor.b * READY_COLOR_MULT, 0.95f);
+                cooldownColors[i] = new Color(rarityColor.r * COOLDOWN_COLOR_MULT, rarityColor.g * COOLDOWN_COLOR_MULT, rarityColor.b * COOLDOWN_COLOR_MULT, 0.9f);
                 slotBgs[i].color = readyColors[i];
             }
             else
@@ -214,7 +221,7 @@ public class SkillUI : MonoBehaviour
 
     void UpdateCooldown(int slot, float remaining, float total)
     {
-        if (slot < 0 || slot >= 4) return;
+        if (slot < 0 || slot >= SLOT_COUNT) return;
 
         if (remaining <= 0f)
         {
@@ -232,7 +239,7 @@ public class SkillUI : MonoBehaviour
 
     void OnSkillUsed(int slot)
     {
-        if (slot >= 0 && slot < 4 && slotBgs[slot] != null)
+        if (slot >= 0 && slot < SLOT_COUNT && slotBgs[slot] != null)
             StartCoroutine(FlashSlot(slot));
     }
 

@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 public class BattleSetup : MonoBehaviour
 {
+    const float CAM_HEIGHT_MULT = 2f;
+    const float BATTLE_ZONE_HEIGHT_RATIO = 0.6f;
+    const float UNIT_POSITION_CENTER = 0.5f;
+    const float UNIT_CLAMP_RATIO = 0.5f;
+    const float DEFAULT_CAM_HEIGHT = 10f;
+
     [Header("Fallback Ally Presets (DeckManager 없을 때)")]
     public List<CharacterPreset> allyPresets = new();
 
@@ -125,8 +131,8 @@ public class BattleSetup : MonoBehaviour
 
         for (int i = 0; i < presets.Count; i++)
         {
-            float yOffset = (i - (presets.Count - 1) * 0.5f) * unitSpacingY;
-            yOffset = Mathf.Clamp(yOffset, -battleZoneH * 0.5f, battleZoneH * 0.5f);
+            float yOffset = (i - (presets.Count - 1) * UNIT_POSITION_CENTER) * unitSpacingY;
+            yOffset = Mathf.Clamp(yOffset, -battleZoneH * UNIT_CLAMP_RATIO, battleZoneH * UNIT_CLAMP_RATIO);
             Vector3 pos = new Vector3(allyStartX, yOffset, 0);
             var unit = factory.CreateCharacter(presets[i], pos, BattleUnit.Team.Ally);
 
@@ -141,7 +147,7 @@ public class BattleSetup : MonoBehaviour
 
     float GetBattleZoneHeight()
     {
-        float camH = Camera.main != null ? Camera.main.orthographicSize * 2f : 10f;
-        return camH * 0.6f;
+        float camH = Camera.main != null ? Camera.main.orthographicSize * CAM_HEIGHT_MULT : DEFAULT_CAM_HEIGHT;
+        return camH * BATTLE_ZONE_HEIGHT_RATIO;
     }
 }

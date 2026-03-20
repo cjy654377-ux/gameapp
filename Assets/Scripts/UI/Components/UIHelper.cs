@@ -19,6 +19,21 @@ public static class UIHelper
             : Image.Type.Simple;
     }
 
+    /// 스프라이트와 폴백 컬러를 Image에 적용 (중복 제거용)
+    static void ApplySpriteToImage(Image img, Sprite sprite, Color fallbackColor, Image.Type? forceType = null)
+    {
+        if (sprite != null)
+        {
+            img.sprite = sprite;
+            img.type = forceType ?? SpriteImageType(sprite);
+            img.color = Color.white;
+        }
+        else
+        {
+            img.color = fallbackColor;
+        }
+    }
+
     /// <summary>
     /// 스프라이트가 있으면 Sliced/Simple 이미지로, 없으면 단색 폴백으로 패널을 생성한다.
     /// </summary>
@@ -26,16 +41,7 @@ public static class UIHelper
     {
         var obj = MakeUI(name, parent);
         var img = obj.AddComponent<Image>();
-        if (sprite != null)
-        {
-            img.sprite = sprite;
-            img.type = SpriteImageType(sprite);
-            img.color = Color.white;
-        }
-        else
-        {
-            img.color = fallbackColor;
-        }
+        ApplySpriteToImage(img, sprite, fallbackColor);
         return img;
     }
 
@@ -47,16 +53,7 @@ public static class UIHelper
     {
         var obj = MakeUI(name, parent);
         var img = obj.AddComponent<Image>();
-        if (sprite != null)
-        {
-            img.sprite = sprite;
-            img.type = SpriteImageType(sprite);
-            img.color = Color.white;
-        }
-        else
-        {
-            img.color = fallbackColor;
-        }
+        ApplySpriteToImage(img, sprite, fallbackColor);
         var btn = obj.AddComponent<Button>();
         btn.targetGraphic = img;
 
@@ -105,17 +102,8 @@ public static class UIHelper
     {
         var obj = MakeUI(name, parent);
         var img = obj.AddComponent<Image>();
-        if (sprite != null)
-        {
-            img.sprite = sprite;
-            img.type = Image.Type.Simple;
-            img.preserveAspect = true;
-            img.color = Color.white;
-        }
-        else
-        {
-            img.color = fallbackColor;
-        }
+        ApplySpriteToImage(img, sprite, fallbackColor, Image.Type.Simple);
+        img.preserveAspect = true;
         return img;
     }
 

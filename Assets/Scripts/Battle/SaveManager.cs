@@ -11,8 +11,11 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
 
-    const string SAVE_KEY = "GameSaveData";
-    const float SAVE_DEBOUNCE = 5f;
+    const string SAVE_KEY         = "GameSaveData";
+    const float  SAVE_DEBOUNCE    = 5f;
+    const int    DECK_SLOT_COUNT  = 8;
+    const float  DEFAULT_BGM_VOL  = 0.5f;
+    const float  DEFAULT_SFX_VOL  = 0.7f;
 
     bool dirty;
     float saveTimer;
@@ -99,8 +102,8 @@ public class SaveManager : MonoBehaviour
         data.tapDamageLevel = PlayerPrefs.GetInt(SaveKeys.TapDamageLevel, 1);
 
         // Sound
-        data.bgmVolume = PlayerPrefs.GetFloat(SaveKeys.BgmVolume, 0.5f);
-        data.sfxVolume = PlayerPrefs.GetFloat(SaveKeys.SfxVolume, 0.7f);
+        data.bgmVolume = PlayerPrefs.GetFloat(SaveKeys.BgmVolume, DEFAULT_BGM_VOL);
+        data.sfxVolume = PlayerPrefs.GetFloat(SaveKeys.SfxVolume, DEFAULT_SFX_VOL);
 
         // Offline
         data.lastPlayTime = PlayerPrefs.GetString(SaveKeys.LastPlayTime, "");
@@ -109,8 +112,8 @@ public class SaveManager : MonoBehaviour
         data.equipmentJson = PlayerPrefs.GetString(SaveKeys.EquipmentInventory, "");
 
         // Deck
-        data.deckSlots = new string[8];
-        for (int i = 0; i < 8; i++)
+        data.deckSlots = new string[DECK_SLOT_COUNT];
+        for (int i = 0; i < DECK_SLOT_COUNT; i++)
             data.deckSlots[i] = PlayerPrefs.GetString(SaveKeys.DeckSlotPrefix + i, "");
 
         // Hero levels/copies - gather from HeroLevelManager
@@ -158,7 +161,7 @@ public class SaveManager : MonoBehaviour
 
         if (data.deckSlots != null)
         {
-            for (int i = 0; i < data.deckSlots.Length && i < 8; i++)
+            for (int i = 0; i < data.deckSlots.Length && i < DECK_SLOT_COUNT; i++)
                 PlayerPrefs.SetString(SaveKeys.DeckSlotPrefix + i, data.deckSlots[i]);
         }
 
@@ -171,6 +174,11 @@ public class SaveManager : MonoBehaviour
                 PlayerPrefs.SetInt(SaveKeys.HeroCopiesPrefix + h.heroName, h.copies);
             }
         }
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     void OnApplicationPause(bool pause)

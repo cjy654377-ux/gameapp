@@ -9,6 +9,34 @@ public enum StatusEffectType
     Slow     // 둔화: 이동속도 + 공격속도 감소
 }
 
+// 상태이상 수치 상수
+public static class StatusEffectConstants
+{
+    // Burn: 화상
+    public const float BURN_TICK_INTERVAL = 0.5f;
+    public const float BURN_TICK_DAMAGE = 5f;
+    public const float BURN_SPEED_MULT = 1f;
+    public const float BURN_ATTACK_SPEED_MULT = 1f;
+
+    // Freeze: 동상
+    public const float FREEZE_TICK_INTERVAL = 1f;
+    public const float FREEZE_TICK_DAMAGE = 3f;
+    public const float FREEZE_SPEED_MULT = 0.3f;
+    public const float FREEZE_ATTACK_SPEED_MULT = 0.7f;
+
+    // Poison: 중독
+    public const float POISON_TICK_INTERVAL = 0.8f;
+    public const float POISON_TICK_DAMAGE = 8f;
+    public const float POISON_SPEED_MULT = 1f;
+    public const float POISON_ATTACK_SPEED_MULT = 1f;
+
+    // Slow: 둔화
+    public const float SLOW_TICK_INTERVAL = 0f;
+    public const float SLOW_TICK_DAMAGE = 0f;
+    public const float SLOW_SPEED_MULT = 0.4f;
+    public const float SLOW_ATTACK_SPEED_MULT = 0.5f;
+}
+
 [System.Serializable]
 public class StatusEffect
 {
@@ -31,28 +59,28 @@ public class StatusEffect
         switch (type)
         {
             case StatusEffectType.Burn:
-                effect.tickInterval = 0.5f;
-                effect.tickDamage = 5f;
-                effect.speedMultiplier = 1f;
-                effect.attackSpeedMultiplier = 1f;
+                effect.tickInterval = StatusEffectConstants.BURN_TICK_INTERVAL;
+                effect.tickDamage = StatusEffectConstants.BURN_TICK_DAMAGE;
+                effect.speedMultiplier = StatusEffectConstants.BURN_SPEED_MULT;
+                effect.attackSpeedMultiplier = StatusEffectConstants.BURN_ATTACK_SPEED_MULT;
                 break;
             case StatusEffectType.Freeze:
-                effect.tickInterval = 1f;
-                effect.tickDamage = 3f;
-                effect.speedMultiplier = 0.3f;
-                effect.attackSpeedMultiplier = 0.7f;
+                effect.tickInterval = StatusEffectConstants.FREEZE_TICK_INTERVAL;
+                effect.tickDamage = StatusEffectConstants.FREEZE_TICK_DAMAGE;
+                effect.speedMultiplier = StatusEffectConstants.FREEZE_SPEED_MULT;
+                effect.attackSpeedMultiplier = StatusEffectConstants.FREEZE_ATTACK_SPEED_MULT;
                 break;
             case StatusEffectType.Poison:
-                effect.tickInterval = 0.8f;
-                effect.tickDamage = 8f;
-                effect.speedMultiplier = 1f;
-                effect.attackSpeedMultiplier = 1f;
+                effect.tickInterval = StatusEffectConstants.POISON_TICK_INTERVAL;
+                effect.tickDamage = StatusEffectConstants.POISON_TICK_DAMAGE;
+                effect.speedMultiplier = StatusEffectConstants.POISON_SPEED_MULT;
+                effect.attackSpeedMultiplier = StatusEffectConstants.POISON_ATTACK_SPEED_MULT;
                 break;
             case StatusEffectType.Slow:
-                effect.tickInterval = 0f;
-                effect.tickDamage = 0f;
-                effect.speedMultiplier = 0.4f;
-                effect.attackSpeedMultiplier = 0.5f;
+                effect.tickInterval = StatusEffectConstants.SLOW_TICK_INTERVAL;
+                effect.tickDamage = StatusEffectConstants.SLOW_TICK_DAMAGE;
+                effect.speedMultiplier = StatusEffectConstants.SLOW_SPEED_MULT;
+                effect.attackSpeedMultiplier = StatusEffectConstants.SLOW_ATTACK_SPEED_MULT;
                 break;
         }
 

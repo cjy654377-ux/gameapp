@@ -52,6 +52,7 @@ public class DailyMissionManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedStageMgr != null)
             cachedStageMgr.OnStageChanged -= OnStageChanged;
     }

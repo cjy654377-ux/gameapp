@@ -13,6 +13,8 @@ public class OfflineRewardManager : MonoBehaviour
     /// </summary>
     public event System.Action<int, int, float> OnOfflineReward;
 
+    const float MIN_REWARD_MINUTES = 1f;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -22,6 +24,7 @@ public class OfflineRewardManager : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
+        SaveCurrentTime();
     }
 
     void Start()
@@ -51,7 +54,7 @@ public class OfflineRewardManager : MonoBehaviour
         float elapsedSeconds = Mathf.Max(0f, now - lastTime);
         float elapsedMinutes = elapsedSeconds / 60f;
 
-        if (elapsedMinutes < 1f)
+        if (elapsedMinutes < MIN_REWARD_MINUTES)
         {
             SaveCurrentTime();
             return;
@@ -86,10 +89,5 @@ public class OfflineRewardManager : MonoBehaviour
     void OnApplicationPause(bool pause)
     {
         if (pause) SaveCurrentTime();
-    }
-
-    void OnDestroy()
-    {
-        SaveCurrentTime();
     }
 }
