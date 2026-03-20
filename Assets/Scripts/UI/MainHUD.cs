@@ -90,6 +90,7 @@ public class MainHUD : MonoBehaviour
     GameObject confirmPopup;
     TextMeshProUGUI confirmTitleText;
     TextMeshProUGUI confirmDescText;
+    Button confirmYesBtn;
     System.Action pendingConfirmAction;
 
     // Offline reward popup
@@ -217,132 +218,100 @@ public class MainHUD : MonoBehaviour
     void CreateHUDBar()
     {
         var hudBar = UIHelper.MakeUI("HUDBar", safeAreaRoot.transform);
-        // Board_20x20 스프라이트로 배경 — 어두운 나무 프레임
-        var hudBg = UIHelper.MakeSpritePanel("HUDBg", hudBar.transform, UISprites.Board, UIColors.Background_Dark);
-        UIHelper.FillParent(hudBg.GetComponent<RectTransform>());
-        // Board 스프라이트 원본 색상 유지 (9-slice)
         var hudImg = hudBar.AddComponent<Image>();
-        hudImg.color = Color.clear;
+        hudImg.color = UIColors.Background_Dark;
         UIHelper.SetAnchors(hudBar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1));
         hudBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.HUD_Height);
 
-        // 스테이지 정보 영역 (왼쪽) — BoxBanner로 감싼다
-        var stageContainer = UIHelper.MakeSpritePanel("StageBG", hudBar.transform, UISprites.BoxBanner, UIColors.Background_Dark);
-        // BoxBanner 스프라이트 원본 색상 유지
-        var scrt = stageContainer.GetComponent<RectTransform>();
-        scrt.anchorMin = new Vector2(0, 0.08f);
-        scrt.anchorMax = new Vector2(0.38f, 0.92f);
-        scrt.offsetMin = new Vector2(4, 0);
-        scrt.offsetMax = new Vector2(0, 0);
-
-        // Area name (small, top)
-        areaNameText = UIHelper.MakeText("AreaName", stageContainer.transform, "Grass Field",
-            8f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        // Area name (small, top-left)
+        areaNameText = UIHelper.MakeText("AreaName", hudBar.transform, "Grass Field",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.TopLeft, UIColors.Text_Secondary);
         var anrt = areaNameText.GetComponent<RectTransform>();
         anrt.anchorMin = new Vector2(0, 0.55f);
-        anrt.anchorMax = new Vector2(1, 1);
-        anrt.offsetMin = new Vector2(4, 0);
-        anrt.offsetMax = new Vector2(-4, -2);
+        anrt.anchorMax = new Vector2(0.40f, 1);
+        anrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        anrt.offsetMax = new Vector2(0, -UIConstants.Spacing_Small);
 
-        // Stage text — 밝은 크림색, 볼드
-        stageText = UIHelper.MakeText("Stage", stageContainer.transform, "1-1",
-            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+        // Stage text
+        stageText = UIHelper.MakeText("Stage", hudBar.transform, "1-1",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.MidlineLeft);
         stageText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(stageText);
         var srt = stageText.GetComponent<RectTransform>();
-        srt.anchorMin = new Vector2(0, 0);
-        srt.anchorMax = new Vector2(0.35f, 0.58f);
-        srt.offsetMin = new Vector2(4, 0);
+        srt.anchorMin = new Vector2(0, 0.05f);
+        srt.anchorMax = new Vector2(0.15f, 0.55f);
+        srt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
         srt.offsetMax = Vector2.zero;
 
-        // Progress bar (EXP_Gauge 스프라이트 활용)
-        var (progBgImg, progFillImg) = UIHelper.MakeGauge(
-            "Prog", stageContainer.transform,
-            UISprites.EXP_BG,   UIColors.ProgressBar_BG,
-            UISprites.EXP_Fill, UIColors.ProgressBar_Fill);
-
-        var prt = progBgImg.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0.36f, 0.12f);
-        prt.anchorMax = new Vector2(0.98f, 0.52f);
+        // Progress bar
+        var progBg = UIHelper.MakePanel("ProgBG", hudBar.transform, UIColors.ProgressBar_BG);
+        var progOutline = progBg.gameObject.AddComponent<Outline>();
+        progOutline.effectColor = UIColors.ProgressBar_Border;
+        progOutline.effectDistance = new Vector2(1, 1);
+        var prt = progBg.GetComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0.16f, 0.18f);
+        prt.anchorMax = new Vector2(0.40f, 0.48f);
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
-        progressBarFill = progFillImg;
-
-        var pfrt = progFillImg.GetComponent<RectTransform>();
+        var progFillObj = UIHelper.MakeUI("ProgFill", progBg.transform);
+        progressBarFill = progFillObj.AddComponent<Image>();
+        progressBarFill.color = UIColors.ProgressBar_Fill;
+        var pfrt = progFillObj.GetComponent<RectTransform>();
         pfrt.anchorMin = Vector2.zero;
         pfrt.anchorMax = new Vector2(0.1f, 1);
         pfrt.offsetMin = Vector2.zero;
         pfrt.offsetMax = Vector2.zero;
 
-        progressText = UIHelper.MakeText("ProgText", progBgImg.transform, "1/10",
-            7f, TextAlignmentOptions.Center, Color.white);
-        UIHelper.AddTextShadow(progressText);
+        progressText = UIHelper.MakeText("ProgText", progBg.transform, "1/10",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center);
         UIHelper.FillParent(progressText.GetComponent<RectTransform>());
 
-        // Gold — BoxIcon1 컨테이너
-        CreateResourceDisplay(hudBar.transform, "Gold", UISprites.IconGold,
-            UIColors.Text_Gold, new Vector2(0.40f, 0.10f), new Vector2(0.68f, 0.90f),
+        // Gold
+        CreateResourceDisplay(hudBar.transform, "Gold", "G",
+            UIColors.Text_Gold, new Vector2(0.42f, 0.12f), new Vector2(0.70f, 0.88f),
             out goldText);
 
-        // Gem — BoxIcon1 컨테이너
-        CreateResourceDisplay(hudBar.transform, "Gem", UISprites.IconDiamond,
-            UIColors.Text_Diamond, new Vector2(0.70f, 0.10f), new Vector2(0.98f, 0.90f),
+        // Gem
+        CreateResourceDisplay(hudBar.transform, "Gem", "D",
+            UIColors.Text_Diamond, new Vector2(0.72f, 0.12f), new Vector2(0.98f, 0.88f),
             out gemText);
     }
 
-    void CreateResourceDisplay(Transform parent, string name, Sprite iconSprite,
+    void CreateResourceDisplay(Transform parent, string name, string iconChar,
         Color iconColor, Vector2 anchorMin, Vector2 anchorMax, out TextMeshProUGUI valueText)
     {
-        // BoxIcon1 스프라이트로 리소스 컨테이너
-        var container = UIHelper.MakeSpritePanel($"{name}BG", parent,
-            UISprites.BoxIcon1, UIColors.Panel_Inner);
-        // BoxIcon1 스프라이트 원본 색상 유지
+        var container = UIHelper.MakePanel($"{name}BG", parent, UIColors.Panel_Inner);
+        var containerOutline = container.gameObject.AddComponent<Outline>();
+        containerOutline.effectColor = UIColors.Panel_Border;
+        containerOutline.effectDistance = new Vector2(1, 1);
         var crt = container.GetComponent<RectTransform>();
         crt.anchorMin = anchorMin;
         crt.anchorMax = anchorMax;
-        crt.offsetMin = new Vector2(2, 0);
-        crt.offsetMax = new Vector2(-2, 0);
+        crt.offsetMin = Vector2.zero;
+        crt.offsetMax = Vector2.zero;
 
-        // 아이콘
-        if (iconSprite != null)
-        {
-            var iconImg = UIHelper.MakeIcon($"{name}Icon", container.transform, iconSprite, iconColor);
-            var irt = iconImg.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0, 0.1f);
-            irt.anchorMax = new Vector2(0, 0.9f);
-            irt.pivot = new Vector2(0, 0.5f);
-            irt.anchoredPosition = new Vector2(6, 0);
-            irt.sizeDelta = new Vector2(20, 0);
-        }
-        else
-        {
-            var iconBg = UIHelper.MakePanel($"{name}Icon", container.transform, iconColor);
-            var irt = iconBg.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0, 0.15f);
-            irt.anchorMax = new Vector2(0, 0.85f);
-            irt.pivot = new Vector2(0, 0.5f);
-            irt.anchoredPosition = new Vector2(6, 0);
-            irt.sizeDelta = new Vector2(18, 0);
+        // Icon circle
+        var iconBg = UIHelper.MakePanel($"{name}Icon", container.transform, iconColor);
+        var irt = iconBg.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0.15f);
+        irt.anchorMax = new Vector2(0, 0.85f);
+        irt.pivot = new Vector2(0, 0.5f);
+        irt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 0);
+        irt.sizeDelta = new Vector2(18, 0);
 
-            var iconText = UIHelper.MakeText($"{name}IconText", iconBg.transform,
-                name == "Gold" ? "G" : "D",
-                UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
-            iconText.fontStyle = FontStyles.Bold;
-            UIHelper.FillParent(iconText.GetComponent<RectTransform>());
-        }
+        var iconText = UIHelper.MakeText($"{name}IconText", iconBg.transform, iconChar,
+            UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
+        iconText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(iconText.GetComponent<RectTransform>());
 
-        // 리소스 값 텍스트 — 밝은 색으로 어두운 배경 대비
-        Color valueColor = name == "Gold" ? UIColors.Text_Gold : UIColors.Text_Diamond;
         valueText = UIHelper.MakeText($"{name}Text", container.transform, "0",
-            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, valueColor);
+            UIConstants.Font_HUDResource, TextAlignmentOptions.Center, iconColor);
         valueText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(valueText);
         var vrt = valueText.GetComponent<RectTransform>();
-        vrt.anchorMin = new Vector2(0.30f, 0);
+        vrt.anchorMin = new Vector2(0.28f, 0);
         vrt.anchorMax = new Vector2(1, 1);
         vrt.offsetMin = Vector2.zero;
-        vrt.offsetMax = new Vector2(-4, 0);
+        vrt.offsetMax = Vector2.zero;
     }
 
     // ── Wave Banner (중앙 상단) ──
@@ -351,28 +320,22 @@ public class MainHUD : MonoBehaviour
         waveBanner = UIHelper.MakeUI("WaveBanner", safeAreaRoot.transform);
         waveBannerCG = waveBanner.AddComponent<CanvasGroup>();
 
-        // Board 스프라이트 — 어두운 나무 프레임 배너
-        var bannerBgImg = UIHelper.MakeSpritePanel("BannerBG", waveBanner.transform,
-            UISprites.Board, new Color(0.2f, 0.12f, 0.08f, 0.92f));
-        UIHelper.FillParent(bannerBgImg.GetComponent<RectTransform>());
-        // Board 스프라이트 원본 색상 유지
         var bannerBg = waveBanner.AddComponent<Image>();
-        bannerBg.color = Color.clear;
+        bannerBg.color = new Color(0, 0, 0, 0.6f);
 
         var rt = waveBanner.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.15f, 0.77f);
-        rt.anchorMax = new Vector2(0.85f, 0.84f);
+        rt.anchorMin = new Vector2(0.2f, 0.78f);
+        rt.anchorMax = new Vector2(0.8f, 0.83f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
+        var bannerOutline = waveBanner.AddComponent<Outline>();
+        bannerOutline.effectColor = UIColors.Button_Yellow;
+        bannerOutline.effectDistance = new Vector2(2, 2);
+
         waveBannerText = UIHelper.MakeText("BannerText", waveBanner.transform, "WAVE 1",
-            20f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+            UIConstants.Font_HeaderLarge, TextAlignmentOptions.Center, UIColors.Button_Yellow);
         waveBannerText.fontStyle = FontStyles.Bold;
-        waveBannerText.enableVertexGradient = true;
-        waveBannerText.colorGradient = new VertexGradient(
-            new Color(1f, 0.92f, 0.55f), new Color(1f, 0.92f, 0.55f),
-            new Color(0.95f, 0.72f, 0.25f), new Color(0.95f, 0.72f, 0.25f));
-        UIHelper.AddTextOutline(waveBannerText, new Color(0.15f, 0.08f, 0.02f, 0.8f), new Vector2(1.5f, -1.5f));
         UIHelper.FillParent(waveBannerText.GetComponent<RectTransform>());
 
         waveBanner.SetActive(false);
@@ -382,24 +345,23 @@ public class MainHUD : MonoBehaviour
     void CreateKillCounter()
     {
         var container = UIHelper.MakeUI("KillCounter", safeAreaRoot.transform);
-        var killBg = UIHelper.MakeSpritePanel("KillBG", container.transform,
-            UISprites.BoxIcon1, new Color(0.15f, 0.08f, 0.05f, 0.85f));
-        UIHelper.FillParent(killBg.GetComponent<RectTransform>());
-        // BoxIcon1 스프라이트 원본 색상 유지
         var bg = container.AddComponent<Image>();
-        bg.color = Color.clear;
+        bg.color = new Color(0, 0, 0, 0.5f);
+
+        var outline = container.AddComponent<Outline>();
+        outline.effectColor = UIColors.Defeat_Red;
+        outline.effectDistance = new Vector2(1, 1);
 
         var rt = container.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0, 0.5f);
         rt.anchorMax = new Vector2(0, 0.5f);
         rt.pivot = new Vector2(0, 0.5f);
         rt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 50);
-        rt.sizeDelta = new Vector2(62, 24);
+        rt.sizeDelta = new Vector2(58, 22);
 
         var iconText = UIHelper.MakeText("KillIcon", container.transform, "KILL",
-            8f, TextAlignmentOptions.MidlineLeft, new Color(1f, 0.4f, 0.3f));
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Defeat_Red);
         iconText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(iconText);
         var irt = iconText.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0, 0);
         irt.anchorMax = new Vector2(0.5f, 1);
@@ -407,9 +369,8 @@ public class MainHUD : MonoBehaviour
         irt.offsetMax = Vector2.zero;
 
         killCountText = UIHelper.MakeText("KillCount", container.transform, "0",
-            UIConstants.Font_Tab, TextAlignmentOptions.MidlineRight, Color.white);
+            UIConstants.Font_Tab, TextAlignmentOptions.MidlineRight, UIColors.Text_Primary);
         killCountText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(killCountText);
         var krt = killCountText.GetComponent<RectTransform>();
         krt.anchorMin = new Vector2(0.5f, 0);
         krt.anchorMax = new Vector2(1, 1);
@@ -419,27 +380,21 @@ public class MainHUD : MonoBehaviour
 
 
     // ── Bottom Nav Bar (하단) ──
-    // 탭 아이콘용 SPUM 스프라이트 (인덱스)
-    readonly Sprite[] tabSpriteIcons = new Sprite[TAB_COUNT];
-
     void CreateBottomNavBar()
     {
         var navBar = UIHelper.MakeUI("NavBar", safeAreaRoot.transform);
-        // Board_20x20 — 어두운 나무 프레임 배경
-        var navBg = UIHelper.MakeSpritePanel("NavBG", navBar.transform, UISprites.Board, UIColors.NavBar_BG);
-        UIHelper.FillParent(navBg.GetComponent<RectTransform>());
-        // Board 스프라이트 원본 색상 유지
         var navImg = navBar.AddComponent<Image>();
-        navImg.color = Color.clear;
+        navImg.color = UIColors.Background_Dark;
         UIHelper.SetAnchors(navBar, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0));
-        navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 58);
+        navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.NavBar_Height);
 
-        // 탭 아이콘 스프라이트 할당 (SPUM 아이콘 활용)
-        tabSpriteIcons[0] = UISprites.IconSword;     // 훈련
-        tabSpriteIcons[1] = UISprites.IconSkill;     // 강화
-        tabSpriteIcons[2] = UISprites.IconInven;     // 편성
-        tabSpriteIcons[3] = UISprites.IconPotion1;   // 소환
-        tabSpriteIcons[4] = UISprites.IconQuest;     // 상점
+        // Top border (golden)
+        var borderLine = UIHelper.MakePanel("Border", navBar.transform, UIColors.Panel_Border);
+        var brt = borderLine.GetComponent<RectTransform>();
+        brt.anchorMin = new Vector2(0, 1);
+        brt.anchorMax = new Vector2(1, 1);
+        brt.pivot = new Vector2(0.5f, 1);
+        brt.sizeDelta = new Vector2(0, 2);
 
         float tabWidth = 1f / TAB_COUNT;
         for (int i = 0; i < TAB_COUNT; i++)
@@ -448,19 +403,9 @@ public class MainHUD : MonoBehaviour
             float xMin = i * tabWidth;
             float xMax = (i + 1) * tabWidth;
 
-            // Btn1_WS 스프라이트로 탭 버튼
             var tabObj = UIHelper.MakeUI($"Tab_{tabNames[i]}", navBar.transform);
             var tabImg = tabObj.AddComponent<Image>();
-            if (UISprites.Btn1_WS != null)
-            {
-                tabImg.sprite = UISprites.Btn1_WS;
-                tabImg.type = Image.Type.Sliced;
-                tabImg.color = Color.white; // 미선택: 밝은 톤
-            }
-            else
-            {
-                tabImg.color = UIColors.Tab_Inactive;
-            }
+            tabImg.color = UIColors.Tab_Inactive;
             tabButtons[i] = tabObj.AddComponent<Button>();
             tabButtons[i].targetGraphic = tabImg;
             tabButtons[i].onClick.AddListener(() => OnTabClicked(idx));
@@ -468,60 +413,45 @@ public class MainHUD : MonoBehaviour
             var trt = tabObj.GetComponent<RectTransform>();
             trt.anchorMin = new Vector2(xMin, 0);
             trt.anchorMax = new Vector2(xMax, 1);
-            trt.offsetMin = new Vector2(2, 4);
-            trt.offsetMax = new Vector2(-2, -4);
+            trt.offsetMin = new Vector2(1, 0);
+            trt.offsetMax = new Vector2(-1, -2);
 
-            // Active indicator (하단 골드 라인)
-            var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Text_Gold);
+            // Active indicator
+            var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Button_Yellow);
             var irt = indicator.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0.1f, 0);
-            irt.anchorMax = new Vector2(0.9f, 0);
-            irt.pivot = new Vector2(0.5f, 0);
+            irt.anchorMin = new Vector2(0.05f, 1);
+            irt.anchorMax = new Vector2(0.95f, 1);
+            irt.pivot = new Vector2(0.5f, 1);
             irt.sizeDelta = new Vector2(0, 3);
             indicator.gameObject.SetActive(false);
             tabIndicators[i] = indicator;
 
-            // 아이콘 — SPUM 스프라이트 사용, 없으면 유니코드 폴백
-            if (tabSpriteIcons[i] != null)
-            {
-                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], Color.white);
-                var icrt = iconImg.GetComponent<RectTransform>();
-                icrt.anchorMin = new Vector2(0.10f, 0.32f);
-                icrt.anchorMax = new Vector2(0.90f, 0.92f);
-                icrt.offsetMin = Vector2.zero;
-                icrt.offsetMax = Vector2.zero;
-                // 미선택: 원래 색, 선택: 밝게 (UpdateTabVisuals에서 처리)
-                tabIconTexts[i] = null; // 스프라이트 사용 시 텍스트 아이콘 불필요
-            }
-            else
-            {
-                tabIconTexts[i] = UIHelper.MakeText("Icon", tabObj.transform, tabIcons[i],
-                    UIConstants.NavBar_IconSize, TextAlignmentOptions.Center, UIColors.Text_Secondary);
-                tabIconTexts[i].fontStyle = FontStyles.Bold;
-                var icrt = tabIconTexts[i].GetComponent<RectTransform>();
-                icrt.anchorMin = new Vector2(0, 0.38f);
-                icrt.anchorMax = new Vector2(1, 0.90f);
-                icrt.offsetMin = Vector2.zero;
-                icrt.offsetMax = Vector2.zero;
-            }
+            // Icon text
+            tabIconTexts[i] = UIHelper.MakeText("Icon", tabObj.transform, tabIcons[i],
+                UIConstants.NavBar_IconSize, TextAlignmentOptions.Center, UIColors.Text_Disabled);
+            tabIconTexts[i].fontStyle = FontStyles.Bold;
+            var icrt = tabIconTexts[i].GetComponent<RectTransform>();
+            icrt.anchorMin = new Vector2(0, 0.32f);
+            icrt.anchorMax = new Vector2(1, 0.88f);
+            icrt.offsetMin = Vector2.zero;
+            icrt.offsetMax = Vector2.zero;
 
-            // Label — 밝은 크림색 (어두운 배경)
+            // Label
             tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
-                9f, TextAlignmentOptions.Top, UIColors.Text_Secondary);
-            tabLabels[i].fontStyle = FontStyles.Bold;
+                UIConstants.Font_NavLabel, TextAlignmentOptions.Top, UIColors.Text_Disabled);
             var lrt = tabLabels[i].GetComponent<RectTransform>();
-            lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.35f);
+            lrt.anchorMin = new Vector2(0, 0.02f);
+            lrt.anchorMax = new Vector2(1, 0.32f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
 
-            // Badge (빨간 알림 원)
+            // Badge (red circle with count)
             var badge = UIHelper.MakeUI($"Badge_{i}", tabObj.transform);
             var badgeImg = badge.AddComponent<Image>();
             badgeImg.color = UIColors.Defeat_Red;
             var bdrt = badge.GetComponent<RectTransform>();
-            bdrt.anchorMin = new Vector2(0.68f, 0.68f);
-            bdrt.anchorMax = new Vector2(0.68f, 0.68f);
+            bdrt.anchorMin = new Vector2(0.65f, 0.65f);
+            bdrt.anchorMax = new Vector2(0.65f, 0.65f);
             bdrt.pivot = new Vector2(0.5f, 0.5f);
             bdrt.sizeDelta = new Vector2(16, 16);
 
@@ -540,76 +470,55 @@ public class MainHUD : MonoBehaviour
     void CreateTabPanels()
     {
         float refH = UIConstants.ReferenceResolution.y;
-        float navRatio = 58f / refH; // navBar height
+        float navRatio = UIConstants.NavBar_Height / refH;
 
         for (int i = 0; i < TAB_COUNT; i++)
         {
             var panel = UIHelper.MakeUI($"Panel_{tabNames[i]}", safeAreaRoot.transform);
-            // BoxBasic1 — 밝은 나무 패널 배경
-            var panelBg = UIHelper.MakeSpritePanel("PanelBG", panel.transform,
-                UISprites.BoxBasic1, UIColors.Background_Panel);
-            UIHelper.FillParent(panelBg.GetComponent<RectTransform>());
-            // BoxBasic1 스프라이트 원본 색상 유지
             var panelImg = panel.AddComponent<Image>();
-            panelImg.color = Color.clear;
+            panelImg.color = UIColors.Background_Panel;
 
             var prt = panel.GetComponent<RectTransform>();
+            // 모든 탭 하단 절반 이하만 사용
             prt.anchorMin = new Vector2(0, navRatio);
-            prt.anchorMax = new Vector2(1, 0.50f);
+            prt.anchorMax = new Vector2(1, 0.48f);
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
-            // Header bar — Board 스프라이트 (진한 나무 프레임)
-            var header = UIHelper.MakeSpritePanel("Header", panel.transform,
-                UISprites.Board, UIColors.Background_Dark);
-            // Board 스프라이트 원본 색상 유지
+            var panelOutline = panel.AddComponent<Outline>();
+            panelOutline.effectColor = UIColors.Panel_Border;
+            panelOutline.effectDistance = new Vector2(UIConstants.Panel_BorderWidth, UIConstants.Panel_BorderWidth);
+
+            // Header bar
+            var header = UIHelper.MakePanel("Header", panel.transform, UIColors.Background_Dark);
+            var headerOutline = header.gameObject.AddComponent<Outline>();
+            headerOutline.effectColor = UIColors.Panel_Border;
+            headerOutline.effectDistance = new Vector2(0, -1);
             var hrt = header.GetComponent<RectTransform>();
             hrt.anchorMin = new Vector2(0, 1);
             hrt.anchorMax = new Vector2(1, 1);
             hrt.pivot = new Vector2(0.5f, 1);
             hrt.sizeDelta = new Vector2(0, UIConstants.Tab_Height);
 
-            var title = UIHelper.MakeText("Title", header.transform, tabNames[i],
-                UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+            var title = UIHelper.MakeText("Title", header.transform, $"{tabIcons[i]} {tabNames[i]}",
+                UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center);
             title.fontStyle = FontStyles.Bold;
-            title.enableVertexGradient = true;
-            title.colorGradient = new VertexGradient(
-                new Color(1f, 0.97f, 0.90f), new Color(1f, 0.97f, 0.90f),
-                new Color(0.88f, 0.78f, 0.60f), new Color(0.88f, 0.78f, 0.60f));
-            UIHelper.AddTextShadow(title);
             UIHelper.FillParent(title.GetComponent<RectTransform>());
 
-            // Close button — Button_X 스프라이트 (깔끔한 X)
-            var closeObj = UIHelper.MakeUI("CloseBtn", header.transform);
-            var closeImg = closeObj.AddComponent<Image>();
-            if (UISprites.BtnX != null)
-            {
-                closeImg.sprite = UISprites.BtnX;
-                closeImg.type = Image.Type.Simple;
-                closeImg.preserveAspect = true;
-                closeImg.color = Color.white;
-            }
-            else
-            {
-                closeImg.color = UIColors.Button_Brown;
-            }
-            var closeBtn = closeObj.AddComponent<Button>();
-            closeBtn.targetGraphic = closeImg;
+            // Close button
+            var (closeBtn, closeImg) = UIHelper.MakeButton("CloseBtn", header.transform,
+                UIColors.Button_Brown, "X", UIConstants.Font_Button);
+            closeImg.color = UIColors.Button_Brown;
+            var closeBtnOutline = closeBtn.gameObject.AddComponent<Outline>();
+            closeBtnOutline.effectColor = UIColors.Button_Brown_Border;
+            closeBtnOutline.effectDistance = new Vector2(1, 1);
             closeBtn.onClick.AddListener(ClosePanel);
             var crt = closeBtn.GetComponent<RectTransform>();
             crt.anchorMin = new Vector2(1, 0.5f);
             crt.anchorMax = new Vector2(1, 0.5f);
             crt.pivot = new Vector2(1, 0.5f);
-            crt.anchoredPosition = new Vector2(-6, 0);
-            crt.sizeDelta = new Vector2(24, 24);
-
-            if (UISprites.BtnX == null)
-            {
-                var xLabel = UIHelper.MakeText("X", closeObj.transform, "X",
-                    12f, TextAlignmentOptions.Center, Color.white);
-                xLabel.fontStyle = FontStyles.Bold;
-                UIHelper.FillParent(xLabel.GetComponent<RectTransform>());
-            }
+            crt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, 0);
+            crt.sizeDelta = new Vector2(UIConstants.MinTouchTarget, UIConstants.Tab_Height - UIConstants.Spacing_Small);
 
             // 탭별 콘텐츠
             if (i == 0)
@@ -657,7 +566,7 @@ public class MainHUD : MonoBehaviour
 
         // 스킬 강화 라벨
         var skillLabel = UIHelper.MakeText("SkillLabel", content.transform, "스킬 강화",
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkGold);
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
         skillLabel.fontStyle = FontStyles.Bold;
         var slrt = skillLabel.GetComponent<RectTransform>();
         slrt.anchorMin = new Vector2(0, 0.7f);
@@ -697,19 +606,16 @@ public class MainHUD : MonoBehaviour
         float yMax = 1f - index * rowH;
         float yMin = yMax - rowH;
 
-        var rowImg = UIHelper.MakeSpritePanel($"{label}Row", parent,
-            UISprites.BoxBasic3, UIColors.Panel_Inner);
-        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
-        var row = rowImg;
+        var row = UIHelper.MakePanel($"{label}Row", parent, UIColors.Panel_Inner);
         var rrt = row.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, yMin);
         rrt.anchorMax = new Vector2(1, yMax);
-        rrt.offsetMin = new Vector2(4, 2);
-        rrt.offsetMax = new Vector2(-4, -2);
+        rrt.offsetMin = new Vector2(0, 1);
+        rrt.offsetMax = new Vector2(0, -1);
 
         // Label
         var labelText = UIHelper.MakeText($"{label}Label", row.transform, label,
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
         labelText.fontStyle = FontStyles.Bold;
         var llrt = labelText.GetComponent<RectTransform>();
         llrt.anchorMin = new Vector2(0, 0);
@@ -719,7 +625,7 @@ public class MainHUD : MonoBehaviour
 
         // Info
         infoText = UIHelper.MakeText($"{label}Info", row.transform, "",
-            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
         infoText.fontStyle = FontStyles.Bold;
         var irt = infoText.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0.18f, 0);
@@ -727,11 +633,15 @@ public class MainHUD : MonoBehaviour
         irt.offsetMin = new Vector2(UIConstants.Spacing_Small, 0);
         irt.offsetMax = Vector2.zero;
 
-        // Button — Btn2_WS (녹색 스프라이트)
-        var (upgradeBtn, upgBtnImg) = UIHelper.MakeSpriteButton($"{label}Btn", row.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Cost);
+        // Button
+        var (upgradeBtn, _) = UIHelper.MakeButton($"{label}Btn", row.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Cost);
         btn = upgradeBtn;
         btn.onClick.AddListener(onClick);
+
+        var ubOutline = btn.gameObject.AddComponent<Outline>();
+        ubOutline.effectColor = UIColors.Button_Green_Border;
+        ubOutline.effectDistance = new Vector2(1, 1);
 
         var ubrt = btn.GetComponent<RectTransform>();
         ubrt.anchorMin = new Vector2(0.68f, 0.1f);
@@ -740,9 +650,8 @@ public class MainHUD : MonoBehaviour
         ubrt.offsetMax = Vector2.zero;
 
         var costText = UIHelper.MakeText("Cost", btn.transform, "",
-            UIConstants.Font_Cost, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Cost, TextAlignmentOptions.Center, UIColors.Text_Gold);
         costText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(costText);
         UIHelper.FillParent(costText.GetComponent<RectTransform>());
     }
 
@@ -762,11 +671,7 @@ public class MainHUD : MonoBehaviour
         var text = btn.GetComponentInChildren<TextMeshProUGUI>();
         if (text != null) text.text = $"{cost}G";
         bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
-        var img = btn.GetComponent<Image>();
-        if (img.sprite != null)
-            img.color = canAfford ? Color.white : new Color(0.70f, 0.70f, 0.70f);
-        else
-            img.color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
+        btn.GetComponent<Image>().color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
     // ════════════════════════════════════════
@@ -822,36 +727,10 @@ public class MainHUD : MonoBehaviour
         for (int i = 0; i < TAB_COUNT; i++)
         {
             bool active = (i == activeTab);
-            var tabImg = tabButtons[i].GetComponent<Image>();
-
-            if (UISprites.Btn1_WS != null)
-            {
-                // 선택: 확실한 어두운 tint + 축소 (눌린 느낌), 미선택: 원본
-                tabImg.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
-                tabButtons[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
-            }
-            else
-            {
-                tabImg.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
-            }
-
-            // 라벨: 선택=흰색, 미선택=크림색
-            tabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
-            tabLabels[i].fontStyle = FontStyles.Bold;
-
-            // 아이콘 (텍스트 아이콘인 경우만)
-            if (tabIconTexts[i] != null)
-                tabIconTexts[i].color = active ? Color.white : UIColors.Text_Secondary;
-
-            // 스프라이트 아이콘 색상 조정
-            var iconImgObj = tabButtons[i].transform.Find("Icon");
-            if (iconImgObj != null)
-            {
-                var iconImg = iconImgObj.GetComponent<Image>();
-                if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? Color.white : new Color(0.85f, 0.82f, 0.78f);
-            }
-
+            tabButtons[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            tabLabels[i].color = active ? UIColors.Text_Primary : UIColors.Text_Disabled;
+            tabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
+            tabIconTexts[i].color = active ? UIColors.Button_Yellow : UIColors.Text_Disabled;
             tabIndicators[i].gameObject.SetActive(active);
         }
     }
@@ -876,8 +755,8 @@ public class MainHUD : MonoBehaviour
         int total = StageManager.Instance != null ? StageManager.Instance.wavesPerStage : 10;
         if (progressBarFill != null)
         {
-            // Image.Type.Filled 이므로 fillAmount 사용 (anchorMax 조작은 Filled 타입에서 무효)
-            progressBarFill.fillAmount = total > 0 ? (float)wave / total : 0f;
+            var rt = progressBarFill.GetComponent<RectTransform>();
+            rt.anchorMax = new Vector2((float)wave / total, 1);
         }
         if (progressText != null)
             progressText.SetText("{0}/{1}", wave, total);
@@ -938,10 +817,8 @@ public class MainHUD : MonoBehaviour
         trackedBoss = boss;
         if (bossHpBarRoot != null) bossHpBarRoot.SetActive(true);
         if (bossNameText != null)
-        {
             bossNameText.text = isAreaBoss ? $"AREA BOSS: {boss.unitName}" : $"BOSS: {boss.unitName}";
-            bossNameText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Text_Gold;
-        }
+        bossNameText.color = isAreaBoss ? new Color(1f, 0.2f, 0.2f) : UIColors.Text_Gold;
 
         trackedBoss.OnHpChanged += UpdateBossHpBar;
         trackedBoss.OnDeath += HideBossHpBar;
@@ -1074,28 +951,27 @@ public class MainHUD : MonoBehaviour
     {
         bossHpBarRoot = UIHelper.MakeUI("BossHpBar", safeAreaRoot.transform);
         var rt = bossHpBarRoot.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.08f, 0.78f);
-        rt.anchorMax = new Vector2(0.92f, 0.84f);
+        rt.anchorMin = new Vector2(0.1f, 0.78f);
+        rt.anchorMax = new Vector2(0.9f, 0.84f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
-        // Boss_HP_Gauge1 스프라이트 배경
-        var bossBg = UIHelper.MakeSpritePanel("BossBG", bossHpBarRoot.transform,
-            UISprites.BossHP_BG, new Color(0.15f, 0.05f, 0.05f, 0.9f));
-        UIHelper.FillParent(bossBg.GetComponent<RectTransform>());
+        // 배경
         var bg = bossHpBarRoot.AddComponent<Image>();
-        bg.color = Color.clear;
+        bg.color = new Color(0.15f, 0.05f, 0.05f, 0.85f);
 
-        // 이름 텍스트 — 볼드, 빨간 톤
-        bossNameText = UIHelper.MakeText("BossName", bossHpBarRoot.transform, "BOSS",
-            UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Gold);
-        bossNameText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextOutline(bossNameText, new Color(0, 0, 0, 0.6f), new Vector2(1, -1));
-        var nameRt = bossNameText.GetComponent<RectTransform>();
+        // 이름 텍스트
+        var nameObj = UIHelper.MakeUI("BossName", bossHpBarRoot.transform);
+        var nameRt = nameObj.GetComponent<RectTransform>();
         nameRt.anchorMin = new Vector2(0f, 1f);
         nameRt.anchorMax = new Vector2(1f, 1.8f);
         nameRt.offsetMin = Vector2.zero;
         nameRt.offsetMax = Vector2.zero;
+        bossNameText = nameObj.AddComponent<TextMeshProUGUI>();
+        bossNameText.text = "BOSS";
+        bossNameText.fontSize = UIConstants.Font_StatLabel;
+        bossNameText.alignment = TextAlignmentOptions.Center;
+        bossNameText.color = UIColors.Text_Gold;
 
         // HP바 fill
         var fillObj = UIHelper.MakeUI("Fill", bossHpBarRoot.transform);
@@ -1105,26 +981,22 @@ public class MainHUD : MonoBehaviour
         fillRt.offsetMin = Vector2.zero;
         fillRt.offsetMax = Vector2.zero;
         bossHpBarFill = fillObj.AddComponent<Image>();
-        if (UISprites.BossHP_Fill != null)
-        {
-            bossHpBarFill.sprite = UISprites.BossHP_Fill;
-            bossHpBarFill.type = Image.Type.Filled;
-            bossHpBarFill.fillMethod = Image.FillMethod.Horizontal;
-            bossHpBarFill.color = Color.white;
-        }
-        else
-        {
-            bossHpBarFill.color = new Color(0.9f, 0.15f, 0.15f);
-            bossHpBarFill.type = Image.Type.Filled;
-            bossHpBarFill.fillMethod = Image.FillMethod.Horizontal;
-        }
+        bossHpBarFill.color = new Color(0.9f, 0.15f, 0.15f);
+        bossHpBarFill.type = Image.Type.Filled;
+        bossHpBarFill.fillMethod = Image.FillMethod.Horizontal;
 
         // HP 텍스트
-        bossHpText = UIHelper.MakeText("BossHpText", bossHpBarRoot.transform, "",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
-        bossHpText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(bossHpText);
-        UIHelper.FillParent(bossHpText.GetComponent<RectTransform>());
+        var hpObj = UIHelper.MakeUI("BossHpText", bossHpBarRoot.transform);
+        var hpRt = hpObj.GetComponent<RectTransform>();
+        hpRt.anchorMin = Vector2.zero;
+        hpRt.anchorMax = Vector2.one;
+        hpRt.offsetMin = Vector2.zero;
+        hpRt.offsetMax = Vector2.zero;
+        bossHpText = hpObj.AddComponent<TextMeshProUGUI>();
+        bossHpText.text = "";
+        bossHpText.fontSize = UIConstants.Font_SmallInfo;
+        bossHpText.alignment = TextAlignmentOptions.Center;
+        bossHpText.color = Color.white;
 
         bossHpBarRoot.SetActive(false);
     }
@@ -1161,12 +1033,9 @@ public class MainHUD : MonoBehaviour
         contentRT.offsetMin = new Vector2(0, 0);
         contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
-        // 서브탭 바 — Board 스프라이트 배경
+        // 서브탭 바
         float subTabH = 30f;
-        var subTabBarBg = UIHelper.MakeSpritePanel("SubTabBar", content.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var subTabBar = subTabBarBg;
+        var subTabBar = UIHelper.MakePanel("SubTabBar", content.transform, UIColors.Background_Dark);
         var stbRT = subTabBar.GetComponent<RectTransform>();
         stbRT.anchorMin = new Vector2(0, 1);
         stbRT.anchorMax = new Vector2(1, 1);
@@ -1181,17 +1050,16 @@ public class MainHUD : MonoBehaviour
         {
             float xMin = s * 0.5f;
             float xMax = (s + 1) * 0.5f;
-            var (btn, btnImg) = UIHelper.MakeSpriteButton($"SubTab_{subNames[s]}", subTabBar.transform,
-                UISprites.Btn1_WS, UIColors.Tab_Inactive, "", 0);
-            if (UISprites.Btn1_WS != null) btnImg.color = Color.white;
+            var (btn, _) = UIHelper.MakeButton($"SubTab_{subNames[s]}", subTabBar.transform,
+                UIColors.Tab_Inactive, "", 0);
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(xMin, 0);
             brt.anchorMax = new Vector2(xMax, 1);
-            brt.offsetMin = new Vector2(3, 3);
-            brt.offsetMax = new Vector2(-3, -3);
+            brt.offsetMin = new Vector2(1, 0);
+            brt.offsetMax = new Vector2(-1, 0);
 
             var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
-                UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+                UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Disabled);
             label.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(label.GetComponent<RectTransform>());
 
@@ -1239,15 +1107,8 @@ public class MainHUD : MonoBehaviour
         for (int i = 0; i < 2; i++)
         {
             bool active = (i == enhanceSubTab);
-            var img = enhanceSubTabBtns[i].GetComponent<Image>();
-            if (img.sprite != null)
-            {
-                img.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
-                enhanceSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
-            }
-            else
-                img.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
-            enhanceSubTabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
+            enhanceSubTabBtns[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            enhanceSubTabLabels[i].color = active ? UIColors.Text_TabActive : UIColors.Text_Disabled;
         }
         if (enhanceHeroRoot != null) enhanceHeroRoot.SetActive(enhanceSubTab == 0);
         if (enhanceEquipRoot != null) enhanceEquipRoot.SetActive(enhanceSubTab == 1);
@@ -1322,7 +1183,7 @@ public class MainHUD : MonoBehaviour
             string heroName = preset.characterName;
 
             var item = ReuseOrCreate(heroListItems, ref heroReuse,
-                $"Hero_{heroName}", heroListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+                $"Hero_{heroName}", heroListContainer.transform, UIColors.Panel_Inner);
             activeHeroCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -1337,7 +1198,7 @@ public class MainHUD : MonoBehaviour
 
             // Name + Level
             var nameText = UIHelper.MakeText("Name", item.transform, $"{heroName}",
-                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0, 0.5f);
@@ -1349,7 +1210,7 @@ public class MainHUD : MonoBehaviour
             int star = hlm != null ? hlm.GetStarRank(heroName) : 1;
             string starStr = new string('\u2605', star); // ★
             var lvText = UIHelper.MakeText("Lv", item.transform, $"Lv.{level} {starStr}",
-                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkGold);
+                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
             lvText.fontStyle = FontStyles.Bold;
             var lvrt = lvText.GetComponent<RectTransform>();
             lvrt.anchorMin = new Vector2(0, 0);
@@ -1359,7 +1220,7 @@ public class MainHUD : MonoBehaviour
 
             // Copies info
             var copyText = UIHelper.MakeText("Copies", item.transform, $"카드: {copies}/{needed}",
-                9f, TextAlignmentOptions.Center, copies >= needed ? UIColors.Text_DarkGreen : UIColors.Text_DarkSecondary);
+                9f, TextAlignmentOptions.Center, copies >= needed ? UIColors.Text_Green : UIColors.Text_Secondary);
             var cprt = copyText.GetComponent<RectTransform>();
             cprt.anchorMin = new Vector2(0.32f, 0);
             cprt.anchorMax = new Vector2(0.65f, 1);
@@ -1371,10 +1232,7 @@ public class MainHUD : MonoBehaviour
             string btnLabel = level >= HeroLevelManager.MAX_LEVEL ? "MAX" : "강화";
             Color btnColor = canLevelUp ? UIColors.Button_Green : UIColors.Button_Gray;
 
-            Sprite heroBtnSprite = canLevelUp ? UISprites.Btn2_WS : UISprites.Btn1_WS;
-            var (btn, heroBtnImg) = UIHelper.MakeSpriteButton($"LvUp_{heroName}", item.transform,
-                heroBtnSprite, btnColor, "", 10f);
-            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            var (btn, _) = UIHelper.MakeButton($"LvUp_{heroName}", item.transform, btnColor, "", 10f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -1383,7 +1241,7 @@ public class MainHUD : MonoBehaviour
 
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
                 UIConstants.Font_Cost, TextAlignmentOptions.Center,
-                canLevelUp ? Color.white : UIColors.Text_Disabled);
+                canLevelUp ? UIColors.Text_Primary : UIColors.Text_Disabled);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -1424,89 +1282,65 @@ public class MainHUD : MonoBehaviour
         contentRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
         contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height);
 
-        // 보석 보유량 표시 — BoxIcon1 배경
-        var gemContainer = UIHelper.MakeSpritePanel("GemContainer", content.transform,
-            UISprites.BoxIcon1, UIColors.Panel_Inner);
-        // BoxIcon1 스프라이트 원본 색상 유지
-        var gcrt = gemContainer.GetComponent<RectTransform>();
-        gcrt.anchorMin = new Vector2(0.2f, 0.86f);
-        gcrt.anchorMax = new Vector2(0.8f, 0.98f);
-        gcrt.offsetMin = Vector2.zero;
-        gcrt.offsetMax = Vector2.zero;
-
-        // 보석 아이콘
-        if (UISprites.IconDiamond != null)
-        {
-            var gemIcon = UIHelper.MakeIcon("GemIcon", gemContainer.transform, UISprites.IconDiamond, UIColors.Text_Diamond);
-            var girt = gemIcon.GetComponent<RectTransform>();
-            girt.anchorMin = new Vector2(0.05f, 0.1f);
-            girt.anchorMax = new Vector2(0.05f, 0.9f);
-            girt.pivot = new Vector2(0, 0.5f);
-            girt.sizeDelta = new Vector2(18, 0);
-        }
-
-        gachaGemText = UIHelper.MakeText("GemInfo", gemContainer.transform, "보석: 0",
+        // 보석 보유량 표시
+        gachaGemText = UIHelper.MakeText("GemInfo", content.transform, "보석: 0",
             UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Diamond);
         gachaGemText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(gachaGemText);
-        UIHelper.FillParent(gachaGemText.GetComponent<RectTransform>());
+        var grt = gachaGemText.GetComponent<RectTransform>();
+        grt.anchorMin = new Vector2(0, 0.85f);
+        grt.anchorMax = new Vector2(1, 1);
+        grt.offsetMin = Vector2.zero;
+        grt.offsetMax = Vector2.zero;
 
-        // 1회 뽑기 버튼 — Btn2_WS (녹색)
-        var (singleBtn, _) = UIHelper.MakeSpriteButton("SinglePull", content.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+        // 1회 뽑기 버튼 (50보석)
+        var (singleBtn, _) = UIHelper.MakeButton("SinglePull", content.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
         singleBtn.onClick.AddListener(OnSinglePull);
         var sbrt = singleBtn.GetComponent<RectTransform>();
-        sbrt.anchorMin = new Vector2(0.05f, 0.50f);
-        sbrt.anchorMax = new Vector2(0.47f, 0.82f);
+        sbrt.anchorMin = new Vector2(0.05f, 0.5f);
+        sbrt.anchorMax = new Vector2(0.47f, 0.8f);
         sbrt.offsetMin = Vector2.zero;
         sbrt.offsetMax = Vector2.zero;
         var sText = UIHelper.MakeText("Label", singleBtn.transform, $"1회 소환\n{GachaManager.SINGLE_PULL_COST} 보석",
-            11f, TextAlignmentOptions.Center, Color.white);
+            10f, TextAlignmentOptions.Center, UIColors.Text_Primary);
         sText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(sText);
         UIHelper.FillParent(sText.GetComponent<RectTransform>());
 
-        // 10연차 버튼 — Btn3_WS (황금색, 더 크게)
-        var (multiBtn, _) = UIHelper.MakeSpriteButton("MultiPull", content.transform,
-            UISprites.Btn3_WS, UIColors.Button_Yellow, "", UIConstants.Font_Button);
+        // 10연차 버튼 (450보석)
+        var (multiBtn, _) = UIHelper.MakeButton("MultiPull", content.transform,
+            UIColors.Button_Yellow, "", UIConstants.Font_Button);
         multiBtn.onClick.AddListener(OnMultiPull);
         var mbrt = multiBtn.GetComponent<RectTransform>();
-        mbrt.anchorMin = new Vector2(0.53f, 0.50f);
-        mbrt.anchorMax = new Vector2(0.95f, 0.82f);
+        mbrt.anchorMin = new Vector2(0.53f, 0.5f);
+        mbrt.anchorMax = new Vector2(0.95f, 0.8f);
         mbrt.offsetMin = Vector2.zero;
         mbrt.offsetMax = Vector2.zero;
         var mText = UIHelper.MakeText("Label", multiBtn.transform, $"10연차\n{GachaManager.MULTI_PULL_COST} 보석",
-            11f, TextAlignmentOptions.Center, new Color(0.20f, 0.12f, 0.05f));
+            10f, TextAlignmentOptions.Center, UIColors.Background_Dark);
         mText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(mText.GetComponent<RectTransform>());
 
-        // 확률 정보 버튼 — Btn1_WS (나무색, 작게)
-        var (probBtn, _) = UIHelper.MakeSpriteButton("ProbInfoBtn", content.transform,
-            UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
+        // 확률 정보 버튼 (법적 의무)
+        var (probBtn, _) = UIHelper.MakeButton("ProbInfoBtn", content.transform,
+            UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
         probBtn.onClick.AddListener(ShowProbabilityInfo);
         var pbrt = probBtn.GetComponent<RectTransform>();
-        pbrt.anchorMin = new Vector2(0.25f, 0.40f);
-        pbrt.anchorMax = new Vector2(0.75f, 0.50f);
+        pbrt.anchorMin = new Vector2(0.3f, 0.42f);
+        pbrt.anchorMax = new Vector2(0.7f, 0.5f);
         pbrt.offsetMin = Vector2.zero;
         pbrt.offsetMax = Vector2.zero;
-        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보 보기",
+        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         UIHelper.FillParent(probLabel.GetComponent<RectTransform>());
 
-        // 결과 텍스트 — BoxBasic3 배경
-        var resultBg = UIHelper.MakeSpritePanel("ResultBG", content.transform,
-            UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
-        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
-        var rbrt = resultBg.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.05f, 0.02f);
-        rbrt.anchorMax = new Vector2(0.95f, 0.38f);
-        rbrt.offsetMin = Vector2.zero;
-        rbrt.offsetMax = Vector2.zero;
-
-        gachaResultText = UIHelper.MakeText("Result", resultBg.transform, "",
-            10f, TextAlignmentOptions.Center, Color.white);
-        UIHelper.AddTextShadow(gachaResultText);
-        UIHelper.FillParent(gachaResultText.GetComponent<RectTransform>());
+        // 결과 텍스트
+        gachaResultText = UIHelper.MakeText("Result", content.transform, "",
+            9f, TextAlignmentOptions.Center, UIColors.Text_Green);
+        var rrt = gachaResultText.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, 0);
+        rrt.anchorMax = new Vector2(1, 0.4f);
+        rrt.offsetMin = Vector2.zero;
+        rrt.offsetMax = Vector2.zero;
     }
 
     void RefreshGachaUI()
@@ -1617,7 +1451,7 @@ public class MainHUD : MonoBehaviour
 
         // 상단 요약
         equipInfoText = UIHelper.MakeText("EquipInfo", content.transform, "장비: 0개",
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
         equipInfoText.fontStyle = FontStyles.Bold;
         var irt = equipInfoText.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0, 0.88f);
@@ -1671,21 +1505,21 @@ public class MainHUD : MonoBehaviour
 
         // 레어도별 색상
         Color[] rarityColors = {
-            UIColors.Text_DarkSecondary,        // 0 (unused)
-            UIColors.Text_DarkSecondary,        // 1
+            UIColors.Text_Secondary,        // 0 (unused)
+            UIColors.Text_Secondary,        // 1
             UIColors.Rarity_Common,         // 2
             new Color(0.3f, 0.6f, 1f),     // 3
             UIColors.Rarity_Rare,           // 4
-            UIColors.Text_DarkGold          // 5
+            UIColors.Text_Gold              // 5
         };
 
         for (int i = 0; i < inv.Count; i++)
         {
             var equip = inv[i];
-            Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length ? rarityColors[equip.rarity] : UIColors.Text_DarkSecondary;
+            Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length ? rarityColors[equip.rarity] : UIColors.Text_Secondary;
 
             var item = ReuseOrCreate(equipListItems, ref equipReuse,
-                $"Equip_{i}", equipListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+                $"Equip_{i}", equipListContainer.transform, UIColors.Panel_Inner);
             activeEquipCount++;
             var ert = item.GetComponent<RectTransform>();
             ert.anchorMin = new Vector2(0, 1);
@@ -1707,7 +1541,7 @@ public class MainHUD : MonoBehaviour
 
             // 레어도 별
             var starText = UIHelper.MakeText("Stars", item.transform, stars,
-                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkGold);
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
             var srt = starText.GetComponent<RectTransform>();
             srt.anchorMin = new Vector2(0, 0);
             srt.anchorMax = new Vector2(0.4f, 0.5f);
@@ -1720,7 +1554,7 @@ public class MainHUD : MonoBehaviour
             if (equip.bonusDef > 0) statStr += $"DEF+{equip.bonusDef:F0} ";
             if (equip.bonusHp > 0) statStr += $"HP+{equip.bonusHp:F0}";
             var statText = UIHelper.MakeText("Stats", item.transform, statStr,
-                8f, TextAlignmentOptions.Center, UIColors.Text_Dark);
+                8f, TextAlignmentOptions.Center, UIColors.Text_Primary);
             var strt = statText.GetComponent<RectTransform>();
             strt.anchorMin = new Vector2(0.4f, 0);
             strt.anchorMax = new Vector2(0.7f, 1);
@@ -1732,8 +1566,7 @@ public class MainHUD : MonoBehaviour
             string btnLabel = isEquipped ? $"{equip.equippedTo}" : "장착";
             Color btnColor = isEquipped ? UIColors.Button_Brown : UIColors.Button_Green;
 
-            Sprite eqBtnSprite = isEquipped ? UISprites.Btn1_WS : UISprites.Btn2_WS;
-            var (btn, _) = UIHelper.MakeSpriteButton($"Btn_{i}", item.transform, eqBtnSprite, btnColor, "", 9f);
+            var (btn, _) = UIHelper.MakeButton($"Btn_{i}", item.transform, btnColor, "", 9f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.72f, 0.05f);
             btnRT.anchorMax = new Vector2(0.97f, 0.48f);
@@ -1741,7 +1574,7 @@ public class MainHUD : MonoBehaviour
             btnRT.offsetMax = Vector2.zero;
 
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
-                8f, TextAlignmentOptions.Center, isEquipped ? new Color(0.25f, 0.15f, 0.08f) : Color.white);
+                8f, TextAlignmentOptions.Center, UIColors.Text_Primary);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -1766,10 +1599,8 @@ public class MainHUD : MonoBehaviour
                 var materials = em.GetEnhanceMaterials(equip.id);
                 bool canEnhance = materials.Count > 0 && equip.rarity < 5;
 
-                var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
-                    canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
+                var (enhBtn, _3) = UIHelper.MakeButton($"Enh_{i}", item.transform,
                     canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
-                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.70f, 0.70f, 0.70f);
                 var enhBtnRT = enhBtn.GetComponent<RectTransform>();
                 enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
                 enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
@@ -1778,7 +1609,7 @@ public class MainHUD : MonoBehaviour
 
                 var enhBtnText = UIHelper.MakeText("Label", enhBtn.transform, "강화",
                     7f, TextAlignmentOptions.Center,
-                    canEnhance ? Color.white : UIColors.Text_Disabled);
+                    canEnhance ? UIColors.Text_Primary : UIColors.Text_Disabled);
                 enhBtnText.fontStyle = FontStyles.Bold;
                 UIHelper.FillParent(enhBtnText.GetComponent<RectTransform>());
 
@@ -1794,9 +1625,9 @@ public class MainHUD : MonoBehaviour
                     });
                 }
 
-                // 분해 버튼 — Btn4_WS (빨간색)
-                var (disBtn, _2) = UIHelper.MakeSpriteButton($"Dis_{i}", item.transform,
-                    UISprites.Btn4_WS, UIColors.Defeat_Red, "", 7f);
+                // 분해 버튼
+                var (disBtn, _2) = UIHelper.MakeButton($"Dis_{i}", item.transform,
+                    UIColors.Defeat_Red, "", 7f);
                 var disBtnRT = disBtn.GetComponent<RectTransform>();
                 disBtnRT.anchorMin = new Vector2(0.85f, 0.52f);
                 disBtnRT.anchorMax = new Vector2(0.97f, 0.95f);
@@ -1805,7 +1636,7 @@ public class MainHUD : MonoBehaviour
 
                 string disLabel = $"{equip.rarity * 50}G";
                 var disBtnText = UIHelper.MakeText("Label", disBtn.transform, disLabel,
-                    7f, TextAlignmentOptions.Center, Color.white);
+                    7f, TextAlignmentOptions.Center, UIColors.Text_Primary);
                 disBtnText.fontStyle = FontStyles.Bold;
                 UIHelper.FillParent(disBtnText.GetComponent<RectTransform>());
 
@@ -1854,12 +1685,9 @@ public class MainHUD : MonoBehaviour
         contentRT.offsetMin = new Vector2(0, 0);
         contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
-        // 서브탭 바 — Board 스프라이트 배경
+        // 서브탭 바
         float subTabH = 28f;
-        var shopSubBg = UIHelper.MakeSpritePanel("ShopSubTabBar", content.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var subTabBar = shopSubBg;
+        var subTabBar = UIHelper.MakePanel("ShopSubTabBar", content.transform, UIColors.Background_Dark);
         var stbRT = subTabBar.GetComponent<RectTransform>();
         stbRT.anchorMin = new Vector2(0, 1);
         stbRT.anchorMax = new Vector2(1, 1);
@@ -1875,17 +1703,16 @@ public class MainHUD : MonoBehaviour
         {
             float xMin = s / (float)subCount;
             float xMax = (s + 1) / (float)subCount;
-            var (btn, btnImg) = UIHelper.MakeSpriteButton($"ShopSub_{subNames[s]}", subTabBar.transform,
-                UISprites.Btn1_WS, UIColors.Tab_Inactive, "", 0);
-            if (UISprites.Btn1_WS != null) btnImg.color = Color.white;
+            var (btn, _) = UIHelper.MakeButton($"ShopSub_{subNames[s]}", subTabBar.transform,
+                UIColors.Tab_Inactive, "", 0);
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(xMin, 0);
             brt.anchorMax = new Vector2(xMax, 1);
-            brt.offsetMin = new Vector2(1, 1);
-            brt.offsetMax = new Vector2(-1, -1);
+            brt.offsetMin = new Vector2(1, 0);
+            brt.offsetMax = new Vector2(-1, 0);
 
             var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
-                9f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+                UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Disabled);
             label.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(label.GetComponent<RectTransform>());
 
@@ -1968,15 +1795,8 @@ public class MainHUD : MonoBehaviour
         for (int i = 0; i < shopSubTabBtns.Length; i++)
         {
             bool active = (i == shopSubTab);
-            var img = shopSubTabBtns[i].GetComponent<Image>();
-            if (img.sprite != null)
-            {
-                img.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
-                shopSubTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
-            }
-            else
-                img.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
-            shopSubTabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
+            shopSubTabBtns[i].GetComponent<Image>().color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            shopSubTabLabels[i].color = active ? UIColors.Text_TabActive : UIColors.Text_Disabled;
         }
         if (shopRoot != null) shopRoot.SetActive(shopSubTab == 0);
         if (achieveRoot != null) achieveRoot.SetActive(shopSubTab == 1);
@@ -2054,7 +1874,7 @@ public class MainHUD : MonoBehaviour
             var shopItem = items[i];
 
             var item = ReuseOrCreate(shopListItems, ref shopReuse,
-                $"Shop_{i}", shopListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+                $"Shop_{i}", shopListContainer.transform, UIColors.Panel_Inner);
             activeShopCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -2064,7 +1884,7 @@ public class MainHUD : MonoBehaviour
             irt.sizeDelta = new Vector2(0, itemH);
 
             var nameText = UIHelper.MakeText("Name", item.transform, shopItem.displayName,
-                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0, 0.5f);
@@ -2073,7 +1893,7 @@ public class MainHUD : MonoBehaviour
             nrt.offsetMax = Vector2.zero;
 
             var descText = UIHelper.MakeText("Desc", item.transform, shopItem.description,
-                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
             var drt = descText.GetComponent<RectTransform>();
             drt.anchorMin = new Vector2(0, 0);
             drt.anchorMax = new Vector2(0.4f, 0.5f);
@@ -2083,7 +1903,7 @@ public class MainHUD : MonoBehaviour
             string priceStr = shopItem.gemCost > 0 ? $"{shopItem.gemCost} 보석" :
                               shopItem.goldCost > 0 ? $"{shopItem.goldCost}G" : "무료";
             var priceText = UIHelper.MakeText("Price", item.transform, priceStr,
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkDiamond);
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
             var prt = priceText.GetComponent<RectTransform>();
             prt.anchorMin = new Vector2(0.4f, 0);
             prt.anchorMax = new Vector2(0.65f, 1);
@@ -2094,10 +1914,8 @@ public class MainHUD : MonoBehaviour
             float cooldown = shop.GetRemainingCooldown(shopItem);
             string btnLabel = cooldown > 0 ? $"{Mathf.CeilToInt(cooldown / 60f)}분" : "구매";
 
-            var (btn, shopBtnImg) = UIHelper.MakeSpriteButton($"Buy_{i}", item.transform,
-                canBuy ? UISprites.Btn2_WS : UISprites.Btn1_WS,
+            var (btn, _) = UIHelper.MakeButton($"Buy_{i}", item.transform,
                 canBuy ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -2106,7 +1924,7 @@ public class MainHUD : MonoBehaviour
 
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
                 UIConstants.Font_Cost, TextAlignmentOptions.Center,
-                canBuy ? Color.white : UIColors.Text_Disabled);
+                canBuy ? UIColors.Text_Primary : UIColors.Text_Disabled);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -2196,8 +2014,8 @@ public class MainHUD : MonoBehaviour
         {
             var ach = achievements[i];
 
-            Color bgColor = ach.claimed ? new Color(0.82f, 0.78f, 0.72f) :
-                            ach.completed ? new Color(0.82f, 0.92f, 0.75f) : new Color(0.92f, 0.88f, 0.82f);
+            Color bgColor = ach.claimed ? UIColors.Panel_Inner :
+                            ach.completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
 
             var item = ReuseOrCreate(achieveListItems, ref achReuse,
                 $"Ach_{i}", achieveListContainer.transform, bgColor);
@@ -2210,7 +2028,7 @@ public class MainHUD : MonoBehaviour
             irt.sizeDelta = new Vector2(0, itemH);
 
             // 이름
-            Color nameColor = ach.completed ? UIColors.Text_Dark : UIColors.Text_Disabled;
+            Color nameColor = ach.completed ? UIColors.Text_Primary : UIColors.Text_Disabled;
             var nameText = UIHelper.MakeText("Name", item.transform, ach.name,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, nameColor);
             nameText.fontStyle = FontStyles.Bold;
@@ -2222,7 +2040,7 @@ public class MainHUD : MonoBehaviour
 
             // 설명
             var descText = UIHelper.MakeText("Desc", item.transform, ach.description,
-                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+                8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
             var drt2 = descText.GetComponent<RectTransform>();
             drt2.anchorMin = new Vector2(0, 0);
             drt2.anchorMax = new Vector2(0.45f, 0.5f);
@@ -2231,32 +2049,30 @@ public class MainHUD : MonoBehaviour
 
             // 보상
             var rewardText = UIHelper.MakeText("Reward", item.transform, $"{ach.gemReward} 보석",
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkDiamond);
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
             var rrt = rewardText.GetComponent<RectTransform>();
             rrt.anchorMin = new Vector2(0.45f, 0);
             rrt.anchorMax = new Vector2(0.68f, 1);
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
-            // 버튼 — 스프라이트 기반
+            // 버튼
             string btnLabel;
-            Sprite btnSprite;
-            Color btnFallback;
-            if (ach.claimed) { btnLabel = "완료"; btnSprite = UISprites.Btn1_WS; btnFallback = UIColors.Button_Gray; }
-            else if (ach.completed) { btnLabel = "수령"; btnSprite = UISprites.Btn3_WS; btnFallback = UIColors.Button_Yellow; }
-            else { btnLabel = "미달성"; btnSprite = UISprites.Btn1_WS; btnFallback = UIColors.Button_Gray; }
+            Color btnColor;
+            if (ach.claimed) { btnLabel = "완료"; btnColor = UIColors.Button_Gray; }
+            else if (ach.completed) { btnLabel = "수령"; btnColor = UIColors.Button_Yellow; }
+            else { btnLabel = "미달성"; btnColor = UIColors.Button_Gray; }
 
-            var (btn, achBtnImg) = UIHelper.MakeSpriteButton($"AchBtn_{i}", item.transform, btnSprite, btnFallback, "", 10f);
-            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            var (btn, _) = UIHelper.MakeButton($"AchBtn_{i}", item.transform, btnColor, "", 10f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.70f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
             btnRT.offsetMin = Vector2.zero;
             btnRT.offsetMax = Vector2.zero;
 
-            Color achBtnTextColor = ach.completed && !ach.claimed ? new Color(0.25f, 0.15f, 0.08f) : UIColors.Text_Disabled;
+            Color btnTextColor = ach.completed && !ach.claimed ? UIColors.Background_Dark : UIColors.Text_Disabled;
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
-                UIConstants.Font_Cost, TextAlignmentOptions.Center, achBtnTextColor);
+                UIConstants.Font_Cost, TextAlignmentOptions.Center, btnTextColor);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -2334,8 +2150,8 @@ public class MainHUD : MonoBehaviour
             var mission = missions[i];
             bool completed = mission.currentCount >= mission.targetCount;
 
-            Color bgColor = mission.claimed ? new Color(0.82f, 0.78f, 0.72f) :
-                            completed ? new Color(0.82f, 0.92f, 0.75f) : new Color(0.92f, 0.88f, 0.82f);
+            Color bgColor = mission.claimed ? UIColors.Panel_Inner :
+                            completed ? UIColors.Panel_Selected : UIColors.Panel_Inner;
 
             var item = ReuseOrCreate(missionListItems, ref missionReuse,
                 $"Mission_{i}", missionListContainer.transform, bgColor);
@@ -2348,7 +2164,7 @@ public class MainHUD : MonoBehaviour
             irt.sizeDelta = new Vector2(0, itemH);
 
             // 미션명
-            Color nameColor = completed ? UIColors.Text_Dark : UIColors.Text_Disabled;
+            Color nameColor = completed ? UIColors.Text_Primary : UIColors.Text_Disabled;
             var nameText = UIHelper.MakeText("Name", item.transform, mission.name,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, nameColor);
             nameText.fontStyle = FontStyles.Bold;
@@ -2360,7 +2176,7 @@ public class MainHUD : MonoBehaviour
 
             // 진행도
             string progressStr = $"{mission.currentCount}/{mission.targetCount}";
-            Color progColor = completed ? UIColors.Text_DarkGreen : UIColors.Text_DarkSecondary;
+            Color progColor = completed ? UIColors.Text_Green : UIColors.Text_Secondary;
             var progText = UIHelper.MakeText("Progress", item.transform, progressStr,
                 9f, TextAlignmentOptions.MidlineLeft, progColor);
             var prt = progText.GetComponent<RectTransform>();
@@ -2371,30 +2187,28 @@ public class MainHUD : MonoBehaviour
 
             // 보상
             var rewardText = UIHelper.MakeText("Reward", item.transform, $"{mission.gemReward} 보석",
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkDiamond);
+                9f, TextAlignmentOptions.Center, UIColors.Text_Diamond);
             var rrt = rewardText.GetComponent<RectTransform>();
             rrt.anchorMin = new Vector2(0.4f, 0);
             rrt.anchorMax = new Vector2(0.65f, 1);
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
-            // 버튼 — 스프라이트 기반
+            // 버튼
             string btnLabel;
-            Sprite mBtnSprite;
-            Color mBtnFallback;
-            if (mission.claimed) { btnLabel = "완료"; mBtnSprite = UISprites.Btn1_WS; mBtnFallback = UIColors.Button_Gray; }
-            else if (completed) { btnLabel = "수령"; mBtnSprite = UISprites.Btn3_WS; mBtnFallback = UIColors.Button_Yellow; }
-            else { btnLabel = "진행중"; mBtnSprite = UISprites.Btn1_WS; mBtnFallback = UIColors.Button_Gray; }
+            Color btnColor;
+            if (mission.claimed) { btnLabel = "완료"; btnColor = UIColors.Button_Gray; }
+            else if (completed) { btnLabel = "수령"; btnColor = UIColors.Button_Yellow; }
+            else { btnLabel = "진행중"; btnColor = UIColors.Button_Gray; }
 
-            var (btn, mBtnImg) = UIHelper.MakeSpriteButton($"MissionBtn_{i}", item.transform, mBtnSprite, mBtnFallback, "", 10f);
-            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            var (btn, _) = UIHelper.MakeButton($"MissionBtn_{i}", item.transform, btnColor, "", 10f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
             btnRT.offsetMin = Vector2.zero;
             btnRT.offsetMax = Vector2.zero;
 
-            Color btnTextColor = completed && !mission.claimed ? new Color(0.25f, 0.15f, 0.08f) : UIColors.Text_Disabled;
+            Color btnTextColor = completed && !mission.claimed ? UIColors.Background_Dark : UIColors.Text_Disabled;
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
                 UIConstants.Font_Cost, TextAlignmentOptions.Center, btnTextColor);
             btnText.fontStyle = FontStyles.Bold;
@@ -2454,9 +2268,9 @@ public class MainHUD : MonoBehaviour
                 if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
             });
 
-        // 데이터 초기화 버튼 — Btn4_WS (빨간색)
-        var (resetBtn, _) = UIHelper.MakeSpriteButton("ResetBtn", content.transform,
-            UISprites.Btn4_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
+        // 데이터 초기화 버튼
+        var (resetBtn, _) = UIHelper.MakeButton("ResetBtn", content.transform,
+            UIColors.Defeat_Red, "", UIConstants.Font_Button);
         var rbrt = resetBtn.GetComponent<RectTransform>();
         rbrt.anchorMin = new Vector2(0.15f, 0.05f);
         rbrt.anchorMax = new Vector2(0.85f, 0.2f);
@@ -2464,7 +2278,7 @@ public class MainHUD : MonoBehaviour
         rbrt.offsetMax = Vector2.zero;
 
         var resetText = UIHelper.MakeText("Label", resetBtn.transform, "데이터 초기화",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
         resetText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(resetText.GetComponent<RectTransform>());
 
@@ -2474,11 +2288,8 @@ public class MainHUD : MonoBehaviour
     void BuildVolumeSlider(Transform parent, string label, float yMin, float yMax,
         out Slider slider, out TextMeshProUGUI valueText, UnityEngine.Events.UnityAction<float> onChange)
     {
-        // Row container — BoxBasic3 스프라이트
-        var rowBg = UIHelper.MakeSpritePanel($"{label}Row", parent,
-            UISprites.BoxBasic3, UIColors.Panel_Inner);
-        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
-        var row = rowBg;
+        // Row container
+        var row = UIHelper.MakePanel($"{label}Row", parent, UIColors.Panel_Inner);
         var rrt = row.GetComponent<RectTransform>();
         rrt.anchorMin = new Vector2(0, yMin);
         rrt.anchorMax = new Vector2(1, yMax);
@@ -2487,7 +2298,7 @@ public class MainHUD : MonoBehaviour
 
         // Label
         var labelText = UIHelper.MakeText("Label", row.transform, label,
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
         labelText.fontStyle = FontStyles.Bold;
         var lrt = labelText.GetComponent<RectTransform>();
         lrt.anchorMin = new Vector2(0, 0);
@@ -2537,14 +2348,14 @@ public class MainHUD : MonoBehaviour
         hart.offsetMin = Vector2.zero;
         hart.offsetMax = Vector2.zero;
 
-        var handleObj = UIHelper.MakePanel("Handle", handleArea.transform, Color.white);
+        var handleObj = UIHelper.MakePanel("Handle", handleArea.transform, UIColors.Text_Primary);
         var hrt = handleObj.GetComponent<RectTransform>();
         hrt.sizeDelta = new Vector2(14, 0);
         slider.handleRect = hrt;
 
         // Value text
         valueText = UIHelper.MakeText("Value", row.transform, "50%",
-            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
         valueText.fontStyle = FontStyles.Bold;
         var vrt = valueText.GetComponent<RectTransform>();
         vrt.anchorMin = new Vector2(0.80f, 0);
@@ -2589,61 +2400,48 @@ public class MainHUD : MonoBehaviour
         bg.color = UIColors.Overlay_Dark;
         UIHelper.FillParent(offlinePopup.GetComponent<RectTransform>());
 
-        // Center panel — BoxBasic1 스프라이트
-        var panelBg = UIHelper.MakeSpritePanel("Panel", offlinePopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
-        var panel = panelBg;
+        // Center panel
+        var panel = UIHelper.MakePanel("Panel", offlinePopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.1f, 0.35f);
         prt.anchorMax = new Vector2(0.9f, 0.65f);
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
-        // Title — Board 배경 (진한 나무)
-        var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", panel.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var trt = titleBanner.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0, 1f);
-        trt.anchorMax = new Vector2(1, 1f);
-        trt.pivot = new Vector2(0.5f, 1f);
-        trt.sizeDelta = new Vector2(0, 36);
-
-        var titleText = UIHelper.MakeText("Title", titleBanner.transform, "오프라인 보상",
-            UIConstants.Font_HeaderLarge, TextAlignmentOptions.Center, Color.white);
+        // Title
+        var titleText = UIHelper.MakeText("Title", panel.transform, "오프라인 보상",
+            UIConstants.Font_HeaderLarge, TextAlignmentOptions.Center, UIColors.Text_Gold);
         titleText.fontStyle = FontStyles.Bold;
-        titleText.enableVertexGradient = true;
-        titleText.colorGradient = new VertexGradient(
-            new Color(1f, 0.97f, 0.90f), new Color(1f, 0.97f, 0.90f),
-            new Color(0.88f, 0.78f, 0.60f), new Color(0.88f, 0.78f, 0.60f));
-        UIHelper.AddTextShadow(titleText);
-        UIHelper.FillParent(titleText.GetComponent<RectTransform>());
+        var trt = titleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.7f);
+        trt.anchorMax = new Vector2(1, 0.95f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
 
-        // Reward text — 중앙, 어두운 색 (밝은 패널 대비)
+        // Reward text
         offlineText = UIHelper.MakeText("RewardText", panel.transform, "",
-            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
-        offlineText.fontStyle = FontStyles.Bold;
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
         var rrt = offlineText.GetComponent<RectTransform>();
-        rrt.anchorMin = new Vector2(0.05f, 0.3f);
-        rrt.anchorMax = new Vector2(0.95f, 0.75f);
-        rrt.offsetMin = Vector2.zero;
-        rrt.offsetMax = Vector2.zero;
+        rrt.anchorMin = new Vector2(0, 0.3f);
+        rrt.anchorMax = new Vector2(1, 0.7f);
+        rrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        rrt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
 
-        // Confirm button — Btn2_WS (녹색)
-        var (confirmBtn, _) = UIHelper.MakeSpriteButton("ConfirmBtn", panel.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+        // Confirm button
+        var (confirmBtn, _) = UIHelper.MakeButton("ConfirmBtn", panel.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
         var cbrt = confirmBtn.GetComponent<RectTransform>();
-        cbrt.anchorMin = new Vector2(0.2f, 0f);
-        cbrt.anchorMax = new Vector2(0.8f, 0f);
-        cbrt.pivot = new Vector2(0.5f, 0f);
-        cbrt.sizeDelta = new Vector2(0, 38);
-        cbrt.anchoredPosition = new Vector2(0, 10);
+        cbrt.anchorMin = new Vector2(0.25f, 0.05f);
+        cbrt.anchorMax = new Vector2(0.75f, 0.28f);
+        cbrt.offsetMin = Vector2.zero;
+        cbrt.offsetMax = Vector2.zero;
 
         var confirmText = UIHelper.MakeText("Label", confirmBtn.transform, "확인",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
         confirmText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(confirmText);
         UIHelper.FillParent(confirmText.GetComponent<RectTransform>());
 
         confirmBtn.onClick.AddListener(() =>
@@ -2687,21 +2485,19 @@ public class MainHUD : MonoBehaviour
         tapClose.targetGraphic = bg;
         tapClose.onClick.AddListener(() => heroSelectPopup.SetActive(false));
 
-        // 패널 — BoxBasic1 스프라이트
-        var panelBg = UIHelper.MakeSpritePanel("Panel", heroSelectPopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
-        var panel = panelBg;
+        // 패널
+        var panel = UIHelper.MakePanel("Panel", heroSelectPopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.08f, 0.25f);
         prt.anchorMax = new Vector2(0.92f, 0.75f);
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
-        // 타이틀 바 — Board 스프라이트 (진한 나무)
-        var titleBar = UIHelper.MakeSpritePanel("TitleBar", panel.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
+        // 타이틀 바
+        var titleBar = UIHelper.MakeUI("TitleBar", panel.transform);
         var titleBarRT = titleBar.GetComponent<RectTransform>();
         titleBarRT.anchorMin = new Vector2(0, 0.88f);
         titleBarRT.anchorMax = new Vector2(1, 1);
@@ -2709,34 +2505,28 @@ public class MainHUD : MonoBehaviour
         titleBarRT.offsetMax = Vector2.zero;
 
         var titleText = UIHelper.MakeText("Title", titleBar.transform, "장비 장착할 영웅 선택",
-            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
         titleText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(titleText);
         var trt = titleText.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0.05f, 0);
-        trt.anchorMax = new Vector2(0.88f, 1);
+        trt.anchorMin = new Vector2(0.1f, 0);
+        trt.anchorMax = new Vector2(0.9f, 1);
         trt.offsetMin = Vector2.zero;
         trt.offsetMax = Vector2.zero;
 
-        // X 닫기 버튼 — BtnX 스프라이트
-        var closeObj = UIHelper.MakeUI("CloseBtn", titleBar.transform);
-        var closeBtnImg = closeObj.AddComponent<Image>();
-        if (UISprites.BtnX != null)
-        {
-            closeBtnImg.sprite = UISprites.BtnX;
-            closeBtnImg.type = Image.Type.Simple;
-            closeBtnImg.preserveAspect = true;
-            closeBtnImg.color = Color.white;
-        }
-        else closeBtnImg.color = UIColors.Button_Brown;
-        var closeBtn = closeObj.AddComponent<Button>();
-        closeBtn.targetGraphic = closeBtnImg;
+        // X 닫기 버튼
+        var (closeBtn, _) = UIHelper.MakeButton("CloseBtn", titleBar.transform,
+            UIColors.Button_Brown, "", 10f);
         var closeBtnRT = closeBtn.GetComponent<RectTransform>();
-        closeBtnRT.anchorMin = new Vector2(1, 0.5f);
-        closeBtnRT.anchorMax = new Vector2(1, 0.5f);
+        closeBtnRT.anchorMin = new Vector2(1, 0);
+        closeBtnRT.anchorMax = new Vector2(1, 1);
         closeBtnRT.pivot = new Vector2(1, 0.5f);
-        closeBtnRT.sizeDelta = new Vector2(24, 24);
-        closeBtnRT.anchoredPosition = new Vector2(-6, 0);
+        closeBtnRT.sizeDelta = new Vector2(36, 0);
+        closeBtnRT.anchoredPosition = new Vector2(-4, 0);
+
+        var closeBtnText = UIHelper.MakeText("X", closeBtn.transform, "X",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Primary);
+        closeBtnText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(closeBtnText.GetComponent<RectTransform>());
         closeBtn.onClick.AddListener(() => heroSelectPopup.SetActive(false));
 
         // 스크롤 리스트
@@ -2786,7 +2576,7 @@ public class MainHUD : MonoBehaviour
             HeroRarity.Rare      => UIColors.Rarity_Rare,
             HeroRarity.Epic      => UIColors.Rarity_Epic,
             HeroRarity.Legendary => UIColors.Rarity_Legendary,
-            _                    => UIColors.Text_DarkSecondary
+            _                    => UIColors.Text_Secondary
         };
     }
 
@@ -2830,7 +2620,7 @@ public class MainHUD : MonoBehaviour
 
         if (pendingItem != null)
         {
-            var infoImg = UIHelper.MakePanel("EquipInfo", heroSelectListContainer.transform, new Color(0.85f, 0.78f, 0.68f));
+            var infoImg = UIHelper.MakePanel("EquipInfo", heroSelectListContainer.transform, UIColors.Background_Dark);
             heroSelectItems.Add(infoImg.gameObject);
             var infoRT = infoImg.GetComponent<RectTransform>();
             infoRT.anchorMin = new Vector2(0, 1);
@@ -2847,7 +2637,7 @@ public class MainHUD : MonoBehaviour
 
             var infoText = UIHelper.MakeText("Info", infoImg.transform,
                 $"{stars} {pendingItem.itemName}  {statStr}",
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkGold);
+                9f, TextAlignmentOptions.Center, UIColors.Text_Gold);
             UIHelper.FillParent(infoText.GetComponent<RectTransform>());
 
             y -= (32f + spacing);
@@ -2862,7 +2652,7 @@ public class MainHUD : MonoBehaviour
             string rarityLabel = GetHeroRarityLabel(preset.rarity);
 
             // 아이템 행 - 레어리티 색상 왼쪽 바
-            var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var itemImg = UIHelper.MakePanel($"Hero_{i}", heroSelectListContainer.transform, UIColors.Panel_Inner);
             var item = itemImg.gameObject;
             heroSelectItems.Add(item);
             var irt = item.GetComponent<RectTransform>();
@@ -2895,7 +2685,7 @@ public class MainHUD : MonoBehaviour
             badgeRT.anchoredPosition = new Vector2(8f, -2f);
 
             var badgeText = UIHelper.MakeText("BadgeLabel", badge.transform, rarityLabel,
-                7f, TextAlignmentOptions.Center, UIColors.Text_Dark);
+                7f, TextAlignmentOptions.Center, UIColors.Text_Primary);
             badgeText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(badgeText.GetComponent<RectTransform>());
 
@@ -2916,16 +2706,16 @@ public class MainHUD : MonoBehaviour
                 preset.attackRange > 3f ? "원거리" : "근거리";
             var eqText = UIHelper.MakeText("Equip", item.transform,
                 $"{roleStr} | 장비 {equipCount}개",
-                8f, TextAlignmentOptions.Center, UIColors.Text_DarkSecondary);
+                8f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
             var ert = eqText.GetComponent<RectTransform>();
             ert.anchorMin = new Vector2(0.50f, 0);
             ert.anchorMax = new Vector2(0.76f, 1);
             ert.offsetMin = Vector2.zero;
             ert.offsetMax = Vector2.zero;
 
-            // 선택 버튼 — Btn2_WS (녹색)
-            var (btn, _) = UIHelper.MakeSpriteButton($"Select_{i}", item.transform,
-                UISprites.Btn2_WS, UIColors.Button_Green, "", 10f);
+            // 선택 버튼
+            var (btn, _) = UIHelper.MakeButton($"Select_{i}", item.transform,
+                UIColors.Button_Green, "", 10f);
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.77f, 0.12f);
             btnRT.anchorMax = new Vector2(0.97f, 0.88f);
@@ -2933,7 +2723,7 @@ public class MainHUD : MonoBehaviour
             btnRT.offsetMax = Vector2.zero;
 
             var btnText = UIHelper.MakeText("Label", btn.transform, "선택",
-                UIConstants.Font_Cost, TextAlignmentOptions.Center, Color.white);
+                UIConstants.Font_Cost, TextAlignmentOptions.Center, UIColors.Text_Primary);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -2964,54 +2754,46 @@ public class MainHUD : MonoBehaviour
         bg.color = UIColors.Overlay_Dark;
         UIHelper.FillParent(confirmPopup.GetComponent<RectTransform>());
 
-        // 패널 — BoxBasic1 스프라이트
-        var panelBg = UIHelper.MakeSpritePanel("Panel", confirmPopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
-        var panel = panelBg;
+        var panel = UIHelper.MakePanel("Panel", confirmPopup.transform, UIColors.Background_Panel);
+        var panelOutline = panel.gameObject.AddComponent<Outline>();
+        panelOutline.effectColor = UIColors.Panel_Border;
+        panelOutline.effectDistance = new Vector2(2, 2);
         var prt = panel.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0.1f, 0.36f);
-        prt.anchorMax = new Vector2(0.9f, 0.64f);
+        prt.anchorMin = new Vector2(0.1f, 0.38f);
+        prt.anchorMax = new Vector2(0.9f, 0.62f);
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
 
-        // 타이틀 — Board 스프라이트 (진한 나무)
-        var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", panel.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var trt2 = titleBanner.GetComponent<RectTransform>();
-        trt2.anchorMin = new Vector2(0, 0.72f);
-        trt2.anchorMax = new Vector2(1, 1);
-        trt2.offsetMin = Vector2.zero;
-        trt2.offsetMax = Vector2.zero;
-
-        confirmTitleText = UIHelper.MakeText("Title", titleBanner.transform, "",
-            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+        confirmTitleText = UIHelper.MakeText("Title", panel.transform, "",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
         confirmTitleText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(confirmTitleText);
-        UIHelper.FillParent(confirmTitleText.GetComponent<RectTransform>());
+        var trt = confirmTitleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.72f);
+        trt.anchorMax = new Vector2(1, 0.95f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
 
         confirmDescText = UIHelper.MakeText("Desc", panel.transform, "",
-            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
+            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Primary);
         var drt = confirmDescText.GetComponent<RectTransform>();
-        drt.anchorMin = new Vector2(0.05f, 0.32f);
+        drt.anchorMin = new Vector2(0.05f, 0.35f);
         drt.anchorMax = new Vector2(0.95f, 0.72f);
         drt.offsetMin = Vector2.zero;
         drt.offsetMax = Vector2.zero;
 
-        // YES 버튼 — Btn2_WS (녹색)
-        var (yesBtn, _) = UIHelper.MakeSpriteButton("YesBtn", panel.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+        // YES 버튼
+        var (yesBtn, _) = UIHelper.MakeButton("YesBtn", panel.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
         var ybrt = yesBtn.GetComponent<RectTransform>();
         ybrt.anchorMin = new Vector2(0.55f, 0.06f);
-        ybrt.anchorMax = new Vector2(0.92f, 0.28f);
+        ybrt.anchorMax = new Vector2(0.92f, 0.3f);
         ybrt.offsetMin = Vector2.zero;
         ybrt.offsetMax = Vector2.zero;
         var yesLabel = UIHelper.MakeText("Label", yesBtn.transform, "확인",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
         yesLabel.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(yesLabel);
         UIHelper.FillParent(yesLabel.GetComponent<RectTransform>());
+        confirmYesBtn = yesBtn;
         yesBtn.onClick.AddListener(() =>
         {
             confirmPopup.SetActive(false);
@@ -3020,18 +2802,17 @@ public class MainHUD : MonoBehaviour
             SoundManager.Instance?.PlayButtonSFX();
         });
 
-        // NO 버튼 — Btn4_WS (빨간색)
-        var (noBtn, _) = UIHelper.MakeSpriteButton("NoBtn", panel.transform,
-            UISprites.Btn4_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
+        // NO 버튼
+        var (noBtn, _) = UIHelper.MakeButton("NoBtn", panel.transform,
+            UIColors.Defeat_Red, "", UIConstants.Font_Button);
         var nbrt = noBtn.GetComponent<RectTransform>();
         nbrt.anchorMin = new Vector2(0.08f, 0.06f);
-        nbrt.anchorMax = new Vector2(0.45f, 0.28f);
+        nbrt.anchorMax = new Vector2(0.45f, 0.3f);
         nbrt.offsetMin = Vector2.zero;
         nbrt.offsetMax = Vector2.zero;
         var noLabel = UIHelper.MakeText("Label", noBtn.transform, "취소",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
         noLabel.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(noLabel);
         UIHelper.FillParent(noLabel.GetComponent<RectTransform>());
         noBtn.onClick.AddListener(() =>
         {
@@ -3077,7 +2858,7 @@ public class MainHUD : MonoBehaviour
             if (skill == null) continue;
 
             var item = ReuseOrCreate(skillUpgradeItems, ref reuse,
-                $"SkillUp_{i}", skillUpgradeContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+                $"SkillUp_{i}", skillUpgradeContainer.transform, UIColors.Panel_Inner);
             activeCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -3093,7 +2874,7 @@ public class MainHUD : MonoBehaviour
 
             var nameText = UIHelper.MakeText("Name", item.transform,
                 $"{skill.iconChar} {skill.skillName}",
-                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+                UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Primary);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0, 0);
@@ -3103,7 +2884,7 @@ public class MainHUD : MonoBehaviour
 
             string info = $"Lv.{level} DMG:{dmgMult:P0}";
             var infoText = UIHelper.MakeText("Info", item.transform, info,
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkGold);
+                9f, TextAlignmentOptions.Center, UIColors.Text_Gold);
             var inrt = infoText.GetComponent<RectTransform>();
             inrt.anchorMin = new Vector2(0.35f, 0);
             inrt.anchorMax = new Vector2(0.65f, 1);
@@ -3111,10 +2892,8 @@ public class MainHUD : MonoBehaviour
             inrt.offsetMax = Vector2.zero;
 
             string btnLabel = level >= SkillUpgradeManager.MAX_SKILL_LEVEL ? "MAX" : $"{cost}G";
-            var (btn, skillBtnImg) = UIHelper.MakeSpriteButton($"Up_{i}", item.transform,
-                canUp ? UISprites.Btn2_WS : UISprites.Btn1_WS,
-                canUp ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            Color btnColor = canUp ? UIColors.Button_Green : UIColors.Button_Gray;
+            var (btn, _) = UIHelper.MakeButton($"Up_{i}", item.transform, btnColor, "", 10f);
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(0.68f, 0.1f);
             brt.anchorMax = new Vector2(0.97f, 0.9f);
@@ -3122,7 +2901,7 @@ public class MainHUD : MonoBehaviour
             brt.offsetMax = Vector2.zero;
             var btnText = UIHelper.MakeText("Label", btn.transform, btnLabel,
                 UIConstants.Font_Cost, TextAlignmentOptions.Center,
-                canUp ? Color.white : UIColors.Text_Disabled);
+                canUp ? UIColors.Text_Primary : UIColors.Text_Disabled);
             btnText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -3162,7 +2941,7 @@ public class MainHUD : MonoBehaviour
         crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
 
         collectionText = UIHelper.MakeText("Info", content.transform, "",
-            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Dark);
+            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Primary);
         UIHelper.FillParent(collectionText.GetComponent<RectTransform>());
     }
 
@@ -3201,15 +2980,15 @@ public class MainHUD : MonoBehaviour
         crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
 
         arenaInfoText = UIHelper.MakeText("Info", content.transform, "",
-            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Dark);
+            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Primary);
         var irt = arenaInfoText.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0, 0.35f);
         irt.anchorMax = new Vector2(1, 1);
         irt.offsetMin = Vector2.zero;
         irt.offsetMax = Vector2.zero;
 
-        var (btn, _) = UIHelper.MakeSpriteButton("BattleBtn", content.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+        var (btn, _) = UIHelper.MakeButton("BattleBtn", content.transform,
+            UIColors.Button_Green, "", UIConstants.Font_Button);
         arenaBattleBtn = btn;
         var brt = btn.GetComponent<RectTransform>();
         brt.anchorMin = new Vector2(0.2f, 0.08f);
@@ -3217,7 +2996,7 @@ public class MainHUD : MonoBehaviour
         brt.offsetMin = Vector2.zero;
         brt.offsetMax = Vector2.zero;
         var btnText = UIHelper.MakeText("Label", btn.transform, "도전!",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+            UIConstants.Font_Button, TextAlignmentOptions.Center, UIColors.Text_Primary);
         btnText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(btnText.GetComponent<RectTransform>());
 
@@ -3240,11 +3019,8 @@ public class MainHUD : MonoBehaviour
 
         if (arenaBattleBtn != null)
         {
-            var img = arenaBattleBtn.GetComponent<Image>();
-            if (img.sprite != null)
-                img.color = am.CanBattle ? Color.white : new Color(0.70f, 0.70f, 0.70f);
-            else
-                img.color = am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
+            arenaBattleBtn.GetComponent<Image>().color =
+                am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
         }
     }
 
@@ -3350,11 +3126,8 @@ public class MainHUD : MonoBehaviour
         closeBtn.targetGraphic = overlay;
         closeBtn.onClick.AddListener(() => probPopup.SetActive(false));
 
-        // 중앙 패널 — BoxBasic1 스프라이트
-        var panelBg = UIHelper.MakeSpritePanel("Panel", probPopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
-        var panel = panelBg;
+        // 중앙 패널
+        var panel = UIHelper.MakePanel("Panel", probPopup.transform, UIColors.Background_Panel);
         var panelRT = panel.GetComponent<RectTransform>();
         panelRT.anchorMin = new Vector2(0.05f, 0.1f);
         panelRT.anchorMax = new Vector2(0.95f, 0.9f);
@@ -3366,28 +3139,26 @@ public class MainHUD : MonoBehaviour
         panelBtn.targetGraphic = panel;
         panelBtn.onClick.AddListener(() => { }); // 이벤트 소비
 
-        // 내부 영역 (패딩)
-        var inner = UIHelper.MakeUI("Inner", panel.transform);
+        // 테두리
+        var border = UIHelper.MakePanel("Border", panel.transform, UIColors.Panel_Border);
+        var borderRT = border.GetComponent<RectTransform>();
+        UIHelper.FillParent(borderRT);
+        var inner = UIHelper.MakePanel("Inner", border.transform, UIColors.Background_Panel);
         var innerRT = inner.GetComponent<RectTransform>();
         innerRT.anchorMin = Vector2.zero;
         innerRT.anchorMax = Vector2.one;
-        innerRT.offsetMin = new Vector2(4, 4);
-        innerRT.offsetMax = new Vector2(-4, -4);
+        innerRT.offsetMin = new Vector2(2, 2);
+        innerRT.offsetMax = new Vector2(-2, -2);
 
-        // 타이틀 — Board 스프라이트 (진한 나무)
-        var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", inner.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var title = UIHelper.MakeText("Title", titleBanner.transform, "소환 확률 정보",
-            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+        // 타이틀
+        var title = UIHelper.MakeText("Title", inner.transform, "소환 확률 정보",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Gold);
         title.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(title);
-        UIHelper.FillParent(title.GetComponent<RectTransform>());
-        var titleBannerRT = titleBanner.GetComponent<RectTransform>();
-        titleBannerRT.anchorMin = new Vector2(0.02f, 0.9f);
-        titleBannerRT.anchorMax = new Vector2(0.98f, 1);
-        titleBannerRT.offsetMin = Vector2.zero;
-        titleBannerRT.offsetMax = Vector2.zero;
+        var titleRT = title.GetComponent<RectTransform>();
+        titleRT.anchorMin = new Vector2(0, 0.9f);
+        titleRT.anchorMax = new Vector2(1, 1);
+        titleRT.offsetMin = Vector2.zero;
+        titleRT.offsetMax = Vector2.zero;
 
         // 확률 내용 텍스트
         string content =
@@ -3418,7 +3189,7 @@ public class MainHUD : MonoBehaviour
             "  해당 영웅의 강화 카드 +1 획득";
 
         var contentText = UIHelper.MakeText("Content", inner.transform, content,
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Left, new Color(0.20f, 0.12f, 0.06f));
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Left, UIColors.Text_Primary);
         contentText.lineSpacing = 5f;
         var contentRT = contentText.GetComponent<RectTransform>();
         contentRT.anchorMin = new Vector2(0, 0.05f);
@@ -3426,9 +3197,9 @@ public class MainHUD : MonoBehaviour
         contentRT.offsetMin = new Vector2(12, 0);
         contentRT.offsetMax = new Vector2(-12, 0);
 
-        // 닫기 버튼 — Btn2_WS (녹색)
-        var (cBtn, _) = UIHelper.MakeSpriteButton("CloseBtn", inner.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "닫기", UIConstants.Font_Button);
+        // 닫기 버튼
+        var (cBtn, _) = UIHelper.MakeButton("CloseBtn", inner.transform,
+            UIColors.Button_Green, "닫기", UIConstants.Font_Button);
         cBtn.onClick.AddListener(() => probPopup.SetActive(false));
         var cbrt = cBtn.GetComponent<RectTransform>();
         cbrt.anchorMin = new Vector2(0.25f, 0.01f);

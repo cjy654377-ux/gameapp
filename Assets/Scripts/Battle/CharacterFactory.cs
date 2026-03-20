@@ -14,74 +14,93 @@ public class CharacterFactory : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-
-        // SPUM 저장 프리팹 로드 (UnitRoot/HorseRoot 구조 포함)
-        if (spumBasePrefab == null)
-            spumBasePrefab = Resources.Load<GameObject>("Addons/Legacy/2_Prefab/SPUM_20250915183854408");
-        #if UNITY_EDITOR
-        if (spumBasePrefab == null)
-            spumBasePrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/SPUM/Resources/Addons/Legacy/2_Prefab/SPUM_20250915183854408.prefab");
-        #endif
-        if (spumBasePrefab == null)
-            Debug.LogError("[CharacterFactory] SPUM 프리팹 로드 실패!");
-    }
-
-    void OnDestroy()
-    {
-        if (Instance == this)
-            spriteCache.Clear();
     }
 
     public BattleUnit CreateCharacter(CharacterPreset preset, Vector3 position, BattleUnit.Team team)
     {
-        if (preset == null)
-        {
-            Debug.LogError("[CharacterFactory] preset is null!");
-            return null;
-        }
-        if (spumBasePrefab == null)
-        {
-            Debug.LogError("[CharacterFactory] spumBasePrefab is null!");
-            return null;
-        }
-
         var unitObj = new GameObject(preset.characterName);
         unitObj.transform.position = position;
 
-        // SPUM 프리팹 인스턴스화
+        // Instantiate saved SPUM prefab
         var spumInstance = Instantiate(spumBasePrefab);
-
-        // 탈것 스프라이트 결정 (아군: MountManager, 적: preset)
-        string horseSprite = preset.horseSprite;
-        bool useHorse = !string.IsNullOrEmpty(horseSprite);
+        bool useHorse = !string.IsNullOrEmpty(preset.horseSprite);
 
         if (useHorse)
         {
+            // Horse mount: HorseRoot contains both horse AND rider, so use it instead of UnitRoot
             var horseRoot = spumInstance.transform.Find("HorseRoot");
             if (horseRoot != null)
             {
                 horseRoot.SetParent(unitObj.transform, false);
                 horseRoot.localPosition = Vector3.zero;
                 horseRoot.gameObject.SetActive(true);
-                ApplyHorseSprites(horseRoot, horseSprite);
-            }
-            else
-            {
-                // HorseRoot 없으면 UnitRoot 폴백
-                AttachUnitRoot(spumInstance, unitObj);
+                // Apply horse body sprites by matching GameObject name to sub-sprite name
+                var horseSprites = LoadSprites($"Addons/Legacy/1_Horse/0_Sprite/0_Body/{preset.horseSprite}");
+                if (horseSprites != null && horseSprites.Length > 0)
+                {
+                    // Build lookup: sub-sprite name -> Sprite
+                    var spriteLookup = new Dictionary<string, Sprite>();
+                    foreach (var s in horseSprites)
+                        spriteLookup[s.name] = s;
+
+                    // Map GameObject names to sub-sprite names
+                    var nameMap = new Dictionary<string, string>
+                    {
+                        { "Head", "Head" },
+                        { "Neck", "Neck" },
+                        { "BodyFront", "BodyFront" },
+                        { "BodyBack", "BodyBack" },
+                        { "Tail", "Tail" },
+                        { "Acc", "Acc" },
+                    };
+                    var horseSRs = horseRoot.GetComponentsInChildren<SpriteRenderer>(true);
+                    foreach (var sr in horseSRs)
+                    {
+                        string goName = sr.gameObject.name;
+
+                        // Direct name match
+                        if (nameMap.TryGetValue(goName, out string spriteName))
+                        {
+                            if (spriteLookup.TryGetValue(spriteName, out var sprite))
+                                sr.sprite = sprite;
+                        }
+                        // Foot parts: FrontFootTop in prefab -> FootFrontTop/FootBackTop in sprite
+                        else if (goName == "FrontFootTop")
+                        {
+                            // Try both front and back (assign whichever exists)
+                            if (spriteLookup.TryGetValue("FootFrontTop", out var s1))
+                                sr.sprite = s1;
+                            else if (spriteLookup.TryGetValue("FootBackTop", out var s2))
+                                sr.sprite = s2;
+                        }
+                        else if (goName == "FrontFootBottom")
+                        {
+                            if (spriteLookup.TryGetValue("FootFrontBottom", out var s1))
+                                sr.sprite = s1;
+                            else if (spriteLookup.TryGetValue("FootBackBottom", out var s2))
+                                sr.sprite = s2;
+                        }
+                    }
+                }
             }
         }
         else
         {
-            AttachUnitRoot(spumInstance, unitObj);
+            // No horse: use UnitRoot only
+            var unitRoot = spumInstance.transform.Find("UnitRoot");
+            if (unitRoot != null)
+            {
+                unitRoot.SetParent(unitObj.transform, false);
+                unitRoot.localPosition = Vector3.zero;
+                unitRoot.localScale = Vector3.one;
+            }
         }
         Destroy(spumInstance);
 
-        // 스프라이트 적용
+        // Apply sprites via SpriteRenderer hierarchy search
         ApplySprites(unitObj, preset);
 
-        // BattleUnit 설정
+        // Setup BattleUnit
         var battleUnit = unitObj.AddComponent<BattleUnit>();
         battleUnit.unitName = preset.characterName;
         battleUnit.maxHp = preset.maxHp;
@@ -90,10 +109,12 @@ public class CharacterFactory : MonoBehaviour
         battleUnit.moveSpeed = preset.moveSpeed;
         battleUnit.attackRange = preset.attackRange;
         battleUnit.attackCooldown = preset.attackCooldown;
+
         battleUnit.damageElement = preset.damageElement;
         battleUnit.lightningResist = preset.lightningResist;
         battleUnit.poisonResist = preset.poisonResist;
 
+        // Support role
         if (preset.isHealer)
         {
             battleUnit.role = BattleUnit.RoleType.Healer;
@@ -111,25 +132,31 @@ public class CharacterFactory : MonoBehaviour
             battleUnit.buffRange = preset.buffRange;
         }
 
+        // Assign skills from preset
         if (preset.skills != null && preset.skills.Length > 0)
             battleUnit.skills = preset.skills;
 
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
 
-        // 성급 기반 크기 (적만)
-        float baseScale = 0.8f;
-        unitObj.transform.localScale = Vector3.one * baseScale;
+        // Portrait scale (80%)
+        unitObj.transform.localScale = Vector3.one * 0.8f;
 
+        // Add HP bar
         unitObj.AddComponent<HpBar>();
 
         // 도감 등록
-        CollectionManager.Instance?.RegisterHero(
-            team == BattleUnit.Team.Ally ? preset.characterName : null);
-        if (team == BattleUnit.Team.Enemy)
-            CollectionManager.Instance?.RegisterMonster(preset.characterName);
+        var collection = CollectionManager.Instance;
+        if (collection != null)
+        {
+            if (team == BattleUnit.Team.Ally)
+                collection.RegisterHero(preset.characterName);
+            else
+                collection.RegisterMonster(preset.characterName);
+        }
 
-        // 적 골드 드롭
+        // Enemy gold drops handled by StageManager for bosses,
+        // default drop for normal enemies
         if (team == BattleUnit.Team.Enemy)
         {
             var unitRef = battleUnit;
@@ -146,67 +173,9 @@ public class CharacterFactory : MonoBehaviour
         return battleUnit;
     }
 
-    void AttachUnitRoot(GameObject spumInstance, GameObject unitObj)
-    {
-        var unitRoot = spumInstance.transform.Find("UnitRoot");
-        if (unitRoot != null)
-        {
-            unitRoot.SetParent(unitObj.transform, false);
-            unitRoot.localPosition = Vector3.zero;
-            unitRoot.localScale = Vector3.one;
-        }
-        else
-        {
-            // UnitRoot 없으면 전체 자식을 직접 붙임
-            Debug.LogWarning("[CharacterFactory] UnitRoot not found, attaching all children");
-            while (spumInstance.transform.childCount > 0)
-            {
-                var child = spumInstance.transform.GetChild(0);
-                child.SetParent(unitObj.transform, false);
-            }
-        }
-    }
-
-    void ApplyHorseSprites(Transform horseRoot, string horseName)
-    {
-        var horseSprites = LoadSprites($"Addons/Legacy/1_Horse/0_Sprite/0_Body/{horseName}");
-        if (horseSprites == null || horseSprites.Length == 0) return;
-
-        var spriteLookup = new Dictionary<string, Sprite>();
-        foreach (var s in horseSprites)
-            spriteLookup[s.name] = s;
-
-        var nameMap = new Dictionary<string, string>
-        {
-            { "Head", "Head" }, { "Neck", "Neck" },
-            { "BodyFront", "BodyFront" }, { "BodyBack", "BodyBack" },
-            { "Tail", "Tail" }, { "Acc", "Acc" },
-        };
-
-        var horseSRs = horseRoot.GetComponentsInChildren<SpriteRenderer>(true);
-        foreach (var sr in horseSRs)
-        {
-            string goName = sr.gameObject.name;
-            if (nameMap.TryGetValue(goName, out string spriteName))
-            {
-                if (spriteLookup.TryGetValue(spriteName, out var sprite))
-                    sr.sprite = sprite;
-            }
-            else if (goName == "FrontFootTop")
-            {
-                if (spriteLookup.TryGetValue("FootFrontTop", out var s1)) sr.sprite = s1;
-                else if (spriteLookup.TryGetValue("FootBackTop", out var s2)) sr.sprite = s2;
-            }
-            else if (goName == "FrontFootBottom")
-            {
-                if (spriteLookup.TryGetValue("FootFrontBottom", out var s1)) sr.sprite = s1;
-                else if (spriteLookup.TryGetValue("FootBackBottom", out var s2)) sr.sprite = s2;
-            }
-        }
-    }
-
     void ApplySprites(GameObject unitObj, CharacterPreset preset)
     {
+        // Find SpriteRenderers by hierarchy path names
         var renderers = unitObj.GetComponentsInChildren<SpriteRenderer>(true);
 
         // Body
@@ -219,23 +188,24 @@ public class CharacterFactory : MonoBehaviour
                 {
                     if (sr == null) continue;
                     string srName = sr.gameObject.name;
+                    // Match body parts by name
                     if (srName == "Body" && sr.transform.parent.name == "P_Body")
                         AssignBodyPart(sr, bodySprites, "Body", preset.bodyColor);
                     else if (srName == "5_Head")
                         AssignBodyPart(sr, bodySprites, "Head", preset.bodyColor);
                     else if (srName == "20_L_Arm" || srName == "21_LCArm" || srName == "25_L_Shoulder")
-                        AssignBodyPart(sr, bodySprites, "Arm_L", preset.bodyColor);
+                        AssignBodyPart(sr, bodySprites, "L_Arm", preset.bodyColor);
                     else if (srName == "-20_R_Arm" || srName == "-19_RCArm" || srName == "-15_R_Shoulder")
-                        AssignBodyPart(sr, bodySprites, "Arm_R", preset.bodyColor);
+                        AssignBodyPart(sr, bodySprites, "R_Arm", preset.bodyColor);
                     else if (srName == "_3L_Foot")
-                        AssignBodyPart(sr, bodySprites, "Foot_L", preset.bodyColor);
+                        AssignBodyPart(sr, bodySprites, "L_Foot", preset.bodyColor);
                     else if (srName == "_12R_Foot")
-                        AssignBodyPart(sr, bodySprites, "Foot_R", preset.bodyColor);
+                        AssignBodyPart(sr, bodySprites, "R_Foot", preset.bodyColor);
                 }
             }
         }
 
-        // Weapon (Right hand)
+        // Weapon
         if (!string.IsNullOrEmpty(preset.weaponSprite))
         {
             var weaponSprite = FindWeaponSprite(preset.weaponSprite);
@@ -244,31 +214,20 @@ public class CharacterFactory : MonoBehaviour
                 foreach (var sr in renderers)
                 {
                     if (sr.gameObject.name == "R_Weapon")
-                    { sr.sprite = weaponSprite; break; }
+                    {
+                        sr.sprite = weaponSprite;
+                        break;
+                    }
                 }
             }
         }
 
-        // Shield / Left-hand weapon
-        if (!string.IsNullOrEmpty(preset.shieldSprite))
-        {
-            var leftSprite = FindWeaponSprite(preset.shieldSprite);
-            if (leftSprite != null)
-            {
-                foreach (var sr in renderers)
-                {
-                    if (sr.gameObject.name == "L_Weapon")
-                    { sr.sprite = leftSprite; break; }
-                }
-            }
-        }
-
-        // Eye, Hair, Helmet
+        // Simple parts: eye, hair, helmet, armor, cloth, back
         ApplySimplePart(renderers, preset.eyeSprite, "0_Eye", "Front", preset.eyeColor);
         ApplySimplePart(renderers, preset.hairSprite, "0_Hair", "7_Hair", Color.white);
         ApplySimplePart(renderers, preset.helmetSprite, "4_Helmet", "11_Helmet1", Color.white);
 
-        // Armor (multi-part)
+        // Armor (multi-part: Body, Left, Right)
         if (!string.IsNullOrEmpty(preset.armorSprite))
         {
             var armorSprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{preset.armorSprite}");
@@ -311,7 +270,10 @@ public class CharacterFactory : MonoBehaviour
                 foreach (var sr in renderers)
                 {
                     if (sr.gameObject.name == "Back" && sr.transform.parent.name == "P_Back")
-                    { sr.sprite = backSprite; break; }
+                    {
+                        sr.sprite = backSprite;
+                        break;
+                    }
                 }
             }
         }
@@ -327,12 +289,18 @@ public class CharacterFactory : MonoBehaviour
     void ApplySimplePart(SpriteRenderer[] renderers, string spriteName, string folder, string targetRendererName, Color color)
     {
         if (string.IsNullOrEmpty(spriteName)) return;
+
         var sprites = LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/{folder}/{spriteName}");
         if (sprites == null || sprites.Length == 0) return;
+
         foreach (var sr in renderers)
         {
             if (sr.gameObject.name == targetRendererName)
-            { sr.sprite = sprites[0]; sr.color = color; break; }
+            {
+                sr.sprite = sprites[0];
+                sr.color = color;
+                break;
+            }
         }
     }
 
@@ -363,6 +331,7 @@ public class CharacterFactory : MonoBehaviour
             "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/5_Wand",
             "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/6_Hammer",
         };
+
         foreach (var folder in folders)
         {
             var sprite = Resources.Load<Sprite>($"{folder}/{weaponName}");
