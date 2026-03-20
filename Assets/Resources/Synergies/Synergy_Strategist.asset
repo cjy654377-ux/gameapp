@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e37518ad0224bfc96164ff492cf227, type: 3}
+  m_Name: Synergy_Strategist
+  m_EditorClassIdentifier: Assembly-CSharp::SkillSynergyData
+  synergyName: "\uC804\uB7B5\uAC00"
+  description: "\uB514\uBC84\uD504 \uD0DC\uADF8 \uC2A4\uD0AC 2\uAC1C \uC774\uC0C1
+    \uC7A5\uCC29 \uC2DC \uB370\uBBF8\uC9C0/\uCFE8\uD0C0\uC784 \uBCF4\uB108\uC2A4"
+  type: 2
+  requiredSkillNames: []
+  requiredElement: 0
+  requiredElementCount: 2
+  requiredTag: "\uB514\uBC84\uD504"
+  requiredTagCount: 2
+  bonus:
+    bonusAtkPercent: 0
+    bonusDefPercent: 0
+    bonusHpPercent: 0
+    bonusDmgPercent: 10
+    cooldownReduction: 5

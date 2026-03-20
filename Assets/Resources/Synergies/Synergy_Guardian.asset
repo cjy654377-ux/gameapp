@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e37518ad0224bfc96164ff492cf227, type: 3}
+  m_Name: Synergy_Guardian
+  m_EditorClassIdentifier: Assembly-CSharp::SkillSynergyData
+  synergyName: "\uC218\uD638\uC790"
+  description: "\uBC29\uC5B4 \uD0DC\uADF8 \uC2A4\uD0AC 2\uAC1C \uC774\uC0C1 \uC7A5\uCC29
+    \uC2DC \uBC29\uC5B4\uB825/HP \uC99D\uAC00"
+  type: 2
+  requiredSkillNames: []
+  requiredElement: 0
+  requiredElementCount: 2
+  requiredTag: "\uBC29\uC5B4"
+  requiredTagCount: 2
+  bonus:
+    bonusAtkPercent: 0
+    bonusDefPercent: 15
+    bonusHpPercent: 10
+    bonusDmgPercent: 0
+    cooldownReduction: 0

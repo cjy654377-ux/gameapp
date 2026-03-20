@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e37518ad0224bfc96164ff492cf227, type: 3}
+  m_Name: Synergy_DivineJudgment
+  m_EditorClassIdentifier: Assembly-CSharp::SkillSynergyData
+  synergyName: "\uC2E0\uC131\uC2EC\uD310"
+  description: "\uB514\uBC14\uC778\uBCFC\uD2B8 + \uD790\uB9C1\uB77C\uC774\uD2B8 \uC870\uD569
+    \uC2DC \uACF5\uACA9\uB825 \uC99D\uAC00"
+  type: 0
+  requiredSkillNames:
+  - DivineBolt
+  - HealingLight
+  requiredElement: 0
+  requiredElementCount: 2
+  requiredTag: 
+  requiredTagCount: 2
+  bonus:
+    bonusAtkPercent: 20
+    bonusDefPercent: 0
+    bonusHpPercent: 0
+    bonusDmgPercent: 0
+    cooldownReduction: 0

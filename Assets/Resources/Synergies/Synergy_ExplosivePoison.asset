@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e37518ad0224bfc96164ff492cf227, type: 3}
+  m_Name: Synergy_ExplosivePoison
+  m_EditorClassIdentifier: Assembly-CSharp::SkillSynergyData
+  synergyName: "\uD3ED\uBC1C\uB3C5"
+  description: "\uD30C\uC774\uC5B4\uBCFC + \uB3C5\uC548\uAC1C \uC870\uD569 \uC2DC
+    \uC2A4\uD0AC \uB370\uBBF8\uC9C0 \uC99D\uAC00"
+  type: 0
+  requiredSkillNames:
+  - Fireball
+  - PoisonFog
+  requiredElement: 0
+  requiredElementCount: 2
+  requiredTag: 
+  requiredTagCount: 2
+  bonus:
+    bonusAtkPercent: 0
+    bonusDefPercent: 0
+    bonusHpPercent: 0
+    bonusDmgPercent: 25
+    cooldownReduction: 0
