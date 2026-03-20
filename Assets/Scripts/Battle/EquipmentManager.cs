@@ -51,7 +51,7 @@ public class EquipmentManager : MonoBehaviour
 
     public event Action OnEquipmentChanged;
 
-    const string SAVE_KEY = "Equipment_Inventory";
+    const string SAVE_KEY = SaveKeys.EquipmentInventory;
 
     // 랜덤 장비 생성용 상수
     static readonly float[] RARITY_THRESHOLDS = { 0.50f, 0.80f, 0.95f, 0.99f, 1.00f };
@@ -326,7 +326,6 @@ public class EquipmentManager : MonoBehaviour
 
     // ═══ 세트 효과 ═══
 
-    static readonly string[] SET_IDS = { "전사", "마법사", "수호자" };
     readonly Dictionary<string, int> setCountCache = new();
 
     /// <summary>
@@ -425,7 +424,7 @@ public class EquipmentManager : MonoBehaviour
         target.bonusDef *= boost;
 
         // 이름 갱신
-        string prefix = target.rarity <= 5 ? new[] { "", "낡은", "일반", "고급", "희귀", "전설" }[target.rarity] : "전설";
+        string prefix = target.rarity <= 5 ? RARITY_PREFIX[target.rarity] : "전설";
         string slotName = target.slot switch
         {
             EquipmentSlot.Weapon => "검",

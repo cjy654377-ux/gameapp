@@ -19,7 +19,7 @@ public class TapDamageSystem : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        tapDamageLevel = PlayerPrefs.GetInt("TapDamageLevel", 1);
+        tapDamageLevel = PlayerPrefs.GetInt(SaveKeys.TapDamageLevel, 1);
     }
 
     void Start()
@@ -115,7 +115,7 @@ public class TapDamageSystem : MonoBehaviour
         if (!GoldManager.Instance.SpendGold(UpgradeCost)) return false;
 
         tapDamageLevel++;
-        PlayerPrefs.SetInt("TapDamageLevel", tapDamageLevel);
+        PlayerPrefs.SetInt(SaveKeys.TapDamageLevel, tapDamageLevel);
         return true;
     }
 }

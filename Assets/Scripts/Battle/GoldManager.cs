@@ -16,7 +16,7 @@ public class GoldManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        Gold = PlayerPrefs.GetInt("Gold", 0);
+        Gold = PlayerPrefs.GetInt(SaveKeys.Gold, 0);
     }
 
     public void AddGold(int amount)
@@ -48,7 +48,7 @@ public class GoldManager : MonoBehaviour
     void FlushSave()
     {
         if (!isDirty) return;
-        PlayerPrefs.SetInt("Gold", Gold);
+        PlayerPrefs.SetInt(SaveKeys.Gold, Gold);
         PlayerPrefs.Save();
         isDirty = false;
         saveTimer = 0f;
@@ -62,5 +62,10 @@ public class GoldManager : MonoBehaviour
     void OnApplicationQuit()
     {
         FlushSave();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 }

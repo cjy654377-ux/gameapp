@@ -27,7 +27,6 @@ public class CharacterPreset : ScriptableObject
 
     [Header("Hair")]
     public string hairSprite = "";
-    public Color hairColor = Color.white;
 
     [Header("Equipment Sprites (SPUM Resource Paths)")]
     public string weaponSprite = "";
@@ -57,7 +56,7 @@ public class CharacterPreset : ScriptableObject
     public float poisonResist = 0f;
 
     [Header("Element")]
-    public DamageElement damageElement = DamageElement.Physical;
+    public SkillElement damageElement = SkillElement.None;
 
     [Header("Support Role")]
     public bool isHealer = false;

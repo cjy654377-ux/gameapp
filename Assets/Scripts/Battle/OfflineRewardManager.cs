@@ -19,6 +19,11 @@ public class OfflineRewardManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     void Start()
     {
         StartCoroutine(DeferredCalculate());
@@ -34,13 +39,13 @@ public class OfflineRewardManager : MonoBehaviour
 
     void CalculateOfflineReward()
     {
-        if (!PlayerPrefs.HasKey("LastPlayTime"))
+        if (!PlayerPrefs.HasKey(SaveKeys.LastPlayTime))
         {
             SaveCurrentTime();
             return;
         }
 
-        if (!long.TryParse(PlayerPrefs.GetString("LastPlayTime", "0"), out long lastTime))
+        if (!long.TryParse(PlayerPrefs.GetString(SaveKeys.LastPlayTime, "0"), out long lastTime))
             lastTime = 0;
         long now = GetUnixTimestamp();
         float elapsedSeconds = Mathf.Max(0f, now - lastTime);
@@ -70,7 +75,7 @@ public class OfflineRewardManager : MonoBehaviour
 
     void SaveCurrentTime()
     {
-        PlayerPrefs.SetString("LastPlayTime", GetUnixTimestamp().ToString());
+        PlayerPrefs.SetString(SaveKeys.LastPlayTime, GetUnixTimestamp().ToString());
     }
 
     long GetUnixTimestamp()

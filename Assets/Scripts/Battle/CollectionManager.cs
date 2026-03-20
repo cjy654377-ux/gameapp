@@ -27,6 +27,11 @@ public class CollectionManager : MonoBehaviour
         LoadCollection();
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     // ═══ 등록 ═══
 
     public void RegisterHero(string heroName)
@@ -102,16 +107,16 @@ public class CollectionManager : MonoBehaviour
 
     void SaveCollection()
     {
-        PlayerPrefs.SetString("Collection_Heroes", string.Join(",", discoveredHeroes));
-        PlayerPrefs.SetString("Collection_Monsters", string.Join(",", discoveredMonsters));
-        PlayerPrefs.SetString("Collection_Equips", string.Join(",", discoveredEquipSlots));
+        PlayerPrefs.SetString(SaveKeys.CollectionHeroes, string.Join(",", discoveredHeroes));
+        PlayerPrefs.SetString(SaveKeys.CollectionMonsters, string.Join(",", discoveredMonsters));
+        PlayerPrefs.SetString(SaveKeys.CollectionEquips, string.Join(",", discoveredEquipSlots));
     }
 
     void LoadCollection()
     {
-        LoadSet("Collection_Heroes", discoveredHeroes);
-        LoadSet("Collection_Monsters", discoveredMonsters);
-        LoadSet("Collection_Equips", discoveredEquipSlots);
+        LoadSet(SaveKeys.CollectionHeroes, discoveredHeroes);
+        LoadSet(SaveKeys.CollectionMonsters, discoveredMonsters);
+        LoadSet(SaveKeys.CollectionEquips, discoveredEquipSlots);
     }
 
     void OnApplicationPause(bool pause)

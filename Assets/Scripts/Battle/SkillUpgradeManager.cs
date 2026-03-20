@@ -24,11 +24,16 @@ public class SkillUpgradeManager : MonoBehaviour
         else { Destroy(gameObject); return; }
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     public int GetLevel(string skillName)
     {
         if (string.IsNullOrEmpty(skillName)) return 1;
         if (!skillLevels.ContainsKey(skillName))
-            skillLevels[skillName] = PlayerPrefs.GetInt($"SkillLv_{skillName}", 1);
+            skillLevels[skillName] = PlayerPrefs.GetInt(SaveKeys.SkillLevelPrefix + skillName, 1);
         return skillLevels[skillName];
     }
 
@@ -53,7 +58,7 @@ public class SkillUpgradeManager : MonoBehaviour
         if (!GoldManager.Instance.SpendGold(cost)) return false;
 
         skillLevels[skillName] = GetLevel(skillName) + 1;
-        PlayerPrefs.SetInt($"SkillLv_{skillName}", skillLevels[skillName]);
+        PlayerPrefs.SetInt(SaveKeys.SkillLevelPrefix + skillName, skillLevels[skillName]);
         OnSkillUpgraded?.Invoke(skillName, skillLevels[skillName]);
         SoundManager.Instance?.PlayLevelUpSFX();
         return true;

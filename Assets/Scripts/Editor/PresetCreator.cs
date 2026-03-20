@@ -156,7 +156,7 @@ public class PresetCreator
             bodyColor = new Color(0.9f, 0.85f, 0.7f),
             hp = 90, atk = 18, def = 4, speed = 1.9f, range = 1.5f, cooldown = 1.0f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Lightning
+            element = SkillElement.Lightning
         });
 
         CreatePreset(dir, "Enemy_DesertOrc", new CharacterPresetDef {
@@ -165,7 +165,7 @@ public class PresetCreator
             bodyColor = new Color(0.85f, 0.7f, 0.4f),
             hp = 110, atk = 20, def = 6, speed = 1.7f, range = 1.5f, cooldown = 1.0f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Lightning, lightningResist = 0.2f
+            element = SkillElement.Lightning, lightningResist = 0.2f
         });
 
         CreatePreset(dir, "Enemy_MummySoldier", new CharacterPresetDef {
@@ -183,7 +183,7 @@ public class PresetCreator
             bodyColor = new Color(0.9f, 0.9f, 0.7f),
             hp = 55, atk = 25, def = 1, speed = 2.2f, range = 4f, cooldown = 1.3f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Lightning, lightningResist = 0.5f
+            element = SkillElement.Lightning, lightningResist = 0.5f
         });
 
         // ★2
@@ -193,7 +193,7 @@ public class PresetCreator
             bodyColor = new Color(0.8f, 0.75f, 0.6f),
             hp = 180, atk = 28, def = 12, speed = 1.8f, range = 1.8f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword,
-            element = DamageElement.Lightning, lightningResist = 0.4f
+            element = SkillElement.Lightning, lightningResist = 0.4f
         });
 
         CreatePreset(dir, "Enemy_MummyMage", new CharacterPresetDef {
@@ -202,7 +202,7 @@ public class PresetCreator
             bodyColor = new Color(0.8f, 0.75f, 0.6f),
             hp = 100, atk = 35, def = 3, speed = 1.5f, range = 5f, cooldown = 1.3f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Lightning
+            element = SkillElement.Lightning
         });
 
         // ★3 중간보스
@@ -212,7 +212,7 @@ public class PresetCreator
             bodyColor = new Color(0.85f, 0.7f, 0.4f),
             hp = 500, atk = 38, def = 18, speed = 1.5f, range = 2f, cooldown = 1.1f,
             attackAnim = AttackAnimType.Spear,
-            element = DamageElement.Lightning, lightningResist = 0.5f
+            element = SkillElement.Lightning, lightningResist = 0.5f
         });
 
         // ★4 에리어 보스
@@ -222,7 +222,7 @@ public class PresetCreator
             horse = "Horse2",
             hp = 1000, atk = 50, def = 22, speed = 1.8f, range = 5f, cooldown = 1.5f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Lightning, lightningResist = 0.6f
+            element = SkillElement.Lightning, lightningResist = 0.6f
         });
 
         // ══════════════════════════════════════════════════
@@ -236,7 +236,7 @@ public class PresetCreator
             bodyColor = new Color(0.6f, 0.6f, 0.65f),
             hp = 95, atk = 20, def = 5, speed = 1.7f, range = 1.5f, cooldown = 1.0f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Poison, poisonResist = 0.2f
+            element = SkillElement.Poison, poisonResist = 0.2f
         });
 
         CreatePreset(dir, "Enemy_CaveBat", new CharacterPresetDef {
@@ -245,7 +245,7 @@ public class PresetCreator
             bodyColor = new Color(0.4f, 0.3f, 0.5f),
             hp = 55, atk = 22, def = 1, speed = 3f, range = 1.5f, cooldown = 0.5f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Poison, poisonResist = 0.3f
+            element = SkillElement.Poison, poisonResist = 0.3f
         });
 
         CreatePreset(dir, "Enemy_FungusZombie", new CharacterPresetDef {
@@ -254,7 +254,7 @@ public class PresetCreator
             bodyColor = new Color(0.4f, 0.6f, 0.35f),
             hp = 140, atk = 14, def = 4, speed = 1.0f, range = 1.5f, cooldown = 1.4f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Poison, poisonResist = 0.7f
+            element = SkillElement.Poison, poisonResist = 0.7f
         });
 
         CreatePreset(dir, "Enemy_CaveOrc", new CharacterPresetDef {
@@ -263,7 +263,7 @@ public class PresetCreator
             bodyColor = new Color(0.55f, 0.55f, 0.6f),
             hp = 120, atk = 22, def = 8, speed = 1.5f, range = 1.5f, cooldown = 1.1f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Poison
+            element = SkillElement.Poison
         });
 
         // ★2
@@ -273,7 +273,7 @@ public class PresetCreator
             bodyColor = new Color(0.5f, 0.5f, 0.55f),
             hp = 250, atk = 20, def = 18, speed = 0.9f, range = 1.5f, cooldown = 1.5f,
             attackAnim = AttackAnimType.Axe,
-            element = DamageElement.Poison, poisonResist = 0.5f
+            element = SkillElement.Poison, poisonResist = 0.5f
         });
 
         CreatePreset(dir, "Enemy_PoisonMage", new CharacterPresetDef {
@@ -282,7 +282,7 @@ public class PresetCreator
             bodyColor = new Color(0.4f, 0.6f, 0.4f),
             hp = 85, atk = 32, def = 3, speed = 1.4f, range = 5f, cooldown = 1.3f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Poison, poisonResist = 0.4f
+            element = SkillElement.Poison, poisonResist = 0.4f
         });
 
         // ★3 중간보스
@@ -292,7 +292,7 @@ public class PresetCreator
             bodyColor = new Color(0.45f, 0.45f, 0.5f),
             hp = 600, atk = 30, def = 25, speed = 1.2f, range = 2f, cooldown = 1.3f,
             attackAnim = AttackAnimType.Spear,
-            element = DamageElement.Poison, poisonResist = 0.6f
+            element = SkillElement.Poison, poisonResist = 0.6f
         });
 
         // ★4 에리어 보스
@@ -303,7 +303,7 @@ public class PresetCreator
             bodyColor = new Color(0.35f, 0.3f, 0.45f),
             hp = 1200, atk = 55, def = 25, speed = 2.2f, range = 1.8f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword,
-            element = DamageElement.Poison, poisonResist = 0.7f
+            element = SkillElement.Poison, poisonResist = 0.7f
         });
 
         // ══════════════════════════════════════════════════
@@ -397,7 +397,7 @@ public class PresetCreator
             bodyColor = new Color(0.4f, 0.35f, 0.5f),
             hp = 110, atk = 24, def = 5, speed = 2f, range = 1.5f, cooldown = 0.9f,
             attackAnim = AttackAnimType.Melee,
-            element = DamageElement.Lightning, poisonResist = 0.2f
+            element = SkillElement.Lightning, poisonResist = 0.2f
         });
 
         CreatePreset(dir, "Enemy_DarkArcher", new CharacterPresetDef {
@@ -406,7 +406,7 @@ public class PresetCreator
             bodyColor = new Color(0.45f, 0.4f, 0.55f),
             hp = 70, atk = 30, def = 2, speed = 1.8f, range = 4.5f, cooldown = 1.1f,
             attackAnim = AttackAnimType.Bow,
-            element = DamageElement.Poison
+            element = SkillElement.Poison
         });
 
         CreatePreset(dir, "Enemy_GhostWarrior", new CharacterPresetDef {
@@ -434,7 +434,7 @@ public class PresetCreator
             bodyColor = new Color(0.3f, 0.3f, 0.4f),
             hp = 220, atk = 32, def = 16, speed = 1.8f, range = 1.8f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword,
-            element = DamageElement.Lightning, lightningResist = 0.4f
+            element = SkillElement.Lightning, lightningResist = 0.4f
         });
 
         CreatePreset(dir, "Enemy_Necromancer", new CharacterPresetDef {
@@ -443,7 +443,7 @@ public class PresetCreator
             bodyColor = new Color(0.5f, 0.4f, 0.6f),
             hp = 120, atk = 40, def = 4, speed = 1.3f, range = 5f, cooldown = 1.4f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Poison, poisonResist = 0.5f
+            element = SkillElement.Poison, poisonResist = 0.5f
         });
 
         // ★3 중간보스
@@ -463,7 +463,7 @@ public class PresetCreator
             bodyColor = new Color(0.5f, 0.4f, 0.7f),
             hp = 2000, atk = 65, def = 30, speed = 1.5f, range = 5f, cooldown = 1.5f,
             attackAnim = AttackAnimType.Magic,
-            element = DamageElement.Lightning, lightningResist = 0.8f, poisonResist = 0.8f
+            element = SkillElement.Lightning, lightningResist = 0.8f, poisonResist = 0.8f
         });
 
         AssetDatabase.SaveAssets();
@@ -481,7 +481,7 @@ public class PresetCreator
         public float hp, atk, def, speed, range, cooldown;
         public AttackAnimType attackAnim;
         // Element & resist
-        public DamageElement element;
+        public SkillElement element;
         public float lightningResist, poisonResist;
         // Support
         public bool isHealer;

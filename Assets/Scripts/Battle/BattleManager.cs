@@ -47,6 +47,11 @@ public class BattleManager : MonoBehaviour
         OnBattleStateChanged?.Invoke(state);
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     public BattleUnit FindNearestEnemy(BattleUnit unit)
     {
         var enemies = unit.CurrentTeam == BattleUnit.Team.Ally ? enemyUnits : allyUnits;

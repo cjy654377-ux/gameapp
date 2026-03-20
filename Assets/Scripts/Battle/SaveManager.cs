@@ -93,25 +93,25 @@ public class SaveManager : MonoBehaviour
             data.totalWaveIndex = StageManager.Instance.TotalWaveIndex;
 
         // Upgrades
-        data.upgradeHp = PlayerPrefs.GetInt("UpgradeHp", 0);
-        data.upgradeAtk = PlayerPrefs.GetInt("UpgradeAtk", 0);
-        data.upgradeDef = PlayerPrefs.GetInt("UpgradeDef", 0);
-        data.tapDamageLevel = PlayerPrefs.GetInt("TapDamageLevel", 1);
+        data.upgradeHp = PlayerPrefs.GetInt(SaveKeys.UpgradeHp, 0);
+        data.upgradeAtk = PlayerPrefs.GetInt(SaveKeys.UpgradeAtk, 0);
+        data.upgradeDef = PlayerPrefs.GetInt(SaveKeys.UpgradeDef, 0);
+        data.tapDamageLevel = PlayerPrefs.GetInt(SaveKeys.TapDamageLevel, 1);
 
         // Sound
-        data.bgmVolume = PlayerPrefs.GetFloat("BGMVolume", 0.5f);
-        data.sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.7f);
+        data.bgmVolume = PlayerPrefs.GetFloat(SaveKeys.BgmVolume, 0.5f);
+        data.sfxVolume = PlayerPrefs.GetFloat(SaveKeys.SfxVolume, 0.7f);
 
         // Offline
-        data.lastPlayTime = PlayerPrefs.GetString("LastPlayTime", "");
+        data.lastPlayTime = PlayerPrefs.GetString(SaveKeys.LastPlayTime, "");
 
         // Equipment (already JSON)
-        data.equipmentJson = PlayerPrefs.GetString("Equipment_Inventory", "");
+        data.equipmentJson = PlayerPrefs.GetString(SaveKeys.EquipmentInventory, "");
 
         // Deck
         data.deckSlots = new string[8];
         for (int i = 0; i < 8; i++)
-            data.deckSlots[i] = PlayerPrefs.GetString($"Deck_{i}", "");
+            data.deckSlots[i] = PlayerPrefs.GetString(SaveKeys.DeckSlotPrefix + i, "");
 
         // Hero levels/copies - gather from HeroLevelManager
         if (HeroLevelManager.Instance != null)
@@ -140,26 +140,26 @@ public class SaveManager : MonoBehaviour
     void DistributeData(GameSaveData data)
     {
         // 기존 PlayerPrefs 키에도 복원 (하위 호환)
-        PlayerPrefs.SetInt("Gold", data.gold);
-        PlayerPrefs.SetInt("Gem", data.gem);
-        PlayerPrefs.SetInt("TotalWaveIndex", data.totalWaveIndex);
-        PlayerPrefs.SetInt("UpgradeHp", data.upgradeHp);
-        PlayerPrefs.SetInt("UpgradeAtk", data.upgradeAtk);
-        PlayerPrefs.SetInt("UpgradeDef", data.upgradeDef);
-        PlayerPrefs.SetInt("TapDamageLevel", data.tapDamageLevel);
-        PlayerPrefs.SetFloat("BGMVolume", data.bgmVolume);
-        PlayerPrefs.SetFloat("SFXVolume", data.sfxVolume);
+        PlayerPrefs.SetInt(SaveKeys.Gold, data.gold);
+        PlayerPrefs.SetInt(SaveKeys.Gem, data.gem);
+        PlayerPrefs.SetInt(SaveKeys.TotalWaveIndex, data.totalWaveIndex);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeHp, data.upgradeHp);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeAtk, data.upgradeAtk);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeDef, data.upgradeDef);
+        PlayerPrefs.SetInt(SaveKeys.TapDamageLevel, data.tapDamageLevel);
+        PlayerPrefs.SetFloat(SaveKeys.BgmVolume, data.bgmVolume);
+        PlayerPrefs.SetFloat(SaveKeys.SfxVolume, data.sfxVolume);
 
         if (!string.IsNullOrEmpty(data.lastPlayTime))
-            PlayerPrefs.SetString("LastPlayTime", data.lastPlayTime);
+            PlayerPrefs.SetString(SaveKeys.LastPlayTime, data.lastPlayTime);
 
         if (!string.IsNullOrEmpty(data.equipmentJson))
-            PlayerPrefs.SetString("Equipment_Inventory", data.equipmentJson);
+            PlayerPrefs.SetString(SaveKeys.EquipmentInventory, data.equipmentJson);
 
         if (data.deckSlots != null)
         {
             for (int i = 0; i < data.deckSlots.Length && i < 8; i++)
-                PlayerPrefs.SetString($"Deck_{i}", data.deckSlots[i]);
+                PlayerPrefs.SetString(SaveKeys.DeckSlotPrefix + i, data.deckSlots[i]);
         }
 
         if (data.heroData != null)
@@ -167,8 +167,8 @@ public class SaveManager : MonoBehaviour
             for (int i = 0; i < data.heroData.Count; i++)
             {
                 var h = data.heroData[i];
-                PlayerPrefs.SetInt($"HeroLevel_{h.heroName}", h.level);
-                PlayerPrefs.SetInt($"HeroCopies_{h.heroName}", h.copies);
+                PlayerPrefs.SetInt(SaveKeys.HeroLevelPrefix + h.heroName, h.level);
+                PlayerPrefs.SetInt(SaveKeys.HeroCopiesPrefix + h.heroName, h.copies);
             }
         }
     }

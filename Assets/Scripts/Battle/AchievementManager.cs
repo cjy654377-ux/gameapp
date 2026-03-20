@@ -31,7 +31,7 @@ public class AchievementManager : MonoBehaviour
         else { Destroy(gameObject); return; }
 
         InitAchievements();
-        killCount = PlayerPrefs.GetInt("AchievementKillCount", 0);
+        killCount = PlayerPrefs.GetInt(SaveKeys.AchievementKillCount, 0);
     }
 
     void InitAchievements()
@@ -55,8 +55,8 @@ public class AchievementManager : MonoBehaviour
             name = name,
             description = desc,
             gemReward = gems,
-            completed = PlayerPrefs.GetInt("Ach_" + id, 0) == 1,
-            claimed = PlayerPrefs.GetInt("AchClaimed_" + id, 0) == 1
+            completed = PlayerPrefs.GetInt(SaveKeys.AchievementPrefix + id, 0) == 1,
+            claimed = PlayerPrefs.GetInt(SaveKeys.AchievementClaimedPrefix + id, 0) == 1
         };
         achievements.Add(a);
     }
@@ -157,7 +157,7 @@ public class AchievementManager : MonoBehaviour
     {
         killCount++;
         if (killCount % 10 == 0)
-            PlayerPrefs.SetInt("AchievementKillCount", killCount);
+            PlayerPrefs.SetInt(SaveKeys.AchievementKillCount, killCount);
 
         if (killCount >= 100 && !IsCompleted("kill_100"))
             CheckAchievement("kill_100");
@@ -166,12 +166,12 @@ public class AchievementManager : MonoBehaviour
     void OnApplicationPause(bool pause)
     {
         if (pause)
-            PlayerPrefs.SetInt("AchievementKillCount", killCount);
+            PlayerPrefs.SetInt(SaveKeys.AchievementKillCount, killCount);
     }
 
     void OnApplicationQuit()
     {
-        PlayerPrefs.SetInt("AchievementKillCount", killCount);
+        PlayerPrefs.SetInt(SaveKeys.AchievementKillCount, killCount);
     }
 
     public void CheckAchievement(string id)
@@ -180,7 +180,7 @@ public class AchievementManager : MonoBehaviour
         if (ach == null || ach.completed) return;
 
         ach.completed = true;
-        PlayerPrefs.SetInt("Ach_" + id, 1);
+        PlayerPrefs.SetInt(SaveKeys.AchievementPrefix + id, 1);
         PlayerPrefs.Save();
 
         OnAchievementCompleted?.Invoke(id);
@@ -192,7 +192,7 @@ public class AchievementManager : MonoBehaviour
         if (ach == null || !ach.completed || ach.claimed) return false;
 
         ach.claimed = true;
-        PlayerPrefs.SetInt("AchClaimed_" + id, 1);
+        PlayerPrefs.SetInt(SaveKeys.AchievementClaimedPrefix + id, 1);
         PlayerPrefs.Save();
 
         if (GemManager.Instance != null)

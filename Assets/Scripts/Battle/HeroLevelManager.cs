@@ -95,7 +95,7 @@ public class HeroLevelManager : MonoBehaviour
     public int GetStarRank(string heroName)
     {
         if (!heroStars.ContainsKey(heroName))
-            heroStars[heroName] = PlayerPrefs.GetInt($"HeroStar_{heroName}", 1);
+            heroStars[heroName] = PlayerPrefs.GetInt(SaveKeys.HeroStarPrefix + heroName, 1);
         return heroStars[heroName];
     }
 
@@ -130,7 +130,7 @@ public class HeroLevelManager : MonoBehaviour
 
         heroCopies[heroName] -= needed;
         heroStars[heroName] = star + 1;
-        PlayerPrefs.SetInt($"HeroStar_{heroName}", heroStars[heroName]);
+        PlayerPrefs.SetInt(SaveKeys.HeroStarPrefix + heroName, heroStars[heroName]);
         SaveHero(heroName);
         OnHeroStarUp?.Invoke(heroName, heroStars[heroName]);
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -180,14 +180,14 @@ public class HeroLevelManager : MonoBehaviour
 
     void SaveHero(string name)
     {
-        PlayerPrefs.SetInt($"HeroLevel_{name}", heroLevels[name]);
-        PlayerPrefs.SetInt($"HeroCopies_{name}", heroCopies[name]);
+        PlayerPrefs.SetInt(SaveKeys.HeroLevelPrefix + name, heroLevels[name]);
+        PlayerPrefs.SetInt(SaveKeys.HeroCopiesPrefix + name, heroCopies[name]);
     }
 
     public void LoadHero(string name)
     {
-        heroLevels[name] = PlayerPrefs.GetInt($"HeroLevel_{name}", 1);
-        heroCopies[name] = PlayerPrefs.GetInt($"HeroCopies_{name}", 0);
+        heroLevels[name] = PlayerPrefs.GetInt(SaveKeys.HeroLevelPrefix + name, 1);
+        heroCopies[name] = PlayerPrefs.GetInt(SaveKeys.HeroCopiesPrefix + name, 0);
     }
 
     void OnApplicationPause(bool pause)

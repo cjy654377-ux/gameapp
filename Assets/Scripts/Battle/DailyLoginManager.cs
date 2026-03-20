@@ -77,6 +77,11 @@ public class DailyLoginManager : MonoBehaviour
         LoadState();
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     void LoadState()
     {
         CurrentDay = PlayerPrefs.GetInt(KEY_DAY, 0);

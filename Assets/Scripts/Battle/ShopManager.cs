@@ -87,6 +87,11 @@ public class ShopManager : MonoBehaviour
 
     public List<ShopItem> GetStockItems() => stockItems;
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     public bool CanPurchase(ShopItem item)
     {
         if (item == null) return false;

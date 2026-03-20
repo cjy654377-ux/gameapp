@@ -16,7 +16,7 @@ public class GemManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        Gem = PlayerPrefs.GetInt("Gem", 0);
+        Gem = PlayerPrefs.GetInt(SaveKeys.Gem, 0);
     }
 
     public void AddGem(int amount)
@@ -48,7 +48,7 @@ public class GemManager : MonoBehaviour
     void FlushSave()
     {
         if (!isDirty) return;
-        PlayerPrefs.SetInt("Gem", Gem);
+        PlayerPrefs.SetInt(SaveKeys.Gem, Gem);
         PlayerPrefs.Save();
         isDirty = false;
         saveTimer = 0f;
@@ -62,5 +62,10 @@ public class GemManager : MonoBehaviour
     void OnApplicationQuit()
     {
         FlushSave();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 }

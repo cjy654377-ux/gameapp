@@ -65,7 +65,7 @@ public class StageRewardSystem : MonoBehaviour
     void LoadClearedStages()
     {
         clearedStages.Clear();
-        string saved = PlayerPrefs.GetString("ClearedStages", "");
+        string saved = PlayerPrefs.GetString(SaveKeys.ClearedStages, "");
         if (string.IsNullOrEmpty(saved)) return;
 
         string[] parts = saved.Split(',');
@@ -86,6 +86,6 @@ public class StageRewardSystem : MonoBehaviour
             sb.Append(idx);
             first = false;
         }
-        PlayerPrefs.SetString("ClearedStages", sb.ToString());
+        PlayerPrefs.SetString(SaveKeys.ClearedStages, sb.ToString());
     }
 }

@@ -21,9 +21,14 @@ public class UpgradeManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
 
-        HpLevel = PlayerPrefs.GetInt("UpgradeHp", 0);
-        AtkLevel = PlayerPrefs.GetInt("UpgradeAtk", 0);
-        DefLevel = PlayerPrefs.GetInt("UpgradeDef", 0);
+        HpLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeHp, 0);
+        AtkLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeAtk, 0);
+        DefLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeDef, 0);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     public int GetCost(int level)
@@ -37,7 +42,7 @@ public class UpgradeManager : MonoBehaviour
         int cost = GetCost(HpLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         HpLevel++;
-        PlayerPrefs.SetInt("UpgradeHp", HpLevel);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeHp, HpLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -50,7 +55,7 @@ public class UpgradeManager : MonoBehaviour
         int cost = GetCost(AtkLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         AtkLevel++;
-        PlayerPrefs.SetInt("UpgradeAtk", AtkLevel);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeAtk, AtkLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -63,7 +68,7 @@ public class UpgradeManager : MonoBehaviour
         int cost = GetCost(DefLevel);
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         DefLevel++;
-        PlayerPrefs.SetInt("UpgradeDef", DefLevel);
+        PlayerPrefs.SetInt(SaveKeys.UpgradeDef, DefLevel);
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -120,6 +125,15 @@ public class UpgradeManager : MonoBehaviour
             hpBonus += setHp;
             atkBonus += setAtk;
             defBonus += setDef;
+        }
+
+        // 시너지 보너스 (퍼센트 기반)
+        var ssm = SkillSynergyManager.Instance;
+        if (ssm != null)
+        {
+            hpBonus += unit.baseMaxHp * ssm.GetHpPercent() / 100f;
+            atkBonus += unit.baseAtk * ssm.GetAtkPercent() / 100f;
+            defBonus += unit.baseDef * ssm.GetDefPercent() / 100f;
         }
 
         // HP 비율 유지

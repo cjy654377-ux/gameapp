@@ -61,7 +61,7 @@ public class StageManager : MonoBehaviour
         // Inspector에서 할당 안 된 경우 Resources에서 자동 로드
         AutoLoadPresets();
 
-        int saved = PlayerPrefs.GetInt("TotalWaveIndex", 0);
+        int saved = PlayerPrefs.GetInt(SaveKeys.TotalWaveIndex, 0);
         TotalWaveIndex = saved;
         CalcStageFromTotal(saved);
         SoundManager.Instance?.PlayAreaBGM(CurrentArea);
@@ -181,7 +181,7 @@ public class StageManager : MonoBehaviour
         int prevArea = CurrentArea;
 
         TotalWaveIndex++;
-        PlayerPrefs.SetInt("TotalWaveIndex", TotalWaveIndex);
+        PlayerPrefs.SetInt(SaveKeys.TotalWaveIndex, TotalWaveIndex);
         CalcStageFromTotal(TotalWaveIndex);
 
         if (CurrentArea != prevArea)
@@ -458,14 +458,14 @@ public class StageManager : MonoBehaviour
         };
     }
 
-    DamageElement GetAreaElement()
+    SkillElement GetAreaElement()
     {
         return CurrentArea switch
         {
-            1 => DamageElement.Physical,
-            2 => DamageElement.Lightning,
-            3 => DamageElement.Poison,
-            _ => DamageElement.Physical
+            1 => SkillElement.None,
+            2 => SkillElement.Lightning,
+            3 => SkillElement.Poison,
+            _ => SkillElement.None
         };
     }
 
@@ -502,7 +502,7 @@ public class StageManager : MonoBehaviour
 
         if (TotalWaveIndex > 0)
             TotalWaveIndex--;
-        PlayerPrefs.SetInt("TotalWaveIndex", TotalWaveIndex);
+        PlayerPrefs.SetInt(SaveKeys.TotalWaveIndex, TotalWaveIndex);
         CalcStageFromTotal(TotalWaveIndex);
 
         isTransitioning = true;

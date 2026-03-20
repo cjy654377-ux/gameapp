@@ -27,8 +27,8 @@ public class SoundManager : MonoBehaviour
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
 
-        bgmVolume = PlayerPrefs.GetFloat("BGMVolume", 0.5f);
-        sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.7f);
+        bgmVolume = PlayerPrefs.GetFloat(SaveKeys.BgmVolume, 0.5f);
+        sfxVolume = PlayerPrefs.GetFloat(SaveKeys.SfxVolume, 0.7f);
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
     }
@@ -84,14 +84,14 @@ public class SoundManager : MonoBehaviour
     {
         bgmVolume = Mathf.Clamp01(v);
         bgmSource.volume = bgmVolume;
-        PlayerPrefs.SetFloat("BGMVolume", bgmVolume);
+        PlayerPrefs.SetFloat(SaveKeys.BgmVolume, bgmVolume);
     }
 
     public void SetSFXVolume(float v)
     {
         sfxVolume = Mathf.Clamp01(v);
         sfxSource.volume = sfxVolume;
-        PlayerPrefs.SetFloat("SFXVolume", sfxVolume);
+        PlayerPrefs.SetFloat(SaveKeys.SfxVolume, sfxVolume);
     }
 
     // ═══ 에리어별 BGM ═══

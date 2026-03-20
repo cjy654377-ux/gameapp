@@ -46,6 +46,11 @@ public class ArenaManager : MonoBehaviour
         CheckDailyReset();
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     void CheckDailyReset()
     {
         string today = System.DateTime.UtcNow.ToString("yyyy-MM-dd");

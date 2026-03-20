@@ -18,7 +18,7 @@ public class BattleUnit : MonoBehaviour
     public float advanceSpeed = 0.8f;
 
     [Header("Element & Resist")]
-    public DamageElement damageElement = DamageElement.Physical;
+    public SkillElement damageElement = SkillElement.None;
     public float lightningResist = 0f;
     public float poisonResist = 0f;
 
@@ -38,7 +38,6 @@ public class BattleUnit : MonoBehaviour
     [HideInInspector] public float baseAtk;
     [HideInInspector] public float baseDef;
     [HideInInspector] public float baseMoveSpeed;
-    [HideInInspector] public float baseAdvanceSpeed;
 
     public float CurrentHp { get; set; }
     public bool IsDead => CurrentHp <= 0;
@@ -91,7 +90,6 @@ public class BattleUnit : MonoBehaviour
         baseAtk = atk;
         baseDef = def;
         baseMoveSpeed = moveSpeed;
-        baseAdvanceSpeed = advanceSpeed;
 
         CurrentHp = maxHp;
         attackAnimType = animType;
@@ -308,8 +306,8 @@ public class BattleUnit : MonoBehaviour
             sm.ApplyEffect(skill, targets[i]);
 
         // 스킬 업그레이드 쿨타임 배율 적용
-        float cdMult = SkillUpgradeManager.Instance != null
-            ? SkillUpgradeManager.Instance.GetCooldownMultiplier(skill.skillName) : 1f;
+        var skillUpgrade = SkillUpgradeManager.Instance;
+        float cdMult = skillUpgrade != null ? skillUpgrade.GetCooldownMultiplier(skill.skillName) : 1f;
         skillCooldowns[slot] = skill.cooldown * cdMult;
         OnSkillActivated?.Invoke(slot, skill);
     }
@@ -432,10 +430,10 @@ public class BattleUnit : MonoBehaviour
         float elementMult = 1f;
         switch (damageElement)
         {
-            case DamageElement.Lightning:
+            case SkillElement.Lightning:
                 elementMult = 1f + 0.5f * (1f - defender.lightningResist);
                 break;
-            case DamageElement.Poison:
+            case SkillElement.Poison:
                 elementMult = 1f + 0.5f * (1f - defender.poisonResist);
                 break;
         }

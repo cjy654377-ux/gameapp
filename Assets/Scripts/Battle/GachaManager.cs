@@ -76,6 +76,11 @@ public class GachaManager : MonoBehaviour
         RebuildStarPools();
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     /// <summary>
     /// 현재 풀 크기
     /// </summary>

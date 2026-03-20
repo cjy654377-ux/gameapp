@@ -24,6 +24,11 @@ public class SkillManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     void Start()
     {
         // Load all skills from Resources/Skills
@@ -84,16 +89,20 @@ public class SkillManager : MonoBehaviour
         if (targets == null || targets.Count == 0) return;
 
         // 스킬 레벨 배율 적용
-        float dmgMult = SkillUpgradeManager.Instance != null
-            ? SkillUpgradeManager.Instance.GetDamageMultiplier(skill.skillName) : 1f;
-        float cdMult = SkillUpgradeManager.Instance != null
-            ? SkillUpgradeManager.Instance.GetCooldownMultiplier(skill.skillName) : 1f;
+        var skillUpgrade = SkillUpgradeManager.Instance;
+        float dmgMult = skillUpgrade != null ? skillUpgrade.GetDamageMultiplier(skill.skillName) : 1f;
+        float cdMult = skillUpgrade != null ? skillUpgrade.GetCooldownMultiplier(skill.skillName) : 1f;
+
+        // 시너지 보너스 적용
+        var synergy = SkillSynergyManager.Instance;
+        float synergyDmgMult = synergy != null ? 1f + synergy.GetDmgPercent() / 100f : 1f;
+        float synergyCdMult = synergy != null ? 1f - synergy.GetCooldownReduction() / 100f : 1f;
 
         for (int i = 0; i < targets.Count; i++)
-            ApplySkillEffect(skill, targets[i], dmgMult);
+            ApplySkillEffect(skill, targets[i], dmgMult * synergyDmgMult);
 
         SoundManager.Instance?.PlaySkillSFX();
-        cooldownTimers[slotIndex] = skill.cooldown * cdMult;
+        cooldownTimers[slotIndex] = skill.cooldown * cdMult * synergyCdMult;
         OnSkillUsed?.Invoke(slotIndex);
         DailyMissionManager.Instance?.RegisterSkillUse();
     }
@@ -109,8 +118,11 @@ public class SkillManager : MonoBehaviour
             if (equippedSkills[i] != null)
                 names.Add(equippedSkills[i].skillName);
         }
-        PlayerPrefs.SetString("EquippedSkills", string.Join(",", names));
+        PlayerPrefs.SetString(SaveKeys.EquippedSkills, string.Join(",", names));
         PlayerPrefs.Save();
+
+        // 시너지 재계산
+        SkillSynergyManager.Instance?.RecalculateSynergies(equippedSkills);
     }
 
     /// <summary>
@@ -118,7 +130,7 @@ public class SkillManager : MonoBehaviour
     /// </summary>
     public void LoadEquippedSkills()
     {
-        string saved = PlayerPrefs.GetString("EquippedSkills", "");
+        string saved = PlayerPrefs.GetString(SaveKeys.EquippedSkills, "");
         if (string.IsNullOrEmpty(saved)) return;
         if (allSkills == null || allSkills.Length == 0) return;
 
@@ -223,9 +235,7 @@ public class SkillManager : MonoBehaviour
 
     void ApplyStatus(BattleUnit target, StatusEffectType type, SkillData skill)
     {
-        var controller = target.GetComponent<StatusEffectController>();
-        if (controller == null)
-            controller = target.gameObject.AddComponent<StatusEffectController>();
+        var controller = target.StatusEffects;
         controller.ApplyEffect(type, skill.statusDuration);
 
         // Also deal some initial damage for offensive status effects
