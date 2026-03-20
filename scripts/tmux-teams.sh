@@ -29,19 +29,19 @@ tmux set -t $SESSION pane-border-status top
 
 # Pane 0: 디렉터 (Opus) — 메인 오케스트레이션
 tmux select-pane -t $SESSION:teams.0 -T "Director (Opus)"
-tmux send-keys -t $SESSION:teams.0 'claude --model claude-opus-4-6' C-m
+tmux send-keys -t $SESSION:teams.0 'claude --dangerously-skip-permissions --model claude-opus-4-6' C-m
 
 # Pane 1: 팀1 UI-Agent (Opus)
 tmux select-pane -t $SESSION:teams.1 -T "Team1: UI (Opus)"
-tmux send-keys -t $SESSION:teams.1 'claude --model claude-opus-4-6 --system-prompt "너는 ui-agent야. Unity UI 전담팀 (Assets/Scripts/UI/, Assets/UI/). 한국어로 답변. CLAUDE.md 규칙 준수. 디렉터 지시에 따라 작업."' C-m
+tmux send-keys -t $SESSION:teams.1 'claude --dangerously-skip-permissions --model claude-opus-4-6 --system-prompt "너는 ui-agent야. Unity UI 전담팀 (Assets/Scripts/UI/, Assets/UI/). 한국어로 답변. CLAUDE.md 규칙 준수. 디렉터 지시에 따라 작업."' C-m
 
 # Pane 2: 팀2 Build-Agent (Sonnet)
 tmux select-pane -t $SESSION:teams.2 -T "Team2: Build (Sonnet)"
-tmux send-keys -t $SESSION:teams.2 'claude --model claude-sonnet-4-6 --system-prompt "너는 build-agent야. Unity 빌드/씬/코어 시스템 전담팀. 한국어로 답변. CLAUDE.md 규칙 준수. 디렉터 지시에 따라 작업."' C-m
+tmux send-keys -t $SESSION:teams.2 'claude --dangerously-skip-permissions --model claude-sonnet-4-6 --system-prompt "너는 build-agent야. Unity 빌드/씬/코어 시스템 전담팀. 한국어로 답변. CLAUDE.md 규칙 준수. 디렉터 지시에 따라 작업."' C-m
 
 # Pane 3: 팀3 Review-Agent (Haiku)
 tmux select-pane -t $SESSION:teams.3 -T "Team3: Review (Haiku)"
-tmux send-keys -t $SESSION:teams.3 'claude --model claude-haiku-4-5-20251001 --system-prompt "너는 review-agent야. 코드리뷰/검증 전담. 체크리스트 기반 검증. 한국어로 답변. CLAUDE.md 규칙 준수."' C-m
+tmux send-keys -t $SESSION:teams.3 'claude --dangerously-skip-permissions --model claude-haiku-4-5-20251001 --system-prompt "너는 review-agent야. 코드리뷰/검증 전담. 체크리스트 기반 검증. 한국어로 답변. CLAUDE.md 규칙 준수."' C-m
 
 # 디렉터 패인 포커스
 tmux select-pane -t $SESSION:teams.0
