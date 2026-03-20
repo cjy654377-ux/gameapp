@@ -37,7 +37,6 @@ public class TutorialManager : MonoBehaviour
 
     // Cached references for safe unsubscribe
     GoldManager cachedGoldMgr;
-    GemManager cachedGemMgr;
     StageManager cachedStageMgr;
 
     void Awake()
@@ -65,13 +64,10 @@ public class TutorialManager : MonoBehaviour
         yield return null;
 
         cachedGoldMgr = GoldManager.Instance;
-        cachedGemMgr = GemManager.Instance;
         cachedStageMgr = StageManager.Instance;
 
         if (cachedGoldMgr != null)
             cachedGoldMgr.OnGoldChanged += OnGoldChanged;
-        if (cachedGemMgr != null)
-            cachedGemMgr.OnGemChanged += OnGemChanged;
         if (cachedStageMgr != null)
             cachedStageMgr.OnStageChanged += OnStageChanged;
 
@@ -83,8 +79,6 @@ public class TutorialManager : MonoBehaviour
     {
         if (cachedGoldMgr != null)
             cachedGoldMgr.OnGoldChanged -= OnGoldChanged;
-        if (cachedGemMgr != null)
-            cachedGemMgr.OnGemChanged -= OnGemChanged;
         if (cachedStageMgr != null)
             cachedStageMgr.OnStageChanged -= OnStageChanged;
     }
@@ -140,11 +134,6 @@ public class TutorialManager : MonoBehaviour
     {
         if (currentStep == 2 && gold >= 50 && !IsTutorialActive)
             ShowStep(2);
-    }
-
-    void OnGemChanged(int gems)
-    {
-        // 보석 관련 튜토리얼은 제거됨 (step 3은 업그레이드 기반으로 변경)
     }
 
     void ShowStep(int step)

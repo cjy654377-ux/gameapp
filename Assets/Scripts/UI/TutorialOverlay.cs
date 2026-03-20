@@ -8,7 +8,6 @@ using TMPro;
 /// </summary>
 public class TutorialOverlay : MonoBehaviour
 {
-    Canvas canvas;
     GameObject panel;
     TextMeshProUGUI messageText;
     Button confirmButton;
@@ -26,7 +25,7 @@ public class TutorialOverlay : MonoBehaviour
     {
         // Canvas
         var canvasObj = UIHelper.MakeUI("TutorialCanvas", transform);
-        canvas = canvasObj.AddComponent<Canvas>();
+        var canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 300;
         canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;

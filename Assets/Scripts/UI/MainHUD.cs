@@ -80,6 +80,10 @@ public class MainHUD : MonoBehaviour
         BuildUI();
     }
 
+    // 분리된 패널 컴포넌트
+    GachaPanel gachaPanel;
+    SettingsPanel settingsPanel;
+
     // Hero select popup (for equipment)
     GameObject heroSelectPopup;
     GameObject heroSelectListContainer;
@@ -622,7 +626,10 @@ public class MainHUD : MonoBehaviour
                 deckUI.Init(panel.transform);
             }
             else if (i == 3)
-                BuildGachaContent(panel.transform);
+            {
+                gachaPanel = panel.AddComponent<GachaPanel>();
+                gachaPanel.Init(panel.transform, ShowConfirm);
+            }
             else if (i == 4)
                 BuildShopContent(panel.transform);
 
@@ -804,7 +811,7 @@ public class MainHUD : MonoBehaviour
         UpdateTabVisuals();
         if (idx == 0) RefreshUpgradeUI();
         if (idx == 1) RefreshEnhanceTab();
-        if (idx == 3) RefreshGachaUI();
+        if (idx == 3) gachaPanel?.Refresh();
         if (idx == 4) RefreshShopUI();
     }
 
@@ -1409,196 +1416,6 @@ public class MainHUD : MonoBehaviour
     }
 
     // ════════════════════════════════════════
-    // 소환 탭 (index 3) - 가챠
-    // ════════════════════════════════════════
-
-    TextMeshProUGUI gachaGemText;
-    TextMeshProUGUI gachaResultText;
-
-    void BuildGachaContent(Transform parent)
-    {
-        var content = UIHelper.MakeUI("GachaContent", parent);
-        var contentRT = content.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0, 0);
-        contentRT.anchorMax = new Vector2(1, 1);
-        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
-        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height);
-
-        // 보석 보유량 표시 — BoxIcon1 배경
-        var gemContainer = UIHelper.MakeSpritePanel("GemContainer", content.transform,
-            UISprites.BoxIcon1, UIColors.Panel_Inner);
-        // BoxIcon1 스프라이트 원본 색상 유지
-        var gcrt = gemContainer.GetComponent<RectTransform>();
-        gcrt.anchorMin = new Vector2(0.2f, 0.86f);
-        gcrt.anchorMax = new Vector2(0.8f, 0.98f);
-        gcrt.offsetMin = Vector2.zero;
-        gcrt.offsetMax = Vector2.zero;
-
-        // 보석 아이콘
-        if (UISprites.IconDiamond != null)
-        {
-            var gemIcon = UIHelper.MakeIcon("GemIcon", gemContainer.transform, UISprites.IconDiamond, UIColors.Text_Diamond);
-            var girt = gemIcon.GetComponent<RectTransform>();
-            girt.anchorMin = new Vector2(0.05f, 0.1f);
-            girt.anchorMax = new Vector2(0.05f, 0.9f);
-            girt.pivot = new Vector2(0, 0.5f);
-            girt.sizeDelta = new Vector2(18, 0);
-        }
-
-        gachaGemText = UIHelper.MakeText("GemInfo", gemContainer.transform, "보석: 0",
-            UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Diamond);
-        gachaGemText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(gachaGemText);
-        UIHelper.FillParent(gachaGemText.GetComponent<RectTransform>());
-
-        // 1회 뽑기 버튼 — Btn2_WS (녹색)
-        var (singleBtn, _) = UIHelper.MakeSpriteButton("SinglePull", content.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
-        singleBtn.onClick.AddListener(OnSinglePull);
-        var sbrt = singleBtn.GetComponent<RectTransform>();
-        sbrt.anchorMin = new Vector2(0.05f, 0.50f);
-        sbrt.anchorMax = new Vector2(0.47f, 0.82f);
-        sbrt.offsetMin = Vector2.zero;
-        sbrt.offsetMax = Vector2.zero;
-        var sText = UIHelper.MakeText("Label", singleBtn.transform, $"1회 소환\n{GachaManager.SINGLE_PULL_COST} 보석",
-            11f, TextAlignmentOptions.Center, Color.white);
-        sText.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(sText);
-        UIHelper.FillParent(sText.GetComponent<RectTransform>());
-
-        // 10연차 버튼 — Btn3_WS (황금색, 더 크게)
-        var (multiBtn, _) = UIHelper.MakeSpriteButton("MultiPull", content.transform,
-            UISprites.Btn3_WS, UIColors.Button_Yellow, "", UIConstants.Font_Button);
-        multiBtn.onClick.AddListener(OnMultiPull);
-        var mbrt = multiBtn.GetComponent<RectTransform>();
-        mbrt.anchorMin = new Vector2(0.53f, 0.50f);
-        mbrt.anchorMax = new Vector2(0.95f, 0.82f);
-        mbrt.offsetMin = Vector2.zero;
-        mbrt.offsetMax = Vector2.zero;
-        var mText = UIHelper.MakeText("Label", multiBtn.transform, $"10연차\n{GachaManager.MULTI_PULL_COST} 보석",
-            11f, TextAlignmentOptions.Center, new Color(0.20f, 0.12f, 0.05f));
-        mText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(mText.GetComponent<RectTransform>());
-
-        // 확률 정보 버튼 — Btn1_WS (나무색, 작게)
-        var (probBtn, _) = UIHelper.MakeSpriteButton("ProbInfoBtn", content.transform,
-            UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
-        probBtn.onClick.AddListener(ShowProbabilityInfo);
-        var pbrt = probBtn.GetComponent<RectTransform>();
-        pbrt.anchorMin = new Vector2(0.25f, 0.40f);
-        pbrt.anchorMax = new Vector2(0.75f, 0.50f);
-        pbrt.offsetMin = Vector2.zero;
-        pbrt.offsetMax = Vector2.zero;
-        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보 보기",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
-        UIHelper.FillParent(probLabel.GetComponent<RectTransform>());
-
-        // 결과 텍스트 — BoxBasic3 배경
-        var resultBg = UIHelper.MakeSpritePanel("ResultBG", content.transform,
-            UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
-        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
-        var rbrt = resultBg.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.05f, 0.02f);
-        rbrt.anchorMax = new Vector2(0.95f, 0.38f);
-        rbrt.offsetMin = Vector2.zero;
-        rbrt.offsetMax = Vector2.zero;
-
-        gachaResultText = UIHelper.MakeText("Result", resultBg.transform, "",
-            10f, TextAlignmentOptions.Center, Color.white);
-        UIHelper.AddTextShadow(gachaResultText);
-        UIHelper.FillParent(gachaResultText.GetComponent<RectTransform>());
-    }
-
-    void RefreshGachaUI()
-    {
-        if (gachaGemText != null && GemManager.Instance != null)
-            gachaGemText.text = $"보석: {GemManager.Instance.Gem}";
-    }
-
-    void OnSinglePull()
-    {
-        if (GachaManager.Instance == null) return;
-        int cost = GachaManager.SINGLE_PULL_COST;
-        if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
-        {
-            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
-            return;
-        }
-        ShowConfirm("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoSinglePull);
-    }
-
-    void DoSinglePull()
-    {
-        if (GachaManager.Instance == null) return;
-        var hero = GachaManager.Instance.SinglePull();
-        if (hero != null)
-        {
-            bool isDuplicate = false;
-            var dm = DeckManager.Instance;
-            if (dm != null)
-            {
-                int count = 0;
-                for (int i = 0; i < dm.roster.Count; i++)
-                    if (dm.roster[i] == hero) count++;
-                isDuplicate = count > 1 || (count == 1 && HeroLevelManager.Instance != null && HeroLevelManager.Instance.GetCopies(hero.characterName) > 0);
-            }
-
-            if (gachaResultText != null)
-            {
-                if (isDuplicate)
-                    gachaResultText.text = $"<color=#FFD700>{hero.characterName}</color> 중복! 강화 카드 +1";
-                else
-                    gachaResultText.text = $"<color=#7FD44C>NEW!</color> {hero.characterName} 획득!";
-            }
-        }
-        else
-        {
-            if (gachaResultText != null)
-                gachaResultText.text = "<color=#CC3333>보석이 부족합니다</color>";
-        }
-        RefreshGachaUI();
-    }
-
-    void OnMultiPull()
-    {
-        if (GachaManager.Instance == null) return;
-        int cost = GachaManager.MULTI_PULL_COST;
-        if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
-        {
-            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
-            return;
-        }
-        ShowConfirm("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoMultiPull);
-    }
-
-    void DoMultiPull()
-    {
-        if (GachaManager.Instance == null) return;
-        var results = GachaManager.Instance.MultiPull();
-        if (results != null)
-        {
-            var counts = new Dictionary<string, int>();
-            for (int i = 0; i < results.Length; i++)
-            {
-                string n = results[i].characterName;
-                if (!counts.ContainsKey(n)) counts[n] = 0;
-                counts[n]++;
-            }
-            string resultStr = "";
-            foreach (var kv in counts)
-                resultStr += $"{kv.Key} x{kv.Value}  ";
-            if (gachaResultText != null)
-                gachaResultText.text = resultStr.Trim();
-        }
-        else
-        {
-            if (gachaResultText != null)
-                gachaResultText.text = "<color=#CC3333>보석이 부족합니다</color>";
-        }
-        RefreshGachaUI();
-    }
-
-    // ════════════════════════════════════════
     // 장비 탭 (index 4) - 인벤토리/장착
     // ════════════════════════════════════════
 
@@ -1948,7 +1765,8 @@ public class MainHUD : MonoBehaviour
         setRT.anchorMax = Vector2.one;
         setRT.offsetMin = Vector2.zero;
         setRT.offsetMax = new Vector2(0, -subTabH);
-        BuildSettingsContent(settingsRoot.transform);
+        settingsPanel = settingsRoot.AddComponent<SettingsPanel>();
+        settingsPanel.Init(settingsRoot.transform);
 
         shopSubTab = 0;
         UpdateShopSubTabVisuals();
@@ -1995,7 +1813,7 @@ public class MainHUD : MonoBehaviour
             case 2: RefreshMissionUI(); break;
             case 3: RefreshCollectionUI(); break;
             case 4: RefreshArenaUI(); break;
-            case 5: RefreshSettingsUI(); break;
+            case 5: settingsPanel?.Refresh(); break;
         }
     }
 
@@ -2418,164 +2236,6 @@ public class MainHUD : MonoBehaviour
         TrimExcess(missionListItems, activeMissionCount);
         var containerRT = missionListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
-    }
-
-    // ════════════════════════════════════════
-    // 설정 패널 (상점 탭 서브탭)
-    // ════════════════════════════════════════
-
-    Slider settingsBgmSlider;
-    Slider settingsSfxSlider;
-    TextMeshProUGUI bgmValueText;
-    TextMeshProUGUI sfxValueText;
-
-    void BuildSettingsContent(Transform parent)
-    {
-        var content = UIHelper.MakeUI("SettingsContent", parent);
-        var crt = content.GetComponent<RectTransform>();
-        crt.anchorMin = Vector2.zero;
-        crt.anchorMax = Vector2.one;
-        crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
-        crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
-
-        // BGM Volume
-        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.7f, 1f,
-            out settingsBgmSlider, out bgmValueText, (val) =>
-            {
-                SoundManager.Instance?.SetBGMVolume(val);
-                if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
-            });
-
-        // SFX Volume
-        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.4f, 1f,
-            out settingsSfxSlider, out sfxValueText, (val) =>
-            {
-                SoundManager.Instance?.SetSFXVolume(val);
-                if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
-            });
-
-        // 데이터 초기화 버튼 — Btn4_WS (빨간색)
-        var (resetBtn, _) = UIHelper.MakeSpriteButton("ResetBtn", content.transform,
-            UISprites.Btn4_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
-        var rbrt = resetBtn.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.15f, 0.05f);
-        rbrt.anchorMax = new Vector2(0.85f, 0.2f);
-        rbrt.offsetMin = Vector2.zero;
-        rbrt.offsetMax = Vector2.zero;
-
-        var resetText = UIHelper.MakeText("Label", resetBtn.transform, "데이터 초기화",
-            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
-        resetText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(resetText.GetComponent<RectTransform>());
-
-        resetBtn.onClick.AddListener(OnResetData);
-    }
-
-    void BuildVolumeSlider(Transform parent, string label, float yMin, float yMax,
-        out Slider slider, out TextMeshProUGUI valueText, UnityEngine.Events.UnityAction<float> onChange)
-    {
-        // Row container — BoxBasic3 스프라이트
-        var rowBg = UIHelper.MakeSpritePanel($"{label}Row", parent,
-            UISprites.BoxBasic3, UIColors.Panel_Inner);
-        // BoxBasic3 원본 색상 유지 (border=0, Simple 타입)
-        var row = rowBg;
-        var rrt = row.GetComponent<RectTransform>();
-        rrt.anchorMin = new Vector2(0, yMin);
-        rrt.anchorMax = new Vector2(1, yMax);
-        rrt.offsetMin = new Vector2(0, 2);
-        rrt.offsetMax = new Vector2(0, -2);
-
-        // Label
-        var labelText = UIHelper.MakeText("Label", row.transform, label,
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
-        labelText.fontStyle = FontStyles.Bold;
-        var lrt = labelText.GetComponent<RectTransform>();
-        lrt.anchorMin = new Vector2(0, 0);
-        lrt.anchorMax = new Vector2(0.25f, 1);
-        lrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
-        lrt.offsetMax = Vector2.zero;
-
-        // Slider
-        var sliderObj = UIHelper.MakeUI("Slider", row.transform);
-        slider = sliderObj.AddComponent<Slider>();
-        slider.minValue = 0;
-        slider.maxValue = 1;
-        slider.wholeNumbers = false;
-
-        var srt = sliderObj.GetComponent<RectTransform>();
-        srt.anchorMin = new Vector2(0.27f, 0.2f);
-        srt.anchorMax = new Vector2(0.78f, 0.8f);
-        srt.offsetMin = Vector2.zero;
-        srt.offsetMax = Vector2.zero;
-
-        // Slider background
-        var bgObj = UIHelper.MakePanel("Background", sliderObj.transform, UIColors.ProgressBar_BG);
-        UIHelper.FillParent(bgObj.GetComponent<RectTransform>());
-        slider.targetGraphic = bgObj;
-
-        // Fill area
-        var fillArea = UIHelper.MakeUI("Fill Area", sliderObj.transform);
-        var fart = fillArea.GetComponent<RectTransform>();
-        fart.anchorMin = Vector2.zero;
-        fart.anchorMax = Vector2.one;
-        fart.offsetMin = Vector2.zero;
-        fart.offsetMax = Vector2.zero;
-
-        var fillObj = UIHelper.MakePanel("Fill", fillArea.transform, UIColors.ProgressBar_Fill);
-        var fillRT = fillObj.GetComponent<RectTransform>();
-        fillRT.anchorMin = Vector2.zero;
-        fillRT.anchorMax = Vector2.one;
-        fillRT.offsetMin = Vector2.zero;
-        fillRT.offsetMax = Vector2.zero;
-        slider.fillRect = fillRT;
-
-        // Handle area
-        var handleArea = UIHelper.MakeUI("Handle Slide Area", sliderObj.transform);
-        var hart = handleArea.GetComponent<RectTransform>();
-        hart.anchorMin = Vector2.zero;
-        hart.anchorMax = Vector2.one;
-        hart.offsetMin = Vector2.zero;
-        hart.offsetMax = Vector2.zero;
-
-        var handleObj = UIHelper.MakePanel("Handle", handleArea.transform, Color.white);
-        var hrt = handleObj.GetComponent<RectTransform>();
-        hrt.sizeDelta = new Vector2(14, 0);
-        slider.handleRect = hrt;
-
-        // Value text
-        valueText = UIHelper.MakeText("Value", row.transform, "50%",
-            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
-        valueText.fontStyle = FontStyles.Bold;
-        var vrt = valueText.GetComponent<RectTransform>();
-        vrt.anchorMin = new Vector2(0.80f, 0);
-        vrt.anchorMax = new Vector2(1, 1);
-        vrt.offsetMin = Vector2.zero;
-        vrt.offsetMax = Vector2.zero;
-
-        slider.onValueChanged.AddListener(onChange);
-    }
-
-    void RefreshSettingsUI()
-    {
-        var sm = SoundManager.Instance;
-        if (sm == null) return;
-        if (settingsBgmSlider != null)
-        {
-            settingsBgmSlider.SetValueWithoutNotify(sm.bgmVolume);
-            if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(sm.bgmVolume * 100)}%";
-        }
-        if (settingsSfxSlider != null)
-        {
-            settingsSfxSlider.SetValueWithoutNotify(sm.sfxVolume);
-            if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(sm.sfxVolume * 100)}%";
-        }
-    }
-
-    void OnResetData()
-    {
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-        ToastNotification.Instance?.Show("데이터 초기화", "게임을 재시작합니다", UIColors.Defeat_Red);
     }
 
     // ════════════════════════════════════════
@@ -3331,113 +2991,4 @@ public class MainHUD : MonoBehaviour
     // 확률 공시 팝업 (법적 의무)
     // ════════════════════════════════════════
 
-    GameObject probPopup;
-
-    void ShowProbabilityInfo()
-    {
-        if (probPopup != null)
-        {
-            probPopup.SetActive(true);
-            return;
-        }
-
-        // 풀스크린 오버레이
-        var overlay = UIHelper.MakePanel("ProbPopup", canvas.transform, UIColors.Overlay_Dark);
-        probPopup = overlay.gameObject;
-        var overlayRT = probPopup.GetComponent<RectTransform>();
-        UIHelper.FillParent(overlayRT);
-
-        // 탭하여 닫기
-        var closeBtn = probPopup.AddComponent<Button>();
-        closeBtn.targetGraphic = overlay;
-        closeBtn.onClick.AddListener(() => probPopup.SetActive(false));
-
-        // 중앙 패널 — BoxBasic1 스프라이트
-        var panelBg = UIHelper.MakeSpritePanel("Panel", probPopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
-        var panel = panelBg;
-        var panelRT = panel.GetComponent<RectTransform>();
-        panelRT.anchorMin = new Vector2(0.05f, 0.1f);
-        panelRT.anchorMax = new Vector2(0.95f, 0.9f);
-        panelRT.offsetMin = Vector2.zero;
-        panelRT.offsetMax = Vector2.zero;
-
-        // 패널 내부 클릭 시 닫히지 않도록
-        var panelBtn = panel.gameObject.AddComponent<Button>();
-        panelBtn.targetGraphic = panel;
-        panelBtn.onClick.AddListener(() => { }); // 이벤트 소비
-
-        // 내부 영역 (패딩)
-        var inner = UIHelper.MakeUI("Inner", panel.transform);
-        var innerRT = inner.GetComponent<RectTransform>();
-        innerRT.anchorMin = Vector2.zero;
-        innerRT.anchorMax = Vector2.one;
-        innerRT.offsetMin = new Vector2(4, 4);
-        innerRT.offsetMax = new Vector2(-4, -4);
-
-        // 타이틀 — Board 스프라이트 (진한 나무)
-        var titleBanner = UIHelper.MakeSpritePanel("TitleBanner", inner.transform,
-            UISprites.Board, UIColors.Background_Dark);
-        // Board 스프라이트 원본 색상 유지
-        var title = UIHelper.MakeText("Title", titleBanner.transform, "소환 확률 정보",
-            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
-        title.fontStyle = FontStyles.Bold;
-        UIHelper.AddTextShadow(title);
-        UIHelper.FillParent(title.GetComponent<RectTransform>());
-        var titleBannerRT = titleBanner.GetComponent<RectTransform>();
-        titleBannerRT.anchorMin = new Vector2(0.02f, 0.9f);
-        titleBannerRT.anchorMax = new Vector2(0.98f, 1);
-        titleBannerRT.offsetMin = Vector2.zero;
-        titleBannerRT.offsetMax = Vector2.zero;
-
-        // 확률 내용 텍스트
-        string content =
-            "<color=#FFD700>[ 기본 소환 확률 ]</color>\n" +
-            $"  <color=#607080>Common</color>    60.00%\n" +
-            $"  <color=#6B3FA0>Rare</color>          25.00%\n" +
-            $"  <color=#E07020>Epic</color>          12.00%\n" +
-            $"  <color=#FFD700>Legendary</color>   3.00%\n" +
-            "\n" +
-            "<color=#FFD700>[ 천장 시스템 (Pity) ]</color>\n" +
-            "  10회 연속 Common 출현 시\n" +
-            "  다음 소환은 Rare 이상 보장:\n" +
-            $"  <color=#6B3FA0>Rare</color>          70.00%\n" +
-            $"  <color=#E07020>Epic</color>          22.00%\n" +
-            $"  <color=#FFD700>Legendary</color>   8.00%\n" +
-            "\n" +
-            "<color=#FFD700>[ 10연차 보장 ]</color>\n" +
-            "  10회 소환 중 Rare 이상이\n" +
-            "  1회도 없을 경우\n" +
-            "  마지막 소환은 Rare 이상 보장\n" +
-            "\n" +
-            "<color=#FFD700>[ 소환 비용 ]</color>\n" +
-            $"  1회 소환: {GachaManager.SINGLE_PULL_COST}보석\n" +
-            $"  10연차:   {GachaManager.MULTI_PULL_COST}보석 (1회 할인)\n" +
-            "\n" +
-            "<color=#FFD700>[ 중복 소환 ]</color>\n" +
-            "  이미 보유한 영웅 소환 시\n" +
-            "  해당 영웅의 강화 카드 +1 획득";
-
-        var contentText = UIHelper.MakeText("Content", inner.transform, content,
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Left, new Color(0.20f, 0.12f, 0.06f));
-        contentText.lineSpacing = 5f;
-        var contentRT = contentText.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0, 0.05f);
-        contentRT.anchorMax = new Vector2(1, 0.88f);
-        contentRT.offsetMin = new Vector2(12, 0);
-        contentRT.offsetMax = new Vector2(-12, 0);
-
-        // 닫기 버튼 — Btn2_WS (녹색)
-        var (cBtn, _) = UIHelper.MakeSpriteButton("CloseBtn", inner.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "닫기", UIConstants.Font_Button);
-        cBtn.onClick.AddListener(() => probPopup.SetActive(false));
-        var cbrt = cBtn.GetComponent<RectTransform>();
-        cbrt.anchorMin = new Vector2(0.25f, 0.01f);
-        cbrt.anchorMax = new Vector2(0.75f, 0.07f);
-        cbrt.offsetMin = Vector2.zero;
-        cbrt.offsetMax = Vector2.zero;
-
-        SoundManager.Instance?.PlayButtonSFX();
-    }
 }
