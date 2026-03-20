@@ -56,24 +56,32 @@ public class DeckUI : MonoBehaviour
         CreateRosterSection();
     }
 
+    // 슬롯 바디 스프라이트 이미지 (캐릭터 초상화용)
+    readonly Image[] deckSlotPortraits = new Image[DeckManager.MAX_DECK_SIZE];
+
     void CreateDeckSection()
     {
-        // 헤더
-        deckHeaderText = UIHelper.MakeText("DeckHeader", root.transform, "편성 (3/8)",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
-        var hrt = deckHeaderText.GetComponent<RectTransform>();
-        hrt.anchorMin = new Vector2(0, 0.88f);
-        hrt.anchorMax = new Vector2(1, 1f);
-        hrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
-        hrt.offsetMax = Vector2.zero;
+        // 헤더 — BoxBanner 스타일
+        var headerBg = UIHelper.MakeSpritePanel("DeckHeaderBG", root.transform,
+            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
+        var hbrt = headerBg.GetComponent<RectTransform>();
+        hbrt.anchorMin = new Vector2(0.02f, 0.88f);
+        hbrt.anchorMax = new Vector2(0.98f, 0.98f);
+        hbrt.offsetMin = Vector2.zero;
+        hbrt.offsetMax = Vector2.zero;
+
+        deckHeaderText = UIHelper.MakeText("DeckHeader", headerBg.transform, "편성 (3/8)",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        deckHeaderText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(deckHeaderText.GetComponent<RectTransform>());
 
         // 8슬롯 1줄 스크롤
         var scrollObj = UIHelper.MakeUI("DeckScroll", root.transform);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
-        scrollRT.anchorMin = new Vector2(0, 0.58f);
+        scrollRT.anchorMin = new Vector2(0, 0.56f);
         scrollRT.anchorMax = new Vector2(1, 0.88f);
-        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, 0);
-        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+        scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, 2);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -2);
 
         var scrollRect = scrollObj.AddComponent<ScrollRect>();
         scrollRect.horizontal = true;
@@ -99,17 +107,23 @@ public class DeckUI : MonoBehaviour
             var slot = UIHelper.MakeUI($"Slot_{i}", content.transform);
             deckSlotObjs[i] = slot;
 
+            // BoxProfile 스프라이트로 슬롯 배경
             var bg = slot.AddComponent<Image>();
-            bg.color = UIColors.Panel_Inner;
+            if (UISprites.BoxProfile != null)
+            {
+                bg.sprite = UISprites.BoxProfile;
+                bg.type = Image.Type.Sliced;
+                bg.color = Color.white;
+            }
+            else
+            {
+                bg.color = UIColors.Panel_Inner;
+            }
             deckSlotBgs[i] = bg;
 
             var btn = slot.AddComponent<Button>();
             btn.targetGraphic = bg;
             btn.onClick.AddListener(() => OnDeckSlotClicked(idx));
-
-            var outline = slot.AddComponent<Outline>();
-            outline.effectColor = UIColors.Panel_Border;
-            outline.effectDistance = new Vector2(1, 1);
 
             var rt = slot.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0, 0);
@@ -117,6 +131,19 @@ public class DeckUI : MonoBehaviour
             rt.pivot = new Vector2(0, 0.5f);
             rt.anchoredPosition = new Vector2(i * (SLOT_SIZE + SLOT_SPACING), 0);
             rt.sizeDelta = new Vector2(SLOT_SIZE, 0);
+
+            // 캐릭터 초상화 이미지 (바디 스프라이트)
+            var portraitObj = UIHelper.MakeUI("Portrait", slot.transform);
+            var portraitImg = portraitObj.AddComponent<Image>();
+            portraitImg.preserveAspect = true;
+            portraitImg.raycastTarget = false;
+            portraitImg.color = Color.clear; // 초기엔 숨김
+            var prt = portraitObj.GetComponent<RectTransform>();
+            prt.anchorMin = new Vector2(0.1f, 0.15f);
+            prt.anchorMax = new Vector2(0.9f, 0.75f);
+            prt.offsetMin = Vector2.zero;
+            prt.offsetMax = Vector2.zero;
+            deckSlotPortraits[i] = portraitImg;
 
             // 선택 테두리
             var borderObj = UIHelper.MakeUI("Border", slot.transform);
@@ -126,38 +153,48 @@ public class DeckUI : MonoBehaviour
             UIHelper.FillParent(borderObj.GetComponent<RectTransform>());
             deckSlotBorders[i] = borderImg;
 
-            // 이름
+            // 이름 (하단에 배치)
             deckSlotTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
-                9f, TextAlignmentOptions.Center);
+                7f, TextAlignmentOptions.Bottom, Color.white);
             deckSlotTexts[i].textWrappingMode = TextWrappingModes.Normal;
-            UIHelper.FillParent(deckSlotTexts[i].GetComponent<RectTransform>());
+            deckSlotTexts[i].fontStyle = FontStyles.Bold;
+            var nrt = deckSlotTexts[i].GetComponent<RectTransform>();
+            nrt.anchorMin = new Vector2(0, 0);
+            nrt.anchorMax = new Vector2(1, 0.22f);
+            nrt.offsetMin = new Vector2(1, 1);
+            nrt.offsetMax = new Vector2(-1, 0);
         }
     }
 
     void CreateDivider()
     {
-        var divider = UIHelper.MakePanel("Divider", root.transform, UIColors.Panel_Border);
+        var divider = UIHelper.MakePanel("Divider", root.transform, new Color(0.50f, 0.38f, 0.25f));
         var drt = divider.GetComponent<RectTransform>();
-        drt.anchorMin = new Vector2(0.02f, 0.56f);
-        drt.anchorMax = new Vector2(0.98f, 0.56f);
+        drt.anchorMin = new Vector2(0.04f, 0.55f);
+        drt.anchorMax = new Vector2(0.96f, 0.55f);
         drt.pivot = new Vector2(0.5f, 0.5f);
-        drt.sizeDelta = new Vector2(0, 1);
+        drt.sizeDelta = new Vector2(0, 2);
     }
 
     void CreateRosterSection()
     {
-        var header = UIHelper.MakeText("RosterHeader", root.transform, "보유 영웅",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
-        var hrt = header.GetComponent<RectTransform>();
-        hrt.anchorMin = new Vector2(0, 0.48f);
-        hrt.anchorMax = new Vector2(1, 0.56f);
-        hrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
-        hrt.offsetMax = Vector2.zero;
+        var headerBg = UIHelper.MakeSpritePanel("RosterHeaderBG", root.transform,
+            UISprites.BoxIcon1, new Color(0.38f, 0.28f, 0.18f, 0.8f));
+        var hbrt = headerBg.GetComponent<RectTransform>();
+        hbrt.anchorMin = new Vector2(0.02f, 0.47f);
+        hbrt.anchorMax = new Vector2(0.98f, 0.54f);
+        hbrt.offsetMin = Vector2.zero;
+        hbrt.offsetMax = Vector2.zero;
+
+        var header = UIHelper.MakeText("RosterHeader", headerBg.transform, "보유 영웅",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        header.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(header.GetComponent<RectTransform>());
 
         var scrollObj = UIHelper.MakeUI("RosterScroll", root.transform);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
         scrollRT.anchorMin = new Vector2(0, 0);
-        scrollRT.anchorMax = new Vector2(1, 0.48f);
+        scrollRT.anchorMax = new Vector2(1, 0.46f);
         scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
         scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
 
@@ -202,20 +239,75 @@ public class DeckUI : MonoBehaviour
             if (preset != null)
             {
                 count++;
-                deckSlotBgs[i].color = UIColors.Panel_Inner;
-                deckSlotTexts[i].text = $"{GetRoleIcon(preset)}\n{preset.characterName}";
-                deckSlotTexts[i].color = UIColors.Text_Primary;
+                if (UISprites.BoxProfile != null)
+                    deckSlotBgs[i].color = Color.white;
+                else
+                    deckSlotBgs[i].color = UIColors.Panel_Inner;
+                deckSlotTexts[i].text = preset.characterName;
+                deckSlotTexts[i].color = Color.white;
+
+                // 캐릭터 바디 스프라이트 표시
+                if (deckSlotPortraits[i] != null)
+                {
+                    var bodySprite = LoadCharacterPortrait(preset);
+                    if (bodySprite != null)
+                    {
+                        deckSlotPortraits[i].sprite = bodySprite;
+                        deckSlotPortraits[i].color = Color.white;
+                    }
+                    else
+                    {
+                        deckSlotPortraits[i].sprite = null;
+                        deckSlotPortraits[i].color = Color.clear;
+                    }
+                }
             }
             else
             {
-                deckSlotBgs[i].color = UIColors.Background_Dark;
+                if (UISprites.BoxProfile != null)
+                    deckSlotBgs[i].color = new Color(0.80f, 0.80f, 0.80f); // 빈 슬롯: 확실한 어두운 tint로 구분
+                else
+                    deckSlotBgs[i].color = UIColors.Background_Dark;
                 deckSlotTexts[i].text = "+";
                 deckSlotTexts[i].color = UIColors.Text_Disabled;
+
+                if (deckSlotPortraits[i] != null)
+                {
+                    deckSlotPortraits[i].sprite = null;
+                    deckSlotPortraits[i].color = Color.clear;
+                }
             }
         }
 
         if (deckHeaderText != null)
             deckHeaderText.text = $"편성 ({count}/{DeckManager.MAX_DECK_SIZE})";
+    }
+
+    /// <summary>
+    /// CharacterPreset의 바디 스프라이트를 로드하여 초상화로 사용.
+    /// 반복 호출 방지를 위해 로컬 캐시 사용.
+    /// </summary>
+    static readonly System.Collections.Generic.Dictionary<string, Sprite> portraitCache = new();
+
+    static Sprite LoadCharacterPortrait(CharacterPreset preset)
+    {
+        if (preset == null || string.IsNullOrEmpty(preset.bodySprite)) return null;
+        if (portraitCache.TryGetValue(preset.bodySprite, out var cached)) return cached;
+
+        var sprites = Resources.LoadAll<Sprite>($"Addons/Legacy/0_Unit/0_Sprite/1_Body/{preset.bodySprite}");
+        if (sprites == null || sprites.Length == 0)
+        {
+            portraitCache[preset.bodySprite] = null;
+            return null;
+        }
+        // "Body" 서브스프라이트 찾기, 없으면 첫 번째
+        Sprite result = sprites[0];
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            if (sprites[i].name.Contains("Body")) { result = sprites[i]; break; }
+        }
+        portraitCache[preset.bodySprite] = result;
+        return result;
     }
 
     void RefreshRoster()
@@ -241,19 +333,22 @@ public class DeckUI : MonoBehaviour
             var item = UIHelper.MakeUI($"Hero_{preset.characterName}", rosterContainer.transform);
             rosterItems.Add(item);
 
+            // BoxBasic3 배경 — 밝은 톤으로 텍스트 대비 확보
             var itemBg = item.AddComponent<Image>();
-            itemBg.color = inDeck ? UIColors.Background_Dark : UIColors.Panel_Inner;
+            if (UISprites.BoxBasic3 != null)
+            {
+                itemBg.sprite = UISprites.BoxBasic3;
+                itemBg.type = Image.Type.Simple; // BoxBasic3는 border=0이므로 Sliced 사용 불가
+                itemBg.color = inDeck ? new Color(0.88f, 0.94f, 0.85f) : Color.white;
+            }
+            else
+            {
+                itemBg.color = inDeck ? new Color(0.35f, 0.45f, 0.28f) : new Color(0.55f, 0.45f, 0.32f);
+            }
 
             var itemBtn = item.AddComponent<Button>();
             itemBtn.targetGraphic = itemBg;
             itemBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
-
-            if (inDeck)
-            {
-                var itemOutline = item.AddComponent<Outline>();
-                itemOutline.effectColor = UIColors.Panel_Selected;
-                itemOutline.effectDistance = new Vector2(1, 1);
-            }
 
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -271,9 +366,9 @@ public class DeckUI : MonoBehaviour
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
-            // Name
+            // Name — 진한 갈색으로 확실한 대비
             var nameText = UIHelper.MakeText("Info", item.transform, preset.characterName,
-                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft);
+                UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, new Color(0.17f, 0.09f, 0.04f));
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0.11f, 0.5f);
@@ -281,27 +376,33 @@ public class DeckUI : MonoBehaviour
             nrt.offsetMin = Vector2.zero;
             nrt.offsetMax = Vector2.zero;
 
-            // Stats
+            // Stats — 중간 갈색으로 가독성 확보
             var statText = UIHelper.MakeText("Stats", item.transform,
                 $"HP:{preset.maxHp:F0} ATK:{preset.atk:F0}",
-                9f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+                8f, TextAlignmentOptions.MidlineLeft, new Color(0.35f, 0.24f, 0.16f));
             var strt = statText.GetComponent<RectTransform>();
             strt.anchorMin = new Vector2(0.11f, 0);
             strt.anchorMax = new Vector2(0.55f, 0.5f);
             strt.offsetMin = Vector2.zero;
             strt.offsetMax = Vector2.zero;
 
-            // 상태
+            // 상태 버튼 — 스프라이트 사용
             string statusStr = inDeck ? "편성됨" : "추가";
-            Color statusColor = inDeck ? UIColors.Text_Green : UIColors.Text_Gold;
-            var statusText = UIHelper.MakeText("Status", item.transform, statusStr,
-                UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, statusColor);
-            statusText.fontStyle = FontStyles.Bold;
-            var strt2 = statusText.GetComponent<RectTransform>();
-            strt2.anchorMin = new Vector2(0.75f, 0);
-            strt2.anchorMax = new Vector2(1, 1);
+            Sprite statusSprite = inDeck ? UISprites.Btn1_WS : UISprites.Btn2_WS;
+            Color statusFallback = inDeck ? UIColors.Button_Gray : UIColors.Button_Green;
+            var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
+                statusSprite, statusFallback, "", 9f);
+            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
+            var strt2 = statusBtn.GetComponent<RectTransform>();
+            strt2.anchorMin = new Vector2(0.72f, 0.1f);
+            strt2.anchorMax = new Vector2(0.97f, 0.9f);
             strt2.offsetMin = Vector2.zero;
             strt2.offsetMax = Vector2.zero;
+            var statusLabel = UIHelper.MakeText("Label", statusBtn.transform, statusStr,
+                9f, TextAlignmentOptions.Center, inDeck ? new Color(0.60f, 0.60f, 0.60f) : Color.white);
+            statusLabel.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(statusLabel.GetComponent<RectTransform>());
 
             y -= (ROSTER_ITEM_H + spacing);
         }
@@ -370,7 +471,7 @@ public class DeckUI : MonoBehaviour
         {
             bool selected = (i == selectedDeckSlot);
             if (deckSlotBorders[i] != null)
-                deckSlotBorders[i].color = selected ? UIColors.Panel_Selected : Color.clear;
+                deckSlotBorders[i].color = selected ? new Color(0.5f, 0.85f, 0.3f, 0.6f) : Color.clear;
         }
     }
 

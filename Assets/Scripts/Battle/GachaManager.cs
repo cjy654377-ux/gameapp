@@ -58,7 +58,7 @@ public class GachaManager : MonoBehaviour
         for (int i = 0; i < allHeroes.Length; i++)
         {
             var hero = allHeroes[i];
-            if (hero == null) continue;
+            if (hero == null || hero.isEnemy) continue;
             switch (hero.rarity)
             {
                 case HeroRarity.Common: commonPool.Add(hero); break;
@@ -237,6 +237,7 @@ public class GachaManager : MonoBehaviour
     void SavePity()
     {
         PlayerPrefs.SetInt("PullsSinceRare", pullsSinceRare);
+        PlayerPrefs.Save();
     }
 
     /// <summary>
