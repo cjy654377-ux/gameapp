@@ -5,6 +5,60 @@ public class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
 
+    // ════════════════════════════════════════
+    // Area Enum & Constants
+    // ════════════════════════════════════════
+    public enum GameArea { Grass = 1, Desert = 2, Cave = 3 }
+
+    // Boss & Enemy Spawning
+    private const int AREA_BOSS_COMPANION_COUNT = 5;
+
+    // Boss Scale Multipliers
+    private const float AREA_BOSS_SCALE = 2f;
+    private const float MID_BOSS_SCALE = 1.5f;
+    private const float BOSS_SCALE_FINAL = 0.8f;
+
+    // Boss Rage Mechanics
+    private const float BOSS_RAGE_THRESHOLD = 0.3f; // 30% HP
+    private const float BOSS_RAGE_COOLDOWN_MULT = 0.65f;
+    private const float BOSS_RAGE_SPEED_MULT = 1.3f;
+
+    // Camera Effects
+    private const float AREA_BOSS_SHAKE_MAG = 0.5f;
+    private const float AREA_BOSS_SHAKE_DUR = 0.2f;
+    private const float MID_BOSS_SHAKE_MAG = 0.3f;
+    private const float MID_BOSS_SHAKE_DUR = 0.12f;
+
+    // Spawn Offsets
+    private const float SPAWN_X_OFFSET = 8f;
+    private const float SPAWN_X_RANGE = 4f;
+    private const float SPAWN_X_BOSS_RANGE = 3f;
+    private const float BATTLE_ZONE_HEIGHT_RATIO = 0.6f;
+
+    // Wave Thresholds for Difficulty Curve
+    private const int WAVE_THRESHOLD_EARLY = 10;
+    private const int WAVE_THRESHOLD_MID = 20;
+    private const int WAVE_THRESHOLD_LATE = 30;
+    private const float DIFFICULTY_SCALE_BASE = 10f;
+    private const float LATE_WAVE_ACCEL = 1.5f;
+
+    // Boss Pattern Timings
+    private const float BOSS_STUN_INITIAL_DELAY = 3f;
+    private const float BOSS_STUN_INTERVAL = 5f;
+    private const float BOSS_STUN_DURATION = 1f;
+    private const float BOSS_STUN_DISTANCE_MULT = 2f;
+    private const float BOSS_AOE_INITIAL_DELAY = 4f;
+    private const float BOSS_AOE_INTERVAL = 8f;
+    private const float BOSS_AOE_DAMAGE_MULT = 0.3f;
+
+    // Area Traits
+    private const float DESERT_SPEED_MULT = 1.3f;
+    private const float DESERT_COOLDOWN_MULT = 0.85f;
+    private const float DESERT_LIGHTNING_RESIST = 0.3f;
+    private const float CAVE_DEF_MULT = 1.4f;
+    private const float CAVE_POISON_RESIST = 0.5f;
+    private const float VOLCANO_HP_MULT = 1.2f;
+
     [Header("Stage Config")]
     public int wavesPerStage = 3;
     public int stagesPerArea = 10;
@@ -38,7 +92,8 @@ public class StageManager : MonoBehaviour
     public CharacterPreset caveAreaBoss;
 
     // Current progress
-    public int CurrentArea { get; private set; } = 1;
+    public GameArea CurrentAreaEnum { get; private set; } = GameArea.Grass;
+    public int CurrentArea => (int)CurrentAreaEnum;  // Backward compatible
     public int CurrentStage { get; private set; } = 1;
     public int CurrentWave { get; private set; } = 0;
     public int TotalWaveIndex { get; private set; } = 0;
@@ -123,7 +178,8 @@ public class StageManager : MonoBehaviour
     {
         total = Mathf.Max(0, total);
         int wavesPerArea = wavesPerStage * stagesPerArea;
-        CurrentArea = Mathf.Clamp(total / wavesPerArea + 1, 1, 3);
+        int areaNum = Mathf.Clamp(total / wavesPerArea + 1, 1, 3);
+        CurrentAreaEnum = (GameArea)areaNum;
         int remaining = total % wavesPerArea;
         CurrentStage = remaining / wavesPerStage + 1;
         CurrentWave = remaining % wavesPerStage + 1;
@@ -306,14 +362,14 @@ public class StageManager : MonoBehaviour
             SpawnBoss(factory, manager, spawnX, isAreaBoss);
             if (isAreaBoss)
             {
-                for (int i = 0; i < 5; i++)
-                    SpawnNormalEnemy(factory, manager, spawnX + Random.Range(1f, 3f), battleZoneH);
+                for (int i = 0; i < AREA_BOSS_COMPANION_COUNT; i++)
+                    SpawnNormalEnemy(factory, manager, spawnX + Random.Range(SPAWN_X_BOSS_RANGE * 0.33f, SPAWN_X_BOSS_RANGE), battleZoneH);
             }
         }
         else
         {
             for (int i = 0; i < enemiesPerWave; i++)
-                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, 2f), battleZoneH);
+                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, SPAWN_X_RANGE * 0.5f), battleZoneH);
         }
 
         waveTimer = waveCooldown;
@@ -337,22 +393,26 @@ public class StageManager : MonoBehaviour
         unit.damageElement = GetAreaElement();
 
         // 에리어별 적 특성
-        switch (CurrentArea)
+        ApplyAreaTraits(unit);
+        manager.enemyUnits.Add(unit);
+    }
+
+    void ApplyAreaTraits(BattleUnit unit)
+    {
+        switch (CurrentAreaEnum)
         {
-            case 2: // Desert: 빠르고 공격적
-                unit.moveSpeed *= 1.3f;
-                unit.attackCooldown *= 0.85f;
-                unit.lightningResist = 0.3f;
+            case GameArea.Desert:
+                unit.moveSpeed *= DESERT_SPEED_MULT;
+                unit.attackCooldown *= DESERT_COOLDOWN_MULT;
+                unit.lightningResist = DESERT_LIGHTNING_RESIST;
                 break;
-            case 3: // Cave: 단단하고 독 저항
-                unit.def *= 1.4f;
-                unit.poisonResist = 0.5f;
-                unit.maxHp *= 1.2f;
+            case GameArea.Cave:
+                unit.def *= CAVE_DEF_MULT;
+                unit.poisonResist = CAVE_POISON_RESIST;
+                unit.maxHp *= VOLCANO_HP_MULT;
                 unit.CurrentHp = unit.maxHp;
                 break;
         }
-
-        manager.enemyUnits.Add(unit);
     }
 
     public event System.Action<bool> OnBossSpawned; // true = area boss, false = mid boss
@@ -364,7 +424,7 @@ public class StageManager : MonoBehaviour
         {
             float battleZoneH = GetBattleZoneHeight();
             for (int i = 0; i < enemiesPerWave; i++)
-                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, 2f), battleZoneH);
+                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, SPAWN_X_RANGE * 0.5f), battleZoneH);
             return;
         }
 
@@ -380,12 +440,12 @@ public class StageManager : MonoBehaviour
         unit.CurrentHp = unit.maxHp;
         unit.damageElement = GetAreaElement();
 
-        float sizeScale = isAreaBoss ? 2f : 1.5f;
-        unit.transform.localScale = Vector3.one * sizeScale * 0.8f;
+        float sizeScale = isAreaBoss ? AREA_BOSS_SCALE : MID_BOSS_SCALE;
+        unit.transform.localScale = Vector3.one * sizeScale * BOSS_SCALE_FINAL;
 
-        // Boss rage: 30% HP 이하일 때 공격속도 1.5배
+        // Boss rage: HP 이하일 때 공격속도 및 이동속도 증가
         var bossUnit = unit;
-        float rageThreshold = unit.maxHp * 0.3f;
+        float rageThreshold = unit.maxHp * BOSS_RAGE_THRESHOLD;
         bool raged = false;
         System.Action<float, float> rageHandler = null;
         System.Action deathCleanup = null;
@@ -394,8 +454,8 @@ public class StageManager : MonoBehaviour
             if (!raged && hp <= rageThreshold && hp > 0)
             {
                 raged = true;
-                bossUnit.attackCooldown *= 0.65f;
-                bossUnit.moveSpeed *= 1.3f;
+                bossUnit.attackCooldown *= BOSS_RAGE_COOLDOWN_MULT;
+                bossUnit.moveSpeed *= BOSS_RAGE_SPEED_MULT;
                 if (EffectManager.Instance != null)
                     EffectManager.Instance.SpawnLightningEffect(bossUnit.transform.position);
                 bossUnit.OnHpChanged -= rageHandler;
@@ -423,7 +483,11 @@ public class StageManager : MonoBehaviour
         var cam = GetMainCamera();
         var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
         if (camShake != null)
-            camShake.Shake(isAreaBoss ? 0.5f : 0.3f, isAreaBoss ? 0.2f : 0.12f);
+        {
+            float shakeMag = isAreaBoss ? AREA_BOSS_SHAKE_MAG : MID_BOSS_SHAKE_MAG;
+            float shakeDur = isAreaBoss ? AREA_BOSS_SHAKE_DUR : MID_BOSS_SHAKE_DUR;
+            camShake.Shake(shakeMag, shakeDur);
+        }
     }
 
     Camera GetMainCamera()
@@ -436,57 +500,57 @@ public class StageManager : MonoBehaviour
     float GetSpawnX()
     {
         var cam = GetMainCamera();
-        if (cam == null) return 8f;
-        return cam.transform.position.x + cam.orthographicSize * cam.aspect + 4f;
+        if (cam == null) return SPAWN_X_OFFSET;
+        return cam.transform.position.x + cam.orthographicSize * cam.aspect + SPAWN_X_RANGE;
     }
 
     float GetBattleZoneHeight()
     {
         var cam = GetMainCamera();
         float camH = cam != null ? cam.orthographicSize * 2f : 10f;
-        return camH * 0.6f;
+        return camH * BATTLE_ZONE_HEIGHT_RATIO;
     }
 
     List<CharacterPreset> GetAreaEnemies()
     {
-        return CurrentArea switch
+        return CurrentAreaEnum switch
         {
-            1 => grassEnemies,
-            2 => desertEnemies,
-            3 => caveEnemies,
+            GameArea.Grass => grassEnemies,
+            GameArea.Desert => desertEnemies,
+            GameArea.Cave => caveEnemies,
             _ => grassEnemies
         };
     }
 
     SkillElement GetAreaElement()
     {
-        return CurrentArea switch
+        return CurrentAreaEnum switch
         {
-            1 => SkillElement.None,
-            2 => SkillElement.Lightning,
-            3 => SkillElement.Poison,
+            GameArea.Grass => SkillElement.None,
+            GameArea.Desert => SkillElement.Lightning,
+            GameArea.Cave => SkillElement.Poison,
             _ => SkillElement.None
         };
     }
 
     CharacterPreset GetMidBossPreset()
     {
-        return CurrentArea switch
+        return CurrentAreaEnum switch
         {
-            1 => grassMidBoss,
-            2 => desertMidBoss,
-            3 => caveMidBoss,
+            GameArea.Grass => grassMidBoss,
+            GameArea.Desert => desertMidBoss,
+            GameArea.Cave => caveMidBoss,
             _ => grassMidBoss
         };
     }
 
     CharacterPreset GetAreaBossPreset()
     {
-        return CurrentArea switch
+        return CurrentAreaEnum switch
         {
-            1 => grassAreaBoss,
-            2 => desertAreaBoss,
-            3 => caveAreaBoss,
+            GameArea.Grass => grassAreaBoss,
+            GameArea.Desert => desertAreaBoss,
+            GameArea.Cave => caveAreaBoss,
             _ => grassAreaBoss
         };
     }
@@ -535,11 +599,11 @@ public class StageManager : MonoBehaviour
 
     public string GetAreaName()
     {
-        return CurrentArea switch
+        return CurrentAreaEnum switch
         {
-            1 => "Grass Field",
-            2 => "Desert",
-            3 => "Underground Cave",
+            GameArea.Grass => "Grass Field",
+            GameArea.Desert => "Desert",
+            GameArea.Cave => "Underground Cave",
             _ => "Unknown"
         };
     }
@@ -551,32 +615,32 @@ public class StageManager : MonoBehaviour
     /// </summary>
     float GetDifficultyMultiplier(int wave, float baseScale)
     {
-        int wavesPerArea = wavesPerStage * stagesPerArea; // 30
-        int area = wave / wavesPerArea; // 0, 1, 2
+        int wavesPerArea = wavesPerStage * stagesPerArea;
+        int area = wave / wavesPerArea;
         int localWave = wave % wavesPerArea;
 
-        // 구간별 곡선
+        // 구간별 난이도 곡선
         float curveMult;
-        if (localWave <= 10)
+        if (localWave <= WAVE_THRESHOLD_EARLY)
         {
-            // 초반 완만: sqrt 기반 (0~10웨이브)
-            curveMult = Mathf.Sqrt(localWave / 10f) * 10f * baseScale;
+            // 초반 완만: sqrt 기반
+            curveMult = Mathf.Sqrt(localWave / (float)WAVE_THRESHOLD_EARLY) * DIFFICULTY_SCALE_BASE * baseScale;
         }
-        else if (localWave <= 20)
+        else if (localWave <= WAVE_THRESHOLD_MID)
         {
-            // 중반 선형 (10~20웨이브)
-            float basePart = Mathf.Sqrt(1f) * 10f * baseScale; // 10웨이브 시점 값
-            curveMult = basePart + (localWave - 10) * baseScale;
+            // 중반 선형
+            float basePart = Mathf.Sqrt(1f) * DIFFICULTY_SCALE_BASE * baseScale;
+            curveMult = basePart + (localWave - WAVE_THRESHOLD_EARLY) * baseScale;
         }
         else
         {
-            // 후반 가속 (20~30웨이브)
-            float basePart = Mathf.Sqrt(1f) * 10f * baseScale + 10f * baseScale;
-            float accel = Mathf.Pow((localWave - 20) / 10f, 1.3f) * 10f * baseScale * 1.5f;
+            // 후반 가속
+            float basePart = Mathf.Sqrt(1f) * DIFFICULTY_SCALE_BASE * baseScale + WAVE_THRESHOLD_EARLY * baseScale;
+            float accel = Mathf.Pow((localWave - WAVE_THRESHOLD_MID) / (float)WAVE_THRESHOLD_EARLY, 1.3f) * DIFFICULTY_SCALE_BASE * baseScale * LATE_WAVE_ACCEL;
             curveMult = basePart + accel;
         }
 
-        // 에리어 전환 점프 (에리어 2: 1.5배, 에리어 3: 2.25배)
+        // 에리어 전환 점프 (1.5배씩 누적)
         float areaJump = Mathf.Pow(1.5f, area);
 
         return 1f + curveMult * areaJump;
@@ -587,11 +651,11 @@ public class StageManager : MonoBehaviour
     // ════════════════════════════════════════
 
     /// <summary>
-    /// 미드보스: 5초마다 가장 가까운 아군에게 1초 스턴
+    /// 미드보스: 일정 주기마다 가장 가까운 아군에게 스턴 적용
     /// </summary>
     System.Collections.IEnumerator BossStunPattern(BattleUnit boss)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(BOSS_STUN_INITIAL_DELAY);
         while (boss != null && !boss.IsDead)
         {
             var manager = BattleManager.Instance;
@@ -606,44 +670,43 @@ public class StageManager : MonoBehaviour
                     float d = Vector3.Distance(boss.transform.position, ally.transform.position);
                     if (d < minDist) { minDist = d; nearest = ally; }
                 }
-                if (nearest != null && minDist < boss.attackRange * 2f)
+                if (nearest != null && minDist < boss.attackRange * BOSS_STUN_DISTANCE_MULT)
                 {
-                    nearest.ApplyStun(1f);
+                    nearest.ApplyStun(BOSS_STUN_DURATION);
                     DamagePopup.Create(nearest.transform.position + Vector3.up * 0.7f, 0f, false, "STUN!");
                     EffectManager.Instance?.SpawnLightningEffect(nearest.transform.position);
                 }
             }
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(BOSS_STUN_INTERVAL);
         }
     }
 
     /// <summary>
-    /// 에리어 보스: 8초마다 전체 아군에게 ATK*0.3 광역 데미지
+    /// 에리어 보스: 일정 주기마다 전체 아군에게 광역 데미지
     /// </summary>
     System.Collections.IEnumerator BossAoePattern(BattleUnit boss)
     {
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(BOSS_AOE_INITIAL_DELAY);
         while (boss != null && !boss.IsDead)
         {
             var manager = BattleManager.Instance;
             if (manager != null && manager.CurrentState == BattleManager.BattleState.Fighting)
             {
-                float aoeDmg = boss.atk * 0.3f;
+                float aoeDmg = boss.atk * BOSS_AOE_DAMAGE_MULT;
                 for (int i = 0; i < manager.allyUnits.Count; i++)
                 {
                     var ally = manager.allyUnits[i];
                     if (ally == null || ally.IsDead) continue;
                     ally.TakeDamage(aoeDmg);
                 }
-                // 보스 위치에 이펙트
                 EffectManager.Instance?.SpawnLightningEffect(boss.transform.position);
 
                 // 카메라 셰이크
                 var cam = GetMainCamera();
                 var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
-                if (camShake != null) camShake.Shake(0.2f, 0.1f);
+                if (camShake != null) camShake.Shake(AREA_BOSS_SHAKE_MAG * 0.4f, AREA_BOSS_SHAKE_DUR * 0.5f);
             }
-            yield return new WaitForSeconds(8f);
+            yield return new WaitForSeconds(BOSS_AOE_INTERVAL);
         }
     }
 }

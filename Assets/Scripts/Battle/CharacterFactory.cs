@@ -10,6 +10,14 @@ public class CharacterFactory : MonoBehaviour
 
     static readonly Dictionary<string, Sprite[]> spriteCache = new();
 
+    const float BASE_SCALE          = 0.8f;
+    const float GOLD_REWARD_HP_RATIO = 0.5f;
+
+    // 성급별 크기 배율 (index = StarGrade int)
+    static readonly float[] STAR_SCALE = { 1.0f, 1.0f, 1.0f, 1.4f, 1.7f, 2.0f };
+    // 적 성급별 스탯 배율
+    static readonly float[] ENEMY_STAT_MULT = { 1.0f, 1.0f, 1.3f, 2.0f, 3.5f, 6.0f };
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -84,34 +92,50 @@ public class CharacterFactory : MonoBehaviour
         // 스프라이트 적용
         ApplySprites(unitObj, preset);
 
-        // BattleUnit 설정
         var battleUnit = unitObj.AddComponent<BattleUnit>();
-        battleUnit.unitName = preset.characterName;
-        battleUnit.maxHp = preset.maxHp;
-        battleUnit.atk = preset.atk;
-        battleUnit.def = preset.def;
-        battleUnit.moveSpeed = preset.moveSpeed;
-        battleUnit.attackRange = preset.attackRange;
+        ConfigureBattleUnit(battleUnit, preset, team);
+
+        ApplyStarScale(unitObj, preset.starGrade);
+        if (team == BattleUnit.Team.Enemy)
+            ApplyEnemyStatMult(battleUnit, preset.starGrade);
+
+        unitObj.AddComponent<HpBar>();
+
+        RegisterCollections(preset, team);
+        if (team == BattleUnit.Team.Enemy)
+            SetupGoldDrop(battleUnit, preset);
+
+        return battleUnit;
+    }
+
+    static void ConfigureBattleUnit(BattleUnit battleUnit, CharacterPreset preset, BattleUnit.Team team)
+    {
+        battleUnit.unitName       = preset.characterName;
+        battleUnit.maxHp          = preset.maxHp;
+        battleUnit.atk            = preset.atk;
+        battleUnit.def            = preset.def;
+        battleUnit.moveSpeed      = preset.moveSpeed;
+        battleUnit.attackRange    = preset.attackRange;
         battleUnit.attackCooldown = preset.attackCooldown;
-        battleUnit.damageElement = preset.damageElement;
+        battleUnit.damageElement  = preset.damageElement;
         battleUnit.lightningResist = preset.lightningResist;
-        battleUnit.poisonResist = preset.poisonResist;
+        battleUnit.poisonResist   = preset.poisonResist;
 
         if (preset.isHealer)
         {
-            battleUnit.role = BattleUnit.RoleType.Healer;
-            battleUnit.healAmount = preset.healAmount;
+            battleUnit.role         = BattleUnit.RoleType.Healer;
+            battleUnit.healAmount   = preset.healAmount;
             battleUnit.healCooldown = preset.healCooldown;
-            battleUnit.healRange = preset.healRange;
+            battleUnit.healRange    = preset.healRange;
         }
         else if (preset.isBuffer)
         {
-            battleUnit.role = BattleUnit.RoleType.Buffer;
-            battleUnit.buffAtkBonus = preset.buffAtkBonus;
-            battleUnit.buffDefBonus = preset.buffDefBonus;
-            battleUnit.buffDuration = preset.buffDuration;
-            battleUnit.buffCooldown = preset.buffCooldown;
-            battleUnit.buffRange = preset.buffRange;
+            battleUnit.role          = BattleUnit.RoleType.Buffer;
+            battleUnit.buffAtkBonus  = preset.buffAtkBonus;
+            battleUnit.buffDefBonus  = preset.buffDefBonus;
+            battleUnit.buffDuration  = preset.buffDuration;
+            battleUnit.buffCooldown  = preset.buffCooldown;
+            battleUnit.buffRange     = preset.buffRange;
         }
 
         if (preset.skills != null && preset.skills.Length > 0)
@@ -119,57 +143,42 @@ public class CharacterFactory : MonoBehaviour
 
         battleUnit.Init(preset.attackAnimType);
         battleUnit.SetTeam(team);
+    }
 
-        // 성급 기반 크기 스케일 적용
-        float baseScale = 0.8f;
-        float starScale = preset.starGrade switch
-        {
-            StarGrade.Star3 => 1.4f,
-            StarGrade.Star4 => 1.7f,
-            StarGrade.Star5 => 2.0f,
-            _ => 1.0f
-        };
-        unitObj.transform.localScale = Vector3.one * baseScale * starScale;
+    void ApplyStarScale(GameObject unitObj, StarGrade star)
+    {
+        int idx = Mathf.Clamp((int)star, 0, STAR_SCALE.Length - 1);
+        unitObj.transform.localScale = Vector3.one * BASE_SCALE * STAR_SCALE[idx];
+    }
 
-        // 적 유닛 성급 스탯 배율 적용
-        if (team == BattleUnit.Team.Enemy)
-        {
-            float statMult = preset.starGrade switch
-            {
-                StarGrade.Star2 => 1.3f,
-                StarGrade.Star3 => 2.0f,
-                StarGrade.Star4 => 3.5f,
-                StarGrade.Star5 => 6.0f,
-                _ => 1.0f
-            };
-            battleUnit.maxHp *= statMult;
-            battleUnit.atk *= statMult;
-            battleUnit.def *= statMult;
-        }
+    void ApplyEnemyStatMult(BattleUnit unit, StarGrade star)
+    {
+        int idx = Mathf.Clamp((int)star, 0, ENEMY_STAT_MULT.Length - 1);
+        float mult = ENEMY_STAT_MULT[idx];
+        unit.maxHp *= mult;
+        unit.atk   *= mult;
+        unit.def   *= mult;
+    }
 
-        unitObj.AddComponent<HpBar>();
-
-        // 도감 등록
-        CollectionManager.Instance?.RegisterHero(
-            team == BattleUnit.Team.Ally ? preset.characterName : null);
-        if (team == BattleUnit.Team.Enemy)
+    static void RegisterCollections(CharacterPreset preset, BattleUnit.Team team)
+    {
+        if (team == BattleUnit.Team.Ally)
+            CollectionManager.Instance?.RegisterHero(preset.characterName);
+        else
             CollectionManager.Instance?.RegisterMonster(preset.characterName);
+    }
 
-        // 적 골드 드롭
-        if (team == BattleUnit.Team.Enemy)
+    static void SetupGoldDrop(BattleUnit battleUnit, CharacterPreset preset)
+    {
+        int goldReward = Mathf.RoundToInt(preset.maxHp * GOLD_REWARD_HP_RATIO);
+        System.Action deathHandler = null;
+        var unitRef = battleUnit;
+        deathHandler = () =>
         {
-            var unitRef = battleUnit;
-            int goldReward = Mathf.RoundToInt(preset.maxHp * 0.5f);
-            System.Action deathHandler = null;
-            deathHandler = () =>
-            {
-                GoldDrop.Spawn(unitRef.transform.position, goldReward);
-                unitRef.OnDeath -= deathHandler;
-            };
-            battleUnit.OnDeath += deathHandler;
-        }
-
-        return battleUnit;
+            GoldDrop.Spawn(unitRef.transform.position, goldReward);
+            unitRef.OnDeath -= deathHandler;
+        };
+        battleUnit.OnDeath += deathHandler;
     }
 
     void AttachUnitRoot(GameObject spumInstance, GameObject unitObj)

@@ -44,10 +44,9 @@ public class ShopPanel : MonoBehaviour
     // 초기화
     // ════════════════════════════════════════
 
-    public void Init(Transform parent, System.Action<string, string, System.Action> showConfirmCallback, SettingsPanel settings)
+    public void Init(Transform parent, System.Action<string, string, System.Action> showConfirmCallback, SettingsPanel _ignored = null)
     {
         showConfirm = showConfirmCallback;
-        settingsPanel = settings;
 
         var content = UIHelper.MakeUI("ShopContent", parent);
         var contentRT = content.GetComponent<RectTransform>();
@@ -111,8 +110,8 @@ public class ShopPanel : MonoBehaviour
         BuildArenaContent(arenaRoot.transform);
 
         settingsRoot = MakeSubRoot("SettingsRoot", content.transform, subTabH);
-        if (settingsPanel != null)
-            settingsPanel.Init(settingsRoot.transform);
+        settingsPanel = settingsRoot.AddComponent<SettingsPanel>();
+        settingsPanel.Init(settingsRoot.transform);
 
         subTab = 0;
         UpdateSubTabVisuals();

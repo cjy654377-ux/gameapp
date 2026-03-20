@@ -76,6 +76,29 @@ public class EquipmentManager : MonoBehaviour
     const float BASE_ATK = 5f;
     const float BASE_DEF = 3f;
 
+    // 생성/드롭 상수
+    const float DROP_CHANCE        = 0.30f;
+    const float SET_ID_CHANCE      = 0.33f;
+    const float LEVEL_SCALE_PER_AREA = 0.15f;
+    const float STAT_RANDOM_MIN    = 0.8f;
+    const float STAT_RANDOM_MAX    = 1.2f;
+    const float ENHANCE_BOOST      = 1.3f;
+    const int   DISMANTLE_GOLD_PER_RARITY = 50;
+
+    // 2세트 보너스
+    const float SET2_WARRIOR_ATK   = 15f;
+    const float SET2_MAGE_ATK      = 10f;
+    const float SET2_MAGE_DEF      = 5f;
+    const float SET2_GUARDIAN_DEF  = 12f;
+    const float SET2_GUARDIAN_HP   = 30f;
+
+    // 4세트 보너스
+    const float SET4_WARRIOR_ATK   = 30f;
+    const float SET4_MAGE_ATK      = 20f;
+    const float SET4_MAGE_DEF      = 10f;
+    const float SET4_GUARDIAN_DEF  = 25f;
+    const float SET4_GUARDIAN_HP   = 80f;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -131,7 +154,7 @@ public class EquipmentManager : MonoBehaviour
         }
 
         // 일반 웨이브 30% 확률 드롭
-        if (UnityEngine.Random.value > 0.30f) return;
+        if (UnityEngine.Random.value > DROP_CHANCE) return;
         var item = GenerateRandomEquipment(area);
         AddItem(item);
         ToastNotification.Instance?.Show($"장비 획득: {item.itemName}", "");
@@ -219,39 +242,16 @@ public class EquipmentManager : MonoBehaviour
         return result;
     }
 
-    /// <summary>
-    /// 영웅의 장비 총 보너스 HP
-    /// </summary>
-    public float GetTotalBonusHp(string heroName)
-    {
-        float total = 0f;
-        for (int i = 0; i < inventory.Count; i++)
-            if (inventory[i].equippedTo == heroName)
-                total += inventory[i].bonusHp;
-        return total;
-    }
+    public float GetTotalBonusHp(string heroName)  => GetTotalBonus(heroName, e => e.bonusHp);
+    public float GetTotalBonusAtk(string heroName) => GetTotalBonus(heroName, e => e.bonusAtk);
+    public float GetTotalBonusDef(string heroName) => GetTotalBonus(heroName, e => e.bonusDef);
 
-    /// <summary>
-    /// 영웅의 장비 총 보너스 ATK
-    /// </summary>
-    public float GetTotalBonusAtk(string heroName)
+    float GetTotalBonus(string heroName, System.Func<EquipmentItem, float> selector)
     {
         float total = 0f;
         for (int i = 0; i < inventory.Count; i++)
             if (inventory[i].equippedTo == heroName)
-                total += inventory[i].bonusAtk;
-        return total;
-    }
-
-    /// <summary>
-    /// 영웅의 장비 총 보너스 DEF
-    /// </summary>
-    public float GetTotalBonusDef(string heroName)
-    {
-        float total = 0f;
-        for (int i = 0; i < inventory.Count; i++)
-            if (inventory[i].equippedTo == heroName)
-                total += inventory[i].bonusDef;
+                total += selector(inventory[i]);
         return total;
     }
 
@@ -287,31 +287,31 @@ public class EquipmentManager : MonoBehaviour
         item.itemName = $"{prefix} {slotName}";
 
         // 스탯 = base * rarity * areaLevel factor * 랜덤(0.8~1.2)
-        float levelFactor = 1f + (areaLevel - 1) * 0.15f;
-        float randomMult = UnityEngine.Random.Range(0.8f, 1.2f);
+        float levelFactor = 1f + (areaLevel - 1) * LEVEL_SCALE_PER_AREA;
+        float randomMult = UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX);
 
         // 슬롯별 주요 스탯 가중치
         switch (item.slot)
         {
             case EquipmentSlot.Weapon:
                 item.bonusAtk = BASE_ATK * rarity * levelFactor * randomMult;
-                item.bonusHp = BASE_HP * rarity * levelFactor * UnityEngine.Random.Range(0.8f, 1.2f) * 0.3f;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.3f;
                 item.bonusDef = 0f;
                 break;
             case EquipmentSlot.Armor:
                 item.bonusDef = BASE_DEF * rarity * levelFactor * randomMult;
-                item.bonusHp = BASE_HP * rarity * levelFactor * UnityEngine.Random.Range(0.8f, 1.2f) * 0.5f;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.5f;
                 item.bonusAtk = 0f;
                 break;
             default: // Shield 등
                 item.bonusDef = BASE_DEF * rarity * levelFactor * randomMult * 0.7f;
-                item.bonusHp = BASE_HP * rarity * levelFactor * UnityEngine.Random.Range(0.8f, 1.2f) * 0.4f;
-                item.bonusAtk = BASE_ATK * rarity * levelFactor * UnityEngine.Random.Range(0.8f, 1.2f) * 0.2f;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.4f;
+                item.bonusAtk = BASE_ATK * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.2f;
                 break;
         }
 
         // 세트 ID 부여 (33% 확률)
-        if (UnityEngine.Random.value < 0.33f)
+        if (UnityEngine.Random.value < SET_ID_CHANCE)
         {
             string[] sets = { "전사", "마법사", "수호자" };
             item.setId = sets[UnityEngine.Random.Range(0, sets.Length)];
@@ -355,9 +355,9 @@ public class EquipmentManager : MonoBehaviour
             {
                 switch (kv.Key)
                 {
-                    case "전사": bonusAtk += 15f; break;
-                    case "마법사": bonusAtk += 10f; bonusDef += 5f; break;
-                    case "수호자": bonusDef += 12f; bonusHp += 30f; break;
+                    case "전사": bonusAtk += SET2_WARRIOR_ATK; break;
+                    case "마법사": bonusAtk += SET2_MAGE_ATK; bonusDef += SET2_MAGE_DEF; break;
+                    case "수호자": bonusDef += SET2_GUARDIAN_DEF; bonusHp += SET2_GUARDIAN_HP; break;
                 }
             }
             // 4세트 효과
@@ -365,9 +365,9 @@ public class EquipmentManager : MonoBehaviour
             {
                 switch (kv.Key)
                 {
-                    case "전사": bonusAtk += 30f; break;
-                    case "마법사": bonusAtk += 20f; bonusDef += 10f; break;
-                    case "수호자": bonusDef += 25f; bonusHp += 80f; break;
+                    case "전사": bonusAtk += SET4_WARRIOR_ATK; break;
+                    case "마법사": bonusAtk += SET4_MAGE_ATK; bonusDef += SET4_MAGE_DEF; break;
+                    case "수호자": bonusDef += SET4_GUARDIAN_DEF; bonusHp += SET4_GUARDIAN_HP; break;
                 }
             }
         }
@@ -392,7 +392,7 @@ public class EquipmentManager : MonoBehaviour
         if (item == null) return 0;
         if (!string.IsNullOrEmpty(item.equippedTo)) return 0; // 장착 중이면 분해 불가
 
-        int goldReward = item.rarity * 50;
+        int goldReward = item.rarity * DISMANTLE_GOLD_PER_RARITY;
         inventory.Remove(item);
         SaveInventory();
         OnEquipmentChanged?.Invoke();
@@ -418,20 +418,13 @@ public class EquipmentManager : MonoBehaviour
 
         // 등급 상승
         target.rarity++;
-        float boost = 1.3f; // 30% 스탯 증가
-        target.bonusHp *= boost;
-        target.bonusAtk *= boost;
-        target.bonusDef *= boost;
+        target.bonusHp  *= ENHANCE_BOOST;
+        target.bonusAtk *= ENHANCE_BOOST;
+        target.bonusDef *= ENHANCE_BOOST;
 
         // 이름 갱신
         string prefix = target.rarity <= 5 ? RARITY_PREFIX[target.rarity] : "전설";
-        string slotName = target.slot switch
-        {
-            EquipmentSlot.Weapon => "검",
-            EquipmentSlot.Armor => "갑옷",
-            EquipmentSlot.Shield => "방패",
-            _ => "장비"
-        };
+        string slotName = SLOT_NAME.TryGetValue(target.slot, out var sn) ? sn : "장비";
         target.itemName = string.IsNullOrEmpty(target.setId)
             ? $"{prefix} {slotName}"
             : $"{prefix} {slotName} [{target.setId}]";
