@@ -46,6 +46,7 @@ public static class SaveKeys
     public const string ArenaWinStreak = "ArenaWinStreak";
     public const string ArenaAttempts  = "ArenaAttempts";
     public const string ArenaLastReset = "ArenaLastReset";
+    public const string ArenaRankRewardPrefix = "ArenaRankReward_";
 
     // 튜토리얼
     public const string TutorialStep = "TutorialStep";

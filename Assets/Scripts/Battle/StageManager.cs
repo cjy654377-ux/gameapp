@@ -59,6 +59,16 @@ public class StageManager : MonoBehaviour
     private const float CAVE_POISON_RESIST = 0.5f;
     private const float VOLCANO_HP_MULT = 1.2f;
 
+    // Spawn Spread & Difficulty
+    private const float BOSS_COMPANION_SPREAD = 0.33f; // 보스 동반 적 분산 비율
+    private const float NORMAL_SPAWN_SPREAD   = 0.5f;  // 일반 스폰 X 분산 비율
+    private const float BATTLE_ZONE_MARGIN    = 0.45f; // 전투존 Y 범위 여백
+    private const float AREA_JUMP_MULT        = 1.5f;  // 에리어 전환 스탯 점프 배율
+    private const float DIFFICULTY_CURVE_POW  = 1.3f;  // 후반 난이도 가속 지수
+
+    // BGM Keys
+    private static readonly string[] AREA_BGM = { "", "battle_grass", "battle_desert", "battle_cave" };
+
     [Header("Stage Config")]
     public int wavesPerStage = 3;
     public int stagesPerArea = 10;
@@ -193,14 +203,10 @@ public class StageManager : MonoBehaviour
 
     void PlayAreaBGM()
     {
-        string bgm = CurrentArea switch
-        {
-            1 => "battle_grass",
-            2 => "battle_desert",
-            3 => "battle_cave",
-            _ => "battle_grass"
-        };
-        SoundManager.Instance?.PlayBGM(bgm);
+        int idx = Mathf.Clamp(CurrentArea, 0, AREA_BGM.Length - 1);
+        string bgm = AREA_BGM[idx];
+        if (!string.IsNullOrEmpty(bgm))
+            SoundManager.Instance?.PlayBGM(bgm);
     }
 
     void Update()
@@ -363,13 +369,13 @@ public class StageManager : MonoBehaviour
             if (isAreaBoss)
             {
                 for (int i = 0; i < AREA_BOSS_COMPANION_COUNT; i++)
-                    SpawnNormalEnemy(factory, manager, spawnX + Random.Range(SPAWN_X_BOSS_RANGE * 0.33f, SPAWN_X_BOSS_RANGE), battleZoneH);
+                    SpawnNormalEnemy(factory, manager, spawnX + Random.Range(SPAWN_X_BOSS_RANGE * BOSS_COMPANION_SPREAD, SPAWN_X_BOSS_RANGE), battleZoneH);
             }
         }
         else
         {
             for (int i = 0; i < enemiesPerWave; i++)
-                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, SPAWN_X_RANGE * 0.5f), battleZoneH);
+                SpawnNormalEnemy(factory, manager, spawnX + Random.Range(0f, SPAWN_X_RANGE * NORMAL_SPAWN_SPREAD), battleZoneH);
         }
 
         waveTimer = waveCooldown;
@@ -382,7 +388,7 @@ public class StageManager : MonoBehaviour
         if (presets.Count == 0) return;
 
         var preset = presets[Random.Range(0, presets.Count)];
-        float y = Random.Range(-battleZoneH * 0.45f, battleZoneH * 0.45f);
+        float y = Random.Range(-battleZoneH * BATTLE_ZONE_MARGIN, battleZoneH * BATTLE_ZONE_MARGIN);
         var unit = factory.CreateCharacter(preset, new Vector3(spawnX, y, 0), BattleUnit.Team.Enemy);
 
         float hpMult = GetDifficultyMultiplier(TotalWaveIndex, hpScalePerWave);
@@ -636,12 +642,12 @@ public class StageManager : MonoBehaviour
         {
             // 후반 가속
             float basePart = Mathf.Sqrt(1f) * DIFFICULTY_SCALE_BASE * baseScale + WAVE_THRESHOLD_EARLY * baseScale;
-            float accel = Mathf.Pow((localWave - WAVE_THRESHOLD_MID) / (float)WAVE_THRESHOLD_EARLY, 1.3f) * DIFFICULTY_SCALE_BASE * baseScale * LATE_WAVE_ACCEL;
+            float accel = Mathf.Pow((localWave - WAVE_THRESHOLD_MID) / (float)WAVE_THRESHOLD_EARLY, DIFFICULTY_CURVE_POW) * DIFFICULTY_SCALE_BASE * baseScale * LATE_WAVE_ACCEL;
             curveMult = basePart + accel;
         }
 
         // 에리어 전환 점프 (1.5배씩 누적)
-        float areaJump = Mathf.Pow(1.5f, area);
+        float areaJump = Mathf.Pow(AREA_JUMP_MULT, area);
 
         return 1f + curveMult * areaJump;
     }

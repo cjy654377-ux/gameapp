@@ -39,10 +39,10 @@ public class ArenaManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
 
-        ArenaPoints = PlayerPrefs.GetInt("ArenaPoints", 0);
-        WinStreak = PlayerPrefs.GetInt("ArenaWinStreak", 0);
-        attemptsToday = PlayerPrefs.GetInt("ArenaAttempts", 0);
-        lastResetDate = PlayerPrefs.GetString("ArenaLastReset", "");
+        ArenaPoints = PlayerPrefs.GetInt(SaveKeys.ArenaPoints, 0);
+        WinStreak = PlayerPrefs.GetInt(SaveKeys.ArenaWinStreak, 0);
+        attemptsToday = PlayerPrefs.GetInt(SaveKeys.ArenaAttempts, 0);
+        lastResetDate = PlayerPrefs.GetString(SaveKeys.ArenaLastReset, "");
         CheckDailyReset();
     }
 
@@ -58,8 +58,8 @@ public class ArenaManager : MonoBehaviour
         {
             attemptsToday = 0;
             lastResetDate = today;
-            PlayerPrefs.SetString("ArenaLastReset", today);
-            PlayerPrefs.SetInt("ArenaAttempts", 0);
+            PlayerPrefs.SetString(SaveKeys.ArenaLastReset, today);
+            PlayerPrefs.SetInt(SaveKeys.ArenaAttempts, 0);
         }
     }
 
@@ -102,7 +102,7 @@ public class ArenaManager : MonoBehaviour
     public void ReportResult(bool won)
     {
         attemptsToday++;
-        PlayerPrefs.SetInt("ArenaAttempts", attemptsToday);
+        PlayerPrefs.SetInt(SaveKeys.ArenaAttempts, attemptsToday);
 
         if (won)
         {
@@ -118,8 +118,8 @@ public class ArenaManager : MonoBehaviour
             ToastNotification.Instance?.Show("아레나 패배", $"{LOSE_POINTS}P", UIColors.Defeat_Red);
         }
 
-        PlayerPrefs.SetInt("ArenaPoints", ArenaPoints);
-        PlayerPrefs.SetInt("ArenaWinStreak", WinStreak);
+        PlayerPrefs.SetInt(SaveKeys.ArenaPoints, ArenaPoints);
+        PlayerPrefs.SetInt(SaveKeys.ArenaWinStreak, WinStreak);
 
         OnPointsChanged?.Invoke(ArenaPoints);
         OnBattleResult?.Invoke(won);
@@ -164,7 +164,7 @@ public class ArenaManager : MonoBehaviour
     void CheckRankReward()
     {
         int rank = ArenaRank;
-        string key = $"ArenaRankReward_{rank}";
+        string key = SaveKeys.ArenaRankRewardPrefix + rank;
         if (PlayerPrefs.GetInt(key, 0) == 1) return;
 
         int[] gemRewards = { 0, 200, 100, 50, 30, 10 };

@@ -14,6 +14,7 @@ public class EffectManager : MonoBehaviour
     static Gradient gachaGradient;
     static AnimationCurve shrinkCurve;
     static AnimationCurve pulseCurve;
+    static AnimationCurve lightningCurve;
 
     Material _cachedParticleMaterial;
 
@@ -59,6 +60,8 @@ public class EffectManager : MonoBehaviour
             new Keyframe(0f, 1f), new Keyframe(1f, 0f));
         pulseCurve = new AnimationCurve(
             new Keyframe(0f, 0.5f), new Keyframe(0.3f, 1.5f), new Keyframe(1f, 0f));
+        lightningCurve = new AnimationCurve(
+            new Keyframe(0f, 1f), new Keyframe(0.5f, 1.5f), new Keyframe(1f, 0f));
     }
 
     static Gradient MakeGradient(Color start, Color end)
@@ -156,8 +159,7 @@ public class EffectManager : MonoBehaviour
             radius = 0.15f,
             gradient = lightningGradient,
             simulationSpeed = 2f,
-            sizeCurve = new AnimationCurve(
-                new Keyframe(0f, 1f), new Keyframe(0.5f, 1.5f), new Keyframe(1f, 0f)),
+            sizeCurve = lightningCurve,
         });
     }
 
@@ -334,6 +336,7 @@ public class EffectManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (_cachedParticleMaterial != null)
             Destroy(_cachedParticleMaterial);
     }
@@ -350,5 +353,6 @@ public class EffectManager : MonoBehaviour
         gachaGradient = null;
         shrinkCurve = null;
         pulseCurve = null;
+        lightningCurve = null;
     }
 }

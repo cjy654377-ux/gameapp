@@ -20,6 +20,14 @@ public class Projectile : MonoBehaviour
     const string HIT_RED = "VFX/CFXR Hit A (Red)";
     const string HIT_BLUE = "VFX/CFXR3 Hit Ice B (Air)";
 
+    // Projectile constants
+    const float ARROW_SPEED     = 12f;
+    const float BOLT_SPEED      = 8f;
+    const float HIT_DISTANCE    = 0.3f;
+    const float VFX_SCALE       = 0.5f;
+    const float VFX_LIFETIME    = 1.5f;
+    const int   SPRITE_SORT_ORDER = 50;
+
     public static void Spawn(Vector3 from, BattleUnit target, float damage, ProjectileType type)
     {
         if (target == null || target.IsDead) return;
@@ -36,11 +44,11 @@ public class Projectile : MonoBehaviour
         proj.target = target;
         proj.damage = damage;
         proj.projType = type;
-        proj.speed = type == ProjectileType.Arrow ? 12f : 8f;
+        proj.speed = type == ProjectileType.Arrow ? ARROW_SPEED : BOLT_SPEED;
         proj.lifeTimer = MAX_LIFETIME;
 
         proj.sr.sprite = fallbackSprite;
-        proj.sr.sortingOrder = 50;
+        proj.sr.sortingOrder = SPRITE_SORT_ORDER;
 
         if (type == ProjectileType.Arrow)
         {
@@ -127,7 +135,7 @@ public class Projectile : MonoBehaviour
         Vector3 dir = target.transform.position - transform.position;
         float dist = dir.magnitude;
 
-        if (dist < 0.3f)
+        if (dist < HIT_DISTANCE)
         {
             target.TakeDamage(damage);
             SpawnHitVFX();
@@ -191,7 +199,7 @@ public class Projectile : MonoBehaviour
             vfx = pool.Get(vfxPoolName, () => Instantiate(prefab));
             vfx.transform.position = transform.position;
             vfx.transform.rotation = Quaternion.identity;
-            vfx.transform.localScale = Vector3.one * 0.5f;
+            vfx.transform.localScale = Vector3.one * VFX_SCALE;
             // 파티클 재시작
             var ps = vfx.GetComponent<ParticleSystem>();
             if (ps != null)
@@ -200,13 +208,13 @@ public class Projectile : MonoBehaviour
                 ps.Play();
             }
             // 코루틴을 ObjectPool(영속 싱글톤)에서 실행 — Projectile은 풀 반환 시 비활성화됨
-            pool.StartCoroutine(ReturnVFXAfterDelay(vfxPoolName, vfx, 1.5f));
+            pool.StartCoroutine(ReturnVFXAfterDelay(vfxPoolName, vfx, VFX_LIFETIME));
         }
         else
         {
             vfx = Instantiate(prefab, transform.position, Quaternion.identity);
-            vfx.transform.localScale = Vector3.one * 0.5f;
-            Destroy(vfx, 1.5f);
+            vfx.transform.localScale = Vector3.one * VFX_SCALE;
+            Destroy(vfx, VFX_LIFETIME);
         }
     }
 

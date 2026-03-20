@@ -6,6 +6,11 @@ public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
 
+    const string COOLDOWN_KEY_PREFIX  = "ShopCooldown_";
+    const int    SKILL_PICK_ATTEMPTS  = 10;
+    const int    MAX_EQUIPPED_SKILLS  = 4;
+    const int    SKILL_DISMANTLE_GOLD = 50;
+
     List<ShopItem> stockItems = new();
 
     public event Action<ShopItem> OnPurchased;
@@ -99,7 +104,7 @@ public class ShopManager : MonoBehaviour
         // Cooldown check
         if (item.cooldownMinutes > 0f)
         {
-            string key = "ShopCooldown_" + item.id;
+            string key = COOLDOWN_KEY_PREFIX + item.id;
             string lastClaimStr = PlayerPrefs.GetString(key, "");
             if (!string.IsNullOrEmpty(lastClaimStr))
             {
@@ -171,7 +176,7 @@ public class ShopManager : MonoBehaviour
         // Record cooldown
         if (item.cooldownMinutes > 0f)
         {
-            string key = "ShopCooldown_" + item.id;
+            string key = COOLDOWN_KEY_PREFIX + item.id;
             PlayerPrefs.SetString(key, DateTime.UtcNow.Ticks.ToString());
         }
 
@@ -192,7 +197,7 @@ public class ShopManager : MonoBehaviour
         {
             // 장착 중이 아닌 스킬 우선
             SkillData picked = null;
-            for (int attempt = 0; attempt < 10; attempt++)
+            for (int attempt = 0; attempt < SKILL_PICK_ATTEMPTS; attempt++)
             {
                 var candidate = allSkills[UnityEngine.Random.Range(0, allSkills.Length)];
                 if (!sm.equippedSkills.Contains(candidate))
@@ -204,7 +209,7 @@ public class ShopManager : MonoBehaviour
             if (picked == null) picked = allSkills[UnityEngine.Random.Range(0, allSkills.Length)];
 
             // 빈 슬롯에 장착, 없으면 최약 스킬 자동 교체
-            if (sm.equippedSkills.Count < 4)
+            if (sm.equippedSkills.Count < MAX_EQUIPPED_SKILLS)
             {
                 sm.equippedSkills.Add(picked);
                 sm.SaveEquippedSkills();
@@ -236,8 +241,8 @@ public class ShopManager : MonoBehaviour
                     var sum = SkillUpgradeManager.Instance;
                     if (sum != null)
                     {
-                        GoldManager.Instance?.AddGold(50);
-                        ToastNotification.Instance?.Show($"스킬 분해", $"{picked.skillName} → +50 골드", UIColors.Text_Gold);
+                        GoldManager.Instance?.AddGold(SKILL_DISMANTLE_GOLD);
+                        ToastNotification.Instance?.Show($"스킬 분해", $"{picked.skillName} → +{SKILL_DISMANTLE_GOLD} 골드", UIColors.Text_Gold);
                     }
                 }
             }
@@ -251,7 +256,7 @@ public class ShopManager : MonoBehaviour
     {
         if (item == null || item.cooldownMinutes <= 0f) return 0f;
 
-        string key = "ShopCooldown_" + item.id;
+        string key = COOLDOWN_KEY_PREFIX + item.id;
         string lastClaimStr = PlayerPrefs.GetString(key, "");
         if (string.IsNullOrEmpty(lastClaimStr)) return 0f;
 

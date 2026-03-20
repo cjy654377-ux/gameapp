@@ -9,6 +9,11 @@ public class HeroLevelManager : MonoBehaviour
     public const int MAX_LEVEL = 50;
     public const int MAX_STAR = 5;
 
+    // 레벨당 스탯 증가량
+    const float HP_PER_LEVEL  = 12f;
+    const float ATK_PER_LEVEL = 2.5f;
+    const float DEF_PER_LEVEL = 1f;
+
     private Dictionary<string, int> heroLevels = new();
     private Dictionary<string, int> heroCopies = new(); // 중복 소환 횟수 (강화 재료)
     private Dictionary<string, int> heroStars = new();  // 승급 (1~5★)
@@ -30,6 +35,11 @@ public class HeroLevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     public int GetLevel(string heroName)
@@ -145,20 +155,9 @@ public class HeroLevelManager : MonoBehaviour
 
     // ═══ Stat Bonuses ═══
 
-    public float GetHpBonus(string heroName)
-    {
-        return (GetLevel(heroName) - 1) * 12f * GetStarMultiplier(heroName);
-    }
-
-    public float GetAtkBonus(string heroName)
-    {
-        return (GetLevel(heroName) - 1) * 2.5f * GetStarMultiplier(heroName);
-    }
-
-    public float GetDefBonus(string heroName)
-    {
-        return (GetLevel(heroName) - 1) * 1f * GetStarMultiplier(heroName);
-    }
+    public float GetHpBonus(string heroName)  => (GetLevel(heroName) - 1) * HP_PER_LEVEL  * GetStarMultiplier(heroName);
+    public float GetAtkBonus(string heroName) => (GetLevel(heroName) - 1) * ATK_PER_LEVEL * GetStarMultiplier(heroName);
+    public float GetDefBonus(string heroName) => (GetLevel(heroName) - 1) * DEF_PER_LEVEL * GetStarMultiplier(heroName);
 
     /// <summary>
     /// 단독 사용 금지 — UpgradeManager.ApplyAllBonuses() 사용 권장

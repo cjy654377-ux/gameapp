@@ -59,12 +59,12 @@ public class DailyMissionManager : MonoBehaviour
     void CheckAndResetDaily()
     {
         string today = System.DateTime.UtcNow.ToString("yyyy-MM-dd");
-        lastResetDate = PlayerPrefs.GetString("DailyMission_Date", "");
+        lastResetDate = PlayerPrefs.GetString(SaveKeys.DailyMissionDate, "");
 
         if (lastResetDate != today)
         {
             ResetMissions();
-            PlayerPrefs.SetString("DailyMission_Date", today);
+            PlayerPrefs.SetString(SaveKeys.DailyMissionDate, today);
             PlayerPrefs.Save();
         }
         else
@@ -163,8 +163,8 @@ public class DailyMissionManager : MonoBehaviour
         for (int i = 0; i < missions.Count; i++)
         {
             var m = missions[i];
-            PlayerPrefs.SetInt($"DM_{m.id}_cur", m.currentCount);
-            PlayerPrefs.SetInt($"DM_{m.id}_claimed", m.claimed ? 1 : 0);
+            PlayerPrefs.SetInt(SaveKeys.DailyMissionCurPrefix + m.id, m.currentCount);
+            PlayerPrefs.SetInt(SaveKeys.DailyMissionClaimedPrefix + m.id, m.claimed ? 1 : 0);
         }
     }
 
@@ -175,8 +175,8 @@ public class DailyMissionManager : MonoBehaviour
         for (int i = 0; i < missions.Count; i++)
         {
             var m = missions[i];
-            m.currentCount = PlayerPrefs.GetInt($"DM_{m.id}_cur", 0);
-            m.claimed = PlayerPrefs.GetInt($"DM_{m.id}_claimed", 0) == 1;
+            m.currentCount = PlayerPrefs.GetInt(SaveKeys.DailyMissionCurPrefix + m.id, 0);
+            m.claimed = PlayerPrefs.GetInt(SaveKeys.DailyMissionClaimedPrefix + m.id, 0) == 1;
         }
     }
 

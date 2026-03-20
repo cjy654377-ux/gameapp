@@ -13,8 +13,15 @@ public class GachaManager : MonoBehaviour
 {
     public static GachaManager Instance { get; private set; }
 
-    public const int SINGLE_PULL_COST = 50;
-    public const int MULTI_PULL_COST = 450; // 10연차 (1회 무료)
+    public const int SINGLE_PULL_COST  = 50;
+    public const int MULTI_PULL_COST   = 450; // 10연차 (1회 무료)
+    public const int MULTI_PULL_COUNT  = 10;
+
+    // 가챠 확률 (누적, 0~100 롤 기준)
+    const float PROB_STAR5     = 0.03f;
+    const float PROB_STAR4_CUM = 1f;    // 0.03 + 0.97
+    const float PROB_STAR3_CUM = 10f;   // 1 + 9
+    const float PROB_STAR2_CUM = 40f;   // 10 + 30
 
     [Header("Hero Pool")]
     [SerializeField] CharacterPreset[] allHeroes;
@@ -140,12 +147,12 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
-        var results = new CharacterPreset[10];
-        for (int i = 0; i < 10; i++)
+        var results = new CharacterPreset[MULTI_PULL_COUNT];
+        for (int i = 0; i < MULTI_PULL_COUNT; i++)
             results[i] = PullOne();
 
         // 결과 처리 (중복/신규)
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < MULTI_PULL_COUNT; i++)
             HandlePullResult(results[i]);
 
         SoundManager.Instance?.PlayGachaSFX();
@@ -166,13 +173,13 @@ public class GachaManager : MonoBehaviour
         float roll = UnityEngine.Random.Range(0f, 100f);
 
         StarGrade selectedGrade;
-        if (roll < 0.03f)
+        if (roll < PROB_STAR5)
             selectedGrade = StarGrade.Star5;
-        else if (roll < 1f)       // 0.03 + 0.97
+        else if (roll < PROB_STAR4_CUM)
             selectedGrade = StarGrade.Star4;
-        else if (roll < 10f)      // 1 + 9
+        else if (roll < PROB_STAR3_CUM)
             selectedGrade = StarGrade.Star3;
-        else if (roll < 40f)      // 10 + 30
+        else if (roll < PROB_STAR2_CUM)
             selectedGrade = StarGrade.Star2;
         else
             selectedGrade = StarGrade.Star1;

@@ -44,7 +44,7 @@ public class TutorialManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
 
-        currentStep = PlayerPrefs.GetInt("TutorialStep", 0);
+        currentStep = PlayerPrefs.GetInt(SaveKeys.TutorialStep, 0);
         tutorialComplete = currentStep >= TOTAL_STEPS;
     }
 
@@ -154,7 +154,7 @@ public class TutorialManager : MonoBehaviour
         if (step != currentStep) return;
 
         currentStep++;
-        PlayerPrefs.SetInt("TutorialStep", currentStep);
+        PlayerPrefs.SetInt(SaveKeys.TutorialStep, currentStep);
         PlayerPrefs.Save();
         IsTutorialActive = false;
 
@@ -166,7 +166,7 @@ public class TutorialManager : MonoBehaviour
     {
         currentStep = 0;
         tutorialComplete = false;
-        PlayerPrefs.SetInt("TutorialStep", 0);
+        PlayerPrefs.SetInt(SaveKeys.TutorialStep, 0);
         PlayerPrefs.Save();
     }
 }
