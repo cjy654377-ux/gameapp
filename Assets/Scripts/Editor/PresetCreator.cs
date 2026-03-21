@@ -247,92 +247,86 @@ public class PresetCreator
         });
 
         // ══════════════════════════════════════════════════
-        // ENEMIES - Area 3: 동굴 (Cave) — 독생물/벌레
-        // 특성: HP-20%, ATK+20%, 독저항, 원거리 위주 | bodyColor 보라/독색
+        // ENEMIES - Area 3: 동굴 (Cave) — 다크엘프
+        // 특성: HP-20%, ATK+25%, DEF-15%, speed+30%, 근접 위주 | bodyColor 어두운 남색
         // ══════════════════════════════════════════════════
 
         // ★1
-        CreatePreset(dir, "Enemy_PoisonSpider", new CharacterPresetDef {
-            name = "독거미", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_1", shield = "Sword_4", cloth = "Cloth_5",
-            bodyColor = new Color(0.7f, 0.5f, 0.8f),
-            hp = 80, atk = 24, def = 3, speed = 2.0f, range = 1.5f, cooldown = 0.8f,
-            attackAnim = AttackAnimType.Melee,
-            element = SkillElement.Poison, poisonResist = 0.5f
+        CreatePreset(dir, "Enemy_DarkElfScout", new CharacterPresetDef {
+            name = "다크엘프 정찰병", isEnemy = true, rarity = StarGrade.Star1,
+            body = "New_Elf_1", eye = "Eye8",
+            weapon = "Sword_1", cloth = "Cloth_5",
+            bodyColor = new Color(0.3f, 0.3f, 0.5f),
+            hp = 80, atk = 30, def = 3, speed = 2.6f, range = 1.5f, cooldown = 0.8f,
+            attackAnim = AttackAnimType.Melee
         });
 
-        CreatePreset(dir, "Enemy_PoisonMushroom", new CharacterPresetDef {
-            name = "독버섯", isEnemy = true, rarity = StarGrade.Star1,
-            body = "New_Elf_1", eye = "Eye2",
-            weapon = "Ward_1", cloth = "Cloth_3",
-            bodyColor = new Color(0.65f, 0.45f, 0.75f),
-            hp = 70, atk = 28, def = 2, speed = 1.2f, range = 3.5f, cooldown = 1.4f,
-            attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Poison, poisonResist = 0.7f
-        });
-
-        CreatePreset(dir, "Enemy_PoisonSnake", new CharacterPresetDef {
-            name = "독뱀", isEnemy = true, rarity = StarGrade.Star1,
-            body = "New_Elf_2", eye = "Eye8",
+        CreatePreset(dir, "Enemy_DarkElfRogue", new CharacterPresetDef {
+            name = "다크엘프 도적", isEnemy = true, rarity = StarGrade.Star1,
+            body = "Elf_1", eye = "Eye8",
             weapon = "Sword_2", shield = "Sword_1", cloth = "Cloth_8",
-            bodyColor = new Color(0.7f, 0.55f, 0.8f),
-            hp = 75, atk = 26, def = 2, speed = 2.5f, range = 1.5f, cooldown = 0.7f,
-            attackAnim = AttackAnimType.Melee,
-            element = SkillElement.Poison, poisonResist = 0.6f
+            bodyColor = new Color(0.3f, 0.3f, 0.5f),
+            hp = 70, atk = 32, def = 2, speed = 2.8f, range = 1.5f, cooldown = 0.7f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
-        CreatePreset(dir, "Enemy_AcidSlime", new CharacterPresetDef {
-            name = "산성 슬라임", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Devil_1", eye = "Eye_Close",
-            weapon = "Sword_4", shield = "Sword_2", cloth = "Cloth_11",
-            bodyColor = new Color(0.55f, 0.75f, 0.4f),
-            hp = 120, atk = 18, def = 5, speed = 0.9f, range = 2.5f, cooldown = 1.5f,
-            attackAnim = AttackAnimType.Melee,
-            element = SkillElement.Poison, poisonResist = 0.8f
+        CreatePreset(dir, "Enemy_DarkElfInfiltrator", new CharacterPresetDef {
+            name = "다크엘프 잠입자", isEnemy = true, rarity = StarGrade.Star1,
+            body = "New_Elf_2", eye = "Eye8",
+            weapon = "Sword_4", cloth = "Cloth_3",
+            bodyColor = new Color(0.3f, 0.3f, 0.5f),
+            hp = 75, atk = 28, def = 2, speed = 3.0f, range = 1.5f, cooldown = 0.7f,
+            attackAnim = AttackAnimType.Melee
+        });
+
+        CreatePreset(dir, "Enemy_DarkElfTrapper", new CharacterPresetDef {
+            name = "다크엘프 함정사", isEnemy = true, rarity = StarGrade.Star1,
+            body = "Elf_2", eye = "Eye8",
+            weapon = "Bow_1", cloth = "Cloth_11", back = "BowBack_1",
+            bodyColor = new Color(0.3f, 0.3f, 0.5f),
+            hp = 65, atk = 34, def = 2, speed = 2.4f, range = 3f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Bow
         });
 
         // ★2
-        CreatePreset(dir, "Enemy_DeadlySpider", new CharacterPresetDef {
-            name = "맹독 거미", isEnemy = true, rarity = StarGrade.Star2,
-            body = "Devil_1", eye = "Eye8",
+        CreatePreset(dir, "Enemy_DarkElfAssassin", new CharacterPresetDef {
+            name = "다크엘프 암살자", isEnemy = true, rarity = StarGrade.Star2,
+            body = "New_Elf_1", eye = "Eye8",
             weapon = "Sword_5", armor = "Armor_3", shield = "Shield_1",
-            bodyColor = new Color(0.6f, 0.4f, 0.72f),
-            hp = 130, atk = 38, def = 6, speed = 2.2f, range = 1.8f, cooldown = 0.7f,
-            attackAnim = AttackAnimType.Melee,
-            element = SkillElement.Poison, poisonResist = 0.6f
+            bodyColor = new Color(0.28f, 0.28f, 0.48f),
+            hp = 120, atk = 50, def = 5, speed = 3.0f, range = 1.8f, cooldown = 0.6f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
-        CreatePreset(dir, "Enemy_PoisonFairy", new CharacterPresetDef {
-            name = "독안개 요정", isEnemy = true, rarity = StarGrade.Star2,
-            body = "New_Elf_1", eye = "Eye2",
+        CreatePreset(dir, "Enemy_DarkElfHexer", new CharacterPresetDef {
+            name = "다크엘프 주술사", isEnemy = true, rarity = StarGrade.Star2,
+            body = "New_Elf_2", eye = "Eye2",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_3",
-            bodyColor = new Color(0.72f, 0.52f, 0.85f),
-            hp = 100, atk = 42, def = 3, speed = 1.7f, range = 5f, cooldown = 1.2f,
+            bodyColor = new Color(0.28f, 0.28f, 0.48f),
+            hp = 95, atk = 52, def = 3, speed = 2.6f, range = 3f, cooldown = 1.1f,
             attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Poison, poisonResist = 0.5f
+            element = SkillElement.Lightning
         });
 
         // ★3 중간보스
-        CreatePreset(dir, "Enemy_PoisonQueen", new CharacterPresetDef {
-            name = "독 여왕", isEnemy = true, rarity = StarGrade.Star3,
-            body = "New_Elf_2", eye = "Eye8",
-            weapon = "Ward_1", armor = "Armor_6", helmet = "Helmet_2", back = "Back_3",
-            bodyColor = new Color(0.65f, 0.45f, 0.78f),
-            hp = 480, atk = 48, def = 14, speed = 1.8f, range = 4f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Poison, poisonResist = 0.7f
+        CreatePreset(dir, "Enemy_DarkElfShadowMaster", new CharacterPresetDef {
+            name = "다크엘프 암살단장", isEnemy = true, rarity = StarGrade.Star3,
+            body = "Elf_1", eye = "Eye8",
+            weapon = "Sword_6", armor = "Armor_4", helmet = "Helmet_2", back = "Back_2",
+            bodyColor = new Color(0.25f, 0.25f, 0.45f),
+            hp = 440, atk = 62, def = 12, speed = 3.2f, range = 1.8f, cooldown = 0.7f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
         // ★4 에리어 보스
-        CreatePreset(dir, "Enemy_SpiderKing", new CharacterPresetDef {
-            name = "심연 거미왕", isEnemy = true, rarity = StarGrade.Star4,
-            body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_6", armor = "Armor_5", helmet = "Helmet_5", back = "Soon_Back1",
-            bodyColor = new Color(0.55f, 0.38f, 0.70f),
-            hp = 960, atk = 60, def = 20, speed = 2.5f, range = 2f, cooldown = 0.8f,
-            attackAnim = AttackAnimType.ShotSword,
-            element = SkillElement.Poison, poisonResist = 0.8f
+        CreatePreset(dir, "Enemy_DarkElfOverlord", new CharacterPresetDef {
+            name = "다크엘프 군주", isEnemy = true, rarity = StarGrade.Star4,
+            body = "Elf_2", eye = "Eye8",
+            weapon = "Sword_5", armor = "Armor_6", helmet = "Helmet_5", back = "Soon_Back1",
+            horse = "BlackHorse",
+            bodyColor = new Color(0.22f, 0.22f, 0.42f),
+            hp = 880, atk = 78, def = 18, speed = 3.5f, range = 2f, cooldown = 0.8f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
         // ══════════════════════════════════════════════════
