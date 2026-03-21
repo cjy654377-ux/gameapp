@@ -174,7 +174,7 @@ public class MountManager : MonoBehaviour
     // Helpers
     // ────────────────────────────────────────
 
-    MountData GetMountData(string name)
+    public MountData GetMountData(string name)
     {
         if (string.IsNullOrEmpty(name) || allMounts == null) return null;
         foreach (var m in allMounts)

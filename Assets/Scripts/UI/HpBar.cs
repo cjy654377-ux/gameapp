@@ -152,7 +152,7 @@ public class HpBar : MonoBehaviour
         {
             var iconObj = new GameObject($"StatusIcon_{effects[i].type}");
             iconObj.transform.SetParent(barRoot, false);
-            iconObj.transform.localPosition = new Vector3(startX + i * ICON_SPACING, -(BAR_HEIGHT + ICON_SIZE * 0.5f + 0.03f), 0);
+            iconObj.transform.localPosition = new Vector3(startX + i * ICON_SPACING, -(barHeight + ICON_SIZE * 0.5f + 0.03f), 0);
             iconObj.transform.localScale = new Vector3(ICON_SIZE, ICON_SIZE, 1);
 
             var sr = iconObj.AddComponent<SpriteRenderer>();

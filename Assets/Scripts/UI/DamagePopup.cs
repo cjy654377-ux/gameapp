@@ -36,6 +36,24 @@ public class DamagePopup : MonoBehaviour
         return popup;
     }
 
+    public static DamagePopup CreateCritical(Vector3 position, float amount)
+    {
+        var go = GetFromPool(POOL_DMG);
+        go.transform.position = position + Vector3.up * 0.6f;
+
+        var popup = go.GetComponent<DamagePopup>();
+        popup.sr.sortingOrder = 101;
+
+        popup.sr.sprite = PixelNumberFont.CreateNumberSprite(Mathf.RoundToInt(amount).ToString(), DamageNumberStyle.Critical);
+        popup.sr.color = Color.white;
+        popup.spriteColor = Color.white;
+        popup.disappearTimer = 1.0f;
+        popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 1.2f, 0f);
+        go.transform.localScale = Vector3.one * 0.22f; // 크리티컬은 더 크게
+
+        return popup;
+    }
+
     public static DamagePopup CreateGold(Vector3 position, int amount)
     {
         var go = GetFromPool(POOL_GOLD);

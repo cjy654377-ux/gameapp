@@ -72,7 +72,7 @@ public static class UIHelper
     /// </summary>
     public static (Button btn, Image img) MakeSpriteButton(string name, Transform parent, string label, float fontSize)
     {
-        return MakeSpriteButton(name, parent, UISprites.Btn1_WS, UIColors.Button_Primary, label, fontSize);
+        return MakeSpriteButton(name, parent, UISprites.Btn1_WS, UIColors.Button_Green, label, fontSize);
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ public static class UIHelper
         hLayout.childForceExpandHeight = false;
         hLayout.childForceExpandWidth = false;
 
-        var icon = MakeIcon("Icon", container.transform, iconSprite, UIColors.Panel_Neutral);
+        var icon = MakeIcon("Icon", container.transform, iconSprite, Color.white);
         icon.GetComponent<RectTransform>().sizeDelta = new Vector2(40, 40);
 
         var txt = MakeText("Amount", container.transform, FormatNumber(amount), fontSize, TextAlignmentOptions.Left, UIColors.Text_Primary);

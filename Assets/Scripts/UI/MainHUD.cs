@@ -145,7 +145,7 @@ public class MainHUD : MonoBehaviour
         if (cachedStageMgr != null)
         {
             if (stageText != null) stageText.text = cachedStageMgr.GetStageText();
-            if (areaNameText != null) areaNameText.text = $"{cachedStageMgr.GetAreaName()} [{cachedStageMgr.CurrentArea}구역]";
+            if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
         }
 
         // 출석 체크 팝업 (2프레임 지연 - UI 구독 완료 후)
@@ -683,7 +683,7 @@ public class MainHUD : MonoBehaviour
         if (StageManager.Instance != null)
         {
             if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
-            if (areaNameText != null) areaNameText.text = $"{StageManager.Instance.GetAreaName()} [{area}구역]";
+            if (areaNameText != null) areaNameText.text = StageManager.Instance.GetAreaName();
         }
         UpdateProgress(wave);
         ShowWaveBanner(wave);
