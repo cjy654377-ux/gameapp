@@ -34,6 +34,9 @@ public class GachaPanel : MonoBehaviour
 
     System.Action<string, string, System.Action> showConfirm;
 
+    // 서브탭 뱃지
+    readonly GameObject[] gachaTabBadges = new GameObject[3];
+
     // 10연차 스킵
     bool _multiPullSkip;
 
@@ -117,20 +120,50 @@ public class GachaPanel : MonoBehaviour
         heroTabBtn.onClick.AddListener(ShowHeroTab);
         mountTabBtn.onClick.AddListener(ShowMountTab);
         skillTabBtn.onClick.AddListener(ShowSkillTab);
+
+        // 뱃지 점
+        for (int i = 0; i < 3; i++)
+        {
+            var badge = UIHelper.MakeUI($"GachaBadge_{i}", buttons[i].transform);
+            var badgeImg = badge.AddComponent<Image>();
+            badgeImg.color = UIColors.Badge_Red;
+            var badgeRT = badge.GetComponent<RectTransform>();
+            badgeRT.anchorMin = new Vector2(1f, 1f);
+            badgeRT.anchorMax = new Vector2(1f, 1f);
+            badgeRT.pivot     = new Vector2(1f, 1f);
+            badgeRT.anchoredPosition = new Vector2(-2f, -2f);
+            badgeRT.sizeDelta = new Vector2(10f, 10f);
+            badge.SetActive(false);
+            gachaTabBadges[i] = badge;
+        }
+    }
+
+    void RefreshGachaTabBadges()
+    {
+        var nbs = NotificationBadgeSystem.Instance;
+        if (nbs == null) return;
+        for (int i = 0; i < 3; i++)
+        {
+            if (gachaTabBadges[i] != null)
+                gachaTabBadges[i].SetActive(nbs.GetGachaSubTabBadge(i));
+        }
     }
 
     void ShowHeroTab()
     {
+        SoundManager.Instance?.PlayButtonSFX();
         heroSection?.SetActive(true);
         mountSection?.SetActive(false);
         skillSection?.SetActive(false);
         SetSubTabActive(heroTabBtn,  true);
         SetSubTabActive(mountTabBtn, false);
         SetSubTabActive(skillTabBtn, false);
+        RefreshGachaTabBadges();
     }
 
     void ShowMountTab()
     {
+        SoundManager.Instance?.PlayButtonSFX();
         heroSection?.SetActive(false);
         mountSection?.SetActive(true);
         skillSection?.SetActive(false);
@@ -138,10 +171,12 @@ public class GachaPanel : MonoBehaviour
         SetSubTabActive(mountTabBtn, true);
         SetSubTabActive(skillTabBtn, false);
         mountPanel?.Refresh();
+        RefreshGachaTabBadges();
     }
 
     void ShowSkillTab()
     {
+        SoundManager.Instance?.PlayButtonSFX();
         heroSection?.SetActive(false);
         mountSection?.SetActive(false);
         skillSection?.SetActive(true);
@@ -149,6 +184,7 @@ public class GachaPanel : MonoBehaviour
         SetSubTabActive(mountTabBtn, false);
         SetSubTabActive(skillTabBtn, true);
         RefreshSkillScrollText();
+        RefreshGachaTabBadges();
     }
 
     static void SetSubTabActive(Button btn, bool active)

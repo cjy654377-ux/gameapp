@@ -13,6 +13,7 @@ public class EnhancePanel : MonoBehaviour
     int subTab; // 0=편성, 1=레벨업, 2=장비, 3=각성
     Button[] subTabBtns;
     TextMeshProUGUI[] subTabLabels;
+    readonly GameObject[] subTabBadges = new GameObject[4];
     GameObject deckRoot;
     GameObject heroRoot;
     GameObject equipRoot;
@@ -78,6 +79,19 @@ public class EnhancePanel : MonoBehaviour
 
             subTabBtns[s]   = btn;
             subTabLabels[s] = label;
+
+            // 뱃지 점
+            var badge = UIHelper.MakeUI($"Badge_{s}", btn.transform);
+            var badgeImg = badge.AddComponent<Image>();
+            badgeImg.color = UIColors.Badge_Red;
+            var badgeRT = badge.GetComponent<RectTransform>();
+            badgeRT.anchorMin = new Vector2(1f, 1f);
+            badgeRT.anchorMax = new Vector2(1f, 1f);
+            badgeRT.pivot     = new Vector2(1f, 1f);
+            badgeRT.anchoredPosition = new Vector2(-2f, -2f);
+            badgeRT.sizeDelta = new Vector2(10f, 10f);
+            badge.SetActive(false);
+            subTabBadges[s] = badge;
 
             int captured = s;
             btn.onClick.AddListener(() => SwitchSubTab(captured));
@@ -145,6 +159,17 @@ public class EnhancePanel : MonoBehaviour
         }
     }
 
+    void RefreshSubTabBadges()
+    {
+        var nbs = NotificationBadgeSystem.Instance;
+        if (nbs == null) return;
+        for (int i = 0; i < 4; i++)
+        {
+            if (subTabBadges[i] != null)
+                subTabBadges[i].SetActive(nbs.GetHeroSubTabBadge(i));
+        }
+    }
+
     void UpdateSubTabVisuals()
     {
         if (subTabBtns == null) return;
@@ -156,6 +181,7 @@ public class EnhancePanel : MonoBehaviour
             subTabLabels[i].color = active ? UIColors.Text_Gold : UIColors.Text_TabInactive;
             subTabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
         }
+        RefreshSubTabBadges();
         if (deckRoot      != null) deckRoot.SetActive(subTab == 0);
         if (heroRoot      != null) heroRoot.SetActive(subTab == 1);
         if (equipRoot     != null) equipRoot.SetActive(subTab == 2);
@@ -455,13 +481,18 @@ public class EnhancePanel : MonoBehaviour
             {
                 btn.onClick.AddListener(() =>
                 {
+                    SoundManager.Instance?.PlayButtonSFX();
                     EquipmentManager.Instance?.UnequipItem(capturedId);
                     RefreshEquipmentUI();
                 });
             }
             else
             {
-                btn.onClick.AddListener(() => showHeroSelect?.Invoke(capturedId));
+                btn.onClick.AddListener(() =>
+                {
+                    SoundManager.Instance?.PlayButtonSFX();
+                    showHeroSelect?.Invoke(capturedId);
+                });
             }
 
             if (!isEquipped)
