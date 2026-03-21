@@ -23,6 +23,7 @@ public class DeckUI : MonoBehaviour
     TextMeshProUGUI deckHeaderText;
 
     int selectedDeckSlot = -1;
+    readonly Color[] slotRarityColors = new Color[DeckManager.MAX_DECK_SIZE];
 
     const float SLOT_SIZE = 52f;
     const float SLOT_SPACING = 5f;
@@ -40,6 +41,16 @@ public class DeckUI : MonoBehaviour
     static readonly Color COLOR_ITEM_FALLBACK_FREE = new Color(0.55f, 0.45f, 0.32f);
     static readonly Color COLOR_BTN_DIM        = new Color(0.70f, 0.70f, 0.70f);
     static readonly Color COLOR_LABEL_DISABLED = new Color(0.60f, 0.60f, 0.60f);
+
+    static Color GetRarityColor(StarGrade grade) => grade switch
+    {
+        StarGrade.Star1 => UIColors.Rarity_Common,
+        StarGrade.Star2 => UIColors.Rarity_Uncommon,
+        StarGrade.Star3 => UIColors.Rarity_Rare,
+        StarGrade.Star4 => UIColors.Rarity_Epic,
+        StarGrade.Star5 => UIColors.Rarity_Legendary,
+        _               => UIColors.Rarity_Common
+    };
 
     void Awake()
     {
@@ -252,6 +263,7 @@ public class DeckUI : MonoBehaviour
                     deckSlotBgs[i].color = UIColors.Panel_Inner;
                 deckSlotTexts[i].text = preset.characterName;
                 deckSlotTexts[i].color = Color.white;
+                slotRarityColors[i] = GetRarityColor(preset.starGrade);
 
                 // 캐릭터 바디 스프라이트 표시
                 if (deckSlotPortraits[i] != null)
@@ -277,6 +289,7 @@ public class DeckUI : MonoBehaviour
                     deckSlotBgs[i].color = UIColors.Background_Dark;
                 deckSlotTexts[i].text = "+";
                 deckSlotTexts[i].color = UIColors.Text_Disabled;
+                slotRarityColors[i] = Color.clear;
 
                 if (deckSlotPortraits[i] != null)
                 {
@@ -363,12 +376,20 @@ public class DeckUI : MonoBehaviour
             irt.anchoredPosition = new Vector2(0, y);
             irt.sizeDelta = new Vector2(0, ROSTER_ITEM_H);
 
+            // 좌측 성급 색 띠
+            var strip = UIHelper.MakePanel("RarityStrip", item.transform, GetRarityColor(preset.starGrade));
+            var stripRT = strip.GetComponent<RectTransform>();
+            stripRT.anchorMin = new Vector2(0, 0.08f);
+            stripRT.anchorMax = new Vector2(0.022f, 0.92f);
+            stripRT.offsetMin = Vector2.zero;
+            stripRT.offsetMax = Vector2.zero;
+
             // Role icon
             var roleText = UIHelper.MakeText("Role", item.transform, GetRoleIcon(preset),
                 UIConstants.Font_Tab, TextAlignmentOptions.Center);
             var rrt = roleText.GetComponent<RectTransform>();
-            rrt.anchorMin = new Vector2(0, 0);
-            rrt.anchorMax = new Vector2(0.1f, 1);
+            rrt.anchorMin = new Vector2(0.025f, 0);
+            rrt.anchorMax = new Vector2(0.12f, 1);
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
@@ -377,20 +398,18 @@ public class DeckUI : MonoBehaviour
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, COLOR_NAME_DARK);
             nameText.fontStyle = FontStyles.Bold;
             var nrt = nameText.GetComponent<RectTransform>();
-            nrt.anchorMin = new Vector2(0.11f, 0.5f);
-            nrt.anchorMax = new Vector2(0.55f, 1);
+            nrt.anchorMin = new Vector2(0.13f, 0.48f);
+            nrt.anchorMax = new Vector2(0.60f, 1);
             nrt.offsetMin = Vector2.zero;
             nrt.offsetMax = Vector2.zero;
 
-            // Stats — 중간 갈색으로 가독성 확보
-            var statText = UIHelper.MakeText("Stats", item.transform,
-                $"HP:{preset.maxHp:F0} ATK:{preset.atk:F0}",
-                9f, TextAlignmentOptions.MidlineLeft, COLOR_STAT_MID);
-            var strt = statText.GetComponent<RectTransform>();
-            strt.anchorMin = new Vector2(0.11f, 0);
-            strt.anchorMax = new Vector2(0.55f, 0.5f);
-            strt.offsetMin = Vector2.zero;
-            strt.offsetMax = Vector2.zero;
+            // 성급 별 표시 (MakeStarRating)
+            var starTr = UIHelper.MakeStarRating("Stars", item.transform, (int)preset.starGrade, 8f);
+            var starRT = starTr.GetComponent<RectTransform>();
+            starRT.anchorMin = new Vector2(0.13f, 0.02f);
+            starRT.anchorMax = new Vector2(0.60f, 0.46f);
+            starRT.sizeDelta = Vector2.zero;
+            starRT.anchoredPosition = Vector2.zero;
 
             // 상태 버튼 — 스프라이트 사용
             string statusStr = inDeck ? "해제" : "편성";
@@ -475,8 +494,21 @@ public class DeckUI : MonoBehaviour
         for (int i = 0; i < DeckManager.MAX_DECK_SIZE; i++)
         {
             bool selected = (i == selectedDeckSlot);
-            if (deckSlotBorders[i] != null)
-                deckSlotBorders[i].color = selected ? COLOR_SELECT_BORDER : Color.clear;
+            if (deckSlotBorders[i] == null) continue;
+
+            if (selected)
+            {
+                deckSlotBorders[i].color = COLOR_SELECT_BORDER;
+            }
+            else if (slotRarityColors[i] != Color.clear)
+            {
+                var rc = slotRarityColors[i];
+                deckSlotBorders[i].color = new Color(rc.r, rc.g, rc.b, 0.85f);
+            }
+            else
+            {
+                deckSlotBorders[i].color = Color.clear;
+            }
         }
     }
 
