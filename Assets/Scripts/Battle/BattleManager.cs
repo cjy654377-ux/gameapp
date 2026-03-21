@@ -14,10 +14,10 @@ public class BattleManager : MonoBehaviour
 
     public event System.Action<BattleState> OnBattleStateChanged;
 
-    // 던전 모드
-    public bool IsDungeonMode { get; private set; } = false;
-    private int _currentDungeonType = -1;
-    private int _currentDungeonStage = 1;
+    // === Dungeon Mode ===
+    public bool IsDungeonMode { get; private set; }
+    int dungeonType;
+    int dungeonStage;
 
     void Awake()
     {
@@ -68,22 +68,18 @@ public class BattleManager : MonoBehaviour
         OnBattleStateChanged?.Invoke(state);
     }
 
-    public void EnterDungeonMode(int dungeonType, int stage)
+    public void EnterDungeonMode(int type, int stage)
     {
         IsDungeonMode = true;
-        _currentDungeonType = dungeonType;
-        _currentDungeonStage = stage;
-        enemyUnits.Clear();
-        CurrentState = BattleState.Preparing;
+        dungeonType = type;
+        dungeonStage = stage;
     }
 
     public void ExitDungeonMode()
     {
         IsDungeonMode = false;
-        _currentDungeonType = -1;
-        _currentDungeonStage = 1;
-        enemyUnits.Clear();
-        CurrentState = BattleState.Preparing;
+        dungeonType = 0;
+        dungeonStage = 0;
     }
 
     void OnDestroy()
