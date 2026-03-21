@@ -278,6 +278,7 @@ public class StageManager : MonoBehaviour
         else
         {
             SoundManager.Instance?.PlayWaveClearSFX();
+            OnWaveCleared?.Invoke();
             SpawnNextWave();
         }
     }
@@ -448,6 +449,7 @@ public class StageManager : MonoBehaviour
     }
 
     public event System.Action<bool> OnBossSpawned; // true = area boss, false = mid boss
+    public event System.Action OnWaveCleared;
 
     void SpawnBoss(CharacterFactory factory, BattleManager manager, float spawnX, bool isAreaBoss)
     {
@@ -510,6 +512,7 @@ public class StageManager : MonoBehaviour
         manager.enemyUnits.Add(unit);
         SoundManager.Instance?.PlayBossAppearSFX();
         OnBossSpawned?.Invoke(isAreaBoss);
+        StartCoroutine(BossSlowMotion());
 
         // 카메라 셰이크
         var cam = GetMainCamera();
@@ -520,6 +523,25 @@ public class StageManager : MonoBehaviour
             float shakeDur = isAreaBoss ? AREA_BOSS_SHAKE_DUR : MID_BOSS_SHAKE_DUR;
             camShake.Shake(shakeMag, shakeDur);
         }
+    }
+
+    System.Collections.IEnumerator BossSlowMotion()
+    {
+        const float SLOW_SCALE   = 0.3f;
+        const float HOLD_TIME    = 0.4f; // 실제 시간 기준
+        const float RESTORE_TIME = 0.3f;
+
+        Time.timeScale = SLOW_SCALE;
+        yield return new WaitForSecondsRealtime(HOLD_TIME);
+
+        float elapsed = 0f;
+        while (elapsed < RESTORE_TIME)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Lerp(SLOW_SCALE, 1f, elapsed / RESTORE_TIME);
+            yield return null;
+        }
+        Time.timeScale = 1f;
     }
 
     Camera GetMainCamera()

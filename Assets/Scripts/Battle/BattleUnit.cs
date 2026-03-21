@@ -386,6 +386,9 @@ public class BattleUnit : MonoBehaviour
 
     bool IsRanged => attackAnimType == AttackAnimType.Bow || attackAnimType == AttackAnimType.Magic;
 
+    const float CRIT_CHANCE = 0.20f;
+    const float CRIT_MULT   = 1.5f;
+
     void AttackTarget()
     {
         SetState(UnitState.Attacking);
@@ -407,6 +410,8 @@ public class BattleUnit : MonoBehaviour
                 animator.SetTrigger("2_Attack");
 
             float damage = CalcDamage(target);
+            bool isCrit = Random.value < CRIT_CHANCE;
+            if (isCrit) damage *= CRIT_MULT;
 
             if (IsRanged)
             {
@@ -415,7 +420,7 @@ public class BattleUnit : MonoBehaviour
             }
             else
             {
-                target.TakeDamage(damage);
+                target.TakeDamage(damage, false, isCrit);
             }
 
             attackTimer = attackCooldown;
@@ -441,7 +446,7 @@ public class BattleUnit : MonoBehaviour
         return baseDmg * elementMult;
     }
 
-    public void TakeDamage(float damage, bool ignoreDefense = false)
+    public void TakeDamage(float damage, bool ignoreDefense = false, bool isCrit = false)
     {
         if (IsDead) return;
 
@@ -449,7 +454,16 @@ public class BattleUnit : MonoBehaviour
         OnHpChanged?.Invoke(CurrentHp, maxHp);
         OnDamageTaken?.Invoke(damage);
 
-        DamagePopup.Create(transform.position + Vector3.up * 0.5f, damage);
+        if (isCrit)
+        {
+            DamagePopup.CreateCritical(transform.position + Vector3.up * 0.6f, damage);
+            if (Camera.main != null)
+                Camera.main.GetComponent<QuarterViewCamera>()?.Shake(0.12f, 0.08f);
+        }
+        else
+        {
+            DamagePopup.Create(transform.position + Vector3.up * 0.5f, damage);
+        }
 
         if (EffectManager.Instance != null)
             EffectManager.Instance.SpawnHitEffect(transform.position);
@@ -460,9 +474,46 @@ public class BattleUnit : MonoBehaviour
             animator.SetTrigger("3_Damaged");
 
         FlashWhite();
+        KnockbackShake();
 
         if (CurrentHp <= 0)
             Die();
+    }
+
+    Coroutine _knockbackRoutine;
+
+    void KnockbackShake()
+    {
+        if (_knockbackRoutine != null) StopCoroutine(_knockbackRoutine);
+        _knockbackRoutine = StartCoroutine(KnockbackShakeRoutine());
+    }
+
+    System.Collections.IEnumerator KnockbackShakeRoutine()
+    {
+        const float DURATION  = 0.08f;
+        const float MAGNITUDE = 0.04f;
+        float elapsed  = 0f;
+        float prevOffset = 0f;
+        // 피격 방향: 적은 왼쪽으로, 아군은 오른쪽으로 밀림
+        float dir = CurrentTeam == Team.Enemy ? -1f : 1f;
+
+        while (elapsed < DURATION)
+        {
+            float t = elapsed / DURATION;
+            float offset = Mathf.Sin(t * Mathf.PI * 5f) * MAGNITUDE * (1f - t) * dir;
+            var pos = transform.position;
+            pos.x += offset - prevOffset;
+            transform.position = pos;
+            prevOffset = offset;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 누적 오프셋 되돌리기
+        var p = transform.position;
+        p.x -= prevOffset;
+        transform.position = p;
+        _knockbackRoutine = null;
     }
 
     void FlashWhite()
@@ -563,7 +614,7 @@ public class BattleUnit : MonoBehaviour
 
     System.Collections.IEnumerator DeathFadeOut()
     {
-        float duration = 1.2f;
+        float duration = 0.3f;
         float elapsed = 0f;
 
         // Collect all sprite renderers

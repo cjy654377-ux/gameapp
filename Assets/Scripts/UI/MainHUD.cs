@@ -134,6 +134,7 @@ public class MainHUD : MonoBehaviour
         {
             cachedStageMgr.OnStageChanged += OnStageChanged;
             cachedStageMgr.OnBossSpawned += OnBossSpawned;
+            cachedStageMgr.OnWaveCleared += OnWaveCleared;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged += OnBattleStateChanged;
@@ -986,6 +987,42 @@ public class MainHUD : MonoBehaviour
         }
     }
 
+    void OnWaveCleared()
+    {
+        if (waveBanner == null || waveBannerText == null) return;
+
+        waveBannerText.text = "WAVE CLEAR!";
+        waveBannerText.color = UIColors.Button_Yellow;
+
+        var outline = waveBanner.GetComponent<Outline>();
+        if (outline != null) outline.effectColor = new Color(0.6f, 0.4f, 0f, 0.8f);
+
+        if (waveBannerCG != null) waveBannerCG.alpha = 1f;
+        waveBanner.SetActive(true);
+        waveBannerTimer = 1.5f;
+
+        // 골드 텍스트 분수
+        SpawnGoldFountain();
+    }
+
+    void SpawnGoldFountain()
+    {
+        var cam = Camera.main;
+        if (cam == null) return;
+
+        float centerX = cam.transform.position.x;
+        float centerY = cam.transform.position.y;
+        const int COUNT = 6;
+
+        for (int i = 0; i < COUNT; i++)
+        {
+            float x = centerX + Random.Range(-2f, 2f);
+            float y = centerY + Random.Range(-0.5f, 1f);
+            int goldAmt = Random.Range(5, 30);
+            DamagePopup.CreateGold(new Vector3(x, y, 0), goldAmt);
+        }
+    }
+
     // ── Public API ──
 
     public void AddKill()
@@ -1154,6 +1191,7 @@ public class MainHUD : MonoBehaviour
         {
             cachedStageMgr.OnStageChanged -= OnStageChanged;
             cachedStageMgr.OnBossSpawned -= OnBossSpawned;
+            cachedStageMgr.OnWaveCleared -= OnWaveCleared;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged -= OnBattleStateChanged;
