@@ -11,6 +11,7 @@ using System.Collections.Generic;
 public class GachaPanel : MonoBehaviour
 {
     const int SKILL_PULL_COST = 1; // 주문서 1개
+    const float AD_INITIAL_HIDE_SEC = 1800f; // 세션 시작 후 30분간 무료 버튼 숨김
 
     TextMeshProUGUI gemText;
     TextMeshProUGUI resultText;

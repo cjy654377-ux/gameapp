@@ -53,10 +53,7 @@ public class GameStatsManager : MonoBehaviour
     {
         yield return null;
 
-        // BattleUnit OnDeath 구독 - 단, 모든 유닛 추적이 복잡하므로 BattleManager를 통해 처리
-        var bm = BattleManager.Instance;
-        if (bm != null)
-            bm.OnEnemyKilled += () => AddKill();
+        // 킬 카운트는 BattleUnit.Die()에서 GameStatsManager.Instance.AddKill()로 직접 호출됨
 
         // GoldManager 구독
         var gm = GoldManager.Instance;

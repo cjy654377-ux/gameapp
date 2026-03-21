@@ -603,7 +603,7 @@ public class GrowthFeedback : MonoBehaviour
         UIHelper.FillParent(achieveBannerBG.GetComponent<RectTransform>());
 
         achieveBannerTitle = UIHelper.MakeText("Title", bannerObj.transform, "",
-            13f, TextAlignmentOptions.MidlineCenter, UIColors.Text_Gold);
+            13f, TextAlignmentOptions.Center, UIColors.Text_Gold);
         achieveBannerTitle.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(achieveBannerTitle);
         var trt = achieveBannerTitle.GetComponent<RectTransform>();
@@ -612,7 +612,7 @@ public class GrowthFeedback : MonoBehaviour
         trt.offsetMin = trt.offsetMax = Vector2.zero;
 
         achieveBannerDesc = UIHelper.MakeText("Desc", bannerObj.transform, "",
-            10f, TextAlignmentOptions.MidlineCenter, UIColors.Text_Secondary);
+            10f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         var drt = achieveBannerDesc.GetComponent<RectTransform>();
         drt.anchorMin = new Vector2(0.05f, 0f);
         drt.anchorMax = new Vector2(0.95f, 0.5f);

@@ -129,7 +129,7 @@ public class DailyQuestManager : MonoBehaviour
     // ─────────────────────────────────────────────
 
     void OnWaveCleared()    => AddProgress("dq_wave10");
-    void OnDungeonCleared(DungeonManager.DungeonType _, int __) => AddProgress("dq_dungeon1");
+    void OnDungeonCleared(DungeonType _, int __) => AddProgress("dq_dungeon1");
 
     // ─────────────────────────────────────────────
     // 내부 헬퍼

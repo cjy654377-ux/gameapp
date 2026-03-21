@@ -133,6 +133,8 @@ public class StageManager : MonoBehaviour
     bool isTransitioning;
     BattleSetup cachedSetup;
     Camera cachedMainCamera;
+    BattleManager manager;
+    int waveCountInArea;
 
     void Awake()
     {
@@ -235,6 +237,7 @@ public class StageManager : MonoBehaviour
     {
         if (!waitingForNextWave || isTransitioning) return;
 
+        if (manager == null) manager = BattleManager.Instance;
         if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) return;
 
         bool allDead = true;

@@ -14,6 +14,7 @@ public class BattleManager : MonoBehaviour
 
     public event System.Action<BattleState> OnBattleStateChanged;
     public event System.Action OnReviveRequested; // 광고 부활 팝업 트리거용
+    public event System.Action OnEnemyKilled;
 
     private bool _reviveUsed; // 이번 전투에서 부활 광고 사용 여부
 
