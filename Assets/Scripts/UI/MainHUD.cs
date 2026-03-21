@@ -1460,10 +1460,10 @@ public class MainHUD : MonoBehaviour
         offlinePopup.SetActive(false);
     }
 
-    void OnOfflineReward(int gold, int gem, float minutes)
+    void OnOfflineReward(int gold, int gem, int exp, int fragments, float minutes)
     {
         if (offlinePopup == null || offlineText == null) return;
-        if (gold <= 0 && gem <= 0) return;
+        if (gold <= 0 && gem <= 0 && exp <= 0 && fragments <= 0) return;
 
         int mins = Mathf.FloorToInt(minutes);
         string timeStr = mins >= 60 ? $"{mins / 60}시간 {mins % 60}분" : $"{mins}분";
@@ -1473,12 +1473,12 @@ public class MainHUD : MonoBehaviour
 
         var orm = OfflineRewardManager.Instance;
         int copies = orm != null ? orm.LastCopiesReward : 0;
-        int fragments = orm != null ? orm.LastFragmentsReward : 0;
 
         string rewardStr = $"접속하지 않은 {timeStr} 동안\n";
         if (gold > 0) rewardStr += $"<color=#FFD700>골드 +{gold}</color>  ";
         if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>\n";
-        if (copies > 0) rewardStr += $"<color=#AAFFAA>영웅 카드 +{copies}</color>  ";
+        if (exp > 0) rewardStr += $"<color=#FFAAFF>경험치 +{exp}</color>  ";
+        if (copies > 0) rewardStr += $"<color=#AAFFAA>영웅 카드 +{copies}</color>\n";
         if (fragments > 0) rewardStr += $"<color=#FFCCAA>장비 조각 +{fragments}</color>";
         rewardStr += waveStr;
 

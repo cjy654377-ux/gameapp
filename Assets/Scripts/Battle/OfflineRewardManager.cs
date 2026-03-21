@@ -5,6 +5,7 @@ public class OfflineRewardManager : MonoBehaviour
     public static OfflineRewardManager Instance { get; private set; }
 
     private const int GOLD_PER_MINUTE = 10;
+    private const int EXP_PER_MINUTE = 2;
     private const int GEM_INTERVAL_MINUTES = 10;
     private const int MAX_OFFLINE_MINUTES = 480;
     private const int COPY_INTERVAL_MINUTES = 60;    // 60분마다 영웅 카드 1장
@@ -12,15 +13,16 @@ public class OfflineRewardManager : MonoBehaviour
     public const string SAVE_KEY_FRAGMENTS = "EquipFragments";
 
     /// <summary>
-    /// gold, gem, offlineMinutes
+    /// gold, gem, exp, fragments, offlineMinutes
     /// </summary>
-    public event System.Action<int, int, float> OnOfflineReward;
+    public event System.Action<int, int, int, int, float> OnOfflineReward;
     public event System.Action<int, int> OnDoubleRewardAd;
 
     const float MIN_REWARD_MINUTES = 1f;
 
     private int lastGoldReward = 0;
     private int lastGemReward = 0;
+    private int lastExpReward = 0;
     public int LastCopiesReward { get; private set; }
     public int LastFragmentsReward { get; private set; }
 
@@ -79,11 +81,13 @@ public class OfflineRewardManager : MonoBehaviour
         int minutesInt = Mathf.FloorToInt(cappedMinutes);
 
         int goldReward = minutesInt * GOLD_PER_MINUTE;
+        int expReward = minutesInt * EXP_PER_MINUTE;
         int gemReward = minutesInt / GEM_INTERVAL_MINUTES;
         int copyReward = minutesInt / COPY_INTERVAL_MINUTES;
         int fragmentReward = minutesInt / FRAGMENT_INTERVAL_MINUTES;
 
         lastGoldReward = goldReward;
+        lastExpReward = expReward;
         lastGemReward = gemReward;
         LastCopiesReward = copyReward;
         LastFragmentsReward = fragmentReward;
@@ -102,7 +106,7 @@ public class OfflineRewardManager : MonoBehaviour
         if (fragmentReward > 0)
             EquipFragments += fragmentReward;
 
-        OnOfflineReward?.Invoke(goldReward, gemReward, cappedMinutes);
+        OnOfflineReward?.Invoke(goldReward, gemReward, expReward, fragmentReward, cappedMinutes);
         SaveCurrentTime();
     }
 
