@@ -9,10 +9,10 @@ using System.Collections.Generic;
 /// </summary>
 public class HamburgerPanel : MonoBehaviour
 {
-    int subTab; // 0=업적 1=미션 2=도감 3=아레나 4=설정
+    int subTab; // 0=업적 1=미션 2=도감 3=아레나 4=퀘스트 5=친구 6=설정
     Button[] subTabBtns;
     TextMeshProUGUI[] subTabLabels;
-    GameObject achieveRoot, missionRoot, collectionRoot, arenaRoot, settingsRoot;
+    GameObject achieveRoot, missionRoot, collectionRoot, arenaRoot, questRoot, friendRoot, settingsRoot;
 
     // 업적 리스트
     GameObject achieveListContainer;
@@ -28,6 +28,18 @@ public class HamburgerPanel : MonoBehaviour
     // 아레나
     TextMeshProUGUI arenaInfoText;
     Button arenaBattleBtn;
+
+    // 퀘스트
+    TextMeshProUGUI questInfoText;
+    readonly List<GameObject> questListItems = new();
+    GameObject questListContainer;
+    TextMeshProUGUI weeklyBossInfoText;
+    Button weeklyBossBattleBtn;
+
+    // 친구
+    TextMeshProUGUI friendInfoText;
+    Button friendGiftBtn;
+    Button friendReinfBtn;
 
     // ════════════════════════════════════════
     // 초기화
@@ -51,7 +63,7 @@ public class HamburgerPanel : MonoBehaviour
         stbRT.pivot = new Vector2(0.5f, 1);
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
-        string[] subNames = { "업적", "미션", "도감", "아레나", "설정" };
+        string[] subNames = { "업적", "미션", "도감", "아레나", "퀘스트", "친구", "설정" };
         int subCount = subNames.Length;
         subTabBtns   = new Button[subCount];
         subTabLabels = new TextMeshProUGUI[subCount];
@@ -85,12 +97,16 @@ public class HamburgerPanel : MonoBehaviour
         missionRoot    = MakeSubRoot("MissionRoot",    content.transform, subTabH);
         collectionRoot = MakeSubRoot("CollectionRoot", content.transform, subTabH);
         arenaRoot      = MakeSubRoot("ArenaRoot",      content.transform, subTabH);
+        questRoot      = MakeSubRoot("QuestRoot",      content.transform, subTabH);
+        friendRoot     = MakeSubRoot("FriendRoot",     content.transform, subTabH);
         settingsRoot   = MakeSubRoot("SettingsRoot",   content.transform, subTabH);
 
         BuildAchievementList(achieveRoot.transform);
         BuildMissionList(missionRoot.transform);
         BuildCollectionContent(collectionRoot.transform);
         BuildArenaContent(arenaRoot.transform);
+        BuildQuestContent(questRoot.transform);
+        BuildFriendContent(friendRoot.transform);
         var sp = settingsRoot.AddComponent<SettingsPanel>();
         sp.Init(settingsRoot.transform);
 
@@ -136,7 +152,9 @@ public class HamburgerPanel : MonoBehaviour
         if (missionRoot    != null) missionRoot.SetActive(subTab == 1);
         if (collectionRoot != null) collectionRoot.SetActive(subTab == 2);
         if (arenaRoot      != null) arenaRoot.SetActive(subTab == 3);
-        if (settingsRoot   != null) settingsRoot.SetActive(subTab == 4);
+        if (questRoot      != null) questRoot.SetActive(subTab == 4);
+        if (friendRoot     != null) friendRoot.SetActive(subTab == 5);
+        if (settingsRoot   != null) settingsRoot.SetActive(subTab == 6);
     }
 
     void RefreshCurrentSubTab()
@@ -147,6 +165,8 @@ public class HamburgerPanel : MonoBehaviour
             case 1: RefreshMissionUI();     break;
             case 2: RefreshCollectionUI();  break;
             case 3: RefreshArenaUI();       break;
+            case 4: RefreshQuestUI();       break;
+            case 5: RefreshFriendUI();      break;
         }
     }
 
@@ -501,6 +521,283 @@ public class HamburgerPanel : MonoBehaviour
     }
 
     // ════════════════════════════════════════
+    // 퀘스트 (일일 퀘스트 + 주간 보스)
+    // ════════════════════════════════════════
+
+    void BuildQuestContent(Transform parent)
+    {
+        float pad = UIConstants.Spacing_Medium;
+
+        // ── 일일 퀘스트 헤더 ──
+        var header = UIHelper.MakeText("QuestHeader", parent, "일일 퀘스트",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
+        header.fontStyle = FontStyles.Bold;
+        var hrt = header.GetComponent<RectTransform>();
+        hrt.anchorMin = new Vector2(0, 0.80f); hrt.anchorMax = new Vector2(1, 0.90f);
+        hrt.offsetMin = new Vector2(pad, 0); hrt.offsetMax = Vector2.zero;
+
+        // ── 퀘스트 리스트 컨테이너 ──
+        questListContainer = UIHelper.MakeUI("QuestList", parent);
+        var clrt = questListContainer.GetComponent<RectTransform>();
+        clrt.anchorMin = new Vector2(0, 0.52f); clrt.anchorMax = new Vector2(1, 0.80f);
+        clrt.offsetMin = new Vector2(pad, 0); clrt.offsetMax = new Vector2(-pad, 0);
+
+        // ── 주간 보스 섹션 ──
+        var bossHeader = UIHelper.MakeText("BossHeader", parent, "주간 보스",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Defeat_Red);
+        bossHeader.fontStyle = FontStyles.Bold;
+        var bhrt = bossHeader.GetComponent<RectTransform>();
+        bhrt.anchorMin = new Vector2(0, 0.42f); bhrt.anchorMax = new Vector2(1, 0.51f);
+        bhrt.offsetMin = new Vector2(pad, 0); bhrt.offsetMax = Vector2.zero;
+
+        weeklyBossInfoText = UIHelper.MakeText("BossInfo", parent, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+        var birt = weeklyBossInfoText.GetComponent<RectTransform>();
+        birt.anchorMin = new Vector2(0, 0.28f); birt.anchorMax = new Vector2(1, 0.42f);
+        birt.offsetMin = new Vector2(pad, 0); birt.offsetMax = new Vector2(-pad, 0);
+
+        var (wbBtn, _) = UIHelper.MakeSpriteButton("WeeklyBossBtn", parent,
+            UISprites.Btn2_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
+        weeklyBossBattleBtn = wbBtn;
+        var wbrt = wbBtn.GetComponent<RectTransform>();
+        wbrt.anchorMin = new Vector2(0.15f, 0.10f); wbrt.anchorMax = new Vector2(0.85f, 0.24f);
+        wbrt.offsetMin = Vector2.zero; wbrt.offsetMax = Vector2.zero;
+        var wbLabel = UIHelper.MakeText("Label", wbBtn.transform, "보스 도전!",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+        wbLabel.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(wbLabel);
+        UIHelper.FillParent(wbLabel.GetComponent<RectTransform>());
+        wbBtn.onClick.AddListener(OnWeeklyBossBattle);
+    }
+
+    void RefreshQuestUI()
+    {
+        // 일일 퀘스트 리스트
+        if (questListContainer != null)
+        {
+            RecycleList(questListItems);
+            int reuse = 0;
+            var qm = DailyQuestManager.Instance;
+            if (qm != null)
+            {
+                var quests = qm.GetQuests();
+                float itemH = 28f, spacing = 2f;
+                float totalH = questListContainer.GetComponent<RectTransform>().rect.height;
+                float y = 0;
+                int active = 0;
+
+                for (int i = 0; i < quests.Count; i++)
+                {
+                    var q = quests[i];
+                    bool done = q.currentCount >= q.targetCount;
+                    Color bg = q.claimed ? UIColors.ListItem_Claimed :
+                               done ? UIColors.ListItem_Completed : UIColors.ListItem_Normal;
+
+                    var item = ReuseOrCreate(questListItems, ref reuse, $"Q_{i}", questListContainer.transform, bg);
+                    active++;
+                    var irt = item.GetComponent<RectTransform>();
+                    irt.anchorMin = new Vector2(0, 1); irt.anchorMax = new Vector2(1, 1);
+                    irt.pivot = new Vector2(0.5f, 1);
+                    irt.anchoredPosition = new Vector2(0, y);
+                    irt.sizeDelta = new Vector2(0, itemH);
+
+                    string rewardLabel = q.rewardType switch {
+                        DailyQuestManager.RewardType.Gold   => $"골드 {q.rewardAmount}",
+                        DailyQuestManager.RewardType.Gem    => $"보석 {q.rewardAmount}",
+                        DailyQuestManager.RewardType.Scroll => $"주문서 {q.rewardAmount}",
+                        _ => ""
+                    };
+
+                    var nameT = UIHelper.MakeText("Name", item.transform, q.name,
+                        UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft,
+                        done ? UIColors.Text_Dark : UIColors.Text_Disabled);
+                    var nrt = nameT.GetComponent<RectTransform>();
+                    nrt.anchorMin = new Vector2(0, 0); nrt.anchorMax = new Vector2(0.40f, 1);
+                    nrt.offsetMin = new Vector2(4, 0); nrt.offsetMax = Vector2.zero;
+
+                    var progT = UIHelper.MakeText("Prog", item.transform,
+                        $"{q.currentCount}/{q.targetCount}",
+                        9f, TextAlignmentOptions.Center,
+                        done ? UIColors.Text_DarkGreen : UIColors.Text_DarkSecondary);
+                    var prt = progT.GetComponent<RectTransform>();
+                    prt.anchorMin = new Vector2(0.40f, 0); prt.anchorMax = new Vector2(0.60f, 1);
+                    prt.offsetMin = prt.offsetMax = Vector2.zero;
+
+                    var rewT = UIHelper.MakeText("Rew", item.transform, rewardLabel,
+                        9f, TextAlignmentOptions.Center, UIColors.Text_DarkDiamond);
+                    var rrt = rewT.GetComponent<RectTransform>();
+                    rrt.anchorMin = new Vector2(0.60f, 0); rrt.anchorMax = new Vector2(0.76f, 1);
+                    rrt.offsetMin = rrt.offsetMax = Vector2.zero;
+
+                    string btnLbl; Sprite btnSpr; Color btnCol;
+                    if (q.claimed)   { btnLbl = "완료"; btnSpr = UISprites.Btn1_WS; btnCol = UIColors.Button_Gray; }
+                    else if (done)   { btnLbl = "수령"; btnSpr = UISprites.Btn3_WS; btnCol = UIColors.Button_Yellow; }
+                    else             { btnLbl = "진행"; btnSpr = UISprites.Btn1_WS; btnCol = UIColors.Button_Gray; }
+
+                    var (btn, _) = UIHelper.MakeSpriteButton($"QBtn_{i}", item.transform, btnSpr, btnCol, "", 9f);
+                    var brt = btn.GetComponent<RectTransform>();
+                    brt.anchorMin = new Vector2(0.78f, 0.1f); brt.anchorMax = new Vector2(0.98f, 0.9f);
+                    brt.offsetMin = brt.offsetMax = Vector2.zero;
+                    var btnT = UIHelper.MakeText("L", btn.transform, btnLbl,
+                        UIConstants.Font_Cost, TextAlignmentOptions.Center,
+                        done && !q.claimed ? new Color(0.25f, 0.15f, 0.08f) : UIColors.Text_Disabled);
+                    btnT.fontStyle = FontStyles.Bold;
+                    UIHelper.FillParent(btnT.GetComponent<RectTransform>());
+
+                    if (done && !q.claimed)
+                    {
+                        string capturedId = q.id;
+                        btn.onClick.AddListener(() =>
+                        {
+                            qm.ClaimReward(capturedId);
+                            SoundManager.Instance?.PlayGoldSFX();
+                            ToastNotification.Instance?.Show("퀘스트 완료!", "", UIColors.Text_Diamond);
+                            RefreshQuestUI();
+                        });
+                    }
+                    y -= (itemH + spacing);
+                }
+                TrimExcess(questListItems, active);
+            }
+        }
+
+        // 주간 보스
+        if (weeklyBossInfoText != null)
+        {
+            var wbm = WeeklyBossManager.Instance;
+            if (wbm == null) { weeklyBossInfoText.text = "로딩 중..."; return; }
+
+            var (awake, gem) = wbm.GetRewardPreview();
+            weeklyBossInfoText.text =
+                $"<b>{wbm.GetBossName()}</b>\n" +
+                $"HP: {wbm.GetBossHP():N0}  보상: 각성석 {awake} + 보석 {gem}\n" +
+                (wbm.IsDefeated ? "<color=#7FD44C>이번 주 격파 완료!</color>" :
+                 wbm.CanAttempt ? "도전 가능!" : "이번 주 도전 완료");
+
+            if (weeklyBossBattleBtn != null)
+            {
+                weeklyBossBattleBtn.interactable = wbm.CanAttempt;
+                var img = weeklyBossBattleBtn.GetComponent<UnityEngine.UI.Image>();
+                img.color = wbm.CanAttempt ? Color.white : new Color(0.6f, 0.6f, 0.6f);
+            }
+        }
+    }
+
+    void OnWeeklyBossBattle()
+    {
+        var wbm = WeeklyBossManager.Instance;
+        if (wbm == null || !wbm.CanAttempt) return;
+
+        SoundManager.Instance?.PlayButtonSFX();
+        bool won = wbm.AttemptBoss();
+        if (!won)
+            ToastNotification.Instance?.Show("패배...", "다음 주에 다시 도전하세요", UIColors.Defeat_Red);
+        RefreshQuestUI();
+    }
+
+    // ════════════════════════════════════════
+    // 친구 시스템
+    // ════════════════════════════════════════
+
+    void BuildFriendContent(Transform parent)
+    {
+        float pad = UIConstants.Spacing_Medium;
+
+        var header = UIHelper.MakeText("FriendHeader", parent, "친구 목록",
+            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
+        header.fontStyle = FontStyles.Bold;
+        var hrt = header.GetComponent<RectTransform>();
+        hrt.anchorMin = new Vector2(0, 0.88f); hrt.anchorMax = new Vector2(1, 0.97f);
+        hrt.offsetMin = new Vector2(pad, 0); hrt.offsetMax = Vector2.zero;
+
+        friendInfoText = UIHelper.MakeText("FriendInfo", parent, "",
+            UIConstants.Font_StatValue, TextAlignmentOptions.TopLeft, UIColors.Text_Dark);
+        var irt = friendInfoText.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0, 0.50f); irt.anchorMax = new Vector2(1, 0.87f);
+        irt.offsetMin = new Vector2(pad, 0); irt.offsetMax = new Vector2(-pad, 0);
+
+        // 일일 선물 버튼
+        var (giftBtn, _) = UIHelper.MakeSpriteButton("GiftBtn", parent,
+            UISprites.Btn3_WS, UIColors.Button_Yellow, "", UIConstants.Font_SmallInfo);
+        friendGiftBtn = giftBtn;
+        var grt = giftBtn.GetComponent<RectTransform>();
+        grt.anchorMin = new Vector2(0.05f, 0.34f); grt.anchorMax = new Vector2(0.48f, 0.46f);
+        grt.offsetMin = grt.offsetMax = Vector2.zero;
+        var gLabel = UIHelper.MakeText("Label", giftBtn.transform, $"선물 수령 (+{FriendManager.DAILY_GIFT_GOLD}골드)",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, new Color(0.25f, 0.15f, 0.08f));
+        gLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(gLabel.GetComponent<RectTransform>());
+        giftBtn.onClick.AddListener(OnFriendGift);
+
+        // 원군 요청 버튼
+        var (reinfBtn, _2) = UIHelper.MakeSpriteButton("ReinfBtn", parent,
+            UISprites.Btn2_WS, UIColors.Button_Blue, "", UIConstants.Font_SmallInfo);
+        friendReinfBtn = reinfBtn;
+        var rrt = reinfBtn.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0.52f, 0.34f); rrt.anchorMax = new Vector2(0.95f, 0.46f);
+        rrt.offsetMin = rrt.offsetMax = Vector2.zero;
+        var rLabel = UIHelper.MakeText("Label", reinfBtn.transform, "원군 요청 (30초)",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        rLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(rLabel.GetComponent<RectTransform>());
+        reinfBtn.onClick.AddListener(OnFriendReinforcement);
+    }
+
+    void RefreshFriendUI()
+    {
+        var fm = FriendManager.Instance;
+        if (friendInfoText == null || fm == null) return;
+
+        var friends = fm.GetFriends();
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < friends.Count; i++)
+        {
+            var f = friends[i];
+            sb.AppendLine($"  {f.name}  <color=#87CEEB>Lv.{f.level}</color>  [{f.heroPresetName.Replace("Ally_", "")}]");
+        }
+        friendInfoText.text = sb.ToString();
+
+        if (friendGiftBtn != null)
+        {
+            friendGiftBtn.interactable = fm.CanClaimGift;
+            var img = friendGiftBtn.GetComponent<UnityEngine.UI.Image>();
+            if (img.sprite != null)
+                img.color = fm.CanClaimGift ? Color.white : new Color(0.6f, 0.6f, 0.6f);
+            else
+                img.color = fm.CanClaimGift ? UIColors.Button_Yellow : UIColors.Button_Gray;
+        }
+        if (friendReinfBtn != null)
+        {
+            friendReinfBtn.interactable = fm.CanCallReinforcement;
+            var img = friendReinfBtn.GetComponent<UnityEngine.UI.Image>();
+            if (img.sprite != null)
+                img.color = fm.CanCallReinforcement ? Color.white : new Color(0.6f, 0.6f, 0.6f);
+            else
+                img.color = fm.CanCallReinforcement ? UIColors.Button_Blue : UIColors.Button_Gray;
+        }
+    }
+
+    void OnFriendGift()
+    {
+        SoundManager.Instance?.PlayGoldSFX();
+        FriendManager.Instance?.ClaimDailyGift();
+        RefreshFriendUI();
+    }
+
+    void OnFriendReinforcement()
+    {
+        var fm = FriendManager.Instance;
+        if (fm == null || !fm.CanCallReinforcement)
+        {
+            ToastNotification.Instance?.Show("원군 불가", "오늘 이미 요청했습니다", UIColors.Button_Gray);
+            return;
+        }
+        SoundManager.Instance?.PlayButtonSFX();
+        fm.RequestReinforcement();
+        RefreshFriendUI();
+    }
+
+    // ════════════════════════════════════════
     // 미수령 보상 카운트 (메인HUD 배지용)
     // ════════════════════════════════════════
 
@@ -520,6 +817,14 @@ public class HamburgerPanel : MonoBehaviour
             var missions = mm.GetMissions();
             for (int i = 0; i < missions.Count; i++)
                 if (missions[i].currentCount >= missions[i].targetCount && !missions[i].claimed)
+                    count++;
+        }
+        var qm = DailyQuestManager.Instance;
+        if (qm != null)
+        {
+            var quests = qm.GetQuests();
+            for (int i = 0; i < quests.Count; i++)
+                if (quests[i].currentCount >= quests[i].targetCount && !quests[i].claimed)
                     count++;
         }
         return count;

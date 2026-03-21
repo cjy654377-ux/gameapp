@@ -103,4 +103,18 @@ public static class SaveKeys
 
     // 각성석 (던전 고단계 보상, 영웅 각성 재료)
     public const string AwakeningStone = "AwakeningStone";
+
+    // 일일 퀘스트
+    public const string DailyQuestDate          = "DQ_Date";
+    public const string DailyQuestCurPrefix     = "DQ_Cur_";
+    public const string DailyQuestClaimedPrefix = "DQ_Claimed_";
+
+    // 주간 보스
+    public const string WeeklyBossWeek     = "WB_Week";
+    public const string WeeklyBossAttempt  = "WB_Attempt";
+    public const string WeeklyBossDefeated = "WB_Defeated";
+
+    // 친구 시스템
+    public const string FriendGiftDate          = "Friend_GiftDate";
+    public const string FriendReinforcementDate = "Friend_ReinfDate";
 }
