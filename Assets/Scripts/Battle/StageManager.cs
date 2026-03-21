@@ -13,9 +13,9 @@ public class StageManager : MonoBehaviour
     // Boss & Enemy Spawning
     private const int AREA_BOSS_COMPANION_COUNT = 5;
 
-    // Boss Scale Multipliers
-    private const float AREA_BOSS_SCALE = 2f;
-    private const float MID_BOSS_SCALE = 1.5f;
+    // Boss Scale Multipliers (일반몹 BASE_SCALE=0.8 기준 배율)
+    private const float AREA_BOSS_SCALE = 1.3f;  // 보스: 0.8 × 1.3 = 1.04
+    private const float MID_BOSS_SCALE = 1.1f;   // 중간보스: 0.8 × 1.1 = 0.88
     private const float BOSS_SCALE_FINAL = 0.8f;
 
     // Boss Rage Mechanics
