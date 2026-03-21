@@ -40,9 +40,9 @@ public class MainHUD : MonoBehaviour
 
 
     // Bottom Nav
-    readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점", "던전", "탈것" };
-    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "$", "⛩", "♞" };
-    const int TAB_COUNT = 7;
+    readonly string[] tabNames = { "영웅", "소환", "전투", "던전", "상점" };
+    readonly string[] tabIcons = { "★", "◆", "⚔", "⛩", "$" };
+    const int TAB_COUNT = 5;
     readonly Button[] tabButtons = new Button[TAB_COUNT];
     readonly Image[] tabIndicators = new Image[TAB_COUNT];
     readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[TAB_COUNT];
@@ -55,6 +55,12 @@ public class MainHUD : MonoBehaviour
     // Badge notifications
     readonly GameObject[] tabBadges = new GameObject[TAB_COUNT];
     readonly TextMeshProUGUI[] tabBadgeTexts = new TextMeshProUGUI[TAB_COUNT];
+
+    // 햄버거 메뉴
+    GameObject hamburgerOverlay;
+    HamburgerPanel hamburgerPanel;
+    GameObject hamburgerBadge;
+    TextMeshProUGUI hamburgerBadgeText;
 
     // 훈련 탭 업그레이드 UI
     // Boss HP bar
@@ -77,9 +83,7 @@ public class MainHUD : MonoBehaviour
     ShopPanel shopPanel;
     EnhancePanel enhancePanel;
     HeroSelectPanel heroSelectPanel;
-    UpgradePanel upgradePanel;
     DungeonPanel dungeonPanel;
-    MountPanel mountPanel;
 
     // Hero select popup (for equipment) → HeroSelectPanel
 
@@ -300,8 +304,40 @@ public class MainHUD : MonoBehaviour
 
         // 주문서
         CreateResourceDisplay(hudBar.transform, "Scroll", UISprites.IconSkill,
-            new Color(0.88f, 0.68f, 1.00f), new Vector2(0.81f, 0.08f), new Vector2(0.98f, 0.92f),
+            new Color(0.88f, 0.68f, 1.00f), new Vector2(0.77f, 0.08f), new Vector2(0.88f, 0.92f),
             out scrollText);
+
+        // 햄버거 버튼 (☰)
+        var hamBtn = UIHelper.MakeUI("HamburgerBtn", hudBar.transform);
+        var hamImg = hamBtn.AddComponent<Image>();
+        hamImg.color = UIColors.Panel_Inner;
+        var hamButton = hamBtn.AddComponent<Button>();
+        hamButton.targetGraphic = hamImg;
+        hamButton.onClick.AddListener(ToggleHamburger);
+        var hamRT = hamBtn.GetComponent<RectTransform>();
+        hamRT.anchorMin = new Vector2(0.89f, 0.06f);
+        hamRT.anchorMax = new Vector2(0.99f, 0.94f);
+        hamRT.offsetMin = Vector2.zero;
+        hamRT.offsetMax = Vector2.zero;
+
+        var hamLabel = UIHelper.MakeText("Icon", hamBtn.transform, "☰",
+            14f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        hamLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(hamLabel.GetComponent<RectTransform>());
+
+        // 햄버거 배지
+        hamburgerBadge = UIHelper.MakeUI("HamBadge", hamBtn.transform);
+        var hamBadgeImg = hamburgerBadge.AddComponent<Image>();
+        hamBadgeImg.color = UIColors.Defeat_Red;
+        var hbRT = hamburgerBadge.GetComponent<RectTransform>();
+        hbRT.anchorMin = new Vector2(0.65f, 0.65f);
+        hbRT.anchorMax = new Vector2(0.65f, 0.65f);
+        hbRT.pivot = new Vector2(0.5f, 0.5f);
+        hbRT.sizeDelta = new Vector2(14, 14);
+        hamburgerBadgeText = UIHelper.MakeText("Count", hamburgerBadge.transform, "",
+            7f, TextAlignmentOptions.Center, Color.white);
+        UIHelper.FillParent(hamburgerBadgeText.GetComponent<RectTransform>());
+        hamburgerBadge.SetActive(false);
     }
 
     void CreateResourceDisplay(Transform parent, string name, Sprite iconSprite,
@@ -455,13 +491,11 @@ public class MainHUD : MonoBehaviour
         navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 58);
 
         // 탭 아이콘 스프라이트 할당 (SPUM 아이콘 활용)
-        tabSpriteIcons[0] = UISprites.IconSword;     // 훈련
-        tabSpriteIcons[1] = UISprites.IconSkill;     // 강화
-        tabSpriteIcons[2] = UISprites.IconInven;     // 편성
-        tabSpriteIcons[3] = UISprites.IconPotion1;   // 소환
+        tabSpriteIcons[0] = UISprites.IconSkill;     // 영웅
+        tabSpriteIcons[1] = UISprites.IconPotion1;   // 소환
+        tabSpriteIcons[2] = UISprites.IconSword;     // 전투 (center)
+        tabSpriteIcons[3] = UISprites.IconInven;     // 던전
         tabSpriteIcons[4] = UISprites.IconQuest;     // 상점
-        tabSpriteIcons[5] = UISprites.IconInven;     // 던전 (임시 아이콘)
-        tabSpriteIcons[6] = UISprites.IconPotion1;   // 탈것 (임시 아이콘)
 
         float tabWidth = 1f / TAB_COUNT;
         for (int i = 0; i < TAB_COUNT; i++)
@@ -490,8 +524,17 @@ public class MainHUD : MonoBehaviour
             var trt = tabObj.GetComponent<RectTransform>();
             trt.anchorMin = new Vector2(xMin, 0);
             trt.anchorMax = new Vector2(xMax, 1);
-            trt.offsetMin = new Vector2(2, 4);
-            trt.offsetMax = new Vector2(-2, -4);
+            // center(전투) 탭은 위로 돌출
+            if (i == 2)
+            {
+                trt.offsetMin = new Vector2(1, -8);
+                trt.offsetMax = new Vector2(-1, -4);
+            }
+            else
+            {
+                trt.offsetMin = new Vector2(2, 4);
+                trt.offsetMax = new Vector2(-2, -4);
+            }
 
             // Active indicator (하단 골드 라인 — 5px)
             var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Text_Gold);
@@ -635,43 +678,95 @@ public class MainHUD : MonoBehaviour
             // 탭별 콘텐츠
             if (i == 0)
             {
-                upgradePanel = panel.AddComponent<UpgradePanel>();
-                upgradePanel.Init(panel.transform);
-            }
-            else if (i == 1)
-            {
                 enhancePanel = panel.AddComponent<EnhancePanel>();
                 enhancePanel.Init(panel.transform, heroSelectPanel.Show);
             }
-            else if (i == 2)
-            {
-                var deckUI = panel.AddComponent<DeckUI>();
-                deckUI.Init(panel.transform);
-            }
-            else if (i == 3)
+            else if (i == 1)
             {
                 gachaPanel = panel.AddComponent<GachaPanel>();
                 gachaPanel.Init(panel.transform, ShowConfirm);
+            }
+            else if (i == 2)
+            {
+                // 전투 탭: 패널 없음 (클릭 시 패널 닫힘)
+            }
+            else if (i == 3)
+            {
+                dungeonPanel = panel.AddComponent<DungeonPanel>();
+                dungeonPanel.Init(panel.transform);
             }
             else if (i == 4)
             {
                 shopPanel = panel.AddComponent<ShopPanel>();
                 shopPanel.Init(panel.transform, ShowConfirm);
             }
-            else if (i == 5)
-            {
-                dungeonPanel = panel.AddComponent<DungeonPanel>();
-                dungeonPanel.Init(panel.transform);
-            }
-            else if (i == 6)
-            {
-                mountPanel = panel.AddComponent<MountPanel>();
-                mountPanel.Init(panel.transform, ShowConfirm);
-            }
 
             tabPanels[i] = panel;
             panel.SetActive(false);
         }
+
+        // 햄버거 오버레이 생성
+        CreateHamburgerOverlay();
+    }
+
+    void CreateHamburgerOverlay()
+    {
+        float refH = UIConstants.ReferenceResolution.y;
+        float navRatio = 58f / refH;
+        float hudRatio = UIConstants.HUD_Height / refH;
+
+        hamburgerOverlay = UIHelper.MakeUI("HamburgerOverlay", safeAreaRoot.transform);
+        var overlayBg = UIHelper.MakeSpritePanel("OverlayBG", hamburgerOverlay.transform,
+            UISprites.BoxBasic1, UIColors.Background_Panel);
+        UIHelper.FillParent(overlayBg.GetComponent<RectTransform>());
+        var hrt = hamburgerOverlay.GetComponent<RectTransform>();
+        hrt.anchorMin = new Vector2(0, navRatio);
+        hrt.anchorMax = new Vector2(1, 1 - hudRatio);
+        hrt.offsetMin = Vector2.zero;
+        hrt.offsetMax = Vector2.zero;
+
+        // 헤더
+        var header = UIHelper.MakeSpritePanel("Header", hamburgerOverlay.transform,
+            UISprites.Board, UIColors.Background_Dark);
+        var hhrt = header.GetComponent<RectTransform>();
+        hhrt.anchorMin = new Vector2(0, 1);
+        hhrt.anchorMax = new Vector2(1, 1);
+        hhrt.pivot = new Vector2(0.5f, 1);
+        hhrt.sizeDelta = new Vector2(0, UIConstants.Tab_Height);
+
+        var title = UIHelper.MakeText("Title", header.transform, "메뉴",
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, Color.white);
+        title.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(title.GetComponent<RectTransform>());
+
+        var closeBtn2 = UIHelper.MakeUI("CloseBtn", header.transform);
+        var closeImg2 = closeBtn2.AddComponent<Image>();
+        closeImg2.color = UIColors.Button_Brown;
+        var closeBtnComp = closeBtn2.AddComponent<Button>();
+        closeBtnComp.targetGraphic = closeImg2;
+        closeBtnComp.onClick.AddListener(() => hamburgerOverlay.SetActive(false));
+        var cbrt = closeBtn2.GetComponent<RectTransform>();
+        cbrt.anchorMin = new Vector2(1, 0.5f);
+        cbrt.anchorMax = new Vector2(1, 0.5f);
+        cbrt.pivot = new Vector2(1, 0.5f);
+        cbrt.anchoredPosition = new Vector2(-6, 0);
+        cbrt.sizeDelta = new Vector2(24, 24);
+        var closeLabel = UIHelper.MakeText("X", closeBtn2.transform, "X",
+            12f, TextAlignmentOptions.Center, Color.white);
+        closeLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(closeLabel.GetComponent<RectTransform>());
+
+        // HamburgerPanel 컴포넌트 (컨텐츠 영역)
+        var hamContent = UIHelper.MakeUI("HamContent", hamburgerOverlay.transform);
+        var hcRT = hamContent.GetComponent<RectTransform>();
+        hcRT.anchorMin = Vector2.zero;
+        hcRT.anchorMax = Vector2.one;
+        hcRT.offsetMin = Vector2.zero;
+        hcRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
+        hamburgerPanel = hamContent.AddComponent<HamburgerPanel>();
+        hamburgerPanel.Init(hamContent.transform);
+
+        hamburgerOverlay.SetActive(false);
     }
 
     // ════════════════════════════════════════
@@ -701,18 +796,27 @@ public class MainHUD : MonoBehaviour
     void OnTabClicked(int idx)
     {
         SoundManager.Instance?.PlayButtonSFX();
+        // 전투 탭(i==2): 패널 없음 → 열린 패널만 닫기
+        if (idx == 2) { ClosePanel(); return; }
         if (activeTab == idx) { ClosePanel(); return; }
         ClosePanel();
         activeTab = idx;
         tabPanels[idx].SetActive(true);
         SkillUI.IsTabPanelOpen = true;
         UpdateTabVisuals();
-        if (idx == 0) upgradePanel?.Refresh();
-        if (idx == 1) enhancePanel?.Refresh();
-        if (idx == 3) gachaPanel?.Refresh();
+        if (idx == 0) enhancePanel?.Refresh();
+        if (idx == 1) gachaPanel?.Refresh();
+        if (idx == 3) dungeonPanel?.Refresh();
         if (idx == 4) shopPanel?.Refresh();
-        if (idx == 5) dungeonPanel?.Refresh();
-        if (idx == 6) mountPanel?.Refresh();
+    }
+
+    void ToggleHamburger()
+    {
+        if (hamburgerOverlay == null) return;
+        SoundManager.Instance?.PlayButtonSFX();
+        bool nowActive = !hamburgerOverlay.activeSelf;
+        hamburgerOverlay.SetActive(nowActive);
+        if (nowActive) hamburgerPanel?.Refresh();
     }
 
     void ClosePanel()
@@ -770,7 +874,6 @@ public class MainHUD : MonoBehaviour
     void UpdateGold(int gold)
     {
         if (goldText != null) goldText.text = UIHelper.FormatNumber(gold);
-        if (activeTab == 0) upgradePanel?.Refresh();
     }
 
     void UpdateGem(int gem)
@@ -934,7 +1037,7 @@ public class MainHUD : MonoBehaviour
 
     void UpdateBadges()
     {
-        // 강화 탭 (index 1): 레벨업 가능한 영웅 수
+        // 영웅 탭 (index 0): 레벨업 가능한 영웅 수
         var dm = DeckManager.Instance;
         var hlm = HeroLevelManager.Instance;
         int heroCount = 0;
@@ -950,26 +1053,15 @@ public class MainHUD : MonoBehaviour
                     heroCount++;
             }
         }
-        SetBadge(1, heroCount);
+        SetBadge(0, heroCount);
 
-        // 상점 탭 (index 4): 미수령 업적 + 미션 보상 수
-        int rewardCount = 0;
-        var am = AchievementManager.Instance;
-        if (am != null)
+        // 햄버거 배지: 미수령 업적 + 미션 보상 수
+        int rewardCount = hamburgerPanel != null ? hamburgerPanel.GetUnclaimedRewardCount() : 0;
+        if (hamburgerBadge != null)
         {
-            var achs = am.GetAchievements();
-            for (int i = 0; i < achs.Count; i++)
-                if (achs[i].completed && !achs[i].claimed) rewardCount++;
+            hamburgerBadge.SetActive(rewardCount > 0);
+            if (hamburgerBadgeText != null) hamburgerBadgeText.text = rewardCount.ToString();
         }
-        var mm = DailyMissionManager.Instance;
-        if (mm != null)
-        {
-            var missions = mm.GetMissions();
-            for (int i = 0; i < missions.Count; i++)
-                if (missions[i].currentCount >= missions[i].targetCount && !missions[i].claimed)
-                    rewardCount++;
-        }
-        SetBadge(4, rewardCount);
     }
 
     void SetBadge(int tabIndex, int count)
