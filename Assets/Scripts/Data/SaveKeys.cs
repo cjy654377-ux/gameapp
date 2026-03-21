@@ -95,6 +95,9 @@ public static class SaveKeys
     // 무료 소환 (광고) - 4시간 쿨타임
     public const string FreeGachaLastTime = "FreeGacha_LastTime";
 
+    // 천장 (pity)
+    public const string PityCounter = "Gacha_PityCounter";
+
     // 명성 (아레나 전용 통화)
     public const string Reputation = "Reputation";
 

@@ -18,6 +18,7 @@ public class GachaPanel : MonoBehaviour
     TextMeshProUGUI skillResultText;
     Button freeBtn;
     TextMeshProUGUI freeBtnText;
+    TextMeshProUGUI pityText;
 
     RectTransform heroResultRT;
     RectTransform skillResultRT;
@@ -157,6 +158,7 @@ public class GachaPanel : MonoBehaviour
         SetSubTabActive(heroTabBtn,  true);
         SetSubTabActive(mountTabBtn, false);
         SetSubTabActive(skillTabBtn, false);
+        RefreshPityText();
         RefreshGachaTabBadges();
     }
 
@@ -244,13 +246,23 @@ public class GachaPanel : MonoBehaviour
         mText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(mText.GetComponent<RectTransform>());
 
+        // 천장 정보 표시
+        pityText = UIHelper.MakeText("PityInfo", parent, "천장까지 0회",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, new Color(1f, 0.84f, 0f, 1f));
+        pityText.fontStyle = FontStyles.Bold;
+        var pityRT = pityText.GetComponent<RectTransform>();
+        pityRT.anchorMin = new Vector2(0.05f, 0.40f);
+        pityRT.anchorMax = new Vector2(0.95f, 0.48f);
+        pityRT.offsetMin = pityRT.offsetMax = Vector2.zero;
+        UIHelper.AddTextShadow(pityText);
+
         // 확률 정보 버튼
         var (probBtn, _3) = UIHelper.MakeSpriteButton("ProbInfoBtn", parent,
             UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
         probBtn.onClick.AddListener(ShowProbabilityInfo);
         var pbrt = probBtn.GetComponent<RectTransform>();
-        pbrt.anchorMin = new Vector2(0.25f, 0.40f);
-        pbrt.anchorMax = new Vector2(0.75f, 0.50f);
+        pbrt.anchorMin = new Vector2(0.25f, 0.30f);
+        pbrt.anchorMax = new Vector2(0.75f, 0.40f);
         pbrt.offsetMin = pbrt.offsetMax = Vector2.zero;
         var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보 보기",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
@@ -356,6 +368,19 @@ public class GachaPanel : MonoBehaviour
         skillScrollText.text = $"주문서: {scrolls}";
     }
 
+    void RefreshPityText()
+    {
+        if (pityText == null) return;
+        var gm = GachaManager.Instance;
+        if (gm == null)
+        {
+            pityText.text = "천장까지 0회";
+            return;
+        }
+        int remaining = gm.PityRemaining;
+        pityText.text = remaining > 0 ? $"천장까지 {remaining}회" : "천장 달성!";
+    }
+
     // ────────────────────────────────────────
     // 갱신
     // ────────────────────────────────────────
@@ -366,6 +391,7 @@ public class GachaPanel : MonoBehaviour
             gemText.text = $"보석: {GemManager.Instance.Gem}";
         mountPanel?.Refresh();
         RefreshSkillScrollText();
+        RefreshPityText();
     }
 
     // ────────────────────────────────────────
@@ -382,7 +408,11 @@ public class GachaPanel : MonoBehaviour
             MainHUD.Instance?.SwitchToTab(3);
             return;
         }
-        showConfirm?.Invoke("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoSinglePull);
+        showConfirm?.Invoke("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", () =>
+        {
+            DoSinglePull();
+            RefreshPityText();
+        });
     }
 
     void DoSinglePull()
@@ -433,7 +463,11 @@ public class GachaPanel : MonoBehaviour
             MainHUD.Instance?.SwitchToTab(3);
             return;
         }
-        showConfirm?.Invoke("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoMultiPull);
+        showConfirm?.Invoke("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", () =>
+        {
+            DoMultiPull();
+            RefreshPityText();
+        });
     }
 
     void DoMultiPull()

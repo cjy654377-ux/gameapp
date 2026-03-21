@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// - 단일 뽑기: 50보석
 /// - 10연차: 450보석 (1회 할인)
 /// - StarGrade 확률: 1성 60%, 2성 30%, 3성 9%, 4성 0.97%, 5성 0.03%
-/// - 천장(pity) 없음 — F2P 무한반복 모델
+/// - 천장(pity): 200회 뽑기 보장 4성
 /// </summary>
 public class GachaManager : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class GachaManager : MonoBehaviour
     public const int SINGLE_PULL_COST  = 50;
     public const int MULTI_PULL_COST   = 450; // 10연차 (1회 무료)
     public const int MULTI_PULL_COUNT  = 10;
+    public const int PITY_THRESHOLD = 200;
     private const float FREE_PULL_COOLDOWN_HOURS = 4f;
 
     // 가챠 확률 (누적, 0~100 롤 기준)
@@ -31,6 +32,7 @@ public class GachaManager : MonoBehaviour
     public event Action<CharacterPreset[]> OnMultiPulled;
     public event Action<CharacterPreset> OnDuplicatePulled; // 중복 소환 시 발생 → 각성 재료 전환 연출용
     public event Action<CharacterPreset> OnFreePulled; // 광고 무료 소환
+    public event Action<int> OnPityCounterChanged; // 천장 카운터 변경
 
     // StarGrade tiers sorted from pool
     readonly List<CharacterPreset> star1Pool = new();
@@ -38,6 +40,8 @@ public class GachaManager : MonoBehaviour
     readonly List<CharacterPreset> star3Pool = new();
     readonly List<CharacterPreset> star4Pool = new();
     readonly List<CharacterPreset> star5Pool = new();
+
+    private int pityCounter = 0;
 
     void Awake()
     {
@@ -52,6 +56,7 @@ public class GachaManager : MonoBehaviour
             allHeroes = Array.Empty<CharacterPreset>();
 
         RebuildStarPools();
+        LoadPityCounter();
     }
 
     void RebuildStarPools()
@@ -91,6 +96,35 @@ public class GachaManager : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
+    void LoadPityCounter()
+    {
+        pityCounter = PlayerPrefs.GetInt(SaveKeys.PityCounter, 0);
+        OnPityCounterChanged?.Invoke(pityCounter);
+    }
+
+    void SavePityCounter()
+    {
+        PlayerPrefs.SetInt(SaveKeys.PityCounter, pityCounter);
+        PlayerPrefs.Save();
+    }
+
+    void IncrementPityCounter()
+    {
+        pityCounter++;
+        SavePityCounter();
+        OnPityCounterChanged?.Invoke(pityCounter);
+    }
+
+    void ResetPityCounter()
+    {
+        pityCounter = 0;
+        SavePityCounter();
+        OnPityCounterChanged?.Invoke(pityCounter);
+    }
+
+    public int PityCounter => pityCounter;
+    public int PityRemaining => Mathf.Max(0, PITY_THRESHOLD - pityCounter);
+
     /// <summary>
     /// 현재 풀 크기
     /// </summary>
@@ -121,6 +155,7 @@ public class GachaManager : MonoBehaviour
 
         var hero = PullOne();
         HandlePullResult(hero);
+        IncrementPityCounter();
         SoundManager.Instance?.PlayGachaSFX();
         OnHeroPulled?.Invoke(hero);
         DailyMissionManager.Instance?.RegisterGacha();
@@ -146,6 +181,7 @@ public class GachaManager : MonoBehaviour
 
         var hero = PullOne();
         HandlePullResult(hero);
+        IncrementPityCounter();
         SoundManager.Instance?.PlayGachaSFX();
         OnFreePulled?.Invoke(hero);
         DailyMissionManager.Instance?.RegisterGacha();
@@ -219,7 +255,10 @@ public class GachaManager : MonoBehaviour
 
         var results = new CharacterPreset[MULTI_PULL_COUNT];
         for (int i = 0; i < MULTI_PULL_COUNT; i++)
+        {
             results[i] = PullOne();
+            IncrementPityCounter();
+        }
 
         // 결과 처리 (중복/신규)
         for (int i = 0; i < MULTI_PULL_COUNT; i++)
@@ -234,11 +273,19 @@ public class GachaManager : MonoBehaviour
     /// <summary>
     /// StarGrade 가중치 뽑기
     /// 1성 60%, 2성 30%, 3성 9%, 4성 0.97%, 5성 0.03%
-    /// 천장 없음
+    /// 천장: 200회 도달 시 강제 4성
     /// </summary>
     CharacterPreset PullOne()
     {
         if (allHeroes.Length == 0) return null;
+
+        // 천장 도달 시 강제 4성
+        if (pityCounter >= PITY_THRESHOLD)
+        {
+            var star4 = GetPool(StarGrade.Star4);
+            if (star4.Count > 0)
+                return star4[UnityEngine.Random.Range(0, star4.Count)];
+        }
 
         float roll = UnityEngine.Random.Range(0f, 100f);
 
@@ -285,10 +332,15 @@ public class GachaManager : MonoBehaviour
 
     /// <summary>
     /// 뽑기 결과 처리: 중복이면 경험치 보상 (예정), 신규면 roster 추가
+    /// 4성 이상 획득 시 천장 카운터 리셋
     /// </summary>
     void HandlePullResult(CharacterPreset hero)
     {
         if (hero == null) return;
+
+        // 4성 이상 획득 시 천장 카운터 리셋
+        if (hero.starGrade >= StarGrade.Star4)
+            ResetPityCounter();
 
         var deck = DeckManager.Instance;
         if (deck == null) return;
