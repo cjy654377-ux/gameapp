@@ -68,6 +68,14 @@ public static class UIHelper
     }
 
     /// <summary>
+    /// UISprites 기본 버튼으로 생성 (Btn1_WS 사용, 스프라이트 자동 적용)
+    /// </summary>
+    public static (Button btn, Image img) MakeSpriteButton(string name, Transform parent, string label, float fontSize)
+    {
+        return MakeSpriteButton(name, parent, UISprites.Btn1_WS, UIColors.Button_Primary, label, fontSize);
+    }
+
+    /// <summary>
     /// Image.Type.Filled 방식 게이지를 생성한다. 배경/채우기 모두 스프라이트 우선.
     /// </summary>
     public static (Image bg, Image fill) MakeGauge(string name, Transform parent,
@@ -225,5 +233,62 @@ public static class UIHelper
         if (n >= 1000000) return (n / 1000000f).ToString("F1") + "M";
         if (n >= 1000) return (n / 1000f).ToString("F1") + "K";
         return n.ToString();
+    }
+
+    /// <summary>
+    /// 아이콘 + 수량 텍스트를 가로로 배치한 재화 표시 (금, 보석 등)
+    /// </summary>
+    public static (Image icon, TextMeshProUGUI text) MakeResourceDisplay(
+        string name, Transform parent, Sprite iconSprite, int amount, float fontSize = 24f)
+    {
+        var container = MakeUI(name, parent);
+        var containerRT = container.GetComponent<RectTransform>();
+        var hLayout = container.AddComponent<HorizontalLayoutGroup>();
+        hLayout.spacing = 8f;
+        hLayout.childForceExpandHeight = false;
+        hLayout.childForceExpandWidth = false;
+
+        var icon = MakeIcon("Icon", container.transform, iconSprite, UIColors.Panel_Neutral);
+        icon.GetComponent<RectTransform>().sizeDelta = new Vector2(40, 40);
+
+        var txt = MakeText("Amount", container.transform, FormatNumber(amount), fontSize, TextAlignmentOptions.Left, UIColors.Text_Primary);
+        var txtRT = txt.GetComponent<RectTransform>();
+        txtRT.sizeDelta = new Vector2(100, 40);
+
+        return (icon, txt);
+    }
+
+    /// <summary>
+    /// 성급별 별 표시 (1~5성, 빈 별/채운 별로 표현)
+    /// </summary>
+    public static Transform MakeStarRating(string name, Transform parent, int starGrade, float starSize = 24f)
+    {
+        var container = MakeUI(name, parent);
+        var containerRT = container.GetComponent<RectTransform>();
+        containerRT.sizeDelta = new Vector2(starSize * 5 + 4, starSize);
+
+        var hLayout = container.AddComponent<HorizontalLayoutGroup>();
+        hLayout.spacing = 4f;
+        hLayout.childForceExpandHeight = false;
+        hLayout.childForceExpandWidth = false;
+
+        // 빈별 색상과 채운별 색상
+        Color emptyColor = new Color(0.6f, 0.6f, 0.6f, 0.5f);
+        Color fillColor = new Color(1f, 0.84f, 0f, 1f); // 금색
+
+        for (int i = 1; i <= 5; i++)
+        {
+            var starObj = MakeUI($"Star{i}", container.transform);
+            var starImg = starObj.AddComponent<Image>();
+            starImg.sprite = Resources.Load<Sprite>("UI/Icon_Star") ?? null;
+            starImg.type = Image.Type.Simple;
+            starImg.preserveAspect = true;
+            starImg.color = (i <= starGrade) ? fillColor : emptyColor;
+
+            var starRT = starObj.GetComponent<RectTransform>();
+            starRT.sizeDelta = new Vector2(starSize, starSize);
+        }
+
+        return container.transform;
     }
 }
