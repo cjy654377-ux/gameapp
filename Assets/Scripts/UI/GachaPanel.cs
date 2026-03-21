@@ -494,7 +494,10 @@ public class GachaPanel : MonoBehaviour
         if (GachaManager.Instance == null) return;
         var results = GachaManager.Instance.MultiPull();
         if (results != null)
+        {
+            SoundManager.Instance?.PlayUISound(UISoundType.gacha_reveal);
             StartCoroutine(ShowMultiResults(results));
+        }
         else
         {
             if (resultText != null)
