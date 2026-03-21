@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -50,6 +51,7 @@ public class MainHUD : MonoBehaviour
 
     // Tab overlay panels
     readonly GameObject[] tabPanels = new GameObject[TAB_COUNT];
+    readonly CanvasGroup[] tabPanelCGs = new CanvasGroup[TAB_COUNT];
     int activeTab = -1;
 
     // Badge notifications
@@ -703,6 +705,9 @@ public class MainHUD : MonoBehaviour
             }
 
             tabPanels[i] = panel;
+            var cg = panel.AddComponent<CanvasGroup>();
+            cg.alpha = 1f;
+            tabPanelCGs[i] = cg;
             panel.SetActive(false);
         }
 
@@ -798,9 +803,39 @@ public class MainHUD : MonoBehaviour
     {
         SoundManager.Instance?.PlayButtonSFX();
         // 전투 탭(i==2): 패널 없음 → 열린 패널만 닫기
-        if (idx == 2) { ClosePanel(); return; }
-        if (activeTab == idx) { ClosePanel(); return; }
+        if (idx == 2) { StartCoroutine(ClosePanelFade()); return; }
+        if (activeTab == idx) { StartCoroutine(ClosePanelFade()); return; }
+        StartCoroutine(SwitchTabFade(idx));
+        // 탭 버튼 스케일 피드백
+        if (idx < tabButtons.Length && tabButtons[idx] != null)
+            StartCoroutine(ButtonPressFeedback(tabButtons[idx].transform));
+    }
+
+    IEnumerator ClosePanelFade()
+    {
+        if (activeTab >= 0 && tabPanelCGs[activeTab] != null)
+        {
+            var cg = tabPanelCGs[activeTab];
+            float t = 0;
+            while (t < 0.15f) { t += Time.unscaledDeltaTime; cg.alpha = Mathf.Lerp(1, 0, t / 0.15f); yield return null; }
+            cg.alpha = 1f;
+        }
         ClosePanel();
+    }
+
+    IEnumerator SwitchTabFade(int idx)
+    {
+        // 현재 패널 페이드 아웃
+        if (activeTab >= 0 && tabPanelCGs[activeTab] != null)
+        {
+            var cg = tabPanelCGs[activeTab];
+            float t = 0;
+            while (t < 0.15f) { t += Time.unscaledDeltaTime; cg.alpha = Mathf.Lerp(1, 0, t / 0.15f); yield return null; }
+            cg.alpha = 1f;
+        }
+        ClosePanel();
+
+        // 새 패널 페이드 인
         activeTab = idx;
         tabPanels[idx].SetActive(true);
         SkillUI.IsTabPanelOpen = true;
@@ -809,6 +844,24 @@ public class MainHUD : MonoBehaviour
         if (idx == 1) gachaPanel?.Refresh();
         if (idx == 3) dungeonPanel?.Refresh();
         if (idx == 4) shopPanel?.Refresh();
+
+        if (tabPanelCGs[idx] != null)
+        {
+            var cg = tabPanelCGs[idx];
+            cg.alpha = 0f;
+            float t = 0;
+            while (t < 0.15f) { t += Time.unscaledDeltaTime; cg.alpha = Mathf.Lerp(0, 1, t / 0.15f); yield return null; }
+            cg.alpha = 1f;
+        }
+    }
+
+    IEnumerator ButtonPressFeedback(Transform btnTransform)
+    {
+        float t = 0;
+        while (t < 0.08f) { t += Time.unscaledDeltaTime; float s = Mathf.Lerp(1f, 0.95f, t / 0.08f); btnTransform.localScale = Vector3.one * s; yield return null; }
+        t = 0;
+        while (t < 0.08f) { t += Time.unscaledDeltaTime; float s = Mathf.Lerp(0.95f, 1f, t / 0.08f); btnTransform.localScale = Vector3.one * s; yield return null; }
+        btnTransform.localScale = Vector3.one;
     }
 
     void ToggleHamburger()

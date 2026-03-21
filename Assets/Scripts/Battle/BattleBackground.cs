@@ -26,11 +26,17 @@ public class BattleBackground : MonoBehaviour
     const float CAM_HEIGHT_MULT = 2f;
     const int TILE_BUFFER_COUNT = 3;
     const int BG_SORTING_ORDER = -100;
+    const int MID_SORTING_ORDER = -90;
+    // 파랄랙스 배율: 전경(tiles) 1.0x, 중경(midTiles) 0.5x 카메라 이동 추적
+    const float MID_PARALLAX = 0.5f;
+    const float MID_SCALE_MULT = 0.7f;  // 중경은 약간 작게 (원근감)
 
     private Sprite bgSprite;
     private float tileWidth;
     private float scale;
     private readonly List<SpriteRenderer> tiles = new();
+    private readonly List<SpriteRenderer> midTiles = new();
+    private float midTileWidth;
     private int currentArea = -1;
     private Camera cachedCamera;
 
@@ -72,6 +78,9 @@ public class BattleBackground : MonoBehaviour
         for (int i = 0; i < tiles.Count; i++)
             if (tiles[i] != null) Destroy(tiles[i].gameObject);
         tiles.Clear();
+        for (int i = 0; i < midTiles.Count; i++)
+            if (midTiles[i] != null) Destroy(midTiles[i].gameObject);
+        midTiles.Clear();
 
         var cam = cachedCamera != null ? cachedCamera : Camera.main;
         if (cam == null) return;
@@ -82,7 +91,10 @@ public class BattleBackground : MonoBehaviour
 
         float camW = camH * cam.aspect;
         int tileCount = Mathf.CeilToInt(camW / tileWidth) + TILE_BUFFER_COUNT;
+        int tintIdx = Mathf.Clamp(area - 1, 0, AreaTintColors.Length - 1);
+        Color tint = AreaTintColors[tintIdx];
 
+        // 전경 타일 (1.0x 스크롤)
         for (int i = 0; i < tileCount; i++)
         {
             var tileObj = new GameObject($"BgTile_{i}");
@@ -90,10 +102,27 @@ public class BattleBackground : MonoBehaviour
             var sr = tileObj.AddComponent<SpriteRenderer>();
             sr.sprite = bgSprite;
             sr.sortingOrder = BG_SORTING_ORDER;
-            int tintIdx = Mathf.Clamp(area - 1, 0, AreaTintColors.Length - 1);
-            sr.color = AreaTintColors[tintIdx];
+            sr.color = tint;
             tileObj.transform.localScale = Vector3.one * scale;
             tiles.Add(sr);
+        }
+
+        // 중경 파랄랙스 타일 (0.5x 스크롤, 약간 어둡게)
+        float midScale = scale * MID_SCALE_MULT;
+        midTileWidth = bgSprite.bounds.size.x * midScale;
+        int midCount = Mathf.CeilToInt(camW / midTileWidth) + TILE_BUFFER_COUNT;
+        Color midTint = new Color(tint.r * 0.65f, tint.g * 0.65f, tint.b * 0.7f, 1f);
+
+        for (int i = 0; i < midCount; i++)
+        {
+            var midObj = new GameObject($"BgMidTile_{i}");
+            midObj.transform.SetParent(transform, false);
+            var sr = midObj.AddComponent<SpriteRenderer>();
+            sr.sprite = bgSprite;
+            sr.sortingOrder = MID_SORTING_ORDER;
+            sr.color = midTint;
+            midObj.transform.localScale = Vector3.one * midScale;
+            midTiles.Add(sr);
         }
     }
 
@@ -105,10 +134,20 @@ public class BattleBackground : MonoBehaviour
         if (cam == null) return;
 
         float camX = cam.transform.position.x;
-        float startX = Mathf.Floor(camX / tileWidth) * tileWidth - tileWidth;
 
+        // 전경: 카메라 1:1 추적
+        float startX = Mathf.Floor(camX / tileWidth) * tileWidth - tileWidth;
         for (int i = 0; i < tiles.Count; i++)
             tiles[i].transform.position = new Vector3(startX + i * tileWidth, 0, 0);
+
+        // 중경: 카메라의 0.5배 속도로 스크롤 (파랄랙스)
+        if (midTiles.Count > 0 && midTileWidth > 0)
+        {
+            float midCamX = camX * MID_PARALLAX;
+            float midStartX = Mathf.Floor(midCamX / midTileWidth) * midTileWidth - midTileWidth;
+            for (int i = 0; i < midTiles.Count; i++)
+                midTiles[i].transform.position = new Vector3(midStartX + i * midTileWidth, 0.5f, 0);
+        }
     }
 
     void OnDestroy()

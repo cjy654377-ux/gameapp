@@ -34,9 +34,14 @@ public class GrowthFeedback : MonoBehaviour
     const int STAR_POOL = 8;
     readonly TextMeshProUGUI[] starTexts = new TextMeshProUGUI[STAR_POOL];
 
+    // 에리어 전환 텍스트
+    TextMeshProUGUI areaBannerText;
+    CanvasGroup areaBannerCG;
+
     // 캐시된 매니저
     HeroLevelManager cachedHLM;
     EquipmentManager cachedEM;
+    StageManager cachedSM;
 
     // ════════════════════════════════════════
     // Unity 생명주기
@@ -52,6 +57,7 @@ public class GrowthFeedback : MonoBehaviour
         BuildFlashOverlay();
         BuildEquipBanner();
         BuildStarPool();
+        BuildAreaBanner();
     }
 
     void Start()
@@ -64,6 +70,7 @@ public class GrowthFeedback : MonoBehaviour
         yield return null;
         cachedHLM = HeroLevelManager.Instance;
         cachedEM  = EquipmentManager.Instance;
+        cachedSM  = StageManager.Instance;
 
         if (cachedHLM != null)
         {
@@ -72,6 +79,8 @@ public class GrowthFeedback : MonoBehaviour
         }
         if (cachedEM != null)
             cachedEM.OnEquipmentDropped += OnEquipmentDropped;
+        if (cachedSM != null)
+            cachedSM.OnAreaChanged += OnAreaChanged;
     }
 
     void OnDestroy()
@@ -83,6 +92,8 @@ public class GrowthFeedback : MonoBehaviour
         }
         if (cachedEM != null)
             cachedEM.OnEquipmentDropped -= OnEquipmentDropped;
+        if (cachedSM != null)
+            cachedSM.OnAreaChanged -= OnAreaChanged;
     }
 
     // ════════════════════════════════════════
@@ -118,6 +129,12 @@ public class GrowthFeedback : MonoBehaviour
     void OnEquipmentDropped(EquipmentItem item)
     {
         StartCoroutine(EquipDropEffect(item));
+    }
+
+    void OnAreaChanged(int areaIndex)
+    {
+        string name = StageManager.Instance?.GetAreaName() ?? $"에리어 {areaIndex}";
+        StartCoroutine(ShowAreaBanner($"에리어 {areaIndex}\n{name}"));
     }
 
     // ════════════════════════════════════════
@@ -363,6 +380,59 @@ public class GrowthFeedback : MonoBehaviour
             st.gameObject.SetActive(false);
             starTexts[i] = st;
         }
+    }
+
+    void BuildAreaBanner()
+    {
+        var root = canvas.transform;
+        var bannerObj = UIHelper.MakeUI("AreaBanner", root);
+        var rt = bannerObj.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0f, 0.35f);
+        rt.anchorMax = new Vector2(1f, 0.65f);
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+        areaBannerCG = bannerObj.AddComponent<CanvasGroup>();
+        areaBannerCG.alpha = 0f;
+        areaBannerCG.blocksRaycasts = false;
+
+        areaBannerText = UIHelper.MakeText("AreaText", bannerObj.transform, "",
+            36f, TextAlignmentOptions.Center, Color.white);
+        areaBannerText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(areaBannerText);
+        UIHelper.FillParent(areaBannerText.GetComponent<RectTransform>());
+
+        bannerObj.SetActive(false);
+        // 필드에 CG와 Text 이미 저장됨
+    }
+
+    IEnumerator ShowAreaBanner(string text)
+    {
+        if (areaBannerCG == null || areaBannerText == null) yield break;
+        areaBannerText.text = text;
+        areaBannerCG.gameObject.SetActive(true);
+
+        // 페이드 인
+        float t = 0;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / 0.6f;
+            areaBannerCG.alpha = Mathf.SmoothStep(0, 1, t);
+            yield return null;
+        }
+        areaBannerCG.alpha = 1f;
+
+        yield return new WaitForSecondsRealtime(1.2f);
+
+        // 페이드 아웃
+        t = 0;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / 0.8f;
+            areaBannerCG.alpha = Mathf.SmoothStep(1, 0, t);
+            yield return null;
+        }
+        areaBannerCG.alpha = 0f;
+        areaBannerCG.gameObject.SetActive(false);
     }
 
     void BuildEquipBanner()

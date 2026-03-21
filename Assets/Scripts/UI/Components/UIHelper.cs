@@ -56,6 +56,7 @@ public static class UIHelper
         ApplySpriteToImage(img, sprite, fallbackColor);
         var btn = obj.AddComponent<Button>();
         btn.targetGraphic = img;
+        obj.AddComponent<ButtonFeedback>();
 
         if (!string.IsNullOrEmpty(label))
         {

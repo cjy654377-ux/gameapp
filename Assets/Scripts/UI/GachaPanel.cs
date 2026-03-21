@@ -395,31 +395,53 @@ public class GachaPanel : MonoBehaviour
         if (GachaManager.Instance == null) return;
         var results = GachaManager.Instance.MultiPull();
         if (results != null)
-        {
-            var sb = new System.Text.StringBuilder();
-            var seen = new System.Collections.Generic.HashSet<string>();
-            for (int i = 0; i < results.Length; i++)
-            {
-                if (results[i] == null) continue;
-                string name = results[i].characterName;
-                if (!seen.Add(name)) continue;
-
-                string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(results[i].starGrade));
-                int cnt = 0;
-                for (int j = 0; j < results.Length; j++)
-                    if (results[j] != null && results[j].characterName == name) cnt++;
-                string suffix = cnt > 1 ? $"×{cnt}" : "";
-                sb.Append($"<color=#{hex}>{name}</color>{suffix}  ");
-            }
-            if (resultText != null)
-                resultText.text = sb.ToString().TrimEnd();
-        }
+            StartCoroutine(ShowMultiResults(results));
         else
         {
             if (resultText != null)
                 resultText.text = "<color=#CC3333>보석이 부족합니다</color>";
         }
         Refresh();
+    }
+
+    IEnumerator ShowMultiResults(CharacterPreset[] results)
+    {
+        if (resultText == null || heroResultRT == null) yield break;
+        resultText.text = "";
+
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < results.Length; i++)
+        {
+            if (results[i] == null) continue;
+            string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(results[i].starGrade));
+            sb.Append($"<color=#{hex}>{results[i].characterName}</color>  ");
+            resultText.text = sb.ToString().TrimEnd();
+
+            // 카드 뒤집기: scaleX 1→0→1
+            float t = 0;
+            while (t < 0.08f)
+            {
+                t += Time.unscaledDeltaTime;
+                heroResultRT.localScale = new Vector3(Mathf.Lerp(1f, 0f, t / 0.08f), 1f, 1f);
+                yield return null;
+            }
+            var img = heroResultRT.GetComponent<Image>();
+            if (img != null)
+            {
+                Color rc = GetRarityColor(results[i].starGrade);
+                img.color = new Color(rc.r * 0.4f, rc.g * 0.4f, rc.b * 0.4f, 0.85f);
+            }
+            t = 0;
+            while (t < 0.1f)
+            {
+                t += Time.unscaledDeltaTime;
+                heroResultRT.localScale = new Vector3(Mathf.Lerp(0f, 1f, t / 0.1f), 1f, 1f);
+                yield return null;
+            }
+            heroResultRT.localScale = Vector3.one;
+
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
     }
 
     void OnFreePull()
