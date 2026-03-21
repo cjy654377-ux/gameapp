@@ -29,6 +29,7 @@ public class GachaManager : MonoBehaviour
     public event Action<CharacterPreset> OnHeroPulled;
     public event Action<CharacterPreset[]> OnMultiPulled;
     public event Action<CharacterPreset> OnDuplicatePulled; // 중복 소환 시 발생 → 각성 재료 전환 연출용
+    public event Action<CharacterPreset> OnFreePulled; // 광고 무료 소환
 
     // StarGrade tiers sorted from pool
     readonly List<CharacterPreset> star1Pool = new();
@@ -121,6 +122,25 @@ public class GachaManager : MonoBehaviour
         HandlePullResult(hero);
         SoundManager.Instance?.PlayGachaSFX();
         OnHeroPulled?.Invoke(hero);
+        DailyMissionManager.Instance?.RegisterGacha();
+        return hero;
+    }
+
+    /// <summary>
+    /// 무료 소환 (광고 시청) - 비용 없음
+    /// </summary>
+    public CharacterPreset FreeSinglePull()
+    {
+        if (allHeroes.Length == 0)
+        {
+            Debug.LogWarning("[GachaManager] Hero pool is empty!");
+            return null;
+        }
+
+        var hero = PullOne();
+        HandlePullResult(hero);
+        SoundManager.Instance?.PlayGachaSFX();
+        OnFreePulled?.Invoke(hero);
         DailyMissionManager.Instance?.RegisterGacha();
         return hero;
     }
