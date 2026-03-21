@@ -129,7 +129,18 @@ public class MountPanel : MonoBehaviour
         var mm = MountManager.Instance;
         if (mm == null) return;
 
-        if (mm.OwnedMountNames.Count == 0)
+        // 성급 내림차순 정렬 (5성 → 1성)
+        var sorted = new System.Collections.Generic.List<string>(mm.OwnedMountNames);
+        sorted.Sort((a, b) =>
+        {
+            var da = mm.GetMountData(a);
+            var db = mm.GetMountData(b);
+            int sa = da != null ? (int)da.starGrade : 0;
+            int sb2 = db != null ? (int)db.starGrade : 0;
+            return sb2.CompareTo(sa);
+        });
+
+        if (sorted.Count == 0)
         {
             var empty = UIHelper.MakeText("Empty", listContent, "보유한 탈것이 없습니다.\n소환 버튼으로 획득하세요!",
                 UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Secondary);
@@ -141,11 +152,11 @@ public class MountPanel : MonoBehaviour
         }
 
         int maxVisible = Mathf.FloorToInt((LIST_TOP - LIST_BOTTOM) / (ROW_HEIGHT + ROW_GAP));
-        int count = Mathf.Min(mm.OwnedMountNames.Count, maxVisible);
+        int count = Mathf.Min(sorted.Count, maxVisible);
 
         for (int i = 0; i < count; i++)
         {
-            string name = mm.OwnedMountNames[i];
+            string name = sorted[i];
             bool equipped = name == mm.EquippedMountName;
 
             float yMax = 1f - (ROW_GAP + (ROW_HEIGHT + ROW_GAP) * i);
@@ -237,8 +248,12 @@ public class MountItemRow : MonoBehaviour
         System.Action<string, string, System.Action> showConfirm,
         MountPanel owner)
     {
-        // 이름/등급 텍스트
-        var nameText = UIHelper.MakeText("Name", transform, mountName,
+        // 이름 텍스트
+        var mountData = MountManager.Instance?.GetMountData(mountName);
+        Color rarityColor = GetRarityColor(mountData?.starGrade ?? StarGrade.Star1);
+        string starStr = mountData != null ? new string('\u2605', (int)mountData.starGrade) : "";
+        string displayName = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(rarityColor)}>{starStr}</color> {mountName}";
+        var nameText = UIHelper.MakeText("Name", transform, displayName,
             UIConstants.Font_StatLabel, TextAlignmentOptions.Left,
             equipped ? UIColors.Text_Gold : Color.white);
         nameText.fontStyle = FontStyles.Bold;
@@ -319,4 +334,13 @@ public class MountItemRow : MonoBehaviour
         if (atk > 0) sb.Append($"ATK+{atk}%");
         return sb.ToString().Trim();
     }
+
+    static Color GetRarityColor(StarGrade grade) => grade switch
+    {
+        StarGrade.Star5 => UIColors.Rarity_Legendary,
+        StarGrade.Star4 => UIColors.Rarity_Epic,
+        StarGrade.Star3 => UIColors.Rarity_Rare,
+        StarGrade.Star2 => UIColors.Rarity_Uncommon,
+        _               => UIColors.Rarity_Common,
+    };
 }

@@ -238,10 +238,12 @@ public class GachaPanel : MonoBehaviour
 
             if (resultText != null)
             {
+                string hexColor = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(hero.starGrade));
+                string starLabel = GetStarLabel(hero.starGrade);
                 if (isDuplicate)
-                    resultText.text = $"<color=#FFD700>{hero.characterName}</color> 중복! 강화 카드 +1";
+                    resultText.text = $"<color=#{hexColor}>[{starLabel}] {hero.characterName}</color>\n중복 → 각성 재료 +1";
                 else
-                    resultText.text = $"<color=#7FD44C>NEW!</color> {hero.characterName} 획득!";
+                    resultText.text = $"<color=#7FD44C>NEW!</color> <color=#{hexColor}>[{starLabel}] {hero.characterName}</color> 획득!";
             }
         }
         else
@@ -270,18 +272,23 @@ public class GachaPanel : MonoBehaviour
         var results = GachaManager.Instance.MultiPull();
         if (results != null)
         {
-            var counts = new Dictionary<string, int>();
+            var sb = new System.Text.StringBuilder();
+            var seen = new System.Collections.Generic.HashSet<string>();
             for (int i = 0; i < results.Length; i++)
             {
-                string n = results[i].characterName;
-                if (!counts.ContainsKey(n)) counts[n] = 0;
-                counts[n]++;
+                if (results[i] == null) continue;
+                string name = results[i].characterName;
+                if (!seen.Add(name)) continue;
+
+                string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(results[i].starGrade));
+                int cnt = 0;
+                for (int j = 0; j < results.Length; j++)
+                    if (results[j] != null && results[j].characterName == name) cnt++;
+                string suffix = cnt > 1 ? $"×{cnt}" : "";
+                sb.Append($"<color=#{hex}>{name}</color>{suffix}  ");
             }
-            string resultStr = "";
-            foreach (var kv in counts)
-                resultStr += $"{kv.Key} x{kv.Value}  ";
             if (resultText != null)
-                resultText.text = resultStr.Trim();
+                resultText.text = sb.ToString().TrimEnd();
         }
         else
         {
@@ -290,6 +297,24 @@ public class GachaPanel : MonoBehaviour
         }
         Refresh();
     }
+
+    static Color GetRarityColor(StarGrade grade) => grade switch
+    {
+        StarGrade.Star5 => UIColors.Rarity_Legendary,
+        StarGrade.Star4 => UIColors.Rarity_Epic,
+        StarGrade.Star3 => UIColors.Rarity_Rare,
+        StarGrade.Star2 => UIColors.Rarity_Uncommon,
+        _               => UIColors.Rarity_Common,
+    };
+
+    static string GetStarLabel(StarGrade grade) => grade switch
+    {
+        StarGrade.Star5 => "★★★★★",
+        StarGrade.Star4 => "★★★★",
+        StarGrade.Star3 => "★★★",
+        StarGrade.Star2 => "★★",
+        _               => "★",
+    };
 
     void ShowProbabilityInfo()
     {
