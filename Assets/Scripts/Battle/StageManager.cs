@@ -157,29 +157,31 @@ public class StageManager : MonoBehaviour
             if (p == null || !p.isEnemy) continue;
 
             string n = p.name;
-            // 보스
-            if (n == "Enemy_UndeadGeneral")    { grassMidBoss    = p; continue; }
-            if (n == "Enemy_OrcChieftain")     { grassAreaBoss   = p; continue; }
-            if (n == "Enemy_DesertGuardian")   { desertMidBoss   = p; continue; }
-            if (n == "Enemy_PharaohUndead")    { desertAreaBoss  = p; continue; }
-            if (n == "Enemy_CaveWarden")       { caveMidBoss     = p; continue; }
-            if (n == "Enemy_SubterraneanLord") { caveAreaBoss    = p; continue; }
-            if (n == "Enemy_FlameGeneral")     { volcanoMidBoss  = p; continue; }
-            if (n == "Enemy_VolcanoLord")      { volcanoAreaBoss = p; continue; }
-            if (n == "Enemy_DeathKnight")      { abyssMidBoss    = p; continue; }
-            if (n == "Enemy_AbyssLord")        { abyssAreaBoss   = p; continue; }
+            // 보스 매핑 (새 이름 기준)
+            if (n == "Enemy_OrcGeneral")      { grassMidBoss    = p; continue; }
+            if (n == "Enemy_OrcWarchief")     { grassAreaBoss   = p; continue; }
+            if (n == "Enemy_UndeadGeneral")   { desertMidBoss   = p; continue; }
+            if (n == "Enemy_Pharaoh")         { desertAreaBoss  = p; continue; }
+            if (n == "Enemy_PoisonQueen")     { caveMidBoss     = p; continue; }
+            if (n == "Enemy_SpiderKing")      { caveAreaBoss    = p; continue; }
+            if (n == "Enemy_DemonGeneral")    { volcanoMidBoss  = p; continue; }
+            if (n == "Enemy_DemonLord")       { volcanoAreaBoss = p; continue; }
+            if (n == "Enemy_DeathKnight")     { abyssMidBoss    = p; continue; }
+            if (n == "Enemy_AbyssLord")       { abyssAreaBoss   = p; continue; }
 
-            // 에리어 분류
-            if (n.Contains("Flame") || n.Contains("Lava") || n.Contains("FireImp") || n.Contains("Magma"))
-                volcanoEnemies.Add(p);
-            else if (n.Contains("Dark") || n.Contains("Ghost") || n.Contains("Abyss") || n.Contains("Shadow") || n.Contains("Necromancer") || n.Contains("Death"))
-                abyssEnemies.Add(p);
-            else if (n.Contains("Desert") || n.Contains("Mummy") || n.Contains("Pharaoh"))
-                desertEnemies.Add(p);
-            else if (n.Contains("Cave") || n.Contains("Fungus") || n.Contains("Poison") || n.Contains("Golem"))
-                caveEnemies.Add(p);
-            else
+            // 에리어 분류 (종족 키워드 기반)
+            if (n.Contains("Orc"))
                 grassEnemies.Add(p);
+            else if (n.Contains("Mummy") || n.Contains("Skeleton") || n.Contains("Undead") || n.Contains("Pharaoh"))
+                desertEnemies.Add(p);
+            else if (n.Contains("Poison") || n.Contains("Spider") || n.Contains("Slime") || n.Contains("Fairy") || n.Contains("Snake") || n.Contains("Mushroom") || n.Contains("Acid"))
+                caveEnemies.Add(p);
+            else if (n.Contains("Imp") || n.Contains("Flame") || n.Contains("Lava") || n.Contains("Fire") || n.Contains("Devil") || n.Contains("Demon"))
+                volcanoEnemies.Add(p);
+            else if (n.Contains("Soul") || n.Contains("Shadow") || n.Contains("Wraith") || n.Contains("Spirit") || n.Contains("Vengeance") || n.Contains("Death") || n.Contains("Abyss"))
+                abyssEnemies.Add(p);
+            else
+                grassEnemies.Add(p); // 분류 미정은 grass 폴백
         }
         #else
         // 빌드에서는 Resources 로드
@@ -192,11 +194,10 @@ public class StageManager : MonoBehaviour
         }
         #endif
 
-        Debug.Log($"[StageManager] AutoLoad: grass={grassEnemies.Count}, desert={desertEnemies.Count}, cave={caveEnemies.Count}, " +
-                  $"volcano={volcanoEnemies.Count}, abyss={abyssEnemies.Count}, " +
-                  $"bosses: gM={grassMidBoss != null} gA={grassAreaBoss != null} dM={desertMidBoss != null} dA={desertAreaBoss != null} " +
-                  $"cM={caveMidBoss != null} cA={caveAreaBoss != null} vM={volcanoMidBoss != null} vA={volcanoAreaBoss != null} " +
-                  $"aM={abyssMidBoss != null} aA={abyssAreaBoss != null}");
+        Debug.Log($"[StageManager] AutoLoad: 오크={grassEnemies.Count} 언데드={desertEnemies.Count} 독생물={caveEnemies.Count} 악마={volcanoEnemies.Count} 망령={abyssEnemies.Count} | " +
+                  $"boss: gM={grassMidBoss?.name} gA={grassAreaBoss?.name} dM={desertMidBoss?.name} dA={desertAreaBoss?.name} " +
+                  $"cM={caveMidBoss?.name} cA={caveAreaBoss?.name} vM={volcanoMidBoss?.name} vA={volcanoAreaBoss?.name} " +
+                  $"aM={abyssMidBoss?.name} aA={abyssAreaBoss?.name}");
     }
 
     void CalcStageFromTotal(int total)
