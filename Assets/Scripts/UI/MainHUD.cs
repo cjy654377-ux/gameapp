@@ -38,9 +38,9 @@ public class MainHUD : MonoBehaviour
 
 
     // Bottom Nav
-    readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점", "던전" };
-    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "$", "⛩" };
-    const int TAB_COUNT = 6;
+    readonly string[] tabNames = { "훈련", "강화", "편성", "소환", "상점", "던전", "탈것" };
+    readonly string[] tabIcons = { "⚔", "★", "☰", "◆", "$", "⛩", "♞" };
+    const int TAB_COUNT = 7;
     readonly Button[] tabButtons = new Button[TAB_COUNT];
     readonly Image[] tabIndicators = new Image[TAB_COUNT];
     readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[TAB_COUNT];
@@ -77,6 +77,7 @@ public class MainHUD : MonoBehaviour
     HeroSelectPanel heroSelectPanel;
     UpgradePanel upgradePanel;
     DungeonPanel dungeonPanel;
+    MountPanel mountPanel;
 
     // Hero select popup (for equipment) → HeroSelectPanel
 
@@ -432,6 +433,7 @@ public class MainHUD : MonoBehaviour
         tabSpriteIcons[3] = UISprites.IconPotion1;   // 소환
         tabSpriteIcons[4] = UISprites.IconQuest;     // 상점
         tabSpriteIcons[5] = UISprites.IconInven;     // 던전 (임시 아이콘)
+        tabSpriteIcons[6] = UISprites.IconPotion1;   // 탈것 (임시 아이콘)
 
         float tabWidth = 1f / TAB_COUNT;
         for (int i = 0; i < TAB_COUNT; i++)
@@ -634,6 +636,11 @@ public class MainHUD : MonoBehaviour
                 dungeonPanel = panel.AddComponent<DungeonPanel>();
                 dungeonPanel.Init(panel.transform);
             }
+            else if (i == 6)
+            {
+                mountPanel = panel.AddComponent<MountPanel>();
+                mountPanel.Init(panel.transform, ShowConfirm);
+            }
 
             tabPanels[i] = panel;
             panel.SetActive(false);
@@ -678,6 +685,7 @@ public class MainHUD : MonoBehaviour
         if (idx == 3) gachaPanel?.Refresh();
         if (idx == 4) shopPanel?.Refresh();
         if (idx == 5) dungeonPanel?.Refresh();
+        if (idx == 6) mountPanel?.Refresh();
     }
 
     void ClosePanel()

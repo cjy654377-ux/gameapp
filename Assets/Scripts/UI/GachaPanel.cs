@@ -12,19 +12,32 @@ public class GachaPanel : MonoBehaviour
     TextMeshProUGUI gemText;
     TextMeshProUGUI resultText;
 
-    // ShowConfirm은 MainHUD의 공통 팝업에 위임 (title, desc, onConfirm)
+    // 서브탭
+    GameObject heroSection;
+    GameObject mountSection;
+    MountPanel mountPanel;
+    Button heroTabBtn;
+    Button mountTabBtn;
+
     System.Action<string, string, System.Action> showConfirm;
 
     public void Init(Transform parent, System.Action<string, string, System.Action> showConfirmCallback)
     {
         showConfirm = showConfirmCallback;
 
-        var content = UIHelper.MakeUI("GachaContent", parent);
-        var contentRT = content.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0, 0);
-        contentRT.anchorMax = new Vector2(1, 1);
-        contentRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
-        contentRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height);
+        // ── 서브탭 헤더 ──
+        BuildSubTabs(parent);
+
+        // ── 영웅 소환 영역 ──
+        heroSection = UIHelper.MakeUI("HeroGachaContent", parent);
+        var heroRT = heroSection.GetComponent<RectTransform>();
+        heroRT.anchorMin = new Vector2(0, 0);
+        heroRT.anchorMax = new Vector2(1, 1);
+        heroRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        heroRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height * 1.6f);
+
+        var content = heroSection;
+        var contentRT = heroRT;
 
         // 보석 보유량 표시
         var gemContainer = UIHelper.MakeSpritePanel("GemContainer", content.transform,
@@ -108,12 +121,89 @@ public class GachaPanel : MonoBehaviour
             10f, TextAlignmentOptions.Center, Color.white);
         UIHelper.AddTextShadow(resultText);
         UIHelper.FillParent(resultText.GetComponent<RectTransform>());
+
+        // ── 탈것 소환 영역 ──
+        mountSection = UIHelper.MakeUI("MountSection", parent);
+        var mountRT = mountSection.GetComponent<RectTransform>();
+        mountRT.anchorMin = new Vector2(0, 0);
+        mountRT.anchorMax = new Vector2(1, 1);
+        mountRT.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
+        mountRT.offsetMax = new Vector2(-UIConstants.Spacing_Medium, -UIConstants.Tab_Height * 1.6f);
+
+        mountPanel = mountSection.AddComponent<MountPanel>();
+        mountPanel.Init(mountSection.transform, showConfirm);
+        mountSection.SetActive(false);
+
+        ShowHeroTab();
+    }
+
+    void BuildSubTabs(Transform parent)
+    {
+        var bar = UIHelper.MakeUI("SubTabBar", parent);
+        var barRT = bar.GetComponent<RectTransform>();
+        barRT.anchorMin = new Vector2(0, 1f - UIConstants.Tab_Height / 400f);
+        barRT.anchorMax = new Vector2(1, 1f);
+        // 상단 고정 서브탭 바 (탭 높이 절반)
+        barRT.anchorMin = new Vector2(0f, 0.90f);
+        barRT.anchorMax = new Vector2(1f, 0.98f);
+        barRT.offsetMin = barRT.offsetMax = Vector2.zero;
+
+        // 영웅 소환 탭 버튼
+        var (hBtn, _) = UIHelper.MakeSpriteButton("HeroTab", bar.transform,
+            UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
+        var hrt = hBtn.GetComponent<RectTransform>();
+        hrt.anchorMin = new Vector2(0.02f, 0.05f);
+        hrt.anchorMax = new Vector2(0.49f, 0.95f);
+        hrt.offsetMin = hrt.offsetMax = Vector2.zero;
+        UIHelper.MakeText("Label", hBtn.transform, "영웅 소환",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        hBtn.onClick.AddListener(ShowHeroTab);
+        heroTabBtn = hBtn;
+
+        // 탈것 탭 버튼
+        var (mBtn, _) = UIHelper.MakeSpriteButton("MountTab", bar.transform,
+            UISprites.Btn1_WS, UIColors.Panel_Inner, "", UIConstants.Font_SmallInfo);
+        var mrt = mBtn.GetComponent<RectTransform>();
+        mrt.anchorMin = new Vector2(0.51f, 0.05f);
+        mrt.anchorMax = new Vector2(0.98f, 0.95f);
+        mrt.offsetMin = mrt.offsetMax = Vector2.zero;
+        UIHelper.MakeText("Label", mBtn.transform, "탈것",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        mBtn.onClick.AddListener(ShowMountTab);
+        mountTabBtn = mBtn;
+    }
+
+    void ShowHeroTab()
+    {
+        if (heroSection  != null) heroSection.SetActive(true);
+        if (mountSection != null) mountSection.SetActive(false);
+        SetSubTabActive(heroTabBtn, true);
+        SetSubTabActive(mountTabBtn, false);
+    }
+
+    void ShowMountTab()
+    {
+        if (heroSection  != null) heroSection.SetActive(false);
+        if (mountSection != null) mountSection.SetActive(true);
+        SetSubTabActive(heroTabBtn, false);
+        SetSubTabActive(mountTabBtn, true);
+        mountPanel?.Refresh();
+    }
+
+    static void SetSubTabActive(Button btn, bool active)
+    {
+        if (btn == null) return;
+        var img = btn.GetComponent<UnityEngine.UI.Image>();
+        if (img != null) img.color = active ? UIColors.Button_Brown : UIColors.Panel_Inner;
+        var txt = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (txt != null) txt.color = active ? Color.white : UIColors.Text_Secondary;
     }
 
     public void Refresh()
     {
         if (gemText != null && GemManager.Instance != null)
             gemText.text = $"보석: {GemManager.Instance.Gem}";
+        mountPanel?.Refresh();
     }
 
     void OnSinglePull()
