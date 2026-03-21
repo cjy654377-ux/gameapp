@@ -43,6 +43,7 @@ public class UpgradeManager : MonoBehaviour
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         HpLevel++;
         PlayerPrefs.SetInt(SaveKeys.UpgradeHp, HpLevel);
+        PlayerPrefs.Save();
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -56,6 +57,7 @@ public class UpgradeManager : MonoBehaviour
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         AtkLevel++;
         PlayerPrefs.SetInt(SaveKeys.UpgradeAtk, AtkLevel);
+        PlayerPrefs.Save();
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
@@ -69,6 +71,7 @@ public class UpgradeManager : MonoBehaviour
         if (!GoldManager.Instance.SpendGold(cost)) return false;
         DefLevel++;
         PlayerPrefs.SetInt(SaveKeys.UpgradeDef, DefLevel);
+        PlayerPrefs.Save();
         RefreshAllAllies();
         OnUpgraded?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();

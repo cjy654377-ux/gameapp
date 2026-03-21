@@ -13,16 +13,16 @@ public class DungeonDataCreator
         if (!AssetDatabase.IsValidFolder(dir))
             AssetDatabase.CreateFolder("Assets/Data", "Dungeons");
 
-        CreateDungeon(dir, "Dungeon_Hero",  DungeonType.Hero,  "영웅 던전",  10, 50);
-        CreateDungeon(dir, "Dungeon_Mount", DungeonType.Mount, "탈것 던전", 10, 1);
-        CreateDungeon(dir, "Dungeon_Skill", DungeonType.Skill, "스킬 던전",  10, 1);
+        CreateDungeon(dir, "Dungeon_Hero",  DungeonType.Hero,  "영웅 던전",  50);
+        CreateDungeon(dir, "Dungeon_Mount", DungeonType.Mount, "탈것 던전", 1);
+        CreateDungeon(dir, "Dungeon_Skill", DungeonType.Skill, "스킬 던전",  1);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log($"[DungeonDataCreator] 3종 던전 에셋 생성: {dir}");
     }
 
-    static void CreateDungeon(string dir, string fileName, DungeonType type, string name, int maxStage, int baseReward)
+    static void CreateDungeon(string dir, string fileName, DungeonType type, string name, int baseReward)
     {
         string path = $"{dir}/{fileName}.asset";
         if (AssetDatabase.LoadAssetAtPath<DungeonData>(path) != null)

@@ -16,21 +16,21 @@ public class SynergyDataCreator
 
         // === Combo 시너지 ===
         CreateSynergy(path, "Synergy_ExplosivePoison", "폭발독",
-            "파이어볼 + 독안개 조합 시 스킬 데미지 증가",
+            "화염구 + 독안개 조합 시 스킬 데미지 증가",
             SynergyType.Combo,
-            comboSkills: new[] { "Fireball", "PoisonFog" },
+            comboSkills: new[] { "화염구", "독안개" },
             bonus: new SynergyBonus { bonusDmgPercent = 25f });
 
         CreateSynergy(path, "Synergy_ExtremeFrost", "극한빙결",
-            "프로스트바이트 + 슬로우미스트 조합 시 쿨타임 감소",
+            "빙결 + 둔화의 안개 조합 시 쿨타임 감소",
             SynergyType.Combo,
-            comboSkills: new[] { "FrostBite", "SlowMist" },
+            comboSkills: new[] { "빙결", "둔화의 안개" },
             bonus: new SynergyBonus { cooldownReduction = 15f });
 
         CreateSynergy(path, "Synergy_DivineJudgment", "신성심판",
-            "디바인볼트 + 힐링라이트 조합 시 공격력 증가",
+            "심판의 벼락 + 치유의 빛 조합 시 공격력 증가",
             SynergyType.Combo,
-            comboSkills: new[] { "DivineBolt", "HealingLight" },
+            comboSkills: new[] { "심판의 벼락", "치유의 빛" },
             bonus: new SynergyBonus { bonusAtkPercent = 20f });
 
         // === Element 시너지 ===
