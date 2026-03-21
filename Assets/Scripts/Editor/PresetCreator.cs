@@ -311,8 +311,8 @@ public class PresetCreator
         // ══════════════════════════════════════════════════
 
         // ★1
-        CreatePreset(dir, "Enemy_FlameSkeleton", new CharacterPresetDef {
-            name = "화염 해골 검사", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_FlameZombie", new CharacterPresetDef {
+            name = "화염 좀비", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Sword_3", shield = "Sword_5", cloth = "Cloth_1",
             bodyColor = new Color(1f, 0.7f, 0.5f),
             hp = 100, atk = 22, def = 4, speed = 2f, range = 1.5f, cooldown = 0.9f,
@@ -329,8 +329,8 @@ public class PresetCreator
             lightningResist = 0.2f
         });
 
-        CreatePreset(dir, "Enemy_FireImp", new CharacterPresetDef {
-            name = "불꽃 임프", isEnemy = true, rarity = StarGrade.Star1, body = "Devil_1", eye = "Eye8",
+        CreatePreset(dir, "Enemy_MagmaSkeleton", new CharacterPresetDef {
+            name = "용암 해골병", isEnemy = true, rarity = StarGrade.Star1, body = "Devil_1", eye = "Eye8",
             weapon = "Ward_1", cloth = "Cloth_2",
             bodyColor = new Color(1f, 0.5f, 0.3f),
             hp = 60, atk = 28, def = 2, speed = 2.5f, range = 3.5f, cooldown = 1.0f,
@@ -338,8 +338,8 @@ public class PresetCreator
             lightningResist = 0.4f
         });
 
-        CreatePreset(dir, "Enemy_MagmaZombie", new CharacterPresetDef {
-            name = "용암 좀비", isEnemy = true, rarity = StarGrade.Star1, body = "Human_3", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_FlameGhost", new CharacterPresetDef {
+            name = "화염 유령", isEnemy = true, rarity = StarGrade.Star1, body = "Human_3", eye = "Eye_Close",
             weapon = "Sword_2", shield = "Sword_4", cloth = "Cloth_12",
             bodyColor = new Color(0.7f, 0.35f, 0.25f),
             hp = 160, atk = 15, def = 6, speed = 1.0f, range = 1.5f, cooldown = 1.4f,
@@ -347,7 +347,7 @@ public class PresetCreator
         });
 
         // ★2
-        CreatePreset(dir, "Enemy_FlameKnight", new CharacterPresetDef {
+        CreatePreset(dir, "Enemy_FlameWarrior", new CharacterPresetDef {
             name = "화염 전사", isEnemy = true, rarity = StarGrade.Star2, body = "Devil_1", eye = "Eye8",
             weapon = "Sword_5", armor = "Armor_6", shield = "Shield_1",
             bodyColor = new Color(0.9f, 0.5f, 0.3f),
@@ -387,7 +387,7 @@ public class PresetCreator
         });
 
         // ══════════════════════════════════════════════════
-        // ENEMIES - Area 5: 암흑성 (Dark Castle) - 8종
+        // ENEMIES - Area 5: 어비스 (Abyss) - 8종
         // ══════════════════════════════════════════════════
 
         // ★1
@@ -400,8 +400,8 @@ public class PresetCreator
             element = SkillElement.Lightning, poisonResist = 0.2f
         });
 
-        CreatePreset(dir, "Enemy_DarkArcher", new CharacterPresetDef {
-            name = "암흑 궁수", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_ShadowOrc", new CharacterPresetDef {
+            name = "그림자 오크", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Bow_1", cloth = "Cloth_8", back = "BowBack_1",
             bodyColor = new Color(0.45f, 0.4f, 0.55f),
             hp = 70, atk = 30, def = 2, speed = 1.8f, range = 4.5f, cooldown = 1.1f,
@@ -409,8 +409,8 @@ public class PresetCreator
             element = SkillElement.Poison
         });
 
-        CreatePreset(dir, "Enemy_GhostWarrior", new CharacterPresetDef {
-            name = "유령 검사", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_DarkZombie", new CharacterPresetDef {
+            name = "암흑 좀비", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Sword_5", shield = "Sword_3", cloth = "Cloth_3",
             bodyColor = new Color(0.6f, 0.6f, 0.8f),
             hp = 80, atk = 28, def = 1, speed = 2.5f, range = 1.5f, cooldown = 0.7f,
@@ -418,8 +418,8 @@ public class PresetCreator
             lightningResist = 0.5f, poisonResist = 0.5f
         });
 
-        CreatePreset(dir, "Enemy_DarkZombie", new CharacterPresetDef {
-            name = "암흑 좀비", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_AbyssGhost", new CharacterPresetDef {
+            name = "어비스 유령", isEnemy = true, rarity = StarGrade.Star1, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Sword_1", shield = "Sword_2", cloth = "Cloth_11",
             bodyColor = new Color(0.35f, 0.3f, 0.4f),
             hp = 170, atk = 18, def = 7, speed = 1.1f, range = 1.5f, cooldown = 1.3f,
@@ -437,8 +437,8 @@ public class PresetCreator
             element = SkillElement.Lightning, lightningResist = 0.4f
         });
 
-        CreatePreset(dir, "Enemy_Necromancer", new CharacterPresetDef {
-            name = "사령술사", isEnemy = true, rarity = StarGrade.Star2, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_ShadowMage", new CharacterPresetDef {
+            name = "그림자 마법사", isEnemy = true, rarity = StarGrade.Star2, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
             bodyColor = new Color(0.5f, 0.4f, 0.6f),
             hp = 120, atk = 40, def = 4, speed = 1.3f, range = 5f, cooldown = 1.4f,
@@ -457,8 +457,8 @@ public class PresetCreator
         });
 
         // ★4 에리어 보스
-        CreatePreset(dir, "Enemy_LichKing", new CharacterPresetDef {
-            name = "리치 킹", isEnemy = true, rarity = StarGrade.Star4, body = "Skelton_1", eye = "Eye_Close",
+        CreatePreset(dir, "Enemy_AbyssLord", new CharacterPresetDef {
+            name = "어비스 군주", isEnemy = true, rarity = StarGrade.Star4, body = "Skelton_1", eye = "Eye_Close",
             weapon = "Ward_1", armor = "Armor_8", helmet = "F_SR_Helmet", back = "Soon_Back1",
             bodyColor = new Color(0.5f, 0.4f, 0.7f),
             hp = 2000, atk = 65, def = 30, speed = 1.5f, range = 5f, cooldown = 1.5f,

@@ -127,6 +127,20 @@ public class UpgradeManager : MonoBehaviour
             defBonus += setDef;
         }
 
+        // MountManager (탈것 스탯 보너스 %)
+        var mm = MountManager.Instance;
+        if (mm != null && unit.CurrentTeam == BattleUnit.Team.Ally)
+        {
+            mm.GetMountBonus(out float speedPct, out float hpPct, out float atkPct);
+            hpBonus  += unit.baseMaxHp * hpPct  / 100f;
+            atkBonus += unit.baseAtk   * atkPct / 100f;
+            // moveSpeed는 baseMaxHp/baseAtk 없으므로 직접 배율 적용
+            if (speedPct > 0f)
+                unit.moveSpeed = unit.baseMoveSpeed > 0f
+                    ? unit.baseMoveSpeed * (1f + speedPct / 100f)
+                    : unit.moveSpeed * (1f + speedPct / 100f);
+        }
+
         // 시너지 보너스 (퍼센트 기반)
         var ssm = SkillSynergyManager.Instance;
         if (ssm != null)

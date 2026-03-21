@@ -60,8 +60,14 @@ public class CharacterFactory : MonoBehaviour
         // SPUM 프리팹 인스턴스화
         var spumInstance = Instantiate(spumBasePrefab);
 
-        // 탈것 스프라이트 결정 (아군: MountManager, 적: preset)
+        // 탈것 스프라이트 결정 (아군: MountManager 우선, 적: preset)
         string horseSprite = preset.horseSprite;
+        if (team == BattleUnit.Team.Ally && MountManager.Instance != null)
+        {
+            string mountFolder = MountManager.Instance.GetEquippedSpriteFolder();
+            if (!string.IsNullOrEmpty(mountFolder))
+                horseSprite = mountFolder;
+        }
         bool useHorse = !string.IsNullOrEmpty(horseSprite);
 
         if (useHorse)

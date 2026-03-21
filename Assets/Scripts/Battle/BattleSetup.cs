@@ -33,6 +33,7 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<TutorialManager>("TutorialManager");
         EnsureSystem<ObjectPool>("ObjectPool");
         EnsureSystem<ToastNotification>("ToastNotification");
+        EnsureSystem<MountManager>("MountManager");
         EnsureSystem<SummonStoneManager>("SummonStoneManager");
         EnsureSystem<SpellScrollManager>("SpellScrollManager");
         EnsureSystem<DungeonManager>("DungeonManager");

@@ -28,6 +28,7 @@ public class GachaManager : MonoBehaviour
 
     public event Action<CharacterPreset> OnHeroPulled;
     public event Action<CharacterPreset[]> OnMultiPulled;
+    public event Action<CharacterPreset> OnDuplicatePulled; // 중복 소환 시 발생 → 각성 재료 전환 연출용
 
     // StarGrade tiers sorted from pool
     readonly List<CharacterPreset> star1Pool = new();
@@ -239,6 +240,7 @@ public class GachaManager : MonoBehaviour
             // 중복 영웅: 강화 재료로 카피 추가
             if (HeroLevelManager.Instance != null)
                 HeroLevelManager.Instance.AddCopy(hero.characterName);
+            OnDuplicatePulled?.Invoke(hero);
         }
         else
         {

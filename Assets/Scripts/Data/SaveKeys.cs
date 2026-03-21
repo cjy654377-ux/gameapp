@@ -61,6 +61,10 @@ public static class SaveKeys
     public const string DungeonSkillEntries = "Dungeon_SkillEntries";
     public const string DungeonLastResetDate = "Dungeon_LastResetDate";
 
+    // 탈것
+    public const string MountOwned    = "Mount_Owned";
+    public const string MountEquipped = "Mount_Equipped";
+
     // 프리픽스 키 (동적 접미사)
     public const string SkillLevelPrefix      = "SkillLv_";
     public const string HeroLevelPrefix       = "HeroLevel_";
