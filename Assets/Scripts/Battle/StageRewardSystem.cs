@@ -9,6 +9,11 @@ public class StageRewardSystem : MonoBehaviour
     /// gold, gem
     /// </summary>
     public event System.Action<int, int> OnStageRewardGranted;
+    public event System.Action<int, int> OnBossRewardMultiplierRequested; // 보스 보상 2배 광고 요청 (gold, gem)
+
+    private int _lastBossGoldReward;
+    private int _lastBossGemReward;
+    private bool _bossRewardMultiplierUsed;
 
     private HashSet<int> clearedStages = new();
 
@@ -60,6 +65,15 @@ public class StageRewardSystem : MonoBehaviour
         SaveClearedStages();
 
         OnStageRewardGranted?.Invoke(goldReward, gemReward);
+
+        // 에리어 보스(30의 배수 웨이브)이면 2배 보상 광고 제시
+        if (totalWaveIndex > 0 && totalWaveIndex % 30 == 0)
+        {
+            _lastBossGoldReward = goldReward;
+            _lastBossGemReward = gemReward;
+            _bossRewardMultiplierUsed = false;
+            OnBossRewardMultiplierRequested?.Invoke(goldReward, gemReward);
+        }
     }
 
     void LoadClearedStages()
@@ -87,5 +101,21 @@ public class StageRewardSystem : MonoBehaviour
             first = false;
         }
         PlayerPrefs.SetString(SaveKeys.ClearedStages, sb.ToString());
+    }
+
+    /// <summary>
+    /// 광고로 보스 보상 2배 지급 (1회 제한)
+    /// </summary>
+    public void GrantBossRewardMultiplier()
+    {
+        if (_bossRewardMultiplierUsed) return;
+
+        if (GoldManager.Instance != null)
+            GoldManager.Instance.AddGold(_lastBossGoldReward);
+
+        if (GemManager.Instance != null)
+            GemManager.Instance.AddGem(_lastBossGemReward);
+
+        _bossRewardMultiplierUsed = true;
     }
 }

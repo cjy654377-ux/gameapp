@@ -15,6 +15,10 @@ public class DailyLoginManager : MonoBehaviour
     public bool ClaimedToday { get; private set; }
 
     public event Action<int, DailyReward> OnRewardClaimed;
+    public event Action<int, DailyReward> OnDailyLoginMultiplierRequested; // 일일 로그인 2배 광고 요청 (day, reward)
+
+    private DailyReward _lastClaimedReward;
+    private bool _dailyLoginMultiplierUsed;
 
     const int CYCLE_DAYS = 28;
     const string KEY_DAY       = "DailyLogin_Day";
@@ -146,6 +150,12 @@ public class DailyLoginManager : MonoBehaviour
 
         SoundManager.Instance?.PlayLevelUpSFX();
         OnRewardClaimed?.Invoke(CurrentDay, reward);
+
+        // 2배 보상 광고 제시
+        _lastClaimedReward = reward;
+        _dailyLoginMultiplierUsed = false;
+        OnDailyLoginMultiplierRequested?.Invoke(CurrentDay, reward);
+
         return true;
     }
 
@@ -155,5 +165,28 @@ public class DailyLoginManager : MonoBehaviour
     public bool ShouldShowPopup()
     {
         return !ClaimedToday;
+    }
+
+    /// <summary>
+    /// 광고로 일일 로그인 보상 2배 지급 (1회 제한)
+    /// </summary>
+    public void GrantDailyLoginRewardMultiplier()
+    {
+        if (_dailyLoginMultiplierUsed) return;
+
+        switch (_lastClaimedReward.type)
+        {
+            case RewardType.Gold:
+                GoldManager.Instance?.AddGold(_lastClaimedReward.amount);
+                break;
+            case RewardType.Gem:
+                GemManager.Instance?.AddGem(_lastClaimedReward.amount);
+                break;
+            case RewardType.GachaTicket:
+                GemManager.Instance?.AddGem(GachaManager.SINGLE_PULL_COST);
+                break;
+        }
+
+        _dailyLoginMultiplierUsed = true;
     }
 }

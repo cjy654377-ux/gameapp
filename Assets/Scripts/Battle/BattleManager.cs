@@ -13,6 +13,9 @@ public class BattleManager : MonoBehaviour
     public BattleState CurrentState { get; private set; } = BattleState.Preparing;
 
     public event System.Action<BattleState> OnBattleStateChanged;
+    public event System.Action OnReviveRequested; // 광고 부활 팝업 트리거용
+
+    private bool _reviveUsed; // 이번 전투에서 부활 광고 사용 여부
 
     // === Dungeon Mode ===
     public bool IsDungeonMode { get; private set; }
@@ -28,6 +31,7 @@ public class BattleManager : MonoBehaviour
     public void StartBattle()
     {
         CurrentState = BattleState.Fighting;
+        _reviveUsed = false;
         OnBattleStateChanged?.Invoke(CurrentState);
     }
 
@@ -44,6 +48,12 @@ public class BattleManager : MonoBehaviour
 
         if (allAlliesDead)
         {
+            // 부활 기회가 남아있으면 광고 팝업 발생
+            if (!_reviveUsed)
+            {
+                OnReviveRequested?.Invoke();
+                return; // 상태 전환하지 않고 대기
+            }
             SetState(BattleState.Defeat);
             return;
         }
@@ -80,6 +90,20 @@ public class BattleManager : MonoBehaviour
         IsDungeonMode = false;
         dungeonType = 0;
         dungeonStage = 0;
+    }
+
+    /// <summary>
+    /// 광고 보상으로 모든 아군 부활: HP 100% 복구 후 전투 재개
+    /// </summary>
+    public void ReviveAllies()
+    {
+        for (int i = 0; i < allyUnits.Count; i++)
+        {
+            if (allyUnits[i] != null)
+                allyUnits[i].Heal(allyUnits[i].maxHp);
+        }
+        _reviveUsed = true;
+        // CurrentState는 이미 Fighting이므로 전투가 자동으로 재개됨
     }
 
     void OnDestroy()
