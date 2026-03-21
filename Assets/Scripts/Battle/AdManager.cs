@@ -51,6 +51,9 @@ public class AdManager : MonoBehaviour
     readonly Dictionary<AdRewardType, float> cooldowns   = new();
     readonly Dictionary<AdRewardType, int>   dailyCounts = new();
 
+    // 매 프레임 할당 방지용 캐시
+    static readonly AdRewardType[] ALL_AD_TYPES = (AdRewardType[])System.Enum.GetValues(typeof(AdRewardType));
+
     // 세션/전투 단위 플래그 (ResetBattleAds / ResetBossAds 로 리셋)
     bool offlineDoubleUsed;
     bool reviveUsed;
@@ -70,15 +73,17 @@ public class AdManager : MonoBehaviour
 
     void Update()
     {
+        if (cooldowns.Count == 0) return;
         float dt = Time.unscaledDeltaTime;
-        var keys = new List<AdRewardType>(cooldowns.Keys);
-        for (int i = 0; i < keys.Count; i++)
+        for (int i = 0; i < ALL_AD_TYPES.Length; i++)
         {
-            float remaining = cooldowns[keys[i]] - dt;
+            var type = ALL_AD_TYPES[i];
+            if (!cooldowns.TryGetValue(type, out float remaining)) continue;
+            remaining -= dt;
             if (remaining <= 0)
-                cooldowns.Remove(keys[i]);
+                cooldowns.Remove(type);
             else
-                cooldowns[keys[i]] = remaining;
+                cooldowns[type] = remaining;
         }
     }
 
@@ -260,6 +265,11 @@ public class AdManager : MonoBehaviour
         }
         PlayerPrefs.SetString(SaveKeys.AdDailyResetDate, today);
         PlayerPrefs.Save();
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     void OnApplicationQuit() => PersistCooldowns();

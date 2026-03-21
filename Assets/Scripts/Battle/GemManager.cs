@@ -14,7 +14,7 @@ public class GemManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else { Destroy(gameObject); return; }
 
         Gem = PlayerPrefs.GetInt(SaveKeys.Gem, 0);
     }

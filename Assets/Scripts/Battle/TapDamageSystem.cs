@@ -35,7 +35,7 @@ public class TapDamageSystem : MonoBehaviour
     void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else { Destroy(gameObject); return; }
 
         tapDamageLevel = PlayerPrefs.GetInt(SaveKeys.TapDamageLevel, 1);
     }

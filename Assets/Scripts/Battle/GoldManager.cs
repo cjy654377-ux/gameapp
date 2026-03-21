@@ -19,7 +19,7 @@ public class GoldManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else { Destroy(gameObject); return; }
 
         Gold = PlayerPrefs.GetInt(SaveKeys.Gold, 0);
 
