@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// 광고 시스템 코어 — 보상형/전면/배너 광고 관리
+/// 광고 시스템 코어 — 보상형 광고(Rewarded Video)만 사용
 /// testMode=true 시 실제 SDK 없이 콜백 즉시 호출 (개발/테스트용)
 /// </summary>
 public class AdManager : MonoBehaviour
@@ -16,18 +16,14 @@ public class AdManager : MonoBehaviour
 
     // ─── 쿨타임 설정 (초) ───
     const float REWARDED_COOLDOWN     = 30f;
-    const float INTERSTITIAL_COOLDOWN = 60f;
     const int   REWARDED_DAILY_MAX    = 10;  // 보상형 1종당 일일 최대 횟수
 
     // ─── 런타임 상태 ───
     readonly Dictionary<AdRewardType, float> rewardCooldowns = new();
-    float interstitialCooldown;
-    bool  bannerVisible;
 
     // ─── 이벤트 ───
     public event Action<AdRewardType>        OnRewardedAdCompleted;
     public event Action<AdRewardType, string> OnRewardedAdFailed;
-    public event Action                      OnInterstitialShown;
 
     // ─────────────────────────────────────────────
     // 생명주기
@@ -43,9 +39,6 @@ public class AdManager : MonoBehaviour
     void Update()
     {
         float dt = Time.unscaledDeltaTime;
-
-        if (interstitialCooldown > 0)
-            interstitialCooldown -= dt;
 
         var types = (AdRewardType[])Enum.GetValues(typeof(AdRewardType));
         for (int i = 0; i < types.Length; i++)
@@ -109,59 +102,6 @@ public class AdManager : MonoBehaviour
             OnRewardedAdFailed?.Invoke(rewardType, "광고 시청 취소");
         }
         onComplete?.Invoke(success);
-    }
-
-    // ─────────────────────────────────────────────
-    // 전면 광고
-    // ─────────────────────────────────────────────
-
-    public bool CanShowInterstitial() => interstitialCooldown <= 0;
-
-    public void ShowInterstitial()
-    {
-        if (!CanShowInterstitial()) return;
-        interstitialCooldown = INTERSTITIAL_COOLDOWN;
-
-        if (testMode)
-        {
-            Debug.Log("[AdManager] [TEST] 전면 광고 표시");
-            OnInterstitialShown?.Invoke();
-            return;
-        }
-
-        // TODO: 실제 SDK 연동
-    }
-
-    // ─────────────────────────────────────────────
-    // 배너 광고
-    // ─────────────────────────────────────────────
-
-    public void ShowBanner()
-    {
-        if (bannerVisible) return;
-        bannerVisible = true;
-
-        if (testMode)
-        {
-            Debug.Log("[AdManager] [TEST] 배너 광고 표시");
-            return;
-        }
-
-        // TODO: 실제 SDK 연동
-    }
-
-    public void HideBanner()
-    {
-        if (!bannerVisible) return;
-        bannerVisible = false;
-
-        if (testMode)
-        {
-            Debug.Log("[AdManager] [TEST] 배너 광고 숨김");
-            return;
-        }
-
-        // TODO: 실제 SDK 연동
     }
 
     // ─────────────────────────────────────────────
