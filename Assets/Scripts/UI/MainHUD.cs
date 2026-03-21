@@ -1222,7 +1222,7 @@ public class MainHUD : MonoBehaviour
         {
             DailyLoginManager.RewardType.Gold => $"골드 {reward.amount}",
             DailyLoginManager.RewardType.Gem => $"보석 {reward.amount}",
-            DailyLoginManager.RewardType.GachaTikcet => "소환권 1장",
+            DailyLoginManager.RewardType.GachaTicket => "소환권 1장",
             _ => ""
         };
 

@@ -18,10 +18,10 @@ public class TapDamageSystem : MonoBehaviour
     const float TAP_EFFECT_COLOR_B = 0.5f;
     const float TAP_EFFECT_COLOR_A = 0.8f;
     const int TAP_EFFECT_SORTING_ORDER = 95;
-    const float TAP_EFFECT_SCALE = 0.3f;
+    public const float TAP_EFFECT_SCALE = 0.3f;
 
-    const float TAP_EFFECT_ANIM_DURATION = 0.3f;
-    const float TAP_EFFECT_ANIM_SCALE_ADD = 0.5f;
+    public const float TAP_EFFECT_ANIM_DURATION = 0.3f;
+    public const float TAP_EFFECT_ANIM_SCALE_ADD = 0.5f;
 
     public float baseTapDamage = BASE_TAP_DAMAGE;
     public int tapDamageLevel = 1;

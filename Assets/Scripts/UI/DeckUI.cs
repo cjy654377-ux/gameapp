@@ -75,17 +75,17 @@ public class DeckUI : MonoBehaviour
     // 섹션 헤더 (BoxBanner 스타일) 생성 헬퍼
     GameObject CreateSectionHeader(string objName, string text, float yMin, float yMax)
     {
-        var headerBg = UIHelper.MakeSpritePanel(objName, root.transform, UISprites.BoxIcon1, COLOR_HEADER_BG);
-        var hbrt = headerBg.GetComponent<RectTransform>();
+        var headerImg = UIHelper.MakeSpritePanel(objName, root.transform, UISprites.BoxIcon1, COLOR_HEADER_BG);
+        var hbrt = headerImg.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.02f, yMin);
         hbrt.anchorMax = new Vector2(0.98f, yMax);
         hbrt.offsetMin = Vector2.zero;
         hbrt.offsetMax = Vector2.zero;
-        var label = UIHelper.MakeText("Label", headerBg.transform, text,
+        var label = UIHelper.MakeText("Label", headerImg.transform, text,
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         label.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(label.GetComponent<RectTransform>());
-        return headerBg;
+        return headerImg.gameObject;
     }
 
     void CreateDeckSection()

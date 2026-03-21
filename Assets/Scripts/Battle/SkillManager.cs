@@ -24,11 +24,6 @@ public class SkillManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    void OnDestroy()
-    {
-        if (Instance == this) Instance = null;
-    }
-
     void Start()
     {
         // Load all skills from Resources/Skills
@@ -375,6 +370,7 @@ public class SkillManager : MonoBehaviour
     {
         if (Instance == this)
         {
+            Instance = null;
             if (cachedVFXMaterial != null)
             {
                 Destroy(cachedVFXMaterial);
