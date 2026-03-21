@@ -11,7 +11,6 @@ using System.Collections.Generic;
 public class GachaPanel : MonoBehaviour
 {
     const int SKILL_PULL_COST = 1; // 주문서 1개
-    const float AD_INITIAL_HIDE_SEC = 1800f; // 세션 시작 후 30분간 광고 버튼 숨김
 
     TextMeshProUGUI gemText;
     TextMeshProUGUI resultText;
@@ -269,10 +268,6 @@ public class GachaPanel : MonoBehaviour
         freeBtnText = UIHelper.MakeText("Label", freePullBtn.transform, "무료 보상",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
         UIHelper.FillParent(freeBtnText.GetComponent<RectTransform>());
-
-        // 세션 시작 후 30분간 광고 버튼 숨김 (자발적 노출)
-        if (UnityEngine.Time.realtimeSinceStartup < AD_INITIAL_HIDE_SEC)
-            freePullBtn.gameObject.SetActive(false);
 
         // 결과 표시
         var resultBg = UIHelper.MakeSpritePanel("ResultBG", parent,

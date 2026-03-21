@@ -105,11 +105,6 @@ public class ShopPanel : MonoBehaviour
     {
         if (freeGemBtn == null || freeGemBtnText == null) return;
 
-        // 초기 30분 숨김
-        bool initialHide = AdManager.Instance != null && AdManager.Instance.IsInitialHidePeriod();
-        freeGemBtn.gameObject.SetActive(!initialHide);
-        if (initialHide) return;
-
         if (AdManager.Instance != null && AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
         {
             freeGemBtn.interactable = true;

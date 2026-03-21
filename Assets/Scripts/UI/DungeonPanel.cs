@@ -370,13 +370,9 @@ public class DungeonPanel : MonoBehaviour
         if (enterBtn != null)
             enterBtn.interactable = remaining > 0;
 
-        // 광고 보너스 버튼: 초기 30분 숨김, 입장 횟수 0일 때만 활성
+        // 광고 보너스 버튼 활성 여부 (입장 횟수 0일 때만 활성)
         if (adBonusBtn != null)
-        {
-            bool initialHide = AdManager.Instance != null && AdManager.Instance.IsInitialHidePeriod();
-            adBonusBtn.gameObject.SetActive(!initialHide);
-            if (!initialHide) adBonusBtn.interactable = (remaining == 0);
-        }
+            adBonusBtn.interactable = (remaining == 0);
     }
 
     void RefreshFloorSelector()
