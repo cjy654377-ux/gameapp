@@ -39,6 +39,7 @@ public class GachaPanel : MonoBehaviour
 
     // 10연차 스킵
     bool _multiPullSkip;
+    bool _multiPullRunning;
 
     public void Init(Transform parent, System.Action<string, string, System.Action> showConfirmCallback)
     {
@@ -484,10 +485,17 @@ public class GachaPanel : MonoBehaviour
         Refresh();
     }
 
+    void Update()
+    {
+        if (_multiPullRunning && Input.GetMouseButtonDown(0))
+            _multiPullSkip = true;
+    }
+
     IEnumerator ShowMultiResults(CharacterPreset[] results)
     {
         _multiPullSkip = false;
-        if (resultText == null || heroResultRT == null) yield break;
+        _multiPullRunning = true;
+        if (resultText == null || heroResultRT == null) { _multiPullRunning = false; yield break; }
         resultText.text = "";
 
         // 전체 결과 문자열 미리 생성 (스킵용)
@@ -542,6 +550,7 @@ public class GachaPanel : MonoBehaviour
             if (!_multiPullSkip)
                 yield return new WaitForSecondsRealtime(0.2f);
         }
+        _multiPullRunning = false;
     }
 
     void OnFreePull()

@@ -51,6 +51,10 @@ public class SkillUI : MonoBehaviour
     float buffRefreshTimer;
     const float BUFF_REFRESH_INTERVAL = 0.5f;
 
+    // 시너지 변화 피드백
+    readonly System.Collections.Generic.List<string> prevSynergyNames = new();
+    SkillSynergyManager cachedSynergyMgr;
+
     Canvas canvas;
 
     void Awake()
@@ -80,6 +84,14 @@ public class SkillUI : MonoBehaviour
             cachedSkillMgr.OnCooldownChanged += UpdateCooldown;
             cachedSkillMgr.OnSkillUsed += OnSkillUsed;
             RefreshSlots();
+        }
+        cachedSynergyMgr = SkillSynergyManager.Instance;
+        if (cachedSynergyMgr != null)
+        {
+            // 초기 시너지 스냅샷
+            foreach (var s in cachedSynergyMgr.ActiveSynergies)
+                prevSynergyNames.Add(s.synergyName);
+            cachedSynergyMgr.OnSynergyChanged += OnSynergyChanged;
         }
         if (_isTabPanelOpen) HideSkillSlots();
     }
@@ -368,6 +380,47 @@ public class SkillUI : MonoBehaviour
         slotBgs[slot].color = original;
     }
 
+    void OnSynergyChanged()
+    {
+        var ssm = cachedSynergyMgr;
+        if (ssm == null) return;
+
+        // 추가된 시너지
+        foreach (var s in ssm.ActiveSynergies)
+        {
+            if (!prevSynergyNames.Contains(s.synergyName))
+            {
+                string bonusStr = BuildBonusStr(s);
+                ToastNotification.Instance?.Show($"⚡ {s.synergyName} 시너지 활성화!", bonusStr, new Color(0.3f, 0.8f, 1f));
+            }
+        }
+
+        // 해제된 시너지
+        foreach (var name in prevSynergyNames)
+        {
+            bool stillActive = false;
+            foreach (var s in ssm.ActiveSynergies)
+                if (s.synergyName == name) { stillActive = true; break; }
+            if (!stillActive)
+                ToastNotification.Instance?.Show($"⚡ {name} 시너지 해제됨", "", UIColors.Text_Disabled);
+        }
+
+        prevSynergyNames.Clear();
+        foreach (var s in ssm.ActiveSynergies)
+            prevSynergyNames.Add(s.synergyName);
+    }
+
+    static string BuildBonusStr(SkillSynergyData s)
+    {
+        var parts = new System.Collections.Generic.List<string>();
+        if (s.bonus.bonusAtkPercent > 0) parts.Add($"ATK +{s.bonus.bonusAtkPercent:F0}%");
+        if (s.bonus.bonusDefPercent > 0) parts.Add($"DEF +{s.bonus.bonusDefPercent:F0}%");
+        if (s.bonus.bonusHpPercent  > 0) parts.Add($"HP +{s.bonus.bonusHpPercent:F0}%");
+        if (s.bonus.bonusDmgPercent > 0) parts.Add($"DMG +{s.bonus.bonusDmgPercent:F0}%");
+        if (s.bonus.cooldownReduction > 0) parts.Add($"CD -{s.bonus.cooldownReduction:F0}%");
+        return parts.Count > 0 ? string.Join(" / ", parts) : s.description;
+    }
+
     void OnSlotClicked(int slot)
     {
         if (SkillManager.Instance != null)
@@ -393,5 +446,7 @@ public class SkillUI : MonoBehaviour
             cachedSkillMgr.OnCooldownChanged -= UpdateCooldown;
             cachedSkillMgr.OnSkillUsed -= OnSkillUsed;
         }
+        if (cachedSynergyMgr != null)
+            cachedSynergyMgr.OnSynergyChanged -= OnSynergyChanged;
     }
 }

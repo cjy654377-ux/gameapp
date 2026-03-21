@@ -54,6 +54,11 @@ public class CharacterFactory : MonoBehaviour
             return null;
         }
 
+        // 진형 오프셋: 후열 아군은 X -1.0f 뒤로 배치
+        if (team == BattleUnit.Team.Ally && DeckManager.Instance != null &&
+            DeckManager.Instance.GetFormation(preset) == DeckManager.FormationSlot.Back)
+            position.x -= 1.0f;
+
         var unitObj = new GameObject(preset.characterName);
         unitObj.transform.position = position;
 

@@ -11,6 +11,8 @@ public class DeckManager : MonoBehaviour
 {
     public static DeckManager Instance { get; private set; }
 
+    public enum FormationSlot { Front, Back }
+
     public const int MAX_DECK_SIZE = 8;
 
     [Header("All Hero Presets (drag all ally presets here)")]
@@ -18,6 +20,9 @@ public class DeckManager : MonoBehaviour
 
     // 현재 덱 (최대 8)
     readonly CharacterPreset[] deck = new CharacterPreset[MAX_DECK_SIZE];
+
+    // 진형 (프리셋 이름 → 전열/후열)
+    readonly Dictionary<string, FormationSlot> formationData = new();
 
     public event System.Action OnDeckChanged;
 
@@ -223,6 +228,25 @@ public class DeckManager : MonoBehaviour
     // ═══════════════════════════════════════
 
     public const int MAX_PRESETS = 3;
+
+    // ═══════════════════════════════════════
+    // FORMATION
+    // ═══════════════════════════════════════
+
+    public FormationSlot GetFormation(CharacterPreset preset)
+    {
+        if (preset == null) return FormationSlot.Front;
+        formationData.TryGetValue(preset.name, out var slot);
+        return slot;
+    }
+
+    public void ToggleFormation(CharacterPreset preset)
+    {
+        if (preset == null) return;
+        var current = GetFormation(preset);
+        formationData[preset.name] = current == FormationSlot.Front ? FormationSlot.Back : FormationSlot.Front;
+        OnDeckChanged?.Invoke();
+    }
 
     /// <summary>현재 덱 전체의 전투력 합산 (HP + ATK*3 + DEF*2)</summary>
     public int GetTotalCombatPower()

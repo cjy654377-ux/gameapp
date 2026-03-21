@@ -83,6 +83,9 @@ public class DeckUI : MonoBehaviour
     // 슬롯 바디 스프라이트 이미지 (캐릭터 초상화용)
     readonly Image[] deckSlotPortraits = new Image[DeckManager.MAX_DECK_SIZE];
 
+    // 진형 토글 배지 (전열/후열)
+    readonly TextMeshProUGUI[] formationTexts = new TextMeshProUGUI[DeckManager.MAX_DECK_SIZE];
+
     // 섹션 헤더 (BoxBanner 스타일) 생성 헬퍼
     GameObject CreateSectionHeader(string objName, string text, float yMin, float yMax)
     {
@@ -194,6 +197,31 @@ public class DeckUI : MonoBehaviour
             nrt.anchorMax = new Vector2(1, 0.22f);
             nrt.offsetMin = new Vector2(1, 1);
             nrt.offsetMax = new Vector2(-1, 0);
+
+            // 진형 배지 (우상단, 탭으로 전열/후열 토글)
+            var fmBadgeObj = UIHelper.MakeUI($"FormationBadge_{i}", slot.transform);
+            var fmBadgeBg = fmBadgeObj.AddComponent<Image>();
+            fmBadgeBg.color = new Color(0.1f, 0.1f, 0.3f, 0.75f);
+            var fmBadgeRT = fmBadgeObj.GetComponent<RectTransform>();
+            fmBadgeRT.anchorMin = new Vector2(0.62f, 0.72f);
+            fmBadgeRT.anchorMax = new Vector2(1f, 1f);
+            fmBadgeRT.offsetMin = fmBadgeRT.offsetMax = Vector2.zero;
+            var fmBtn = fmBadgeObj.AddComponent<Button>();
+            fmBtn.targetGraphic = fmBadgeBg;
+            fmBtn.onClick.AddListener(() =>
+            {
+                var dm2 = DeckManager.Instance;
+                if (dm2 == null) return;
+                var p = dm2.GetSlot(idx);
+                if (p == null) return;
+                dm2.ToggleFormation(p);
+                Refresh();
+            });
+            formationTexts[i] = UIHelper.MakeText($"FmText_{i}", fmBadgeObj.transform, "",
+                7f, TextAlignmentOptions.Center, Color.white);
+            formationTexts[i].fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(formationTexts[i].GetComponent<RectTransform>());
+            fmBadgeObj.SetActive(false);
         }
     }
 
@@ -408,6 +436,26 @@ public class DeckUI : MonoBehaviour
                     deckSlotPortraits[i].sprite = null;
                     deckSlotPortraits[i].color = Color.clear;
                 }
+
+                if (formationTexts[i] != null)
+                    formationTexts[i].transform.parent.gameObject.SetActive(false);
+            }
+        }
+
+        // 진형 배지 갱신
+        for (int i = 0; i < DeckManager.MAX_DECK_SIZE; i++)
+        {
+            if (formationTexts[i] == null) continue;
+            var p = dm.GetSlot(i);
+            if (p != null)
+            {
+                var badge = formationTexts[i].transform.parent.gameObject;
+                badge.SetActive(true);
+                bool isFront = dm.GetFormation(p) == DeckManager.FormationSlot.Front;
+                formationTexts[i].text = isFront ? "전" : "후";
+                var bg = badge.GetComponent<Image>();
+                if (bg != null)
+                    bg.color = isFront ? new Color(0.1f, 0.3f, 0.6f, 0.8f) : new Color(0.5f, 0.1f, 0.1f, 0.8f);
             }
         }
 
