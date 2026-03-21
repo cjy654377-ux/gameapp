@@ -33,8 +33,6 @@ public class SkillUI : MonoBehaviour
     const float AUTO_BTN_H = 36f;
     const float SLOT_SIZE = 58f;
     const float SLOT_SPACING = 6f;
-    const float SPEED_BTN_W = 52f;
-    const float SPEED_BTN_H = 36f;
 
     GameObject[] slotObjects = new GameObject[SLOT_COUNT];
     Image[] cooldownOverlays = new Image[SLOT_COUNT];
@@ -45,9 +43,6 @@ public class SkillUI : MonoBehaviour
     readonly Color[] cooldownColors = new Color[SLOT_COUNT];
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
-    Button speedToggleButton;
-    TextMeshProUGUI speedToggleText;
-    bool isDoubleSpeed = false;
     GameObject slotsContainer;
 
     Canvas canvas;
@@ -60,7 +55,6 @@ public class SkillUI : MonoBehaviour
         CreateCanvas();
         CreateSkillSlots();
         CreateAutoToggle();
-        CreateSpeedToggle();
     }
 
     SkillManager cachedSkillMgr;
@@ -169,36 +163,25 @@ public class SkillUI : MonoBehaviour
 
     void CreateAutoToggle()
     {
-        var (btn, img) = UIHelper.MakeButton("AutoToggle", canvas.transform,
-            UIColors.Button_Green, "자동", UIConstants.Font_Tab);
+        // 스킬 슬롯 4개 우측에 작은 오토 버튼 배치
+        float totalWidth = SLOT_COUNT * SLOT_SIZE + (SLOT_COUNT - 1) * SLOT_SPACING;
+        float rightEdge = totalWidth * 0.5f;
+
+        var (btn, img) = UIHelper.MakeButton("AutoToggle", slotsContainer.transform,
+            UIColors.Button_Green, "A", UIConstants.Font_LevelBadge);
         autoToggleButton = btn;
         autoToggleButton.onClick.AddListener(OnAutoToggleClicked);
         autoToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
+        autoToggleText.fontStyle = FontStyles.Bold;
 
         var toggleRT = btn.GetComponent<RectTransform>();
-        toggleRT.anchorMin = new Vector2(1f, 0f);
-        toggleRT.anchorMax = new Vector2(1f, 0f);
-        toggleRT.pivot = new Vector2(1f, 0f);
-        toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Large + AUTO_BTN_H + UIConstants.Spacing_Small);
-        toggleRT.sizeDelta = new Vector2(AUTO_BTN_W, AUTO_BTN_H);
+        toggleRT.anchorMin = new Vector2(0.5f, 0f);
+        toggleRT.anchorMax = new Vector2(0.5f, 0f);
+        toggleRT.pivot = new Vector2(0f, 0f);
+        toggleRT.anchoredPosition = new Vector2(rightEdge + UIConstants.Spacing_Small, UIConstants.NavBar_Height + UIConstants.Spacing_Large + SLOT_SIZE * 0.25f);
+        toggleRT.sizeDelta = new Vector2(28f, 28f);
     }
 
-    void CreateSpeedToggle()
-    {
-        var (btn, img) = UIHelper.MakeButton("SpeedToggle", canvas.transform,
-            UIColors.Button_Brown, "1x", UIConstants.Font_Tab);
-        speedToggleButton = btn;
-        speedToggleButton.onClick.AddListener(OnSpeedToggleClicked);
-        speedToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
-        speedToggleText.fontStyle = FontStyles.Bold;
-
-        var rt = btn.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(1f, 0f);
-        rt.anchorMax = new Vector2(1f, 0f);
-        rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Large);
-        rt.sizeDelta = new Vector2(SPEED_BTN_W, SPEED_BTN_H);
-    }
 
     /// <summary>
     /// Hide all skill slot UI elements (call when tab panels open)
@@ -209,8 +192,6 @@ public class SkillUI : MonoBehaviour
             slotsContainer.SetActive(false);
         if (autoToggleButton != null)
             autoToggleButton.gameObject.SetActive(false);
-        if (speedToggleButton != null)
-            speedToggleButton.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -222,8 +203,6 @@ public class SkillUI : MonoBehaviour
             slotsContainer.SetActive(true);
         if (autoToggleButton != null)
             autoToggleButton.gameObject.SetActive(true);
-        if (speedToggleButton != null)
-            speedToggleButton.gameObject.SetActive(true);
     }
 
     public void RefreshSlots()
@@ -304,17 +283,10 @@ public class SkillUI : MonoBehaviour
         SkillManager.Instance.autoUse = !SkillManager.Instance.autoUse;
 
         bool isAuto = SkillManager.Instance.autoUse;
-        autoToggleText.text = isAuto ? "자동" : "수동";
+        autoToggleText.text = "A";
         autoToggleButton.GetComponent<Image>().color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
-    void OnSpeedToggleClicked()
-    {
-        isDoubleSpeed = !isDoubleSpeed;
-        Time.timeScale = isDoubleSpeed ? 2f : 1f;
-        speedToggleText.text = isDoubleSpeed ? "2x" : "1x";
-        speedToggleButton.GetComponent<Image>().color = isDoubleSpeed ? UIColors.Button_Yellow : UIColors.Button_Brown;
-    }
 
     void OnDestroy()
     {
