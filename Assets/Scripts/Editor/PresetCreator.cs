@@ -122,7 +122,7 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_OrcWarrior", new CharacterPresetDef {
             name = "오크 전사", isEnemy = true, rarity = StarGrade.Star2,
             body = "Orc_2", eye = "Eye6",
-            weapon = "Sword_3", armor = "Armor_2", shield = "Shield_1",
+            weapon = "Sword_3", armor = "Orc_Armor_02", helmet = "Orc_Helmet_02", shield = "Shield_1",
             bodyColor = new Color(0.58f, 0.78f, 0.48f),
             hp = 200, atk = 28, def = 10, speed = 1.5f, range = 1.5f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword
@@ -141,7 +141,7 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_OrcGeneral", new CharacterPresetDef {
             name = "오크 장군", isEnemy = true, rarity = StarGrade.Star3,
             body = "Orc_3", eye = "Eye7",
-            weapon = "Sword_5", armor = "Armor_4", helmet = "Helmet_3", back = "Back_2",
+            weapon = "Sword_5", armor = "Orc_Armor_03", helmet = "Orc_Helmet_04", back = "Back_2",
             bodyColor = new Color(0.55f, 0.75f, 0.45f),
             hp = 550, atk = 38, def = 18, speed = 1.7f, range = 1.8f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword
@@ -151,7 +151,7 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_OrcWarchief", new CharacterPresetDef {
             name = "오크 대족장", isEnemy = true, rarity = StarGrade.Star4,
             body = "Orc_4", eye = "Eye5",
-            weapon = "Axe_1", armor = "Armor_5", helmet = "Helmet_4", back = "Soon_Back1",
+            weapon = "Axe_1", armor = "Orc_Armor_04", helmet = "Orc_Helmet_05", back = "Soon_Back1",
             horse = "Horse1",
             bodyColor = new Color(0.5f, 0.72f, 0.4f),
             hp = 1100, atk = 50, def = 24, speed = 2.0f, range = 1.5f, cooldown = 1.1f,
@@ -166,7 +166,7 @@ public class PresetCreator
         // ★1
         CreatePreset(dir, "Enemy_MummyGrunt", new CharacterPresetDef {
             name = "미라 졸병", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Human_3", eye = "Eye_Close",
+            body = "Zombie_1", eye = "Eye_Close",
             weapon = "Sword_1", shield = "Sword_2", cloth = "Cloth_10",
             bodyColor = new Color(0.9f, 0.8f, 0.6f),
             hp = 100, atk = 18, def = 4, speed = 1.3f, range = 1.5f, cooldown = 1.2f,
@@ -195,7 +195,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_MummyWanderer", new CharacterPresetDef {
             name = "미라 방랑자", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Human_5", eye = "Eye_Close",
+            body = "Zombie_2", eye = "Eye_Close",
             weapon = "Sword_4", shield = "Sword_1", cloth = "Cloth_11",
             bodyColor = new Color(0.85f, 0.78f, 0.6f),
             hp = 130, atk = 16, def = 2, speed = 1.2f, range = 1.5f, cooldown = 1.3f,
@@ -205,8 +205,8 @@ public class PresetCreator
         // ★2
         CreatePreset(dir, "Enemy_SkeletonWarrior", new CharacterPresetDef {
             name = "해골 전사", isEnemy = true, rarity = StarGrade.Star2,
-            body = "Skelton_1", eye = "Eye_Close",
-            weapon = "Sword_6", armor = "Armor_5", shield = "Shield_1",
+            body = "Zombie_3", eye = "Eye_Close",
+            weapon = "Sword_6", armor = "Undead_Armor_02", shield = "Shield_1",
             bodyColor = new Color(0.9f, 0.85f, 0.7f),
             hp = 160, atk = 30, def = 10, speed = 1.6f, range = 1.8f, cooldown = 1.0f,
             attackAnim = AttackAnimType.ShotSword,
@@ -215,7 +215,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_MummyMage", new CharacterPresetDef {
             name = "미라 법사", isEnemy = true, rarity = StarGrade.Star2,
-            body = "Human_3", eye = "Eye_Close",
+            body = "Zombie_4", eye = "Eye_Close",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
             bodyColor = new Color(0.9f, 0.8f, 0.6f),
             hp = 120, atk = 36, def = 3, speed = 1.4f, range = 5f, cooldown = 1.3f,
@@ -226,8 +226,8 @@ public class PresetCreator
         // ★3 중간보스
         CreatePreset(dir, "Enemy_UndeadGeneral", new CharacterPresetDef {
             name = "언데드 장군", isEnemy = true, rarity = StarGrade.Star3,
-            body = "Skelton_1", eye = "Eye_Close",
-            weapon = "Sword_5", armor = "Armor_6", helmet = "Helmet_9", shield = "Shield_1",
+            body = "Zombie_5", eye = "Eye_Close",
+            weapon = "Sword_5", armor = "Undead_Armor_04", helmet = "Undead_Helmet_04", shield = "Shield_1",
             bodyColor = new Color(0.88f, 0.83f, 0.65f),
             hp = 500, atk = 42, def = 16, speed = 1.5f, range = 2f, cooldown = 1.1f,
             attackAnim = AttackAnimType.ShotSword,
@@ -237,8 +237,8 @@ public class PresetCreator
         // ★4 에리어 보스
         CreatePreset(dir, "Enemy_Pharaoh", new CharacterPresetDef {
             name = "파라오", isEnemy = true, rarity = StarGrade.Star4,
-            body = "Skelton_1", eye = "Eye_Close",
-            weapon = "Ward_1", armor = "Armor_8", helmet = "F_SR_Helmet", back = "Soon_Back1",
+            body = "Zombie_6", eye = "Eye_Close",
+            weapon = "Ward_1", armor = "Undead_Armor_06", helmet = "Undead_Helmet_06", back = "Soon_Back1",
             horse = "Horse2",
             bodyColor = new Color(0.92f, 0.88f, 0.7f),
             hp = 1000, atk = 55, def = 20, speed = 1.6f, range = 5f, cooldown = 1.4f,
@@ -264,7 +264,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_PoisonMushroom", new CharacterPresetDef {
             name = "독버섯", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Elf_1", eye = "Eye2",
+            body = "New_Elf_1", eye = "Eye2",
             weapon = "Ward_1", cloth = "Cloth_3",
             bodyColor = new Color(0.65f, 0.45f, 0.75f),
             hp = 70, atk = 28, def = 2, speed = 1.2f, range = 3.5f, cooldown = 1.4f,
@@ -274,7 +274,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_PoisonSnake", new CharacterPresetDef {
             name = "독뱀", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Elf_2", eye = "Eye8",
+            body = "New_Elf_2", eye = "Eye8",
             weapon = "Sword_2", shield = "Sword_1", cloth = "Cloth_8",
             bodyColor = new Color(0.7f, 0.55f, 0.8f),
             hp = 75, atk = 26, def = 2, speed = 2.5f, range = 1.5f, cooldown = 0.7f,
@@ -305,7 +305,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_PoisonFairy", new CharacterPresetDef {
             name = "독안개 요정", isEnemy = true, rarity = StarGrade.Star2,
-            body = "Elf_1", eye = "Eye2",
+            body = "New_Elf_1", eye = "Eye2",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_3",
             bodyColor = new Color(0.72f, 0.52f, 0.85f),
             hp = 100, atk = 42, def = 3, speed = 1.7f, range = 5f, cooldown = 1.2f,
@@ -316,7 +316,7 @@ public class PresetCreator
         // ★3 중간보스
         CreatePreset(dir, "Enemy_PoisonQueen", new CharacterPresetDef {
             name = "독 여왕", isEnemy = true, rarity = StarGrade.Star3,
-            body = "Elf_2", eye = "Eye8",
+            body = "New_Elf_2", eye = "Eye8",
             weapon = "Ward_1", armor = "Armor_6", helmet = "Helmet_2", back = "Back_3",
             bodyColor = new Color(0.65f, 0.45f, 0.78f),
             hp = 480, atk = 48, def = 14, speed = 1.8f, range = 4f, cooldown = 1.0f,
@@ -433,7 +433,7 @@ public class PresetCreator
         // ★1
         CreatePreset(dir, "Enemy_WanderingSoul", new CharacterPresetDef {
             name = "떠도는 혼", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Elf_2", eye = "Eye8",
+            body = "New_Elf_2", eye = "Eye8",
             weapon = "Ward_1", cloth = "Cloth_3",
             bodyColor = new Color(0.4f, 0.3f, 0.6f),
             hp = 70, atk = 24, def = 2, speed = 2.2f, range = 3.5f, cooldown = 1.0f,
@@ -453,7 +453,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_Wraith", new CharacterPresetDef {
             name = "원혼", isEnemy = true, rarity = StarGrade.Star1,
-            body = "Elf_2", eye = "Eye_Close",
+            body = "New_Elf_1", eye = "Eye_Close",
             weapon = "Sword_5", shield = "Sword_1", cloth = "Cloth_8",
             bodyColor = new Color(0.45f, 0.35f, 0.65f),
             hp = 60, atk = 28, def = 1, speed = 2.5f, range = 1.5f, cooldown = 0.8f,
@@ -485,7 +485,7 @@ public class PresetCreator
 
         CreatePreset(dir, "Enemy_ShadowMage", new CharacterPresetDef {
             name = "그림자 마법사", isEnemy = true, rarity = StarGrade.Star2,
-            body = "Elf_1", eye = "Eye_Close",
+            body = "New_Elf_2", eye = "Eye_Close",
             weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
             bodyColor = new Color(0.4f, 0.3f, 0.62f),
             hp = 110, atk = 48, def = 3, speed = 1.8f, range = 5f, cooldown = 1.3f,
@@ -509,7 +509,7 @@ public class PresetCreator
         // ★4 에리어 보스
         CreatePreset(dir, "Enemy_AbyssLord", new CharacterPresetDef {
             name = "어비스 군주", isEnemy = true, rarity = StarGrade.Star4,
-            body = "Elf_2", eye = "Eye_Close",
+            body = "New_Elf_1", eye = "Eye_Close",
             weapon = "Ward_1", armor = "Armor_8", helmet = "F_SR_Helmet", back = "Soon_Back1",
             bodyColor = new Color(0.3f, 0.2f, 0.5f),
             hp = 1120, atk = 72, def = 25, speed = 2.0f, range = 5f, cooldown = 1.4f,
