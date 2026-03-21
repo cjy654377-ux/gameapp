@@ -102,36 +102,40 @@ public class SynergyUI : MonoBehaviour
         items.Clear();
 
         var synMgr = SkillSynergyManager.Instance;
-        if (synMgr == null || synMgr.ActiveSynergies.Count == 0)
+        if (synMgr == null || synMgr.AllSynergies == null || synMgr.AllSynergies.Count == 0)
         {
             panel.SetActive(false);
             return;
         }
 
         panel.SetActive(true);
-        var synergies = synMgr.ActiveSynergies;
+        var all = synMgr.AllSynergies;
         float y = 0f;
 
-        for (int i = 0; i < synergies.Count; i++)
+        // 활성 시너지 먼저, 비활성 후
+        for (int pass = 0; pass < 2; pass++)
         {
-            var syn = synergies[i];
-            var item = CreateSynergyItem(syn, y);
-            items.Add(item);
-            y -= (ITEM_H + ITEM_SPACING);
+            for (int i = 0; i < all.Count; i++)
+            {
+                var syn = all[i];
+                bool active = synMgr.IsActive(syn);
+                if (pass == 0 && !active) continue;
+                if (pass == 1 && active)  continue;
+
+                var item = CreateSynergyItem(syn, y, active);
+                items.Add(item);
+                y -= (ITEM_H + ITEM_SPACING);
+            }
         }
 
         // 패널 높이 갱신
-        float totalH = synergies.Count * ITEM_H + (synergies.Count - 1) * ITEM_SPACING + PADDING * 2;
+        int count = all.Count;
+        float totalH = count * ITEM_H + (count - 1) * ITEM_SPACING + PADDING * 2;
         var panelRT = panel.GetComponent<RectTransform>();
         panelRT.sizeDelta = new Vector2(PANEL_W, totalH);
-
-        // 컨테이너 위치 재정렬
-        var crt = itemContainer.GetComponent<RectTransform>();
-        crt.offsetMin = new Vector2(PADDING, PADDING);
-        crt.offsetMax = new Vector2(-PADDING, -PADDING);
     }
 
-    GameObject CreateSynergyItem(SkillSynergyData syn, float yOffset)
+    GameObject CreateSynergyItem(SkillSynergyData syn, float yOffset, bool active)
     {
         var item = UIHelper.MakeUI($"Syn_{syn.synergyName}", itemContainer.transform);
         var rt = item.GetComponent<RectTransform>();
@@ -141,33 +145,55 @@ public class SynergyUI : MonoBehaviour
         rt.anchoredPosition = new Vector2(0f, yOffset);
         rt.sizeDelta = new Vector2(0f, ITEM_H);
 
-        // 아이템 배경 - 시너지 타입별 색상
+        // 배경: 활성=진한색, 비활성=어두운 회색
         var bg = item.AddComponent<Image>();
-        bg.color = GetTypeColor(syn.type);
+        bg.color = active ? GetTypeColor(syn.type) : new Color(0.15f, 0.14f, 0.12f, 0.75f);
 
-        // 이름 텍스트
-        var nameText = UIHelper.MakeText("Name", item.transform, syn.synergyName,
-            8f, TextAlignmentOptions.MidlineLeft, Color.white);
-        nameText.fontStyle = FontStyles.Bold;
+        // 활성 표시 (★)
+        string prefix = active ? "★ " : "○ ";
+        Color nameCol = active ? Color.white : new Color(0.55f, 0.52f, 0.48f);
+        var nameText = UIHelper.MakeText("Name", item.transform, prefix + syn.synergyName,
+            8f, TextAlignmentOptions.MidlineLeft, nameCol);
+        nameText.fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
         nameText.raycastTarget = false;
         var nrt = nameText.GetComponent<RectTransform>();
-        nrt.anchorMin = new Vector2(0f, 0f);
-        nrt.anchorMax = new Vector2(1f, 0.55f);
+        nrt.anchorMin = new Vector2(0f, 0.48f);
+        nrt.anchorMax = new Vector2(1f, 1f);
         nrt.offsetMin = new Vector2(4f, 0f);
         nrt.offsetMax = new Vector2(-2f, 0f);
 
-        // 보너스 텍스트
+        // 조건/보너스 텍스트
+        string condStr = BuildConditionString(syn);
         string bonusStr = BuildBonusString(syn.bonus);
-        var bonusText = UIHelper.MakeText("Bonus", item.transform, bonusStr,
-            7f, TextAlignmentOptions.MidlineLeft, new Color(0.9f, 0.85f, 0.5f));
+        string infoStr = active ? bonusStr : condStr;
+        Color infoCol = active ? new Color(0.9f, 0.85f, 0.5f) : new Color(0.5f, 0.5f, 0.45f);
+        var bonusText = UIHelper.MakeText("Info", item.transform, infoStr,
+            6f, TextAlignmentOptions.MidlineLeft, infoCol);
         bonusText.raycastTarget = false;
         var brt = bonusText.GetComponent<RectTransform>();
         brt.anchorMin = new Vector2(0f, 0f);
-        brt.anchorMax = new Vector2(1f, 0.45f);
+        brt.anchorMax = new Vector2(1f, 0.48f);
         brt.offsetMin = new Vector2(4f, 0f);
         brt.offsetMax = new Vector2(-2f, 0f);
 
         return item;
+    }
+
+    static string BuildConditionString(SkillSynergyData syn)
+    {
+        switch (syn.type)
+        {
+            case SynergyType.Combo:
+                return syn.requiredSkillNames != null
+                    ? "필요: " + string.Join("+", syn.requiredSkillNames)
+                    : "조합";
+            case SynergyType.Element:
+                return $"{syn.requiredElement} 속성 {syn.requiredElementCount}개";
+            case SynergyType.Tag:
+                return $"[{syn.requiredTag}] 태그 {syn.requiredTagCount}개";
+            default:
+                return "";
+        }
     }
 
     static Color GetTypeColor(SynergyType type)

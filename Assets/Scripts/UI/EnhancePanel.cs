@@ -398,6 +398,30 @@ public class EnhancePanel : MonoBehaviour
         scrollRect.content = hcRT;
     }
 
+    void OnDismantleAllClicked()
+    {
+        var em = EquipmentManager.Instance;
+        if (em == null) return;
+
+        var (count, gold) = em.PreviewDismantleAll(2);
+        if (count == 0)
+        {
+            ToastNotification.Instance?.Show("분해할 장비 없음", "★1~2 비장착 장비가 없습니다", UIColors.Button_Gray);
+            return;
+        }
+
+        MainHUD.Instance?.ShowConfirmDialog(
+            "일괄 분해",
+            $"★1~2 장비 {count}개를 분해하시겠습니까?\n→ 골드 {gold} 획득",
+            () =>
+            {
+                em.DismantleAll(2);
+                SoundManager.Instance?.PlayGoldSFX();
+                ToastNotification.Instance?.Show("일괄 분해 완료!", $"+{gold}G", UIColors.Text_Gold);
+                RefreshEquipmentUI();
+            });
+    }
+
     void RefreshEquipmentUI()
     {
         if (equipListContainer == null) return;

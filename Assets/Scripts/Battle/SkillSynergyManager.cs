@@ -138,4 +138,6 @@ public class SkillSynergyManager : MonoBehaviour
     public float GetDmgPercent() => cachedDmgPercent;
     public float GetCooldownReduction() => cachedCooldownReduction;
     public IReadOnlyList<SkillSynergyData> ActiveSynergies => activeSynergies;
+    public IReadOnlyList<SkillSynergyData> AllSynergies    => allSynergies;
+    public bool IsActive(SkillSynergyData s)               => activeSynergies.Contains(s);
 }
