@@ -66,9 +66,12 @@ public class ToastNotification : MonoBehaviour
         {
             if (achievements[i].id == id)
             {
+                string rewardStr = achievements[i].gemReward > 0
+                    ? $"  ◆×{achievements[i].gemReward} 보석 수령 가능"
+                    : "  보상 수령 가능";
                 Show(
-                    "업적 달성! " + achievements[i].name,
-                    achievements[i].gemReward + " 보석 획득 가능",
+                    "★ 업적 달성! " + achievements[i].name,
+                    rewardStr,
                     UIColors.Text_Gold
                 );
                 break;

@@ -50,6 +50,7 @@ public class EquipmentManager : MonoBehaviour
     [SerializeField] List<EquipmentItem> inventory = new();
 
     public event Action OnEquipmentChanged;
+    public event Action<EquipmentItem> OnEquipmentDropped;
 
     const string SAVE_KEY = SaveKeys.EquipmentInventory;
 
@@ -190,6 +191,7 @@ public class EquipmentManager : MonoBehaviour
         inventory.Add(item);
         SaveInventory();
         OnEquipmentChanged?.Invoke();
+        OnEquipmentDropped?.Invoke(item);
         DailyMissionManager.Instance?.RegisterEquipDrop();
     }
 

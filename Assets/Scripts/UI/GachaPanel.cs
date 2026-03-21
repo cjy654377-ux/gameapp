@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -17,6 +18,9 @@ public class GachaPanel : MonoBehaviour
     TextMeshProUGUI skillResultText;
     Button freeBtn;
     TextMeshProUGUI freeBtnText;
+
+    RectTransform heroResultRT;
+    RectTransform skillResultRT;
 
     // 서브탭
     GameObject heroSection;
@@ -229,10 +233,10 @@ public class GachaPanel : MonoBehaviour
         // 결과 표시
         var resultBg = UIHelper.MakeSpritePanel("ResultBG", parent,
             UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
-        var rbrt = resultBg.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.05f, 0.02f);
-        rbrt.anchorMax = new Vector2(0.95f, 0.38f);
-        rbrt.offsetMin = rbrt.offsetMax = Vector2.zero;
+        heroResultRT = resultBg.GetComponent<RectTransform>();
+        heroResultRT.anchorMin = new Vector2(0.05f, 0.02f);
+        heroResultRT.anchorMax = new Vector2(0.95f, 0.38f);
+        heroResultRT.offsetMin = heroResultRT.offsetMax = Vector2.zero;
 
         resultText = UIHelper.MakeText("Result", resultBg.transform, "",
             10f, TextAlignmentOptions.Center, Color.white);
@@ -290,10 +294,10 @@ public class GachaPanel : MonoBehaviour
         // 결과 표시
         var resultBg = UIHelper.MakeSpritePanel("SkillResultBG", parent,
             UISprites.BoxBasic3, new Color(0.15f, 0.10f, 0.30f, 0.7f));
-        var rbrt = resultBg.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.05f, 0.02f);
-        rbrt.anchorMax = new Vector2(0.95f, 0.42f);
-        rbrt.offsetMin = rbrt.offsetMax = Vector2.zero;
+        skillResultRT = resultBg.GetComponent<RectTransform>();
+        skillResultRT.anchorMin = new Vector2(0.05f, 0.02f);
+        skillResultRT.anchorMax = new Vector2(0.95f, 0.42f);
+        skillResultRT.offsetMin = skillResultRT.offsetMax = Vector2.zero;
 
         skillResultText = UIHelper.MakeText("SkillResult", resultBg.transform, "",
             10f, TextAlignmentOptions.Center, Color.white);
@@ -363,6 +367,8 @@ public class GachaPanel : MonoBehaviour
                 else
                     resultText.text = $"<color=#7FD44C>NEW!</color> <color=#{hexColor}>[{starLabel}] {hero.characterName}</color> 획득!";
             }
+            if (heroResultRT != null)
+                StartCoroutine(CardFlip(heroResultRT, GetRarityColor(hero.starGrade)));
         }
         else
         {
@@ -528,6 +534,9 @@ public class GachaPanel : MonoBehaviour
         if (skillResultText != null)
             skillResultText.text = $"<color=#{hex}>[{starLabel}]</color> {skill.iconChar} <color=#{hex}>{skill.skillName}</color> 획득!";
 
+        if (skillResultRT != null)
+            StartCoroutine(CardFlip(skillResultRT, GetRarityColor(skill.starGrade)));
+
         ToastNotification.Instance?.Show("스킬 소환!", $"{skill.skillName} 획득", GetRarityColor(skill.starGrade));
         RefreshSkillScrollText();
     }
@@ -577,5 +586,58 @@ public class GachaPanel : MonoBehaviour
         if (mountTabBtn != null) mountTabBtn.onClick.RemoveListener(ShowMountTab);
         if (skillTabBtn != null) skillTabBtn.onClick.RemoveListener(ShowSkillTab);
         if (freeBtn != null) freeBtn.onClick.RemoveListener(OnFreePull);
+    }
+
+    // ════════════════════════════════════════
+    // 카드 뒤집기 연출
+    // ════════════════════════════════════════
+
+    System.Collections.IEnumerator CardFlip(RectTransform rt, Color glowColor)
+    {
+        // Scale X: 1 → 0 (카드 뒤집는 중)
+        float t = 0;
+        Vector3 orig = rt.localScale;
+        while (t < 0.12f)
+        {
+            t += Time.unscaledDeltaTime;
+            float s = Mathf.Lerp(1f, 0f, t / 0.12f);
+            rt.localScale = new Vector3(s, orig.y, orig.z);
+            yield return null;
+        }
+
+        // 배경색 변경 (성급 색 적용)
+        var img = rt.GetComponent<Image>();
+        if (img != null) img.color = new Color(glowColor.r * 0.4f, glowColor.g * 0.4f, glowColor.b * 0.4f, 0.85f);
+
+        // Scale X: 0 → 1 (카드 앞면)
+        t = 0;
+        while (t < 0.15f)
+        {
+            t += Time.unscaledDeltaTime;
+            float s = Mathf.Lerp(0f, 1f, t / 0.15f);
+            rt.localScale = new Vector3(s, orig.y, orig.z);
+            yield return null;
+        }
+        rt.localScale = orig;
+
+        // 글로우 펄스
+        if (img != null)
+        {
+            t = 0;
+            Color baseColor = img.color;
+            while (t < 0.4f)
+            {
+                t += Time.unscaledDeltaTime;
+                float pulse = Mathf.Sin(t * Mathf.PI * 5f) * 0.15f;
+                img.color = new Color(
+                    Mathf.Clamp01(baseColor.r + pulse),
+                    Mathf.Clamp01(baseColor.g + pulse),
+                    Mathf.Clamp01(baseColor.b + pulse),
+                    baseColor.a
+                );
+                yield return null;
+            }
+            img.color = baseColor;
+        }
     }
 }
