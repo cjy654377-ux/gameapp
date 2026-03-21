@@ -76,4 +76,9 @@ public static class SaveKeys
     public const string AchievementClaimedPrefix = "AchClaimed_";
     public const string DailyMissionCurPrefix     = "DM_";
     public const string DailyMissionClaimedPrefix = "DM_claimed_";
+
+    // 광고
+    public const string AdCooldownPrefix  = "Ad_CD_";   // + AdRewardType 이름
+    public const string AdDailyCountPrefix = "Ad_Day_"; // + AdRewardType 이름
+    public const string AdDailyResetDate  = "Ad_DailyReset";
 }
