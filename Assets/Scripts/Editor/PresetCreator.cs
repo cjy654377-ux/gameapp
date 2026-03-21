@@ -94,10 +94,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_OrcArcher", new CharacterPresetDef {
             name = "오크 궁수", isEnemy = true, rarity = StarGrade.Star1,
             body = "Orc_2", eye = "Eye6",
-            weapon = "Bow_1", cloth = "Cloth_4", back = "BowBack_1",
+            weapon = "Sword_1", shield = "Sword_2", cloth = "Cloth_4",
             bodyColor = new Color(0.6f, 0.8f, 0.5f),
-            hp = 100, atk = 22, def = 4, speed = 1.7f, range = 4f, cooldown = 1.2f,
-            attackAnim = AttackAnimType.Bow
+            hp = 100, atk = 22, def = 4, speed = 1.7f, range = 1.5f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Melee
         });
 
         CreatePreset(dir, "Enemy_OrcScout", new CharacterPresetDef {
@@ -125,26 +125,26 @@ public class PresetCreator
             weapon = "Sword_3", armor = "Orc_Armor_02", helmet = "Orc_Helmet_02", shield = "Shield_1",
             bodyColor = new Color(0.58f, 0.78f, 0.48f),
             hp = 200, atk = 28, def = 10, speed = 1.5f, range = 1.5f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.ShotSword
+            attackAnim = AttackAnimType.Melee
         });
 
         CreatePreset(dir, "Enemy_OrcShaman", new CharacterPresetDef {
             name = "오크 주술사", isEnemy = true, rarity = StarGrade.Star2,
             body = "Orc_1", eye = "Eye5",
-            weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
+            weapon = "Axe_1", cloth = "Cloth_4",
             bodyColor = new Color(0.6f, 0.8f, 0.5f),
-            hp = 160, atk = 32, def = 5, speed = 1.4f, range = 4.5f, cooldown = 1.3f,
-            attackAnim = AttackAnimType.Magic
+            hp = 160, atk = 32, def = 5, speed = 1.8f, range = 1.5f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Axe
         });
 
         // ★3 중간보스
         CreatePreset(dir, "Enemy_OrcGeneral", new CharacterPresetDef {
             name = "오크 장군", isEnemy = true, rarity = StarGrade.Star3,
             body = "Orc_3", eye = "Eye7",
-            weapon = "Sword_5", armor = "Orc_Armor_03", helmet = "Orc_Helmet_04", back = "Back_2",
+            weapon = "Axe_1", armor = "Orc_Armor_03", helmet = "Orc_Helmet_04", back = "Back_2",
             bodyColor = new Color(0.55f, 0.75f, 0.45f),
-            hp = 550, atk = 38, def = 18, speed = 1.7f, range = 1.8f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.ShotSword
+            hp = 680, atk = 42, def = 24, speed = 1.7f, range = 1.5f, cooldown = 0.9f,
+            attackAnim = AttackAnimType.Axe
         });
 
         // ★4 에리어 보스
@@ -154,8 +154,8 @@ public class PresetCreator
             weapon = "Axe_1", armor = "Orc_Armor_04", helmet = "Orc_Helmet_05", back = "Soon_Back1",
             horse = "Horse1",
             bodyColor = new Color(0.5f, 0.72f, 0.4f),
-            hp = 1100, atk = 50, def = 24, speed = 2.0f, range = 1.5f, cooldown = 1.1f,
-            attackAnim = AttackAnimType.Axe
+            hp = 1400, atk = 65, def = 32, speed = 2.0f, range = 1.5f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Melee
         });
 
         // ══════════════════════════════════════════════════
@@ -169,8 +169,8 @@ public class PresetCreator
             body = "Zombie_1", eye = "Eye_Close",
             weapon = "Sword_1", shield = "Sword_2", cloth = "Cloth_10",
             bodyColor = new Color(0.9f, 0.8f, 0.6f),
-            hp = 100, atk = 18, def = 4, speed = 1.3f, range = 1.5f, cooldown = 1.2f,
-            attackAnim = AttackAnimType.Melee,
+            hp = 100, atk = 18, def = 4, speed = 1.3f, range = 2f, cooldown = 1.2f,
+            attackAnim = AttackAnimType.ShotSword,
             poisonResist = 0.3f
         });
 
@@ -179,18 +179,18 @@ public class PresetCreator
             body = "Skelton_1", eye = "Eye_Close",
             weapon = "Sword_2", shield = "Sword_3", cloth = "Cloth_5",
             bodyColor = new Color(0.9f, 0.85f, 0.7f),
-            hp = 80, atk = 20, def = 3, speed = 1.7f, range = 1.5f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Melee,
+            hp = 80, atk = 20, def = 3, speed = 1.7f, range = 2f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.ShotSword,
             element = SkillElement.Lightning, lightningResist = 0.2f
         });
 
         CreatePreset(dir, "Enemy_SkeletonArcher", new CharacterPresetDef {
             name = "해골 궁수", isEnemy = true, rarity = StarGrade.Star1,
             body = "Skelton_1", eye = "Eye_Close",
-            weapon = "Bow_1", cloth = "Cloth_7", back = "BowBack_1",
+            weapon = "Sword_2", shield = "Sword_1", cloth = "Cloth_7",
             bodyColor = new Color(0.88f, 0.83f, 0.68f),
-            hp = 60, atk = 24, def = 2, speed = 1.5f, range = 4.5f, cooldown = 1.1f,
-            attackAnim = AttackAnimType.Bow
+            hp = 60, atk = 24, def = 2, speed = 1.5f, range = 2f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
         CreatePreset(dir, "Enemy_MummyWanderer", new CharacterPresetDef {
@@ -198,8 +198,8 @@ public class PresetCreator
             body = "Zombie_2", eye = "Eye_Close",
             weapon = "Sword_4", shield = "Sword_1", cloth = "Cloth_11",
             bodyColor = new Color(0.85f, 0.78f, 0.6f),
-            hp = 130, atk = 16, def = 2, speed = 1.2f, range = 1.5f, cooldown = 1.3f,
-            attackAnim = AttackAnimType.Melee
+            hp = 130, atk = 16, def = 2, speed = 1.2f, range = 2f, cooldown = 1.2f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
         // ★2
@@ -216,10 +216,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_MummyMage", new CharacterPresetDef {
             name = "미라 법사", isEnemy = true, rarity = StarGrade.Star2,
             body = "Zombie_4", eye = "Eye_Close",
-            weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
+            weapon = "Sword_3", armor = "Undead_Armor_02", cloth = "Cloth_9",
             bodyColor = new Color(0.9f, 0.8f, 0.6f),
-            hp = 120, atk = 36, def = 3, speed = 1.4f, range = 5f, cooldown = 1.3f,
-            attackAnim = AttackAnimType.Magic,
+            hp = 120, atk = 36, def = 3, speed = 1.4f, range = 2f, cooldown = 1.2f,
+            attackAnim = AttackAnimType.ShotSword,
             element = SkillElement.Lightning
         });
 
@@ -238,11 +238,11 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_Pharaoh", new CharacterPresetDef {
             name = "파라오", isEnemy = true, rarity = StarGrade.Star4,
             body = "Zombie_6", eye = "Eye_Close",
-            weapon = "Ward_1", armor = "Undead_Armor_06", helmet = "Undead_Helmet_06", back = "Soon_Back1",
+            weapon = "Sword_5", armor = "Undead_Armor_06", helmet = "Undead_Helmet_06", back = "Soon_Back1",
             horse = "Horse2",
             bodyColor = new Color(0.92f, 0.88f, 0.7f),
-            hp = 1000, atk = 55, def = 20, speed = 1.6f, range = 5f, cooldown = 1.4f,
-            attackAnim = AttackAnimType.Magic,
+            hp = 1100, atk = 78, def = 22, speed = 1.8f, range = 2f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.ShotSword,
             element = SkillElement.Lightning, lightningResist = 0.6f
         });
 
@@ -282,10 +282,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_DarkElfTrapper", new CharacterPresetDef {
             name = "다크엘프 함정사", isEnemy = true, rarity = StarGrade.Star1,
             body = "Elf_2", eye = "Eye8",
-            weapon = "Bow_1", cloth = "Cloth_11", back = "BowBack_1",
+            weapon = "Sword_2", cloth = "Cloth_11",
             bodyColor = new Color(0.3f, 0.3f, 0.5f),
-            hp = 65, atk = 34, def = 2, speed = 2.4f, range = 3f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Bow
+            hp = 65, atk = 34, def = 2, speed = 2.4f, range = 1.5f, cooldown = 0.9f,
+            attackAnim = AttackAnimType.Melee
         });
 
         // ★2
@@ -301,11 +301,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_DarkElfHexer", new CharacterPresetDef {
             name = "다크엘프 주술사", isEnemy = true, rarity = StarGrade.Star2,
             body = "New_Elf_2", eye = "Eye2",
-            weapon = "Ward_1", cloth = "Cloth_9", back = "Back_3",
+            weapon = "Sword_3", armor = "Armor_3", cloth = "Cloth_9",
             bodyColor = new Color(0.28f, 0.28f, 0.48f),
-            hp = 95, atk = 52, def = 3, speed = 2.6f, range = 3f, cooldown = 1.1f,
-            attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Lightning
+            hp = 95, atk = 52, def = 3, speed = 2.8f, range = 2f, cooldown = 0.9f,
+            attackAnim = AttackAnimType.ShotSword
         });
 
         // ★3 중간보스
@@ -314,18 +313,18 @@ public class PresetCreator
             body = "Elf_1", eye = "Eye8",
             weapon = "Sword_6", armor = "Armor_4", helmet = "Helmet_2", back = "Back_2",
             bodyColor = new Color(0.25f, 0.25f, 0.45f),
-            hp = 440, atk = 62, def = 12, speed = 3.2f, range = 1.8f, cooldown = 0.7f,
-            attackAnim = AttackAnimType.ShotSword
+            hp = 440, atk = 68, def = 10, speed = 3.8f, range = 1.5f, cooldown = 0.6f,
+            attackAnim = AttackAnimType.Melee
         });
 
         // ★4 에리어 보스
         CreatePreset(dir, "Enemy_DarkElfOverlord", new CharacterPresetDef {
             name = "다크엘프 군주", isEnemy = true, rarity = StarGrade.Star4,
             body = "Elf_2", eye = "Eye8",
-            weapon = "Sword_5", armor = "Armor_6", helmet = "Helmet_5", back = "Soon_Back1",
+            weapon = "Sword_6", armor = "Armor_6", helmet = "Helmet_5", back = "Soon_Back1",
             horse = "BlackHorse",
             bodyColor = new Color(0.22f, 0.22f, 0.42f),
-            hp = 880, atk = 78, def = 18, speed = 3.5f, range = 2f, cooldown = 0.8f,
+            hp = 960, atk = 95, def = 16, speed = 4.2f, range = 2f, cooldown = 0.7f,
             attackAnim = AttackAnimType.ShotSword
         });
 
@@ -338,30 +337,30 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_Imp", new CharacterPresetDef {
             name = "임프", isEnemy = true, rarity = StarGrade.Star1,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_1", shield = "Sword_4", cloth = "Cloth_2",
+            weapon = "Ward_1", cloth = "Cloth_2",
             bodyColor = new Color(1f, 0.4f, 0.3f),
-            hp = 80, atk = 28, def = 3, speed = 2.5f, range = 1.5f, cooldown = 0.7f,
-            attackAnim = AttackAnimType.Melee,
+            hp = 80, atk = 28, def = 3, speed = 2.5f, range = 4f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.3f
         });
 
         CreatePreset(dir, "Enemy_FlameDevil", new CharacterPresetDef {
             name = "화염 악마", isEnemy = true, rarity = StarGrade.Star1,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_3", cloth = "Cloth_1",
+            weapon = "Ward_1", cloth = "Cloth_1",
             bodyColor = new Color(1f, 0.45f, 0.25f),
-            hp = 110, atk = 30, def = 4, speed = 1.8f, range = 1.5f, cooldown = 0.9f,
-            attackAnim = AttackAnimType.Melee,
+            hp = 110, atk = 30, def = 4, speed = 1.8f, range = 4f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.4f
         });
 
         CreatePreset(dir, "Enemy_LavaDemon", new CharacterPresetDef {
             name = "용암 데몬", isEnemy = true, rarity = StarGrade.Star1,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Axe_1", armor = "Armor_1",
+            weapon = "Ward_1", armor = "Armor_1",
             bodyColor = new Color(0.85f, 0.35f, 0.2f),
-            hp = 130, atk = 26, def = 5, speed = 1.5f, range = 1.5f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Axe,
+            hp = 130, atk = 26, def = 5, speed = 1.5f, range = 4f, cooldown = 1.2f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.2f
         });
 
@@ -379,10 +378,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_HighDevil", new CharacterPresetDef {
             name = "상급 악마", isEnemy = true, rarity = StarGrade.Star2,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_5", armor = "Armor_6", shield = "Shield_1",
+            weapon = "Ward_1", armor = "Armor_6",
             bodyColor = new Color(0.95f, 0.38f, 0.25f),
-            hp = 180, atk = 45, def = 7, speed = 1.9f, range = 1.8f, cooldown = 0.9f,
-            attackAnim = AttackAnimType.ShotSword,
+            hp = 180, atk = 45, def = 7, speed = 1.9f, range = 5f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.4f
         });
 
@@ -400,10 +399,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_DemonGeneral", new CharacterPresetDef {
             name = "악마 장군", isEnemy = true, rarity = StarGrade.Star3,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Sword_6", armor = "Armor_8", helmet = "Helmet_9", back = "Back_3",
+            weapon = "Ward_1", armor = "Armor_8", helmet = "Helmet_9", back = "Back_3",
             bodyColor = new Color(0.9f, 0.35f, 0.2f),
-            hp = 550, atk = 58, def = 15, speed = 2.0f, range = 1.8f, cooldown = 0.9f,
-            attackAnim = AttackAnimType.ShotSword,
+            hp = 520, atk = 72, def = 10, speed = 2.0f, range = 5f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.55f
         });
 
@@ -411,11 +410,11 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_DemonLord", new CharacterPresetDef {
             name = "마왕", isEnemy = true, rarity = StarGrade.Star4,
             body = "Devil_1", eye = "Eye8",
-            weapon = "Soon_Spear", armor = "Armor_5", helmet = "F_SR_Helmet", back = "Soon_Back1",
+            weapon = "Ward_1", armor = "Armor_5", helmet = "F_SR_Helmet", back = "Soon_Back1",
             horse = "RedHorse",
             bodyColor = new Color(1f, 0.3f, 0.15f),
-            hp = 1100, atk = 75, def = 18, speed = 2.5f, range = 2f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Spear,
+            hp = 1050, atk = 95, def = 12, speed = 2.5f, range = 6f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Magic,
             lightningResist = 0.7f
         });
 
@@ -428,41 +427,40 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_WanderingSoul", new CharacterPresetDef {
             name = "떠도는 혼", isEnemy = true, rarity = StarGrade.Star1,
             body = "New_Elf_2", eye = "Eye8",
-            weapon = "Ward_1", cloth = "Cloth_3",
+            weapon = "Bow_1", cloth = "Cloth_3", back = "BowBack_1",
             bodyColor = new Color(0.4f, 0.3f, 0.6f),
-            hp = 70, atk = 24, def = 2, speed = 2.2f, range = 3.5f, cooldown = 1.0f,
-            attackAnim = AttackAnimType.Magic,
+            hp = 70, atk = 24, def = 2, speed = 2.2f, range = 4f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.3f, poisonResist = 0.3f
         });
 
         CreatePreset(dir, "Enemy_Shadow", new CharacterPresetDef {
             name = "그림자", isEnemy = true, rarity = StarGrade.Star1,
             body = "Human_1", eye = "Eye_Close",
-            weapon = "Sword_4", shield = "Sword_3", cloth = "Cloth_6",
+            weapon = "Bow_1", cloth = "Cloth_6", back = "BowBack_1",
             bodyColor = new Color(0.35f, 0.28f, 0.52f),
-            hp = 65, atk = 26, def = 1, speed = 2.8f, range = 1.5f, cooldown = 0.7f,
-            attackAnim = AttackAnimType.ShotSword,
+            hp = 65, atk = 26, def = 1, speed = 2.8f, range = 4f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.5f
         });
 
         CreatePreset(dir, "Enemy_Wraith", new CharacterPresetDef {
             name = "원혼", isEnemy = true, rarity = StarGrade.Star1,
             body = "New_Elf_1", eye = "Eye_Close",
-            weapon = "Sword_5", shield = "Sword_1", cloth = "Cloth_8",
+            weapon = "Bow_1", cloth = "Cloth_8", back = "BowBack_1",
             bodyColor = new Color(0.45f, 0.35f, 0.65f),
-            hp = 60, atk = 28, def = 1, speed = 2.5f, range = 1.5f, cooldown = 0.8f,
-            attackAnim = AttackAnimType.Melee,
+            hp = 60, atk = 28, def = 1, speed = 2.5f, range = 4f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.4f, poisonResist = 0.4f
         });
 
         CreatePreset(dir, "Enemy_EvilSpirit", new CharacterPresetDef {
             name = "악령", isEnemy = true, rarity = StarGrade.Star1,
             body = "Human_3", eye = "Eye_Close",
-            weapon = "Ward_1", cloth = "Cloth_9",
+            weapon = "Bow_1", cloth = "Cloth_9", back = "BowBack_1",
             bodyColor = new Color(0.42f, 0.32f, 0.58f),
             hp = 55, atk = 30, def = 1, speed = 2.0f, range = 4.5f, cooldown = 1.1f,
-            attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Poison,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.3f, poisonResist = 0.5f
         });
 
@@ -470,21 +468,20 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_VengeanceKnight", new CharacterPresetDef {
             name = "원한의 기사", isEnemy = true, rarity = StarGrade.Star2,
             body = "Human_4", eye = "Eye_Close",
-            weapon = "Sword_6", armor = "Armor_5", shield = "Shield_1",
+            weapon = "Bow_1", armor = "Armor_5", back = "BowBack_1",
             bodyColor = new Color(0.38f, 0.28f, 0.55f),
-            hp = 140, atk = 40, def = 12, speed = 2.2f, range = 1.8f, cooldown = 0.9f,
-            attackAnim = AttackAnimType.ShotSword,
+            hp = 140, atk = 40, def = 8, speed = 2.2f, range = 4f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.4f, poisonResist = 0.4f
         });
 
         CreatePreset(dir, "Enemy_ShadowMage", new CharacterPresetDef {
             name = "그림자 마법사", isEnemy = true, rarity = StarGrade.Star2,
             body = "New_Elf_2", eye = "Eye_Close",
-            weapon = "Ward_1", cloth = "Cloth_9", back = "Back_1",
+            weapon = "Bow_1", cloth = "Cloth_9", back = "BowBack_1",
             bodyColor = new Color(0.4f, 0.3f, 0.62f),
-            hp = 110, atk = 48, def = 3, speed = 1.8f, range = 5f, cooldown = 1.3f,
-            attackAnim = AttackAnimType.Magic,
-            element = SkillElement.Lightning,
+            hp = 110, atk = 48, def = 3, speed = 1.8f, range = 4.5f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.5f, poisonResist = 0.5f
         });
 
@@ -492,11 +489,11 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_DeathKnight", new CharacterPresetDef {
             name = "죽음의 기사", isEnemy = true, rarity = StarGrade.Star3,
             body = "Human_5", eye = "Eye_Close",
-            weapon = "Sword_6", armor = "Armor_8", helmet = "Helmet_9", shield = "Shield_1",
-            back = "Back_3", horse = "BlackHorse",
+            weapon = "Bow_1", armor = "Armor_8", helmet = "Helmet_9",
+            back = "BowBack_1", horse = "BlackHorse",
             bodyColor = new Color(0.35f, 0.25f, 0.52f),
-            hp = 560, atk = 55, def = 22, speed = 2.4f, range = 1.8f, cooldown = 0.9f,
-            attackAnim = AttackAnimType.ShotSword,
+            hp = 540, atk = 65, def = 15, speed = 2.4f, range = 4f, cooldown = 1.0f,
+            attackAnim = AttackAnimType.Bow,
             lightningResist = 0.55f, poisonResist = 0.55f
         });
 
@@ -504,10 +501,10 @@ public class PresetCreator
         CreatePreset(dir, "Enemy_AbyssLord", new CharacterPresetDef {
             name = "어비스 군주", isEnemy = true, rarity = StarGrade.Star4,
             body = "New_Elf_1", eye = "Eye_Close",
-            weapon = "Ward_1", armor = "Armor_8", helmet = "F_SR_Helmet", back = "Soon_Back1",
+            weapon = "Bow_1", armor = "Armor_8", helmet = "F_SR_Helmet", back = "BowBack_1",
             bodyColor = new Color(0.3f, 0.2f, 0.5f),
-            hp = 1120, atk = 72, def = 25, speed = 2.0f, range = 5f, cooldown = 1.4f,
-            attackAnim = AttackAnimType.Magic,
+            hp = 1100, atk = 88, def = 18, speed = 2.8f, range = 5f, cooldown = 1.1f,
+            attackAnim = AttackAnimType.Bow,
             element = SkillElement.Lightning,
             lightningResist = 0.8f, poisonResist = 0.8f
         });
