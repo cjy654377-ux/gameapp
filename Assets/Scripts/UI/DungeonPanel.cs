@@ -70,7 +70,7 @@ public class DungeonPanel : MonoBehaviour
             rt.offsetMax = Vector2.zero;
 
             var label = UIHelper.MakeText("Label", btn.transform, TypeNames[i],
-                9f, TextAlignmentOptions.Center, Color.white);
+                11f, TextAlignmentOptions.Center, Color.white);
             label.fontStyle = FontStyles.Bold;
             UIHelper.AddTextShadow(label);
             UIHelper.FillParent(label.GetComponent<RectTransform>());
@@ -108,7 +108,7 @@ public class DungeonPanel : MonoBehaviour
     void BuildFloorSelector(Transform parent)
     {
         var floorLabel = UIHelper.MakeText("FloorLabel", parent, "도전 단계",
-            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+            UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Gold);
         var llrt = floorLabel.GetComponent<RectTransform>();
         llrt.anchorMin = new Vector2(0.05f, 0.50f);
         llrt.anchorMax = new Vector2(0.95f, 0.59f);
@@ -125,7 +125,7 @@ public class DungeonPanel : MonoBehaviour
         mrt.offsetMin = Vector2.zero;
         mrt.offsetMax = Vector2.zero;
         var minusLabel = UIHelper.MakeText("L", minusBtn.transform, "-",
-            18f, TextAlignmentOptions.Center, Color.white);
+            22f, TextAlignmentOptions.Center, Color.white);
         minusLabel.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(minusLabel.GetComponent<RectTransform>());
 
@@ -154,7 +154,7 @@ public class DungeonPanel : MonoBehaviour
         prt.offsetMin = Vector2.zero;
         prt.offsetMax = Vector2.zero;
         var plusLabel = UIHelper.MakeText("L", plusBtn.transform, "+",
-            18f, TextAlignmentOptions.Center, Color.white);
+            22f, TextAlignmentOptions.Center, Color.white);
         plusLabel.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(plusLabel.GetComponent<RectTransform>());
     }

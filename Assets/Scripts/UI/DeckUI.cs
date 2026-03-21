@@ -24,9 +24,9 @@ public class DeckUI : MonoBehaviour
 
     int selectedDeckSlot = -1;
 
-    const float SLOT_SIZE = 44f;
+    const float SLOT_SIZE = 52f;
     const float SLOT_SPACING = 5f;
-    const float ROSTER_ITEM_H = 40f;
+    const float ROSTER_ITEM_H = 48f;
     const float ROSTER_ITEM_SPACING = 3f;
 
     static readonly Color COLOR_HEADER_BG   = new Color(0.38f, 0.28f, 0.18f, 0.80f);
@@ -173,7 +173,7 @@ public class DeckUI : MonoBehaviour
 
             // 이름 (하단에 배치)
             deckSlotTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
-                7f, TextAlignmentOptions.Bottom, Color.white);
+                8f, TextAlignmentOptions.Bottom, Color.white);
             deckSlotTexts[i].textWrappingMode = TextWrappingModes.Normal;
             deckSlotTexts[i].fontStyle = FontStyles.Bold;
             var nrt = deckSlotTexts[i].GetComponent<RectTransform>();
@@ -385,7 +385,7 @@ public class DeckUI : MonoBehaviour
             // Stats — 중간 갈색으로 가독성 확보
             var statText = UIHelper.MakeText("Stats", item.transform,
                 $"HP:{preset.maxHp:F0} ATK:{preset.atk:F0}",
-                8f, TextAlignmentOptions.MidlineLeft, COLOR_STAT_MID);
+                9f, TextAlignmentOptions.MidlineLeft, COLOR_STAT_MID);
             var strt = statText.GetComponent<RectTransform>();
             strt.anchorMin = new Vector2(0.11f, 0);
             strt.anchorMax = new Vector2(0.55f, 0.5f);
@@ -393,20 +393,19 @@ public class DeckUI : MonoBehaviour
             strt.offsetMax = Vector2.zero;
 
             // 상태 버튼 — 스프라이트 사용
-            string statusStr = inDeck ? "편성됨" : "추가";
+            string statusStr = inDeck ? "해제" : "편성";
             Sprite statusSprite = inDeck ? UISprites.Btn1_WS : UISprites.Btn2_WS;
-            Color statusFallback = inDeck ? UIColors.Button_Gray : UIColors.Button_Green;
+            Color statusFallback = inDeck ? UIColors.Button_Brown : UIColors.Button_Green;
             var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
                 statusSprite, statusFallback, "", 9f);
-            if (inDeck && statusBtnImg.sprite != null) statusBtnImg.color = COLOR_BTN_DIM;
             statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
             var strt2 = statusBtn.GetComponent<RectTransform>();
-            strt2.anchorMin = new Vector2(0.72f, 0.1f);
-            strt2.anchorMax = new Vector2(0.97f, 0.9f);
+            strt2.anchorMin = new Vector2(0.70f, 0.12f);
+            strt2.anchorMax = new Vector2(0.97f, 0.88f);
             strt2.offsetMin = Vector2.zero;
             strt2.offsetMax = Vector2.zero;
             var statusLabel = UIHelper.MakeText("Label", statusBtn.transform, statusStr,
-                9f, TextAlignmentOptions.Center, inDeck ? COLOR_LABEL_DISABLED : Color.white);
+                10f, TextAlignmentOptions.Center, Color.white);
             statusLabel.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(statusLabel.GetComponent<RectTransform>());
 

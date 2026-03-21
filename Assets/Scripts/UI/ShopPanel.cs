@@ -223,7 +223,7 @@ public class ShopPanel : MonoBehaviour
         RecycleList(shopListItems);
         int reuse = 0;
         var items = shop.GetStockItems();
-        float itemH = 44f, spacing = 2f, y = 0;
+        float itemH = 52f, spacing = 4f, y = 0;
         int active = 0;
 
         for (int i = 0; i < items.Count; i++)
@@ -249,10 +249,12 @@ public class ShopPanel : MonoBehaviour
             drt.anchorMin = new Vector2(0, 0); drt.anchorMax = new Vector2(0.4f, 0.5f);
             drt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0); drt.offsetMax = Vector2.zero;
 
-            string priceStr = shopItem.gemCost > 0 ? $"{shopItem.gemCost} 보석" :
-                              shopItem.goldCost > 0 ? $"{shopItem.goldCost}G" : "무료";
+            string priceStr = shopItem.gemCost > 0 ? $"◆{shopItem.gemCost} 보석" :
+                              shopItem.goldCost > 0 ? $"★{shopItem.goldCost}G" : "무료";
             var priceText = UIHelper.MakeText("Price", item.transform, priceStr,
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkDiamond);
+                11f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+            priceText.fontStyle = FontStyles.Bold;
+            UIHelper.AddTextShadow(priceText);
             var prt = priceText.GetComponent<RectTransform>();
             prt.anchorMin = new Vector2(0.4f, 0); prt.anchorMax = new Vector2(0.65f, 1);
             prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;

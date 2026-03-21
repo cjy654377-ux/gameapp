@@ -22,14 +22,14 @@ public class SettingsPanel : MonoBehaviour
         crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
         crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
 
-        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.7f, 1f,
+        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.72f, 0.97f,
             out bgmSlider, out bgmValueText, (val) =>
             {
                 SoundManager.Instance?.SetBGMVolume(val);
                 if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
             });
 
-        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.4f, 1f,
+        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.44f, 0.69f,
             out sfxSlider, out sfxValueText, (val) =>
             {
                 SoundManager.Instance?.SetSFXVolume(val);
@@ -80,7 +80,7 @@ public class SettingsPanel : MonoBehaviour
         rrt.offsetMax = new Vector2(0, -2);
 
         var labelText = UIHelper.MakeText("Label", rowBg.transform, label,
-            UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
         labelText.fontStyle = FontStyles.Bold;
         var lrt = labelText.GetComponent<RectTransform>();
         lrt.anchorMin = new Vector2(0, 0);
@@ -132,7 +132,7 @@ public class SettingsPanel : MonoBehaviour
         slider.handleRect = hrt;
 
         valueText = UIHelper.MakeText("Value", rowBg.transform, "50%",
-            UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
+            UIConstants.Font_HeaderMedium, TextAlignmentOptions.Center, UIColors.Text_Dark);
         valueText.fontStyle = FontStyles.Bold;
         var vrt = valueText.GetComponent<RectTransform>();
         vrt.anchorMin = new Vector2(0.80f, 0);
