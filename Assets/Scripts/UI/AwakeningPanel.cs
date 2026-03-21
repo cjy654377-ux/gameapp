@@ -153,10 +153,13 @@ public class AwakeningPanel : MonoBehaviour
             srt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             srt.offsetMax = Vector2.zero;
 
-            // 각성 단계
-            string awakeStr = awakening >= HeroLevelManager.MAX_AWAKENING
-                ? "<color=#FFD700>각성 MAX</color>"
-                : $"각성 {awakening}/{HeroLevelManager.MAX_AWAKENING}단계";
+            // 각성 단계 ★/☆ 시각화
+            bool isMaxAwake = awakening >= HeroLevelManager.MAX_AWAKENING;
+            string awakeStars = new string('\u2605', awakening)
+                              + new string('\u2606', HeroLevelManager.MAX_AWAKENING - awakening);
+            string awakeStr = isMaxAwake
+                ? $"<color=#FFD700>{awakeStars}</color>"
+                : $"<color=#FFD700>{new string('\u2605', awakening)}</color><color=#8B6914>{new string('\u2606', HeroLevelManager.MAX_AWAKENING - awakening)}</color>";
             var awakeText = UIHelper.MakeText("Awake", item.transform, awakeStr,
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Dark);
             var art = awakeText.GetComponent<RectTransform>();
@@ -165,11 +168,20 @@ public class AwakeningPanel : MonoBehaviour
             art.offsetMin = Vector2.zero;
             art.offsetMax = Vector2.zero;
 
-            // 카피 수
+            // 카피 게이지 (블록 표시)
             Color copyColor = copies >= needed ? UIColors.Text_DarkGreen : UIColors.Text_DarkSecondary;
-            string copyStr  = awakening >= HeroLevelManager.MAX_AWAKENING
-                ? $"카피: {copies}"
-                : $"카피: {copies}/{needed}";
+            string copyStr;
+            if (isMaxAwake)
+            {
+                copyStr = $"카피: {copies}";
+            }
+            else
+            {
+                int filled = needed > 0 ? Mathf.Min(copies, needed) : 0;
+                int empty  = needed > 0 ? Mathf.Max(needed - copies, 0) : 0;
+                string bar = $"<color=#2E7D32>{new string('\u25A0', filled)}</color><color=#8B6914>{new string('\u25A1', empty)}</color>";
+                copyStr = $"{bar} {copies}/{needed}";
+            }
             var copyText = UIHelper.MakeText("Copy", item.transform, copyStr,
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, copyColor);
             var crt = copyText.GetComponent<RectTransform>();
@@ -264,7 +276,7 @@ public class AwakeningPanel : MonoBehaviour
         }
         else
         {
-            obj = UIHelper.MakePanel(name, parent, bgColor);
+            obj = UIHelper.MakePanel(name, parent, bgColor).gameObject;
             pool.Add(obj);
         }
         reuseIdx++;

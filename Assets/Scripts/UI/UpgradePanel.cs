@@ -145,9 +145,10 @@ public class UpgradePanel : MonoBehaviour
     void SetUpgradeBtnCost(Button b, int cost)
     {
         if (b == null) return;
-        var text = b.GetComponentInChildren<TextMeshProUGUI>();
-        if (text != null) text.text = $"{cost}G";
         bool canAfford = GoldManager.Instance != null && GoldManager.Instance.Gold >= cost;
+        var text = b.GetComponentInChildren<TextMeshProUGUI>();
+        if (text != null)
+            text.text = canAfford ? $"{cost}G" : $"<color=#CC3333>{cost}G</color>";
         var img = b.GetComponent<Image>();
         if (img.sprite != null)
             img.color = canAfford ? Color.white : new Color(0.70f, 0.70f, 0.70f);
@@ -203,9 +204,14 @@ public class UpgradePanel : MonoBehaviour
             nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             nrt.offsetMax = Vector2.zero;
 
-            string info = $"Lv.{level} DMG:{dmgMult:P0}";
+            bool isMaxSkill = level >= SkillUpgradeManager.MAX_SKILL_LEVEL;
+            string dmgStr = $"DMG {dmgMult:P0}";
+            string info = isMaxSkill
+                ? $"<b>Lv.MAX</b>  {dmgStr}"
+                : $"<b>Lv.{level}</b>  {dmgStr}";
+            Color infoColor = isMaxSkill ? UIColors.Text_DarkGold : UIColors.Text_Dark;
             var infoText = UIHelper.MakeText("Info", item.transform, info,
-                9f, TextAlignmentOptions.Center, UIColors.Text_DarkGold);
+                9f, TextAlignmentOptions.Center, infoColor);
             var inrt = infoText.GetComponent<RectTransform>();
             inrt.anchorMin = new Vector2(0.35f, 0);
             inrt.anchorMax = new Vector2(0.65f, 1);

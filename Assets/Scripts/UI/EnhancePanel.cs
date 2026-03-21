@@ -135,14 +135,9 @@ public class EnhancePanel : MonoBehaviour
         {
             bool active = (i == subTab);
             var img = subTabBtns[i].GetComponent<Image>();
-            if (img.sprite != null)
-            {
-                img.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
-                subTabBtns[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
-            }
-            else
-                img.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
-            subTabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
+            img.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+            subTabLabels[i].color = active ? UIColors.Text_Gold : UIColors.Text_TabInactive;
+            subTabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
         }
         if (heroRoot != null)      heroRoot.SetActive(subTab == 0);
         if (equipRoot != null)     equipRoot.SetActive(subTab == 1);
