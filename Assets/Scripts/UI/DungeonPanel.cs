@@ -17,6 +17,7 @@ public class DungeonPanel : MonoBehaviour
     TextMeshProUGUI rewardTypeText;
     TextMeshProUGUI floorValueText;
     Button enterBtn;
+    Button adBonusBtn;
 
     DungeonManager cachedDungeonMgr;
 
@@ -176,13 +177,30 @@ public class DungeonPanel : MonoBehaviour
 
     void BuildEnterButton(Transform parent)
     {
-        var (btn, _) = UIHelper.MakeSpriteButton("EnterBtn", parent,
+        // 광고 +1회 버튼
+        var (adBtn, _) = UIHelper.MakeSpriteButton("AdBonusBtn", parent,
+            UISprites.Btn1_WS, UIColors.Button_Blue, "", UIConstants.Font_SmallInfo);
+        adBtn.onClick.AddListener(OnAdBonusClicked);
+        adBonusBtn = adBtn;
+        var art = adBtn.GetComponent<RectTransform>();
+        art.anchorMin = new Vector2(0.15f, 0.13f);
+        art.anchorMax = new Vector2(0.85f, 0.20f);
+        art.offsetMin = Vector2.zero;
+        art.offsetMax = Vector2.zero;
+
+        var adLabel = UIHelper.MakeText("Label", adBtn.transform, "광고 보고 +1회",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        adLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(adLabel.GetComponent<RectTransform>());
+
+        // 입장 버튼
+        var (btn, _2) = UIHelper.MakeSpriteButton("EnterBtn", parent,
             UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
         enterBtn = btn;
         btn.onClick.AddListener(OnEnterClicked);
         var rt = btn.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.15f, 0.08f);
-        rt.anchorMax = new Vector2(0.85f, 0.22f);
+        rt.anchorMin = new Vector2(0.15f, 0.02f);
+        rt.anchorMax = new Vector2(0.85f, 0.12f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
@@ -285,6 +303,35 @@ public class DungeonPanel : MonoBehaviour
         Destroy(data);
     }
 
+    void OnAdBonusClicked()
+    {
+        var dm = DungeonManager.Instance;
+        if (dm == null) return;
+
+        // 광고 시청 후 추가 입장 제공
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedAd(
+                AdManager.AdRewardType.DungeonEntry,
+                success =>
+                {
+                    if (success)
+                    {
+                        if (dm.AddBonusEntry(selectedType))
+                        {
+                            ToastNotification.Instance?.Show("보너스 입장!", "광고 덕분에 +1회 추가!", UIColors.Button_Green);
+                            RefreshInfo();
+                        }
+                        else
+                        {
+                            ToastNotification.Instance?.Show("보너스 입장 불가", "일일 광고 제한을 초과했습니다.", UIColors.Defeat_Red);
+                        }
+                    }
+                }
+            );
+        }
+    }
+
     // ────────────────────────────────────────
     // Refresh helpers
     // ────────────────────────────────────────
@@ -325,6 +372,10 @@ public class DungeonPanel : MonoBehaviour
         // 입장 버튼 활성 여부
         if (enterBtn != null)
             enterBtn.interactable = remaining > 0;
+
+        // 광고 보너스 버튼 활성 여부 (입장 횟수 0일 때만 표시)
+        if (adBonusBtn != null)
+            adBonusBtn.interactable = (remaining == 0);
     }
 
     void RefreshFloorSelector()

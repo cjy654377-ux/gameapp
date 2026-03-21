@@ -4,14 +4,15 @@ using TMPro;
 using System.Collections.Generic;
 
 /// <summary>
-/// 강화 패널: 영웅 레벨업 / 장비 강화·분해·장착
-/// MainHUD 강화 탭(index 1)에서 Init(parent, showHeroSelect)로 초기화
+/// 영웅 패널: 편성 / 레벨업 / 장비 / 각성 서브탭
+/// MainHUD 영웅 탭(index 0)에서 Init(parent, showHeroSelect)로 초기화
 /// </summary>
 public class EnhancePanel : MonoBehaviour
 {
-    int subTab; // 0=영웅, 1=장비, 2=각성
+    int subTab; // 0=편성, 1=레벨업, 2=장비, 3=각성
     Button[] subTabBtns;
     TextMeshProUGUI[] subTabLabels;
+    GameObject deckRoot;
     GameObject heroRoot;
     GameObject equipRoot;
     GameObject awakeningRoot;
@@ -24,7 +25,6 @@ public class EnhancePanel : MonoBehaviour
     readonly List<GameObject> equipListItems = new();
     TextMeshProUGUI equipInfoText;
 
-    // ShowHeroSelectPopup 델리게이트 (MainHUD 팝업 위임)
     System.Action<string> showHeroSelect;
 
     // ════════════════════════════════════════
@@ -39,7 +39,7 @@ public class EnhancePanel : MonoBehaviour
         var contentRT = content.GetComponent<RectTransform>();
         contentRT.anchorMin = Vector2.zero;
         contentRT.anchorMax = Vector2.one;
-        contentRT.offsetMin = new Vector2(0, 0);
+        contentRT.offsetMin = Vector2.zero;
         contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
         // 서브탭 바
@@ -52,14 +52,14 @@ public class EnhancePanel : MonoBehaviour
         stbRT.pivot = new Vector2(0.5f, 1);
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
-        string[] subNames = { "영웅", "장비", "각성" };
-        subTabBtns = new Button[3];
-        subTabLabels = new TextMeshProUGUI[3];
+        string[] subNames = { "편성", "레벨업", "장비", "각성" };
+        subTabBtns   = new Button[4];
+        subTabLabels = new TextMeshProUGUI[4];
 
-        for (int s = 0; s < 3; s++)
+        for (int s = 0; s < 4; s++)
         {
-            float xMin = s * (1f / 3f);
-            float xMax = (s + 1) * (1f / 3f);
+            float xMin = s * 0.25f;
+            float xMax = (s + 1) * 0.25f;
             var (btn, btnImg) = UIHelper.MakeSpriteButton($"SubTab_{subNames[s]}", subTabBarBg.transform,
                 UISprites.Btn1_WS, UIColors.Tab_Inactive, "", 0);
             if (UISprites.Btn1_WS != null) btnImg.color = Color.white;
@@ -74,14 +74,24 @@ public class EnhancePanel : MonoBehaviour
             label.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(label.GetComponent<RectTransform>());
 
-            subTabBtns[s] = btn;
+            subTabBtns[s]   = btn;
             subTabLabels[s] = label;
 
             int captured = s;
             btn.onClick.AddListener(() => SwitchSubTab(captured));
         }
 
-        // 영웅 루트
+        // 편성 루트 (DeckUI)
+        deckRoot = UIHelper.MakeUI("DeckRoot", content.transform);
+        var deckRT = deckRoot.GetComponent<RectTransform>();
+        deckRT.anchorMin = Vector2.zero;
+        deckRT.anchorMax = new Vector2(1, 1);
+        deckRT.offsetMin = Vector2.zero;
+        deckRT.offsetMax = new Vector2(0, -subTabH);
+        var deckUI = deckRoot.AddComponent<DeckUI>();
+        deckUI.Init(deckRoot.transform);
+
+        // 레벨업 루트
         heroRoot = UIHelper.MakeUI("HeroRoot", content.transform);
         var heroRT = heroRoot.GetComponent<RectTransform>();
         heroRT.anchorMin = Vector2.zero;
@@ -89,6 +99,7 @@ public class EnhancePanel : MonoBehaviour
         heroRT.offsetMin = Vector2.zero;
         heroRT.offsetMax = new Vector2(0, -subTabH);
         BuildHeroContent(heroRoot.transform);
+        heroRoot.SetActive(false);
 
         // 장비 루트
         equipRoot = UIHelper.MakeUI("EquipRoot", content.transform);
@@ -98,6 +109,7 @@ public class EnhancePanel : MonoBehaviour
         equipRT.offsetMin = Vector2.zero;
         equipRT.offsetMax = new Vector2(0, -subTabH);
         BuildEquipmentContent(equipRoot.transform);
+        equipRoot.SetActive(false);
 
         // 각성 루트
         awakeningRoot = UIHelper.MakeUI("AwakeningRoot", content.transform);
@@ -123,15 +135,18 @@ public class EnhancePanel : MonoBehaviour
         SoundManager.Instance?.PlayButtonSFX();
         subTab = subIdx;
         UpdateSubTabVisuals();
-        if (subIdx == 0) RefreshHeroUI();
-        else if (subIdx == 1) RefreshEquipmentUI();
-        else awakeningPanel?.Refresh();
+        switch (subIdx)
+        {
+            case 1: RefreshHeroUI();       break;
+            case 2: RefreshEquipmentUI();  break;
+            case 3: awakeningPanel?.Refresh(); break;
+        }
     }
 
     void UpdateSubTabVisuals()
     {
         if (subTabBtns == null) return;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             bool active = (i == subTab);
             var img = subTabBtns[i].GetComponent<Image>();
@@ -139,21 +154,25 @@ public class EnhancePanel : MonoBehaviour
             subTabLabels[i].color = active ? UIColors.Text_Gold : UIColors.Text_TabInactive;
             subTabLabels[i].fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
         }
-        if (heroRoot != null)      heroRoot.SetActive(subTab == 0);
-        if (equipRoot != null)     equipRoot.SetActive(subTab == 1);
-        if (awakeningRoot != null) awakeningRoot.SetActive(subTab == 2);
+        if (deckRoot      != null) deckRoot.SetActive(subTab == 0);
+        if (heroRoot      != null) heroRoot.SetActive(subTab == 1);
+        if (equipRoot     != null) equipRoot.SetActive(subTab == 2);
+        if (awakeningRoot != null) awakeningRoot.SetActive(subTab == 3);
     }
 
     public void Refresh()
     {
         UpdateSubTabVisuals();
-        if (subTab == 0) RefreshHeroUI();
-        else if (subTab == 1) RefreshEquipmentUI();
-        else awakeningPanel?.Refresh();
+        switch (subTab)
+        {
+            case 1: RefreshHeroUI();       break;
+            case 2: RefreshEquipmentUI();  break;
+            case 3: awakeningPanel?.Refresh(); break;
+        }
     }
 
     // ════════════════════════════════════════
-    // 영웅 서브탭
+    // 레벨업 서브탭
     // ════════════════════════════════════════
 
     void BuildHeroContent(Transform parent)
@@ -525,7 +544,6 @@ public class EnhancePanel : MonoBehaviour
         {
             go = items[reuseIdx];
             go.SetActive(true);
-            // 자식 UI 요소 초기화
             for (int c = go.transform.childCount - 1; c >= 0; c--)
                 Object.Destroy(go.transform.GetChild(c).gameObject);
         }
