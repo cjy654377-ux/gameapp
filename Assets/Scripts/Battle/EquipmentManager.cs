@@ -85,6 +85,12 @@ public class EquipmentManager : MonoBehaviour
     const float ENHANCE_BOOST      = 1.3f;
     const int   DISMANTLE_GOLD_PER_RARITY = 50;
 
+    // 강화 성공률 (rarity 1~4 기준, 5는 최대등급이라 강화 불가)
+    static readonly float[] BASE_SUCCESS_RATE = { 0f, 1.0f, 0.90f, 0.75f, 0.55f, 0f };
+
+    float _enhanceSuccessBonus;
+    public bool LastEnhanceFailed { get; private set; }
+
     // 2세트 보너스
     const float SET2_WARRIOR_ATK   = 15f;
     const float SET2_MAGE_ATK      = 10f;
@@ -402,11 +408,30 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 장비 강화: 같은 슬롯+등급 아이템 2개 소모 → 1등급 상승
-    /// materialId를 소모하여 targetId의 등급을 올림
+    /// 다음 강화 성공률을 boost만큼 높임 (광고 시청 보상)
+    /// </summary>
+    public void BoostNextEnhance(float boost = 0.20f)
+    {
+        _enhanceSuccessBonus = boost;
+    }
+
+    /// <summary>
+    /// 강화 성공률 반환 (0~1)
+    /// </summary>
+    public float GetEnhanceSuccessRate(int rarity)
+    {
+        float rate = rarity >= 0 && rarity < BASE_SUCCESS_RATE.Length
+            ? BASE_SUCCESS_RATE[rarity] : 0f;
+        return Mathf.Clamp01(rate + _enhanceSuccessBonus);
+    }
+
+    /// <summary>
+    /// 장비 강화: 같은 슬롯+등급 아이템 2개 소모 → 확률적으로 1등급 상승
+    /// 실패 시 재료만 소모, LastEnhanceFailed = true
     /// </summary>
     public bool EnhanceItem(string targetId, string materialId)
     {
+        LastEnhanceFailed = false;
         var target = FindItem(targetId);
         var material = FindItem(materialId);
         if (target == null || material == null) return false;
@@ -415,6 +440,22 @@ public class EquipmentManager : MonoBehaviour
         if (target.slot != material.slot) return false; // 같은 슬롯만
         if (target.rarity != material.rarity) return false; // 같은 등급만
         if (!string.IsNullOrEmpty(material.equippedTo)) return false; // 재료 장착 중 불가
+
+        float successRate = GetEnhanceSuccessRate(target.rarity);
+        _enhanceSuccessBonus = 0f; // 보너스 소비
+
+        bool success = UnityEngine.Random.value < successRate;
+
+        // 재료는 성공/실패 무관하게 소모
+        inventory.Remove(material);
+
+        if (!success)
+        {
+            LastEnhanceFailed = true;
+            SaveInventory();
+            OnEquipmentChanged?.Invoke();
+            return false;
+        }
 
         // 등급 상승
         target.rarity++;
@@ -429,8 +470,6 @@ public class EquipmentManager : MonoBehaviour
             ? $"{prefix} {slotName}"
             : $"{prefix} {slotName} [{target.setId}]";
 
-        // 재료 소모
-        inventory.Remove(material);
         SaveInventory();
         OnEquipmentChanged?.Invoke();
         SoundManager.Instance?.PlayLevelUpSFX();
