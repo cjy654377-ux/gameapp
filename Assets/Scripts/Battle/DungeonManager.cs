@@ -20,8 +20,10 @@ public class DungeonManager : MonoBehaviour
     private int _heroUsed;
     private int _mountUsed;
     private int _skillUsed;
+    private int _adBonusUsed;
     private bool _isDirty;
     private float _saveTimer;
+    private const int MAX_AD_BONUS_ENTRIES = 3;
 
     void Awake()
     {
@@ -37,6 +39,7 @@ public class DungeonManager : MonoBehaviour
         _heroUsed  = PlayerPrefs.GetInt(SaveKeys.DungeonHeroEntries, 0);
         _mountUsed = PlayerPrefs.GetInt(SaveKeys.DungeonMountEntries, 0);
         _skillUsed = PlayerPrefs.GetInt(SaveKeys.DungeonSkillEntries, 0);
+        _adBonusUsed = PlayerPrefs.GetInt(SaveKeys.DungeonAdBonusCount, 0);
     }
 
     void ResetDailyIfNeeded()
@@ -45,7 +48,9 @@ public class DungeonManager : MonoBehaviour
         if (PlayerPrefs.GetString(SaveKeys.DungeonLastResetDate, "") != today)
         {
             _heroUsed = _mountUsed = _skillUsed = 0;
+            _adBonusUsed = 0;
             PlayerPrefs.SetString(SaveKeys.DungeonLastResetDate, today);
+            PlayerPrefs.SetString(SaveKeys.DungeonAdBonusDate, today);
             _isDirty = true;
         }
     }
@@ -65,6 +70,20 @@ public class DungeonManager : MonoBehaviour
         if (GemManager.Instance == null || !GemManager.Instance.SpendGem(GEM_COST_PER_EXTRA))
             return false;
         AddUsed(type, -1); // 사용 횟수 1 감소 = 잔여 횟수 1 증가
+        _isDirty = true;
+        OnEntriesChanged?.Invoke(type, GetRemainingEntries(type));
+        return true;
+    }
+
+    /// <summary>광고 시청으로 추가 입장 (일 3회 한정).</summary>
+    public bool AddBonusEntry(DungeonType type)
+    {
+        ResetDailyIfNeeded(); // 날짜 변경 확인
+        if (_adBonusUsed >= MAX_AD_BONUS_ENTRIES)
+            return false;
+
+        AddUsed(type, -1); // 사용 횟수 1 감소 = 잔여 횟수 1 증가
+        _adBonusUsed++;
         _isDirty = true;
         OnEntriesChanged?.Invoke(type, GetRemainingEntries(type));
         return true;
@@ -146,6 +165,7 @@ public class DungeonManager : MonoBehaviour
         PlayerPrefs.SetInt(SaveKeys.DungeonHeroEntries,  _heroUsed);
         PlayerPrefs.SetInt(SaveKeys.DungeonMountEntries, _mountUsed);
         PlayerPrefs.SetInt(SaveKeys.DungeonSkillEntries, _skillUsed);
+        PlayerPrefs.SetInt(SaveKeys.DungeonAdBonusCount, _adBonusUsed);
         PlayerPrefs.Save();
         _isDirty = false;
         _saveTimer = 0f;

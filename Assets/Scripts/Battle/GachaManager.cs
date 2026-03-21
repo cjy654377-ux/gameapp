@@ -16,6 +16,7 @@ public class GachaManager : MonoBehaviour
     public const int SINGLE_PULL_COST  = 50;
     public const int MULTI_PULL_COST   = 450; // 10연차 (1회 무료)
     public const int MULTI_PULL_COUNT  = 10;
+    private const float FREE_PULL_COOLDOWN_HOURS = 4f;
 
     // 가챠 확률 (누적, 0~100 롤 기준)
     const float PROB_STAR5     = 0.03f;
@@ -127,7 +128,7 @@ public class GachaManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 무료 소환 (광고 시청) - 비용 없음
+    /// 무료 소환 (광고 시청) - 비용 없음, 4시간 쿨타임
     /// </summary>
     public CharacterPreset FreeSinglePull()
     {
@@ -137,12 +138,60 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
+        if (!CanFreePull())
+        {
+            Debug.Log("[GachaManager] Free pull cooldown not ready.");
+            return null;
+        }
+
         var hero = PullOne();
         HandlePullResult(hero);
         SoundManager.Instance?.PlayGachaSFX();
         OnFreePulled?.Invoke(hero);
         DailyMissionManager.Instance?.RegisterGacha();
+
+        // 쿨타임 갱신
+        UpdateFreePullCooldown();
         return hero;
+    }
+
+    /// <summary>
+    /// 무료 소환 가능 여부
+    /// </summary>
+    public bool CanFreePull()
+    {
+        string lastTimeStr = PlayerPrefs.GetString(SaveKeys.FreeGachaLastTime, "0");
+        if (!double.TryParse(lastTimeStr, out double lastTime))
+            return true; // 기록 없으면 가능
+
+        double now = System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
+        double elapsedHours = (now - lastTime) / 3600.0;
+        return elapsedHours >= FREE_PULL_COOLDOWN_HOURS;
+    }
+
+    /// <summary>
+    /// 무료 소환 쿨타임 갱신
+    /// </summary>
+    void UpdateFreePullCooldown()
+    {
+        double now = System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
+        PlayerPrefs.SetString(SaveKeys.FreeGachaLastTime, now.ToString("F0"));
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// 무료 소환 남은 시간 (초)
+    /// </summary>
+    public float GetFreePullCooldownRemaining()
+    {
+        string lastTimeStr = PlayerPrefs.GetString(SaveKeys.FreeGachaLastTime, "0");
+        if (!double.TryParse(lastTimeStr, out double lastTime))
+            return 0f;
+
+        double now = System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
+        double elapsedSeconds = now - lastTime;
+        double cooldownSeconds = FREE_PULL_COOLDOWN_HOURS * 3600.0;
+        return Mathf.Max(0f, (float)(cooldownSeconds - elapsedSeconds));
     }
 
     /// <summary>

@@ -62,6 +62,10 @@ public static class SaveKeys
     public const string DungeonSkillEntries = "Dungeon_SkillEntries";
     public const string DungeonLastResetDate = "Dungeon_LastResetDate";
 
+    // 광고 추가 입장 횟수 (일일 초기화, 최대 3회)
+    public const string DungeonAdBonusCount = "Dungeon_AdBonusCount";
+    public const string DungeonAdBonusDate  = "Dungeon_AdBonusDate";
+
     // 탈것
     public const string MountOwned    = "Mount_Owned";
     public const string MountEquipped = "Mount_Equipped";
@@ -82,6 +86,9 @@ public static class SaveKeys
     public const string AdCooldownPrefix  = "Ad_CD_";   // + AdRewardType 이름
     public const string AdDailyCountPrefix = "Ad_Day_"; // + AdRewardType 이름
     public const string AdDailyResetDate  = "Ad_DailyReset";
+
+    // 무료 소환 (광고) - 4시간 쿨타임
+    public const string FreeGachaLastTime = "FreeGacha_LastTime";
 
     // 명성 (아레나 전용 통화)
     public const string Reputation = "Reputation";
