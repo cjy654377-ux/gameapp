@@ -223,8 +223,8 @@ public class GachaPanel : MonoBehaviour
             UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
         singleBtn.onClick.AddListener(OnSinglePull);
         var sbrt = singleBtn.GetComponent<RectTransform>();
-        sbrt.anchorMin = new Vector2(0.05f, 0.50f);
-        sbrt.anchorMax = new Vector2(0.47f, 0.82f);
+        sbrt.anchorMin = new Vector2(0.05f, 0.72f);
+        sbrt.anchorMax = new Vector2(0.47f, 0.86f);
         sbrt.offsetMin = sbrt.offsetMax = Vector2.zero;
         var sText = UIHelper.MakeText("Label", singleBtn.transform,
             $"1회 소환\n{GachaManager.SINGLE_PULL_COST} 보석",
@@ -238,8 +238,8 @@ public class GachaPanel : MonoBehaviour
             UISprites.Btn3_WS, UIColors.Button_Yellow, "", UIConstants.Font_Button);
         multiBtn.onClick.AddListener(OnMultiPull);
         var mbrt = multiBtn.GetComponent<RectTransform>();
-        mbrt.anchorMin = new Vector2(0.53f, 0.50f);
-        mbrt.anchorMax = new Vector2(0.95f, 0.82f);
+        mbrt.anchorMin = new Vector2(0.53f, 0.72f);
+        mbrt.anchorMax = new Vector2(0.95f, 0.86f);
         mbrt.offsetMin = mbrt.offsetMax = Vector2.zero;
         var mText = UIHelper.MakeText("Label", multiBtn.transform,
             $"10연차\n{GachaManager.MULTI_PULL_COST} 보석",
@@ -247,13 +247,28 @@ public class GachaPanel : MonoBehaviour
         mText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(mText.GetComponent<RectTransform>());
 
+        // 100연 소환 버튼 (할인 강조)
+        var (hundredBtn, _h) = UIHelper.MakeSpriteButton("HundredPull", parent,
+            UISprites.Btn3_WS, new Color(0.6f, 0.1f, 0.8f), "", UIConstants.Font_Button);
+        hundredBtn.onClick.AddListener(OnHundredPull);
+        var hbrt = hundredBtn.GetComponent<RectTransform>();
+        hbrt.anchorMin = new Vector2(0.05f, 0.56f);
+        hbrt.anchorMax = new Vector2(0.95f, 0.70f);
+        hbrt.offsetMin = hbrt.offsetMax = Vector2.zero;
+        var hText = UIHelper.MakeText("Label", hundredBtn.transform,
+            $"100연차  {GachaManager.HUNDRED_PULL_COST} 보석  (<s>4500</s> → 할인!)",
+            10f, TextAlignmentOptions.Center, Color.white);
+        hText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(hText);
+        UIHelper.FillParent(hText.GetComponent<RectTransform>());
+
         // 천장 정보 표시
         pityText = UIHelper.MakeText("PityInfo", parent, "천장까지 0회",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, new Color(1f, 0.84f, 0f, 1f));
         pityText.fontStyle = FontStyles.Bold;
         var pityRT = pityText.GetComponent<RectTransform>();
-        pityRT.anchorMin = new Vector2(0.05f, 0.40f);
-        pityRT.anchorMax = new Vector2(0.95f, 0.48f);
+        pityRT.anchorMin = new Vector2(0.05f, 0.50f);
+        pityRT.anchorMax = new Vector2(0.95f, 0.56f);
         pityRT.offsetMin = pityRT.offsetMax = Vector2.zero;
         UIHelper.AddTextShadow(pityText);
 
@@ -262,10 +277,10 @@ public class GachaPanel : MonoBehaviour
             UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_SmallInfo);
         probBtn.onClick.AddListener(ShowProbabilityInfo);
         var pbrt = probBtn.GetComponent<RectTransform>();
-        pbrt.anchorMin = new Vector2(0.25f, 0.30f);
-        pbrt.anchorMax = new Vector2(0.75f, 0.40f);
+        pbrt.anchorMin = new Vector2(0.52f, 0.41f);
+        pbrt.anchorMax = new Vector2(0.95f, 0.50f);
         pbrt.offsetMin = pbrt.offsetMax = Vector2.zero;
-        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보 보기",
+        var probLabel = UIHelper.MakeText("Label", probBtn.transform, "확률 정보",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
         UIHelper.FillParent(probLabel.GetComponent<RectTransform>());
 
@@ -275,8 +290,8 @@ public class GachaPanel : MonoBehaviour
         freePullBtn.onClick.AddListener(OnFreePull);
         freeBtn = freePullBtn;
         var fbrt = freePullBtn.GetComponent<RectTransform>();
-        fbrt.anchorMin = new Vector2(0.05f, 0.30f);
-        fbrt.anchorMax = new Vector2(0.95f, 0.38f);
+        fbrt.anchorMin = new Vector2(0.05f, 0.41f);
+        fbrt.anchorMax = new Vector2(0.48f, 0.50f);
         fbrt.offsetMin = fbrt.offsetMax = Vector2.zero;
         freeBtnText = UIHelper.MakeText("Label", freePullBtn.transform, "무료 보상",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
@@ -287,7 +302,7 @@ public class GachaPanel : MonoBehaviour
             UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
         heroResultRT = resultBg.GetComponent<RectTransform>();
         heroResultRT.anchorMin = new Vector2(0.05f, 0.02f);
-        heroResultRT.anchorMax = new Vector2(0.95f, 0.38f);
+        heroResultRT.anchorMax = new Vector2(0.95f, 0.40f);
         heroResultRT.offsetMin = heroResultRT.offsetMax = Vector2.zero;
 
         resultText = UIHelper.MakeText("Result", resultBg.transform, "",
@@ -295,7 +310,7 @@ public class GachaPanel : MonoBehaviour
         UIHelper.AddTextShadow(resultText);
         UIHelper.FillParent(resultText.GetComponent<RectTransform>());
 
-        // 탭하면 10연차 애니메이션 스킵
+        // 탭하면 연차 애니메이션 스킵
         var skipBtn = resultBg.gameObject.AddComponent<Button>();
         skipBtn.transition = Selectable.Transition.None;
         skipBtn.onClick.AddListener(() => _multiPullSkip = true);
@@ -551,6 +566,71 @@ public class GachaPanel : MonoBehaviour
                 yield return new WaitForSecondsRealtime(0.2f);
         }
         _multiPullRunning = false;
+    }
+
+    void OnHundredPull()
+    {
+        if (GachaManager.Instance == null) return;
+        int cost = GachaManager.HUNDRED_PULL_COST;
+        if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
+        {
+            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
+            MainHUD.Instance?.SwitchToTab(3);
+            return;
+        }
+        showConfirm?.Invoke("100연 소환 확인", $"보석 {cost}개를 사용합니다.\n(4500→4000 할인 적용)\n진행하시겠습니까?", () =>
+        {
+            var results = GachaManager.Instance?.HundredPull();
+            if (results != null)
+                StartCoroutine(ShowHundredResults(results));
+            else if (resultText != null)
+                resultText.text = "<color=#CC3333>보석이 부족합니다</color>";
+            Refresh();
+            RefreshPityText();
+        });
+    }
+
+    IEnumerator ShowHundredResults(CharacterPreset[] results)
+    {
+        _multiPullSkip = false;
+        _multiPullRunning = true;
+        if (resultText == null || heroResultRT == null) { _multiPullRunning = false; yield break; }
+
+        // 성급별 집계
+        int[] counts = new int[6]; // index = StarGrade int (1~5)
+        for (int i = 0; i < results.Length; i++)
+            if (results[i] != null) counts[(int)results[i].starGrade]++;
+
+        // 요약 결과 문자열
+        string summary = BuildHundredSummary(counts);
+
+        // 스킵 없이 바로 표시하되, 짧은 연출 후 공개
+        resultText.text = "";
+        heroResultRT.localScale = Vector3.one;
+
+        // 1초 동안 카운팅 연출 (스킵 가능)
+        float elapsed = 0f;
+        while (elapsed < 1.0f && !_multiPullSkip)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            resultText.text = $"집계 중... ({Mathf.FloorToInt(elapsed / 1.0f * 100)}%)";
+            yield return null;
+        }
+
+        resultText.text = summary;
+        _multiPullRunning = false;
+    }
+
+    static string BuildHundredSummary(int[] counts)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("<size=13><b>── 100연 소환 결과 ──</b></size>");
+        if (counts[5] > 0) sb.AppendLine($"<color=#FFD700>★★★★★  {counts[5]}개</color>");
+        if (counts[4] > 0) sb.AppendLine($"<color=#FF8C00>★★★★☆  {counts[4]}개</color>");
+        if (counts[3] > 0) sb.AppendLine($"<color=#9B59B6>★★★☆☆  {counts[3]}개</color>");
+        if (counts[2] > 0) sb.AppendLine($"<color=#3498DB>★★☆☆☆  {counts[2]}개</color>");
+        if (counts[1] > 0) sb.AppendLine($"<color=#AAAAAA>★☆☆☆☆  {counts[1]}개</color>");
+        return sb.ToString().TrimEnd();
     }
 
     void OnFreePull()

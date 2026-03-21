@@ -13,9 +13,11 @@ public class GachaManager : MonoBehaviour
 {
     public static GachaManager Instance { get; private set; }
 
-    public const int SINGLE_PULL_COST  = 50;
-    public const int MULTI_PULL_COST   = 450; // 10연차 (1회 무료)
-    public const int MULTI_PULL_COUNT  = 10;
+    public const int SINGLE_PULL_COST   = 50;
+    public const int MULTI_PULL_COST    = 450;  // 10연차 (1회 무료)
+    public const int MULTI_PULL_COUNT   = 10;
+    public const int HUNDRED_PULL_COST  = 4000; // 100연차 (4500→4000, 할인)
+    public const int HUNDRED_PULL_COUNT = 100;
     public const int PITY_THRESHOLD = 200;
     private const float FREE_PULL_COOLDOWN_HOURS = 4f;
 
@@ -262,6 +264,45 @@ public class GachaManager : MonoBehaviour
 
         // 결과 처리 (중복/신규)
         for (int i = 0; i < MULTI_PULL_COUNT; i++)
+            HandlePullResult(results[i]);
+
+        SoundManager.Instance?.PlayGachaSFX();
+        OnMultiPulled?.Invoke(results);
+        DailyMissionManager.Instance?.RegisterGacha();
+        return results;
+    }
+
+    /// <summary>
+    /// 100연차 (4000보석, 4500→4000 할인)
+    /// </summary>
+    public CharacterPreset[] HundredPull()
+    {
+        if (allHeroes.Length == 0)
+        {
+            Debug.LogWarning("[GachaManager] Hero pool is empty!");
+            return null;
+        }
+
+        if (GemManager.Instance == null)
+        {
+            Debug.LogWarning("[GachaManager] GemManager not found!");
+            return null;
+        }
+
+        if (!GemManager.Instance.SpendGem(HUNDRED_PULL_COST))
+        {
+            Debug.Log("[GachaManager] Not enough gems for hundred pull.");
+            return null;
+        }
+
+        var results = new CharacterPreset[HUNDRED_PULL_COUNT];
+        for (int i = 0; i < HUNDRED_PULL_COUNT; i++)
+        {
+            results[i] = PullOne();
+            IncrementPityCounter();
+        }
+
+        for (int i = 0; i < HUNDRED_PULL_COUNT; i++)
             HandlePullResult(results[i]);
 
         SoundManager.Instance?.PlayGachaSFX();
