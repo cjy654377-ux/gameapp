@@ -104,11 +104,13 @@ public class DeckUI : MonoBehaviour
         var headerBg = CreateSectionHeader("DeckHeaderBG", "편성 (3/8)", 0.88f, 0.98f);
         deckHeaderText = headerBg.GetComponentInChildren<TextMeshProUGUI>();
 
+        CreatePresetBar();
+
         // 8슬롯 1줄 스크롤
         var scrollObj = UIHelper.MakeUI("DeckScroll", root.transform);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
         scrollRT.anchorMin = new Vector2(0, 0.56f);
-        scrollRT.anchorMax = new Vector2(1, 0.88f);
+        scrollRT.anchorMax = new Vector2(1, 0.83f);
         scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, 2);
         scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -2);
 
@@ -192,6 +194,116 @@ public class DeckUI : MonoBehaviour
             nrt.anchorMax = new Vector2(1, 0.22f);
             nrt.offsetMin = new Vector2(1, 1);
             nrt.offsetMax = new Vector2(-1, 0);
+        }
+    }
+
+    // ─── Preset Bar ──────────────────────────────────────────────────────────
+
+    readonly Button[] presetBtns = new Button[DeckManager.MAX_PRESETS];
+    readonly TextMeshProUGUI[] presetBtnLabels = new TextMeshProUGUI[DeckManager.MAX_PRESETS];
+    bool _presetSaveMode = false; // true=저장 모드
+
+    void CreatePresetBar()
+    {
+        var barBg = UIHelper.MakeSpritePanel("PresetBar", root.transform, UISprites.BoxBasic3,
+            new Color(0.28f, 0.20f, 0.12f, 0.85f));
+        var barRT = barBg.GetComponent<RectTransform>();
+        barRT.anchorMin = new Vector2(0.02f, 0.83f);
+        barRT.anchorMax = new Vector2(0.98f, 0.88f);
+        barRT.offsetMin = barRT.offsetMax = Vector2.zero;
+
+        // 라벨
+        var label = UIHelper.MakeText("PresetLabel", barBg.transform, "편성 저장:",
+            7f, TextAlignmentOptions.MidlineLeft, UIColors.Text_Secondary);
+        var lrt = label.GetComponent<RectTransform>();
+        lrt.anchorMin = new Vector2(0.01f, 0);
+        lrt.anchorMax = new Vector2(0.20f, 1);
+        lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+
+        // 슬롯 버튼 3개
+        float slotW = 0.17f;
+        for (int i = 0; i < DeckManager.MAX_PRESETS; i++)
+        {
+            int slot = i;
+            bool has = DeckManager.Instance != null && DeckManager.Instance.HasPreset(slot);
+            float xMin = 0.22f + i * (slotW + 0.02f);
+            float xMax = xMin + slotW;
+
+            var (btn, _) = UIHelper.MakeSpriteButton($"PresetSlot_{i}", barBg.transform,
+                UISprites.Btn2_WS, has ? UIColors.Button_Brown : UIColors.Button_Gray, "", 8f);
+            var brt = btn.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(xMin, 0.08f);
+            brt.anchorMax = new Vector2(xMax, 0.92f);
+            brt.offsetMin = brt.offsetMax = Vector2.zero;
+
+            var btnLabel = UIHelper.MakeText("Label", btn.transform, $"P{i + 1}",
+                8f, TextAlignmentOptions.Center, Color.white);
+            btnLabel.fontStyle = FontStyles.Bold;
+            UIHelper.FillParent(btnLabel.GetComponent<RectTransform>());
+            presetBtns[i] = btn;
+            presetBtnLabels[i] = btnLabel;
+
+            btn.onClick.AddListener(() => OnPresetSlotClicked(slot));
+        }
+
+        // 저장/불러오기 모드 토글 버튼
+        var (modeBtn, _) = UIHelper.MakeSpriteButton("PresetModeBtn", barBg.transform,
+            UISprites.Btn1_WS, UIColors.Button_Green, "", 7f);
+        var mbrt = modeBtn.GetComponent<RectTransform>();
+        mbrt.anchorMin = new Vector2(0.82f, 0.08f);
+        mbrt.anchorMax = new Vector2(0.99f, 0.92f);
+        mbrt.offsetMin = mbrt.offsetMax = Vector2.zero;
+        var modeLabel = UIHelper.MakeText("Label", modeBtn.transform, "불러오기",
+            7f, TextAlignmentOptions.Center, Color.white);
+        modeLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(modeLabel.GetComponent<RectTransform>());
+
+        modeBtn.onClick.AddListener(() =>
+        {
+            _presetSaveMode = !_presetSaveMode;
+            modeLabel.text = _presetSaveMode ? "저장 중" : "불러오기";
+            var img = modeBtn.GetComponent<UnityEngine.UI.Image>();
+            if (img != null) img.color = _presetSaveMode ? UIColors.Button_Yellow : UIColors.Button_Green;
+            RefreshPresetButtons();
+        });
+    }
+
+    void OnPresetSlotClicked(int slot)
+    {
+        var dm = DeckManager.Instance;
+        if (dm == null) return;
+
+        if (_presetSaveMode)
+        {
+            dm.SavePreset(slot);
+            ToastNotification.Instance?.Show($"편성 저장됨", $"슬롯 P{slot + 1}에 저장되었습니다.", UIColors.Button_Green);
+            _presetSaveMode = false;
+        }
+        else
+        {
+            if (!dm.HasPreset(slot))
+            {
+                ToastNotification.Instance?.Show("빈 슬롯", $"P{slot + 1}에 저장된 편성이 없습니다.", UIColors.Defeat_Red);
+                return;
+            }
+            dm.LoadPreset(slot);
+            ToastNotification.Instance?.Show($"편성 적용됨", $"슬롯 P{slot + 1} 편성을 불러왔습니다.", UIColors.Button_Brown);
+        }
+        RefreshPresetButtons();
+        Refresh();
+    }
+
+    void RefreshPresetButtons()
+    {
+        var dm = DeckManager.Instance;
+        for (int i = 0; i < DeckManager.MAX_PRESETS; i++)
+        {
+            if (presetBtns[i] == null) continue;
+            bool has = dm != null && dm.HasPreset(i);
+            var img = presetBtns[i].GetComponent<UnityEngine.UI.Image>();
+            if (img != null) img.color = has ? UIColors.Button_Brown : UIColors.Button_Gray;
+            if (presetBtnLabels[i] != null)
+                presetBtnLabels[i].text = _presetSaveMode ? $"→P{i + 1}" : $"P{i + 1}";
         }
     }
 

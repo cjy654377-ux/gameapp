@@ -38,10 +38,21 @@ public class GrowthFeedback : MonoBehaviour
     TextMeshProUGUI areaBannerText;
     CanvasGroup areaBannerCG;
 
+    // 업적 배너
+    GameObject achieveBanner;
+    Image achieveBannerBG;
+    TextMeshProUGUI achieveBannerTitle;
+    TextMeshProUGUI achieveBannerDesc;
+    RectTransform achieveBannerRT;
+
+    // 각성 큰 별
+    TextMeshProUGUI bigStarText;
+
     // 캐시된 매니저
     HeroLevelManager cachedHLM;
     EquipmentManager cachedEM;
     StageManager cachedSM;
+    AchievementManager cachedAM;
 
     // ════════════════════════════════════════
     // Unity 생명주기
@@ -58,6 +69,8 @@ public class GrowthFeedback : MonoBehaviour
         BuildEquipBanner();
         BuildStarPool();
         BuildAreaBanner();
+        BuildAchieveBanner();
+        BuildBigStar();
     }
 
     void Start()
@@ -71,6 +84,7 @@ public class GrowthFeedback : MonoBehaviour
         cachedHLM = HeroLevelManager.Instance;
         cachedEM  = EquipmentManager.Instance;
         cachedSM  = StageManager.Instance;
+        cachedAM  = AchievementManager.Instance;
 
         if (cachedHLM != null)
         {
@@ -81,6 +95,8 @@ public class GrowthFeedback : MonoBehaviour
             cachedEM.OnEquipmentDropped += OnEquipmentDropped;
         if (cachedSM != null)
             cachedSM.OnAreaChanged += OnAreaChanged;
+        if (cachedAM != null)
+            cachedAM.OnAchievementCompleted += OnAchievementCompleted;
     }
 
     void OnDestroy()
@@ -94,6 +110,8 @@ public class GrowthFeedback : MonoBehaviour
             cachedEM.OnEquipmentDropped -= OnEquipmentDropped;
         if (cachedSM != null)
             cachedSM.OnAreaChanged -= OnAreaChanged;
+        if (cachedAM != null)
+            cachedAM.OnAchievementCompleted -= OnAchievementCompleted;
     }
 
     // ════════════════════════════════════════
@@ -119,11 +137,83 @@ public class GrowthFeedback : MonoBehaviour
             $"HP  +{curHp:F0}%  <color=#888>(+{curHp - prevHp:F0}%)</color>";
 
         ShowLevelPopup(msg);
+        StartCoroutine(LevelUpFlash());
+    }
+
+    IEnumerator LevelUpFlash()
+    {
+        flashOverlay.gameObject.SetActive(true);
+        flashOverlay.color = new Color(1f, 0.85f, 0.1f, 0f);
+        float t = 0;
+        while (t < 0.1f)
+        {
+            t += Time.unscaledDeltaTime;
+            flashOverlay.color = new Color(1f, 0.85f, 0.1f, Mathf.Lerp(0f, 0.35f, t / 0.1f));
+            yield return null;
+        }
+        t = 0;
+        while (t < 0.35f)
+        {
+            t += Time.unscaledDeltaTime;
+            flashOverlay.color = new Color(1f, 0.85f, 0.1f, Mathf.Lerp(0.35f, 0f, t / 0.35f));
+            yield return null;
+        }
+        flashOverlay.gameObject.SetActive(false);
     }
 
     void OnHeroAwakened(string heroName, int awakenLevel)
     {
         StartCoroutine(AwakenEffect(heroName, awakenLevel));
+    }
+
+    void OnAchievementCompleted(string id)
+    {
+        var achs = AchievementManager.Instance?.GetAchievements();
+        if (achs == null) return;
+        for (int i = 0; i < achs.Count; i++)
+        {
+            if (achs[i].id == id)
+            {
+                StartCoroutine(AchieveBannerSlide(achs[i].name, achs[i].description));
+                return;
+            }
+        }
+    }
+
+    IEnumerator AchieveBannerSlide(string title, string desc)
+    {
+        if (achieveBanner == null) yield break;
+        if (achieveBannerTitle != null) achieveBannerTitle.text = $"업적 달성! {title}";
+        if (achieveBannerDesc  != null) achieveBannerDesc.text  = desc;
+
+        achieveBanner.SetActive(true);
+        // 시작: 화면 위 (숨김 위치)
+        achieveBannerRT.anchoredPosition = new Vector2(0f, 80f);
+
+        // 슬라이드 다운 (80 → -10)
+        float t = 0;
+        while (t < 0.3f)
+        {
+            t += Time.unscaledDeltaTime;
+            float y = Mathf.SmoothStep(80f, -10f, t / 0.3f);
+            achieveBannerRT.anchoredPosition = new Vector2(0f, y);
+            yield return null;
+        }
+        achieveBannerRT.anchoredPosition = new Vector2(0f, -10f);
+
+        yield return new WaitForSecondsRealtime(2f);
+
+        // 슬라이드 업 (숨김)
+        t = 0;
+        while (t < 0.25f)
+        {
+            t += Time.unscaledDeltaTime;
+            float y = Mathf.Lerp(-10f, 80f, t / 0.25f);
+            achieveBannerRT.anchoredPosition = new Vector2(0f, y);
+            yield return null;
+        }
+        achieveBanner.SetActive(false);
+        achieveBannerRT.anchoredPosition = new Vector2(0f, 80f);
     }
 
     void OnEquipmentDropped(EquipmentItem item)
@@ -207,6 +297,9 @@ public class GrowthFeedback : MonoBehaviour
         }
         flashOverlay.gameObject.SetActive(false);
 
+        // ★ 커지며 등장
+        StartCoroutine(BigStarPop(awakenLevel));
+
         // 별 파티클 폭발
         StartCoroutine(StarBurst(awakenLevel));
 
@@ -216,6 +309,47 @@ public class GrowthFeedback : MonoBehaviour
             stars,
             UIColors.Rarity_Legendary
         );
+    }
+
+    IEnumerator BigStarPop(int awakenLevel)
+    {
+        if (bigStarText == null) yield break;
+        bigStarText.text = new string('★', awakenLevel);
+        bigStarText.gameObject.SetActive(true);
+        var rt = bigStarText.GetComponent<RectTransform>();
+
+        // 0 → 1.4 (오버슈트)
+        float t = 0;
+        while (t < 0.25f)
+        {
+            t += Time.unscaledDeltaTime;
+            float s = Mathf.SmoothStep(0f, 1.4f, t / 0.25f);
+            rt.localScale = Vector3.one * s;
+            bigStarText.color = new Color(1f, 0.85f, 0.1f, Mathf.Clamp01(t / 0.15f));
+            yield return null;
+        }
+        // 1.4 → 1.0 (정착)
+        t = 0;
+        while (t < 0.12f)
+        {
+            t += Time.unscaledDeltaTime;
+            float s = Mathf.Lerp(1.4f, 1.0f, t / 0.12f);
+            rt.localScale = Vector3.one * s;
+            yield return null;
+        }
+        rt.localScale = Vector3.one;
+
+        yield return new WaitForSecondsRealtime(0.8f);
+
+        // 페이드 아웃
+        t = 0;
+        while (t < 0.3f)
+        {
+            t += Time.unscaledDeltaTime;
+            bigStarText.color = new Color(1f, 0.85f, 0.1f, Mathf.Lerp(1f, 0f, t / 0.3f));
+            yield return null;
+        }
+        bigStarText.gameObject.SetActive(false);
     }
 
     IEnumerator StarBurst(int count)
@@ -433,6 +567,59 @@ public class GrowthFeedback : MonoBehaviour
         }
         areaBannerCG.alpha = 0f;
         areaBannerCG.gameObject.SetActive(false);
+    }
+
+    void BuildBigStar()
+    {
+        var root = canvas.transform;
+        bigStarText = UIHelper.MakeText("BigStar", root, "★",
+            52f, TextAlignmentOptions.Center, UIColors.Rarity_Legendary);
+        bigStarText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(bigStarText);
+        var rt = bigStarText.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = Vector2.one * 0.5f;
+        rt.sizeDelta = new Vector2(200f, 80f);
+        rt.anchoredPosition = new Vector2(0f, 60f);
+        rt.localScale = Vector3.zero;
+        bigStarText.raycastTarget = false;
+        bigStarText.gameObject.SetActive(false);
+    }
+
+    void BuildAchieveBanner()
+    {
+        var root = canvas.transform;
+        var bannerObj = UIHelper.MakeUI("AchieveBanner", root);
+        achieveBannerRT = bannerObj.GetComponent<RectTransform>();
+        achieveBannerRT.anchorMin = new Vector2(0f, 1f);
+        achieveBannerRT.anchorMax = new Vector2(1f, 1f);
+        achieveBannerRT.pivot = new Vector2(0.5f, 1f);
+        achieveBannerRT.sizeDelta = new Vector2(0f, 64f);
+        // 화면 위쪽으로 숨김
+        achieveBannerRT.anchoredPosition = new Vector2(0f, 80f);
+
+        achieveBannerBG = UIHelper.MakePanel("BG", bannerObj.transform, UIColors.Background_Dark);
+        UIHelper.FillParent(achieveBannerBG.GetComponent<RectTransform>());
+
+        achieveBannerTitle = UIHelper.MakeText("Title", bannerObj.transform, "",
+            13f, TextAlignmentOptions.MidlineCenter, UIColors.Text_Gold);
+        achieveBannerTitle.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(achieveBannerTitle);
+        var trt = achieveBannerTitle.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0.05f, 0.5f);
+        trt.anchorMax = new Vector2(0.95f, 1f);
+        trt.offsetMin = trt.offsetMax = Vector2.zero;
+
+        achieveBannerDesc = UIHelper.MakeText("Desc", bannerObj.transform, "",
+            10f, TextAlignmentOptions.MidlineCenter, UIColors.Text_Secondary);
+        var drt = achieveBannerDesc.GetComponent<RectTransform>();
+        drt.anchorMin = new Vector2(0.05f, 0f);
+        drt.anchorMax = new Vector2(0.95f, 0.5f);
+        drt.offsetMin = drt.offsetMax = Vector2.zero;
+
+        bannerObj.SetActive(false);
+        achieveBanner = bannerObj;
     }
 
     void BuildEquipBanner()

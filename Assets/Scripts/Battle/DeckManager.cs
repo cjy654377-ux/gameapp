@@ -217,4 +217,46 @@ public class DeckManager : MonoBehaviour
             if (roster[i] != null && roster[i].name == presetName) return roster[i];
         return null;
     }
+
+    // ═══════════════════════════════════════
+    // PRESETS (3슬롯 저장/불러오기)
+    // ═══════════════════════════════════════
+
+    public const int MAX_PRESETS = 3;
+
+    /// <summary>현재 덱을 프리셋 슬롯에 저장</summary>
+    public void SavePreset(int slot)
+    {
+        if (slot < 0 || slot >= MAX_PRESETS) return;
+        for (int i = 0; i < MAX_DECK_SIZE; i++)
+        {
+            string key = $"Preset_{slot}_{i}";
+            PlayerPrefs.SetString(key, deck[i] != null ? deck[i].name : "");
+        }
+        PlayerPrefs.SetInt($"PresetSaved_{slot}", 1);
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>프리셋 슬롯을 현재 덱에 적용</summary>
+    public bool LoadPreset(int slot)
+    {
+        if (slot < 0 || slot >= MAX_PRESETS) return false;
+        if (!HasPreset(slot)) return false;
+
+        for (int i = 0; i < MAX_DECK_SIZE; i++)
+        {
+            string name = PlayerPrefs.GetString($"Preset_{slot}_{i}", "");
+            deck[i] = string.IsNullOrEmpty(name) ? null : FindPresetByName(name);
+        }
+        SaveDeck();
+        OnDeckChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>프리셋 슬롯에 저장된 데이터가 있는지 여부</summary>
+    public bool HasPreset(int slot)
+    {
+        if (slot < 0 || slot >= MAX_PRESETS) return false;
+        return PlayerPrefs.GetInt($"PresetSaved_{slot}", 0) == 1;
+    }
 }

@@ -799,6 +799,9 @@ public class MainHUD : MonoBehaviour
         }
     }
 
+    /// <summary>외부에서 탭 전환 (재화 부족 안내 바로가기 등)</summary>
+    public void SwitchToTab(int idx) => OnTabClicked(idx);
+
     void OnTabClicked(int idx)
     {
         SoundManager.Instance?.PlayButtonSFX();
@@ -1145,6 +1148,13 @@ public class MainHUD : MonoBehaviour
         }
         SetBadge(0, heroCount);
 
+        // 소환 탭 (index 1): 무료 소환 가능 시 배지
+        int gachaFreeBadge = 0;
+        var gachaMgr = GachaManager.Instance;
+        if (gachaMgr != null && gachaMgr.CanFreePull())
+            gachaFreeBadge = 1;
+        SetBadge(1, gachaFreeBadge);
+
         // 햄버거 배지: 미수령 업적 + 미션 보상 수
         int rewardCount = hamburgerPanel != null ? hamburgerPanel.GetUnclaimedRewardCount() : 0;
         if (hamburgerBadge != null)
@@ -1338,9 +1348,13 @@ public class MainHUD : MonoBehaviour
         int mins = Mathf.FloorToInt(minutes);
         string timeStr = mins >= 60 ? $"{mins / 60}시간 {mins % 60}분" : $"{mins}분";
 
+        int currentWave = StageManager.Instance != null ? StageManager.Instance.CurrentWave : 0;
+        string waveStr = currentWave > 0 ? $"\n현재 웨이브: <color=#AADDFF>Wave {currentWave}</color>" : "";
+
         string rewardStr = $"접속하지 않은 {timeStr} 동안\n";
         if (gold > 0) rewardStr += $"<color=#FFD700>골드 +{gold}</color>  ";
         if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>";
+        rewardStr += waveStr;
 
         offlineText.text = rewardStr;
         offlinePopup.SetActive(true);

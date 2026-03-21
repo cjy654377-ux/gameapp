@@ -1,12 +1,24 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public enum UISoundType
+{
+    button_click,
+    tab_switch,
+    popup,
+    levelup,
+    awakening,
+    gacha_reveal,
+    achievement
+}
+
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
 
     AudioSource bgmSource;
     AudioSource sfxSource;
+    AudioSource uiSource;
 
     public float bgmVolume = 0.5f;
     public float sfxVolume = 0.7f;
@@ -27,10 +39,15 @@ public class SoundManager : MonoBehaviour
         sfxSource.loop = false;
         sfxSource.playOnAwake = false;
 
+        uiSource = gameObject.AddComponent<AudioSource>();
+        uiSource.loop = false;
+        uiSource.playOnAwake = false;
+
         bgmVolume = PlayerPrefs.GetFloat(SaveKeys.BgmVolume, 0.5f);
         sfxVolume = PlayerPrefs.GetFloat(SaveKeys.SfxVolume, 0.7f);
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
+        uiSource.volume = sfxVolume;
     }
 
     AudioClip LoadClip(string path)
@@ -69,6 +86,14 @@ public class SoundManager : MonoBehaviour
         AudioSource.PlayClipAtPoint(clip, pos, sfxVolume);
     }
 
+    public void PlayUISound(UISoundType soundType)
+    {
+        string clipName = "ui_" + soundType.ToString().ToLower();
+        var clip = LoadClip("Sounds/SFX/" + clipName);
+        if (clip == null) return;
+        uiSource.PlayOneShot(clip, sfxVolume);
+    }
+
     public void PlayHitSFX() => PlaySFX("hit");
     public void PlayGoldSFX() => PlaySFX("gold");
     public void PlayLevelUpSFX() => PlaySFX("levelup");
@@ -91,6 +116,7 @@ public class SoundManager : MonoBehaviour
     {
         sfxVolume = Mathf.Clamp01(v);
         sfxSource.volume = sfxVolume;
+        uiSource.volume = sfxVolume;
         PlayerPrefs.SetFloat(SaveKeys.SfxVolume, sfxVolume);
     }
 

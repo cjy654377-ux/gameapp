@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
 
@@ -300,6 +301,8 @@ public class EnhancePanel : MonoBehaviour
                         RefreshHeroUI();
                     }
                 });
+                // 꾹 누르기: 10회 연속 강화
+                AddLongPressUpgrade(btn.gameObject, capturedName, 10);
             }
 
             y -= (itemH + spacing);
@@ -618,8 +621,58 @@ public class EnhancePanel : MonoBehaviour
             if (items[i] != null) items[i].SetActive(false);
     }
 
+    // ════════════════════════════════════════
+    // 꾹 누르기 (Long Press) — 연속 강화
+    // ════════════════════════════════════════
+
+    Coroutine _longPressRoutine;
+
+    void AddLongPressUpgrade(GameObject btnGO, string heroName, int times)
+    {
+        var et = btnGO.AddComponent<EventTrigger>();
+
+        var downEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
+        downEntry.callback.AddListener(_ =>
+        {
+            if (_longPressRoutine != null) StopCoroutine(_longPressRoutine);
+            _longPressRoutine = StartCoroutine(BulkLevelUpRoutine(heroName, times));
+        });
+        et.triggers.Add(downEntry);
+
+        var upEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerUp };
+        upEntry.callback.AddListener(_ =>
+        {
+            if (_longPressRoutine != null) { StopCoroutine(_longPressRoutine); _longPressRoutine = null; }
+        });
+        et.triggers.Add(upEntry);
+    }
+
+    System.Collections.IEnumerator BulkLevelUpRoutine(string heroName, int times)
+    {
+        yield return new WaitForSecondsRealtime(0.5f); // 0.5초 꾹 누르기 threshold
+
+        var hlm = HeroLevelManager.Instance;
+        if (hlm == null) { _longPressRoutine = null; yield break; }
+
+        int done = 0;
+        for (int i = 0; i < times; i++)
+        {
+            if (!hlm.TryLevelUp(heroName)) break;
+            done++;
+            yield return new WaitForSecondsRealtime(0.07f);
+        }
+
+        if (done > 0)
+        {
+            ToastNotification.Instance?.Show($"일괄 강화 완료!", $"{done}회 레벨업", UIColors.Button_Green);
+            RefreshHeroUI();
+        }
+        _longPressRoutine = null;
+    }
+
     void OnDestroy()
     {
+        if (_longPressRoutine != null) { StopCoroutine(_longPressRoutine); _longPressRoutine = null; }
         if (subTabBtns != null)
         {
             for (int i = 0; i < subTabBtns.Length; i++)

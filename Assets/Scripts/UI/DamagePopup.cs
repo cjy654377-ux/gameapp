@@ -49,7 +49,7 @@ public class DamagePopup : MonoBehaviour
         popup.spriteColor = Color.white;
         popup.disappearTimer = 1.0f;
         popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 1.2f, 0f);
-        go.transform.localScale = Vector3.one * 0.22f; // 크리티컬은 더 크게
+        go.transform.localScale = Vector3.one * 0.24f; // 크리티컬은 일반(0.16f)의 1.5배
 
         return popup;
     }

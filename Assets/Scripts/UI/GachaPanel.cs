@@ -334,7 +334,8 @@ public class GachaPanel : MonoBehaviour
         int cost = GachaManager.SINGLE_PULL_COST;
         if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
         {
-            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
+            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요 — 던전에서 획득하세요", UIColors.Defeat_Red);
+            MainHUD.Instance?.SwitchToTab(3);
             return;
         }
         showConfirm?.Invoke("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoSinglePull);
@@ -384,7 +385,8 @@ public class GachaPanel : MonoBehaviour
         int cost = GachaManager.MULTI_PULL_COST;
         if (GemManager.Instance != null && GemManager.Instance.Gem < cost)
         {
-            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요", UIColors.Defeat_Red);
+            ToastNotification.Instance?.Show("보석 부족!", $"{cost}보석 필요 — 던전에서 획득하세요", UIColors.Defeat_Red);
+            MainHUD.Instance?.SwitchToTab(3);
             return;
         }
         showConfirm?.Invoke("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", DoMultiPull);
@@ -616,13 +618,13 @@ public class GachaPanel : MonoBehaviour
 
     System.Collections.IEnumerator CardFlip(RectTransform rt, Color glowColor)
     {
-        // Scale X: 1 → 0 (카드 뒤집는 중)
+        // Scale X: 1 → 0 (카드 뒤집는 중, 0.15초)
         float t = 0;
         Vector3 orig = rt.localScale;
-        while (t < 0.12f)
+        while (t < 0.15f)
         {
             t += Time.unscaledDeltaTime;
-            float s = Mathf.Lerp(1f, 0f, t / 0.12f);
+            float s = Mathf.Lerp(1f, 0f, t / 0.15f);
             rt.localScale = new Vector3(s, orig.y, orig.z);
             yield return null;
         }
@@ -631,7 +633,7 @@ public class GachaPanel : MonoBehaviour
         var img = rt.GetComponent<Image>();
         if (img != null) img.color = new Color(glowColor.r * 0.4f, glowColor.g * 0.4f, glowColor.b * 0.4f, 0.85f);
 
-        // Scale X: 0 → 1 (카드 앞면)
+        // Scale X: 0 → 1 (카드 앞면, 0.15초) — 총 0.3초
         t = 0;
         while (t < 0.15f)
         {
