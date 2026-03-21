@@ -12,6 +12,7 @@ public class SettingsPanel : MonoBehaviour
     Slider sfxSlider;
     TextMeshProUGUI bgmValueText;
     TextMeshProUGUI sfxValueText;
+    TextMeshProUGUI loginStatusText;
 
     public void Init(Transform parent)
     {
@@ -22,34 +23,133 @@ public class SettingsPanel : MonoBehaviour
         crt.offsetMin = new Vector2(UIConstants.Spacing_Medium, UIConstants.Spacing_Medium);
         crt.offsetMax = new Vector2(-UIConstants.Spacing_Medium, 0);
 
-        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.72f, 0.97f,
+        BuildVolumeSlider(content.transform, "BGM 볼륨", 0.75f, 0.97f,
             out bgmSlider, out bgmValueText, (val) =>
             {
                 SoundManager.Instance?.SetBGMVolume(val);
                 if (bgmValueText != null) bgmValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
             });
 
-        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.44f, 0.69f,
+        BuildVolumeSlider(content.transform, "SFX 볼륨", 0.52f, 0.74f,
             out sfxSlider, out sfxValueText, (val) =>
             {
                 SoundManager.Instance?.SetSFXVolume(val);
                 if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
             });
 
+        // 로그인 상태 텍스트
+        loginStatusText = UIHelper.MakeText("LoginStatus", content.transform, "로그인 중...",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        var lsrt = loginStatusText.GetComponent<RectTransform>();
+        lsrt.anchorMin = new Vector2(0, 0.44f);
+        lsrt.anchorMax = new Vector2(1, 0.51f);
+        lsrt.offsetMin = lsrt.offsetMax = Vector2.zero;
+        RefreshLoginStatus();
+
+        // Google 로그인 버튼
+        AddSettingsBtn(content.transform, "GoogleLoginBtn", "Google 로그인", UIColors.Button_Blue,
+            new Vector2(0, 0.35f), new Vector2(1, 0.43f), OnGoogleLogin);
+
+        // 클라우드 저장 버튼
+        AddSettingsBtn(content.transform, "CloudSaveBtn", "☁ 클라우드 저장", UIColors.Button_Green,
+            new Vector2(0, 0.25f), new Vector2(0.48f, 0.34f), OnCloudSave);
+
+        // 클라우드 불러오기 버튼
+        AddSettingsBtn(content.transform, "CloudLoadBtn", "☁ 불러오기", UIColors.Button_Brown,
+            new Vector2(0.52f, 0.25f), new Vector2(1, 0.34f), OnCloudLoad);
+
+        // 데이터 초기화
         var (resetBtn, _) = UIHelper.MakeSpriteButton("ResetBtn", content.transform,
             UISprites.Btn4_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
         var rbrt = resetBtn.GetComponent<RectTransform>();
-        rbrt.anchorMin = new Vector2(0.15f, 0.05f);
-        rbrt.anchorMax = new Vector2(0.85f, 0.2f);
+        rbrt.anchorMin = new Vector2(0.15f, 0.03f);
+        rbrt.anchorMax = new Vector2(0.85f, 0.14f);
         rbrt.offsetMin = Vector2.zero;
         rbrt.offsetMax = Vector2.zero;
-
         var resetText = UIHelper.MakeText("Label", resetBtn.transform, "데이터 초기화",
             UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
         resetText.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(resetText.GetComponent<RectTransform>());
-
         resetBtn.onClick.AddListener(OnResetData);
+    }
+
+    void AddSettingsBtn(Transform parent, string name, string label, Color color,
+        Vector2 anchorMin, Vector2 anchorMax, UnityEngine.Events.UnityAction onClick)
+    {
+        var (btn, _) = UIHelper.MakeSpriteButton(name, parent,
+            UISprites.Btn2_WS, color, "", UIConstants.Font_SmallInfo);
+        var rt = btn.GetComponent<RectTransform>();
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+        var txt = UIHelper.MakeText("Label", btn.transform, label,
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        txt.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(txt.GetComponent<RectTransform>());
+        btn.onClick.AddListener(onClick);
+    }
+
+    void RefreshLoginStatus()
+    {
+        if (loginStatusText == null) return;
+        var auth = AuthManager.Instance;
+        if (auth == null || !auth.IsLoggedIn)
+        {
+            loginStatusText.text = "로그인 안됨";
+            loginStatusText.color = UIColors.Text_Disabled;
+        }
+        else
+        {
+            string provider = auth.CurrentProvider switch
+            {
+                AuthProvider.Google => "Google",
+                AuthProvider.Apple  => "Apple",
+                _                   => "게스트"
+            };
+            loginStatusText.text = $"{auth.DisplayName}  ({provider})";
+            loginStatusText.color = UIColors.Text_Secondary;
+        }
+    }
+
+    void OnGoogleLogin()
+    {
+        AuthManager.Instance?.LoginWithGoogle();
+        RefreshLoginStatus();
+        ToastNotification.Instance?.Show("로그인", "Google 로그인 시도 중...", UIColors.Button_Blue);
+    }
+
+    void OnCloudSave()
+    {
+        var csm = CloudSaveManager.Instance;
+        if (csm == null) return;
+        csm.OnSaveComplete += OnSaveResult;
+        csm.SaveToCloud();
+    }
+
+    void OnSaveResult(bool ok)
+    {
+        if (CloudSaveManager.Instance != null)
+            CloudSaveManager.Instance.OnSaveComplete -= OnSaveResult;
+        string msg = ok ? "클라우드 저장 완료" : "저장 실패 (로그인 필요)";
+        Color col = ok ? UIColors.Button_Green : UIColors.Defeat_Red;
+        ToastNotification.Instance?.Show("클라우드 저장", msg, col);
+    }
+
+    void OnCloudLoad()
+    {
+        var csm = CloudSaveManager.Instance;
+        if (csm == null) return;
+        csm.OnLoadComplete += OnLoadResult;
+        csm.LoadFromCloud();
+    }
+
+    void OnLoadResult(bool ok)
+    {
+        if (CloudSaveManager.Instance != null)
+            CloudSaveManager.Instance.OnLoadComplete -= OnLoadResult;
+        string msg = ok ? "클라우드 불러오기 완료" : "Firestore SDK 필요 (준비 중)";
+        Color col = ok ? UIColors.Button_Green : UIColors.Button_Brown;
+        ToastNotification.Instance?.Show("클라우드 불러오기", msg, col);
     }
 
     public void Refresh()

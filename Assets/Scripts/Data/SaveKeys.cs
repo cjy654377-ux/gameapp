@@ -128,4 +128,12 @@ public static class SaveKeys
     public const string StatsHighestWave      = "Stats_HighestWave";
     public const string StatsTotalPlayTime    = "Stats_TotalPlayTime";
     public const string StatsTotalPulls       = "Stats_TotalPulls";
+
+    // 클라우드 저장
+    public const string CloudSaveLastSync = "CloudSave_LastSync";
+
+    // 인증
+    public const string AuthProvider    = "Auth_Provider";
+    public const string AuthUserId      = "Auth_UserId";
+    public const string AuthDisplayName = "Auth_DisplayName";
 }

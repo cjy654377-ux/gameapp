@@ -40,6 +40,12 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<AdManager>("AdManager");
         EnsureSystem<ReputationManager>("ReputationManager");
         EnsureSystem<AwakeningStoneManager>("AwakeningStoneManager");
+        EnsureSystem<AuthManager>("AuthManager");
+        EnsureSystem<CloudSaveManager>("CloudSaveManager");
+
+        // 앱 시작 시 게스트 자동 로그인 (아직 로그인 안 된 경우)
+        if (AuthManager.Instance != null && !AuthManager.Instance.IsLoggedIn)
+            AuthManager.Instance.LoginAsGuest();
 
         // 프리셋 자동 로드 (Inspector 할당이 깨진 경우)
         AutoLoadAllyPresets();
