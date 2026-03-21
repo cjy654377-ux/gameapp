@@ -4,9 +4,20 @@ using System.Collections.Generic;
 public class BattleBackground : MonoBehaviour
 {
     static readonly string[] AreaBackgrounds = {
-        "Backgrounds/bg_grass_field",
-        "Backgrounds/bg_medieval",    // Desert area
-        "Backgrounds/bg_dungeon"      // Cave area
+        "Backgrounds/bg_grass_field",  // Grass
+        "Backgrounds/bg_medieval",     // Desert
+        "Backgrounds/bg_dungeon",      // Cave
+        "Backgrounds/bg_dungeon",      // Volcano (임시: 던전 배경 재활용)
+        "Backgrounds/bg_dungeon"       // Abyss (임시: 던전 배경 재활용)
+    };
+
+    // 에리어별 색조 (배경 tint)
+    static readonly Color[] AreaTintColors = {
+        Color.white,                              // Grass - 자연색
+        new Color(1f, 0.9f, 0.7f),                // Desert - 따뜻한 모래색
+        new Color(0.7f, 0.75f, 0.85f),            // Cave - 차가운 푸른빛
+        new Color(1f, 0.55f, 0.35f),              // Volcano - 붉은 용암빛
+        new Color(0.6f, 0.4f, 0.8f)               // Abyss - 짙은 보라빛
     };
 
     const int DEFAULT_AREA = 1;
@@ -79,6 +90,8 @@ public class BattleBackground : MonoBehaviour
             var sr = tileObj.AddComponent<SpriteRenderer>();
             sr.sprite = bgSprite;
             sr.sortingOrder = BG_SORTING_ORDER;
+            int tintIdx = Mathf.Clamp(area - 1, 0, AreaTintColors.Length - 1);
+            sr.color = AreaTintColors[tintIdx];
             tileObj.transform.localScale = Vector3.one * scale;
             tiles.Add(sr);
         }

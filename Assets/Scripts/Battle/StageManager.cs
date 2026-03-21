@@ -8,7 +8,7 @@ public class StageManager : MonoBehaviour
     // ════════════════════════════════════════
     // Area Enum & Constants
     // ════════════════════════════════════════
-    public enum GameArea { Grass = 1, Desert = 2, Cave = 3 }
+    public enum GameArea { Grass = 1, Desert = 2, Cave = 3, Volcano = 4, Abyss = 5 }
 
     // Boss & Enemy Spawning
     private const int AREA_BOSS_COMPANION_COUNT = 5;
@@ -58,6 +58,10 @@ public class StageManager : MonoBehaviour
     private const float CAVE_DEF_MULT = 1.4f;
     private const float CAVE_POISON_RESIST = 0.5f;
     private const float VOLCANO_HP_MULT = 1.2f;
+    private const float VOLCANO_LIGHTNING_RESIST = 0.4f;
+    private const float ABYSS_ATK_MULT = 1.3f;
+    private const float ABYSS_LIGHTNING_RESIST = 0.4f;
+    private const float ABYSS_POISON_RESIST = 0.4f;
 
     // Spawn Spread & Difficulty
     private const float BOSS_COMPANION_SPREAD = 0.33f; // 보스 동반 적 분산 비율
@@ -67,7 +71,7 @@ public class StageManager : MonoBehaviour
     private const float DIFFICULTY_CURVE_POW  = 1.3f;  // 후반 난이도 가속 지수
 
     // BGM Keys
-    private static readonly string[] AREA_BGM = { "", "battle_grass", "battle_desert", "battle_cave" };
+    private static readonly string[] AREA_BGM = { "", "battle_grass", "battle_desert", "battle_cave", "battle_volcano", "battle_abyss" };
 
     [Header("Stage Config")]
     public int wavesPerStage = 3;
@@ -92,6 +96,8 @@ public class StageManager : MonoBehaviour
     public List<CharacterPreset> grassEnemies = new();
     public List<CharacterPreset> desertEnemies = new();
     public List<CharacterPreset> caveEnemies = new();
+    public List<CharacterPreset> volcanoEnemies = new();
+    public List<CharacterPreset> abyssEnemies = new();
 
     [Header("Boss Presets")]
     public CharacterPreset grassMidBoss;
@@ -100,6 +106,10 @@ public class StageManager : MonoBehaviour
     public CharacterPreset desertAreaBoss;
     public CharacterPreset caveMidBoss;
     public CharacterPreset caveAreaBoss;
+    public CharacterPreset volcanoMidBoss;
+    public CharacterPreset volcanoAreaBoss;
+    public CharacterPreset abyssMidBoss;
+    public CharacterPreset abyssAreaBoss;
 
     // Current progress
     public GameArea CurrentAreaEnum { get; private set; } = GameArea.Grass;
@@ -148,26 +158,28 @@ public class StageManager : MonoBehaviour
 
             string n = p.name;
             // 보스
-            if (n == "Enemy_UndeadGeneral") { grassMidBoss = p; continue; }
-            if (n == "Enemy_OrcChieftain") { grassAreaBoss = p; continue; }
-            if (n == "Enemy_DesertGuardian") { desertMidBoss = p; continue; }
-            if (n == "Enemy_PharaohUndead") { desertAreaBoss = p; continue; }
-            if (n == "Enemy_CaveWarden") { caveMidBoss = p; continue; }
-            if (n == "Enemy_LichKing") { caveAreaBoss = p; continue; }
-            // 보스급 스킵 (다른 보스들)
-            if (n == "Enemy_FlameGeneral" || n == "Enemy_VolcanoLord" || n == "Enemy_DeathKnight" || n == "Enemy_SubterraneanLord") continue;
+            if (n == "Enemy_UndeadGeneral")    { grassMidBoss    = p; continue; }
+            if (n == "Enemy_OrcChieftain")     { grassAreaBoss   = p; continue; }
+            if (n == "Enemy_DesertGuardian")   { desertMidBoss   = p; continue; }
+            if (n == "Enemy_PharaohUndead")    { desertAreaBoss  = p; continue; }
+            if (n == "Enemy_CaveWarden")       { caveMidBoss     = p; continue; }
+            if (n == "Enemy_SubterraneanLord") { caveAreaBoss    = p; continue; }
+            if (n == "Enemy_FlameGeneral")     { volcanoMidBoss  = p; continue; }
+            if (n == "Enemy_VolcanoLord")      { volcanoAreaBoss = p; continue; }
+            if (n == "Enemy_DeathKnight")      { abyssMidBoss    = p; continue; }
+            if (n == "Enemy_LichKing")         { abyssAreaBoss   = p; continue; }
 
             // 에리어 분류
-            if (n.Contains("Skeleton") && !n.Contains("Cave") && !n.Contains("Desert") && !n.Contains("Flame") && !n.Contains("Dark"))
-                grassEnemies.Add(p);
-            else if (n.Contains("Orc") && !n.Contains("Cave") && !n.Contains("Desert") && !n.Contains("Lava"))
-                grassEnemies.Add(p);
-            else if (n.Contains("Zombie") && !n.Contains("Fungus") && !n.Contains("Magma") && !n.Contains("Dark"))
-                grassEnemies.Add(p);
+            if (n.Contains("Flame") || n.Contains("Lava") || n.Contains("FireImp") || n.Contains("Magma"))
+                volcanoEnemies.Add(p);
+            else if (n.Contains("Dark") || n.Contains("Ghost") || n.Contains("Necromancer"))
+                abyssEnemies.Add(p);
             else if (n.Contains("Desert") || n.Contains("Mummy") || n.Contains("Pharaoh"))
                 desertEnemies.Add(p);
-            else
+            else if (n.Contains("Cave") || n.Contains("Fungus") || n.Contains("Poison") || n.Contains("Golem"))
                 caveEnemies.Add(p);
+            else
+                grassEnemies.Add(p);
         }
         #else
         // 빌드에서는 Resources 로드
@@ -181,14 +193,17 @@ public class StageManager : MonoBehaviour
         #endif
 
         Debug.Log($"[StageManager] AutoLoad: grass={grassEnemies.Count}, desert={desertEnemies.Count}, cave={caveEnemies.Count}, " +
-                  $"bosses: gM={grassMidBoss != null} gA={grassAreaBoss != null} dM={desertMidBoss != null} dA={desertAreaBoss != null} cM={caveMidBoss != null} cA={caveAreaBoss != null}");
+                  $"volcano={volcanoEnemies.Count}, abyss={abyssEnemies.Count}, " +
+                  $"bosses: gM={grassMidBoss != null} gA={grassAreaBoss != null} dM={desertMidBoss != null} dA={desertAreaBoss != null} " +
+                  $"cM={caveMidBoss != null} cA={caveAreaBoss != null} vM={volcanoMidBoss != null} vA={volcanoAreaBoss != null} " +
+                  $"aM={abyssMidBoss != null} aA={abyssAreaBoss != null}");
     }
 
     void CalcStageFromTotal(int total)
     {
         total = Mathf.Max(0, total);
         int wavesPerArea = wavesPerStage * stagesPerArea;
-        int areaNum = Mathf.Clamp(total / wavesPerArea + 1, 1, 3);
+        int areaNum = Mathf.Clamp(total / wavesPerArea + 1, 1, 5);
         CurrentAreaEnum = (GameArea)areaNum;
         int remaining = total % wavesPerArea;
         CurrentStage = remaining / wavesPerStage + 1;
@@ -418,6 +433,16 @@ public class StageManager : MonoBehaviour
                 unit.maxHp *= VOLCANO_HP_MULT;
                 unit.CurrentHp = unit.maxHp;
                 break;
+            case GameArea.Volcano:
+                unit.maxHp *= VOLCANO_HP_MULT;
+                unit.CurrentHp = unit.maxHp;
+                unit.lightningResist = Mathf.Max(unit.lightningResist, VOLCANO_LIGHTNING_RESIST);
+                break;
+            case GameArea.Abyss:
+                unit.atk *= ABYSS_ATK_MULT;
+                unit.lightningResist = Mathf.Max(unit.lightningResist, ABYSS_LIGHTNING_RESIST);
+                unit.poisonResist = Mathf.Max(unit.poisonResist, ABYSS_POISON_RESIST);
+                break;
         }
     }
 
@@ -521,10 +546,12 @@ public class StageManager : MonoBehaviour
     {
         return CurrentAreaEnum switch
         {
-            GameArea.Grass => grassEnemies,
-            GameArea.Desert => desertEnemies,
-            GameArea.Cave => caveEnemies,
-            _ => grassEnemies
+            GameArea.Grass   => grassEnemies,
+            GameArea.Desert  => desertEnemies,
+            GameArea.Cave    => caveEnemies,
+            GameArea.Volcano => volcanoEnemies.Count > 0 ? volcanoEnemies : grassEnemies,
+            GameArea.Abyss   => abyssEnemies.Count > 0 ? abyssEnemies : caveEnemies,
+            _                => grassEnemies
         };
     }
 
@@ -532,10 +559,12 @@ public class StageManager : MonoBehaviour
     {
         return CurrentAreaEnum switch
         {
-            GameArea.Grass => SkillElement.None,
-            GameArea.Desert => SkillElement.Lightning,
-            GameArea.Cave => SkillElement.Poison,
-            _ => SkillElement.None
+            GameArea.Grass   => SkillElement.None,
+            GameArea.Desert  => SkillElement.Lightning,
+            GameArea.Cave    => SkillElement.Poison,
+            GameArea.Volcano => SkillElement.None,
+            GameArea.Abyss   => SkillElement.None,
+            _                => SkillElement.None
         };
     }
 
@@ -543,10 +572,12 @@ public class StageManager : MonoBehaviour
     {
         return CurrentAreaEnum switch
         {
-            GameArea.Grass => grassMidBoss,
-            GameArea.Desert => desertMidBoss,
-            GameArea.Cave => caveMidBoss,
-            _ => grassMidBoss
+            GameArea.Grass   => grassMidBoss,
+            GameArea.Desert  => desertMidBoss,
+            GameArea.Cave    => caveMidBoss,
+            GameArea.Volcano => volcanoMidBoss,
+            GameArea.Abyss   => abyssMidBoss,
+            _                => grassMidBoss
         };
     }
 
@@ -554,10 +585,12 @@ public class StageManager : MonoBehaviour
     {
         return CurrentAreaEnum switch
         {
-            GameArea.Grass => grassAreaBoss,
-            GameArea.Desert => desertAreaBoss,
-            GameArea.Cave => caveAreaBoss,
-            _ => grassAreaBoss
+            GameArea.Grass   => grassAreaBoss,
+            GameArea.Desert  => desertAreaBoss,
+            GameArea.Cave    => caveAreaBoss,
+            GameArea.Volcano => volcanoAreaBoss,
+            GameArea.Abyss   => abyssAreaBoss,
+            _                => grassAreaBoss
         };
     }
 
@@ -607,10 +640,12 @@ public class StageManager : MonoBehaviour
     {
         return CurrentAreaEnum switch
         {
-            GameArea.Grass => "Grass Field",
-            GameArea.Desert => "Desert",
-            GameArea.Cave => "Underground Cave",
-            _ => "Unknown"
+            GameArea.Grass   => "초원",
+            GameArea.Desert  => "사막",
+            GameArea.Cave    => "동굴",
+            GameArea.Volcano => "화산",
+            GameArea.Abyss   => "암흑성",
+            _                => "Unknown"
         };
     }
 
