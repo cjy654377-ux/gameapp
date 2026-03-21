@@ -189,7 +189,7 @@ public class BattleUnit : MonoBehaviour
                 if (CurrentTeam == Team.Ally)
                 {
                     SetState(UnitState.Moving);
-                    transform.position += Vector3.right * advanceSpeed * Time.deltaTime;
+                    transform.position += Vector3.right * advanceSpeed * Time.unscaledDeltaTime;
                     if (spriteRoot != null)
                         spriteRoot.localScale = new Vector3(-1, 1, 1); // 오른쪽 전진 = 반전
                 }
@@ -372,7 +372,7 @@ public class BattleUnit : MonoBehaviour
         SetState(UnitState.Moving);
         Vector3 direction = (target.transform.position - transform.position).normalized;
         float speedMult = statusEffects != null ? statusEffects.GetSpeedMultiplier() : 1f;
-        transform.position += direction * moveSpeed * speedMult * Time.deltaTime;
+        transform.position += direction * moveSpeed * speedMult * Time.unscaledDeltaTime;
 
         if (spriteRoot != null)
         {
@@ -401,7 +401,7 @@ public class BattleUnit : MonoBehaviour
         }
 
         float atkSpeedMult = statusEffects != null ? statusEffects.GetAttackSpeedMultiplier() : 1f;
-        attackTimer -= Time.deltaTime * atkSpeedMult;
+        attackTimer -= Time.unscaledDeltaTime * atkSpeedMult;
 
         if (attackTimer <= 0f)
         {
@@ -505,7 +505,7 @@ public class BattleUnit : MonoBehaviour
             pos.x += offset - prevOffset;
             transform.position = pos;
             prevOffset = offset;
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -626,7 +626,7 @@ public class BattleUnit : MonoBehaviour
 
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float alpha = 1f - (elapsed / duration);
             for (int i = 0; i < renderers.Length; i++)
             {

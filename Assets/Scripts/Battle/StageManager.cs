@@ -56,6 +56,7 @@ public class StageManager : MonoBehaviour
     private const float DESERT_COOLDOWN_MULT = 0.85f;
     private const float DESERT_LIGHTNING_RESIST = 0.3f;
     private const float CAVE_DEF_MULT = 1.4f;
+    private const float CAVE_HP_MULT = 1.1f;
     private const float CAVE_POISON_RESIST = 0.5f;
     private const float VOLCANO_HP_MULT = 1.2f;
     private const float VOLCANO_LIGHTNING_RESIST = 0.4f;
@@ -452,7 +453,7 @@ public class StageManager : MonoBehaviour
             case GameArea.Cave:
                 unit.def *= CAVE_DEF_MULT;
                 unit.poisonResist = CAVE_POISON_RESIST;
-                unit.maxHp *= VOLCANO_HP_MULT;
+                unit.maxHp *= CAVE_HP_MULT;
                 unit.CurrentHp = unit.maxHp;
                 break;
             case GameArea.Volcano:
@@ -927,5 +928,10 @@ public class StageManager : MonoBehaviour
                 DamagePopup.Create(target.transform.position + Vector3.up * 0.7f, 0f, false, "STUN!");
             }
         }
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 }

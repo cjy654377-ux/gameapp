@@ -141,6 +141,10 @@ public class GoldManager : MonoBehaviour
 
     void OnDestroy()
     {
-        if (Instance == this) Instance = null;
+        if (Instance == this)
+        {
+            FlushSave();
+            Instance = null;
+        }
     }
 }

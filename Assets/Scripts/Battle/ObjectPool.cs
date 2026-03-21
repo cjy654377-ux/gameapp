@@ -98,4 +98,9 @@ public class ObjectPool : MonoBehaviour
         }
         pools.Clear();
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 }

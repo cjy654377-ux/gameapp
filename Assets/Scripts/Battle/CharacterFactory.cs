@@ -38,7 +38,10 @@ public class CharacterFactory : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this)
+        {
+            Instance = null;
             spriteCache.Clear();
+        }
     }
 
     public BattleUnit CreateCharacter(CharacterPreset preset, Vector3 position, BattleUnit.Team team)

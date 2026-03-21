@@ -16,25 +16,28 @@ public class StageRewardSystem : MonoBehaviour
     private bool _bossRewardMultiplierUsed;
 
     private HashSet<int> clearedStages = new();
+    StageManager cachedStageMgr;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else { Destroy(gameObject); return; }
 
         LoadClearedStages();
     }
 
     void Start()
     {
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnStageCleared += OnStageClearedEvent;
+        cachedStageMgr = StageManager.Instance;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnStageCleared += OnStageClearedEvent;
     }
 
     void OnDestroy()
     {
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnStageCleared -= OnStageClearedEvent;
+        if (Instance == this) Instance = null;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnStageCleared -= OnStageClearedEvent;
     }
 
     void OnStageClearedEvent(int totalWaveIndex)

@@ -32,6 +32,11 @@ public class DeckManager : MonoBehaviour
         else { Destroy(gameObject); return; }
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     bool initialized;
 
     /// <summary>

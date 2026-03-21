@@ -119,11 +119,15 @@ public class TapDamageSystem : MonoBehaviour
 
     void OnDestroy()
     {
-        if (Instance == this && tapSprite != null)
+        if (Instance == this)
         {
-            Destroy(tapSprite.texture);
-            Destroy(tapSprite);
-            tapSprite = null;
+            Instance = null;
+            if (tapSprite != null)
+            {
+                Destroy(tapSprite.texture);
+                Destroy(tapSprite);
+                tapSprite = null;
+            }
         }
     }
 

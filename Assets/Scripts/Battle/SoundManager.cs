@@ -137,4 +137,9 @@ public class SoundManager : MonoBehaviour
         currentAreaBGM = -1;
         PlayBGM("bgm_arena");
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 }
