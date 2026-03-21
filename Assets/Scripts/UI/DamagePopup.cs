@@ -29,9 +29,9 @@ public class DamagePopup : MonoBehaviour
         popup.sr.sprite = PixelNumberFont.CreateNumberSprite(customText, style);
         popup.sr.color = Color.white;
         popup.spriteColor = Color.white;
-        popup.disappearTimer = 0.8f;
-        popup.moveVector = new Vector3(Random.Range(-0.3f, 0.3f), 0.8f, 0f);
-        go.transform.localScale = Vector3.one * 0.12f;
+        popup.disappearTimer = 0.9f;
+        popup.moveVector = new Vector3(Random.Range(-0.3f, 0.3f), 1.0f, 0f);
+        go.transform.localScale = Vector3.one * 0.16f;
 
         return popup;
     }
@@ -48,9 +48,9 @@ public class DamagePopup : MonoBehaviour
         popup.sr.sprite = PixelNumberFont.CreateNumberSprite("+" + amount, DamageNumberStyle.Gold);
         popup.sr.color = Color.white;
         popup.spriteColor = Color.white;
-        popup.disappearTimer = 0.8f;
-        popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 0.6f, 0f);
-        go.transform.localScale = Vector3.one * 0.1f;
+        popup.disappearTimer = 0.9f;
+        popup.moveVector = new Vector3(Random.Range(-0.2f, 0.2f), 0.8f, 0f);
+        go.transform.localScale = Vector3.one * 0.13f;
 
         return popup;
     }

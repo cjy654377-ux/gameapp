@@ -21,6 +21,8 @@ public class MainHUD : MonoBehaviour
     // HUD Bar
     TextMeshProUGUI goldText;
     TextMeshProUGUI gemText;
+    TextMeshProUGUI stoneText;
+    TextMeshProUGUI scrollText;
     TextMeshProUGUI stageText;
     TextMeshProUGUI areaNameText;
     Image progressBarFill;
@@ -94,6 +96,8 @@ public class MainHUD : MonoBehaviour
     // Cached references for safe unsubscribe
     GoldManager cachedGoldMgr;
     GemManager cachedGemMgr;
+    SummonStoneManager cachedStoneMgr;
+    SpellScrollManager cachedScrollMgr;
     StageManager cachedStageMgr;
     BattleManager cachedBattleMgr;
     OfflineRewardManager cachedOfflineMgr;
@@ -107,15 +111,21 @@ public class MainHUD : MonoBehaviour
     {
         yield return null;
 
-        cachedGoldMgr = GoldManager.Instance;
-        cachedGemMgr = GemManager.Instance;
-        cachedStageMgr = StageManager.Instance;
+        cachedGoldMgr   = GoldManager.Instance;
+        cachedGemMgr    = GemManager.Instance;
+        cachedStoneMgr  = SummonStoneManager.Instance;
+        cachedScrollMgr = SpellScrollManager.Instance;
+        cachedStageMgr  = StageManager.Instance;
         cachedBattleMgr = BattleManager.Instance;
 
         if (cachedGoldMgr != null)
             cachedGoldMgr.OnGoldChanged += UpdateGold;
         if (cachedGemMgr != null)
             cachedGemMgr.OnGemChanged += UpdateGem;
+        if (cachedStoneMgr != null)
+            cachedStoneMgr.OnStoneChanged += UpdateStone;
+        if (cachedScrollMgr != null)
+            cachedScrollMgr.OnScrollChanged += UpdateScroll;
         if (cachedStageMgr != null)
         {
             cachedStageMgr.OnStageChanged += OnStageChanged;
@@ -130,10 +140,12 @@ public class MainHUD : MonoBehaviour
 
         UpdateGold(cachedGoldMgr != null ? cachedGoldMgr.Gold : 0);
         UpdateGem(cachedGemMgr != null ? cachedGemMgr.Gem : 0);
+        UpdateStone(cachedStoneMgr != null ? cachedStoneMgr.Stone : 0);
+        UpdateScroll(cachedScrollMgr != null ? cachedScrollMgr.Scroll : 0);
         if (cachedStageMgr != null)
         {
             if (stageText != null) stageText.text = cachedStageMgr.GetStageText();
-            if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
+            if (areaNameText != null) areaNameText.text = $"{cachedStageMgr.GetAreaName()} [{cachedStageMgr.CurrentArea}구역]";
         }
 
         // 출석 체크 팝업 (2프레임 지연 - UI 구독 완료 후)
@@ -218,13 +230,12 @@ public class MainHUD : MonoBehaviour
         UIHelper.SetAnchors(hudBar, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1));
         hudBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.HUD_Height);
 
-        // 스테이지 정보 영역 (왼쪽) — BoxBanner로 감싼다
+        // 스테이지 정보 영역 (왼쪽 26%) — BoxBanner로 감싼다
         var stageContainer = UIHelper.MakeSpritePanel("StageBG", hudBar.transform, UISprites.BoxBanner, UIColors.Background_Dark);
-        // BoxBanner 스프라이트 원본 색상 유지
         var scrt = stageContainer.GetComponent<RectTransform>();
-        scrt.anchorMin = new Vector2(0, 0.08f);
-        scrt.anchorMax = new Vector2(0.38f, 0.92f);
-        scrt.offsetMin = new Vector2(4, 0);
+        scrt.anchorMin = new Vector2(0, 0.06f);
+        scrt.anchorMax = new Vector2(0.26f, 0.94f);
+        scrt.offsetMin = new Vector2(3, 0);
         scrt.offsetMax = new Vector2(0, 0);
 
         // Area name (small, top)
@@ -272,15 +283,25 @@ public class MainHUD : MonoBehaviour
         UIHelper.AddTextShadow(progressText);
         UIHelper.FillParent(progressText.GetComponent<RectTransform>());
 
-        // Gold — BoxIcon1 컨테이너
+        // Gold
         CreateResourceDisplay(hudBar.transform, "Gold", UISprites.IconGold,
-            UIColors.Text_Gold, new Vector2(0.40f, 0.10f), new Vector2(0.68f, 0.90f),
+            UIColors.Text_Gold, new Vector2(0.27f, 0.08f), new Vector2(0.44f, 0.92f),
             out goldText);
 
-        // Gem — BoxIcon1 컨테이너
+        // Gem (보석)
         CreateResourceDisplay(hudBar.transform, "Gem", UISprites.IconDiamond,
-            UIColors.Text_Diamond, new Vector2(0.70f, 0.10f), new Vector2(0.98f, 0.90f),
+            UIColors.Text_Diamond, new Vector2(0.45f, 0.08f), new Vector2(0.62f, 0.92f),
             out gemText);
+
+        // 소환석
+        CreateResourceDisplay(hudBar.transform, "Stone", UISprites.IconPotion1,
+            new Color(0.55f, 0.88f, 1.00f), new Vector2(0.63f, 0.08f), new Vector2(0.80f, 0.92f),
+            out stoneText);
+
+        // 주문서
+        CreateResourceDisplay(hudBar.transform, "Scroll", UISprites.IconSkill,
+            new Color(0.88f, 0.68f, 1.00f), new Vector2(0.81f, 0.08f), new Vector2(0.98f, 0.92f),
+            out scrollText);
     }
 
     void CreateResourceDisplay(Transform parent, string name, Sprite iconSprite,
@@ -296,7 +317,7 @@ public class MainHUD : MonoBehaviour
         crt.offsetMin = new Vector2(2, 0);
         crt.offsetMax = new Vector2(-2, 0);
 
-        // 아이콘
+        // 아이콘 (14px — 좁은 컨테이너에 맞게 축소)
         if (iconSprite != null)
         {
             var iconImg = UIHelper.MakeIcon($"{name}Icon", container.transform, iconSprite, iconColor);
@@ -304,37 +325,44 @@ public class MainHUD : MonoBehaviour
             irt.anchorMin = new Vector2(0, 0.1f);
             irt.anchorMax = new Vector2(0, 0.9f);
             irt.pivot = new Vector2(0, 0.5f);
-            irt.anchoredPosition = new Vector2(6, 0);
-            irt.sizeDelta = new Vector2(20, 0);
+            irt.anchoredPosition = new Vector2(3, 0);
+            irt.sizeDelta = new Vector2(14, 0);
         }
         else
         {
             var iconBg = UIHelper.MakePanel($"{name}Icon", container.transform, iconColor);
             var irt = iconBg.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0, 0.15f);
-            irt.anchorMax = new Vector2(0, 0.85f);
+            irt.anchorMin = new Vector2(0, 0.18f);
+            irt.anchorMax = new Vector2(0, 0.82f);
             irt.pivot = new Vector2(0, 0.5f);
-            irt.anchoredPosition = new Vector2(6, 0);
-            irt.sizeDelta = new Vector2(18, 0);
+            irt.anchoredPosition = new Vector2(3, 0);
+            irt.sizeDelta = new Vector2(14, 0);
 
+            string fallbackChar = name switch { "Gold" => "G", "Gem" => "◆", "Stone" => "○", _ => "S" };
             var iconText = UIHelper.MakeText($"{name}IconText", iconBg.transform,
-                name == "Gold" ? "G" : "D",
-                UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
+                fallbackChar, UIConstants.Font_LevelBadge, TextAlignmentOptions.Center, UIColors.Background_Dark);
             iconText.fontStyle = FontStyles.Bold;
             UIHelper.FillParent(iconText.GetComponent<RectTransform>());
         }
 
-        // 리소스 값 텍스트 — 밝은 색으로 어두운 배경 대비
-        Color valueColor = name == "Gold" ? UIColors.Text_Gold : UIColors.Text_Diamond;
+        // 리소스 값 텍스트
+        Color valueColor = name switch
+        {
+            "Gold"   => UIColors.Text_Gold,
+            "Gem"    => UIColors.Text_Diamond,
+            "Stone"  => new Color(0.55f, 0.88f, 1.00f),
+            "Scroll" => new Color(0.88f, 0.68f, 1.00f),
+            _        => Color.white
+        };
         valueText = UIHelper.MakeText($"{name}Text", container.transform, "0",
             UIConstants.Font_HUDResource, TextAlignmentOptions.Center, valueColor);
         valueText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(valueText);
         var vrt = valueText.GetComponent<RectTransform>();
-        vrt.anchorMin = new Vector2(0.30f, 0);
+        vrt.anchorMin = new Vector2(0.32f, 0);
         vrt.anchorMax = new Vector2(1, 1);
         vrt.offsetMin = Vector2.zero;
-        vrt.offsetMax = new Vector2(-4, 0);
+        vrt.offsetMax = new Vector2(-3, 0);
     }
 
     // ── Wave Banner (중앙 상단) ──
@@ -465,32 +493,31 @@ public class MainHUD : MonoBehaviour
             trt.offsetMin = new Vector2(2, 4);
             trt.offsetMax = new Vector2(-2, -4);
 
-            // Active indicator (하단 골드 라인)
+            // Active indicator (하단 골드 라인 — 5px)
             var indicator = UIHelper.MakePanel("Indicator", tabObj.transform, UIColors.Text_Gold);
             var irt = indicator.GetComponent<RectTransform>();
-            irt.anchorMin = new Vector2(0.1f, 0);
-            irt.anchorMax = new Vector2(0.9f, 0);
+            irt.anchorMin = new Vector2(0.05f, 0);
+            irt.anchorMax = new Vector2(0.95f, 0);
             irt.pivot = new Vector2(0.5f, 0);
-            irt.sizeDelta = new Vector2(0, 3);
+            irt.sizeDelta = new Vector2(0, 5);
             indicator.gameObject.SetActive(false);
             tabIndicators[i] = indicator;
 
-            // 아이콘 — SPUM 스프라이트 사용, 없으면 유니코드 폴백
+            // 아이콘 — 7탭 기준으로 아이콘 영역 조정 (0.15~0.85 가로, 0.35~0.90 세로)
             if (tabSpriteIcons[i] != null)
             {
-                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], Color.white);
+                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], new Color(0.85f, 0.82f, 0.78f));
                 var icrt = iconImg.GetComponent<RectTransform>();
-                icrt.anchorMin = new Vector2(0.10f, 0.32f);
-                icrt.anchorMax = new Vector2(0.90f, 0.92f);
+                icrt.anchorMin = new Vector2(0.15f, 0.35f);
+                icrt.anchorMax = new Vector2(0.85f, 0.90f);
                 icrt.offsetMin = Vector2.zero;
                 icrt.offsetMax = Vector2.zero;
-                // 미선택: 원래 색, 선택: 밝게 (UpdateTabVisuals에서 처리)
-                tabIconTexts[i] = null; // 스프라이트 사용 시 텍스트 아이콘 불필요
+                tabIconTexts[i] = null;
             }
             else
             {
                 tabIconTexts[i] = UIHelper.MakeText("Icon", tabObj.transform, tabIcons[i],
-                    UIConstants.NavBar_IconSize, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+                    14f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
                 tabIconTexts[i].fontStyle = FontStyles.Bold;
                 var icrt = tabIconTexts[i].GetComponent<RectTransform>();
                 icrt.anchorMin = new Vector2(0, 0.38f);
@@ -499,13 +526,13 @@ public class MainHUD : MonoBehaviour
                 icrt.offsetMax = Vector2.zero;
             }
 
-            // Label — 밝은 크림색 (어두운 배경)
+            // Label — 7탭 가독성을 위해 8f 사용
             tabLabels[i] = UIHelper.MakeText("Label", tabObj.transform, tabNames[i],
-                9f, TextAlignmentOptions.Top, UIColors.Text_Secondary);
+                UIConstants.Font_NavLabel, TextAlignmentOptions.Top, UIColors.Text_Secondary);
             tabLabels[i].fontStyle = FontStyles.Bold;
             var lrt = tabLabels[i].GetComponent<RectTransform>();
-            lrt.anchorMin = new Vector2(0, 0);
-            lrt.anchorMax = new Vector2(1, 0.35f);
+            lrt.anchorMin = new Vector2(0, 0.02f);
+            lrt.anchorMax = new Vector2(1, 0.36f);
             lrt.offsetMin = Vector2.zero;
             lrt.offsetMax = Vector2.zero;
 
@@ -656,7 +683,7 @@ public class MainHUD : MonoBehaviour
         if (StageManager.Instance != null)
         {
             if (stageText != null) stageText.text = StageManager.Instance.GetStageText();
-            if (areaNameText != null) areaNameText.text = StageManager.Instance.GetAreaName();
+            if (areaNameText != null) areaNameText.text = $"{StageManager.Instance.GetAreaName()} [{area}구역]";
         }
         UpdateProgress(wave);
         ShowWaveBanner(wave);
@@ -706,22 +733,22 @@ public class MainHUD : MonoBehaviour
 
             if (UISprites.Btn1_WS != null)
             {
-                // 선택: 확실한 어두운 tint + 축소 (눌린 느낌), 미선택: 원본
-                tabImg.color = active ? new Color(0.85f, 0.85f, 0.85f) : Color.white;
-                tabButtons[i].transform.localScale = active ? Vector3.one * 0.95f : Vector3.one;
+                // 선택: 따뜻한 골드 tint, 미선택: 일반 흰색
+                tabImg.color = active ? new Color(1.00f, 0.92f, 0.68f) : Color.white;
+                tabButtons[i].transform.localScale = Vector3.one; // 크기 변화 없음
             }
             else
             {
                 tabImg.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
             }
 
-            // 라벨: 선택=흰색, 미선택=크림색
-            tabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
+            // 라벨: 선택=밝은 골드, 미선택=크림색
+            tabLabels[i].color = active ? UIColors.Text_Gold : UIColors.Text_Secondary;
             tabLabels[i].fontStyle = FontStyles.Bold;
 
             // 아이콘 (텍스트 아이콘인 경우만)
             if (tabIconTexts[i] != null)
-                tabIconTexts[i].color = active ? Color.white : UIColors.Text_Secondary;
+                tabIconTexts[i].color = active ? UIColors.Text_Gold : UIColors.Text_Secondary;
 
             // 스프라이트 아이콘 색상 조정
             var iconImgObj = tabButtons[i].transform.Find("Icon");
@@ -729,7 +756,7 @@ public class MainHUD : MonoBehaviour
             {
                 var iconImg = iconImgObj.GetComponent<Image>();
                 if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? Color.white : new Color(0.85f, 0.82f, 0.78f);
+                    iconImg.color = active ? UIColors.Text_Gold : new Color(0.85f, 0.82f, 0.78f);
             }
 
             tabIndicators[i].gameObject.SetActive(active);
@@ -749,6 +776,16 @@ public class MainHUD : MonoBehaviour
     void UpdateGem(int gem)
     {
         if (gemText != null) gemText.text = UIHelper.FormatNumber(gem);
+    }
+
+    void UpdateStone(int stone)
+    {
+        if (stoneText != null) stoneText.text = UIHelper.FormatNumber(stone);
+    }
+
+    void UpdateScroll(int scroll)
+    {
+        if (scrollText != null) scrollText.text = UIHelper.FormatNumber(scroll);
     }
 
     void UpdateProgress(int wave)
@@ -1017,6 +1054,10 @@ public class MainHUD : MonoBehaviour
             cachedGoldMgr.OnGoldChanged -= UpdateGold;
         if (cachedGemMgr != null)
             cachedGemMgr.OnGemChanged -= UpdateGem;
+        if (cachedStoneMgr != null)
+            cachedStoneMgr.OnStoneChanged -= UpdateStone;
+        if (cachedScrollMgr != null)
+            cachedScrollMgr.OnScrollChanged -= UpdateScroll;
         if (cachedStageMgr != null)
         {
             cachedStageMgr.OnStageChanged -= OnStageChanged;

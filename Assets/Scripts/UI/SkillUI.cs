@@ -27,10 +27,14 @@ public class SkillUI : MonoBehaviour
 
     const int SLOT_COUNT = 4;
     const int CANVAS_SORT_ORDER = 50;
-    const float READY_COLOR_MULT = 0.60f;
-    const float COOLDOWN_COLOR_MULT = 0.15f;
-    const float AUTO_BTN_W = 60f;
-    const float AUTO_BTN_H = 30f;
+    const float READY_COLOR_MULT = 0.70f;
+    const float COOLDOWN_COLOR_MULT = 0.18f;
+    const float AUTO_BTN_W = 56f;
+    const float AUTO_BTN_H = 36f;
+    const float SLOT_SIZE = 58f;
+    const float SLOT_SPACING = 6f;
+    const float SPEED_BTN_W = 52f;
+    const float SPEED_BTN_H = 36f;
 
     GameObject[] slotObjects = new GameObject[SLOT_COUNT];
     Image[] cooldownOverlays = new Image[SLOT_COUNT];
@@ -41,6 +45,9 @@ public class SkillUI : MonoBehaviour
     readonly Color[] cooldownColors = new Color[SLOT_COUNT];
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
+    Button speedToggleButton;
+    TextMeshProUGUI speedToggleText;
+    bool isDoubleSpeed = false;
     GameObject slotsContainer;
 
     Canvas canvas;
@@ -53,6 +60,7 @@ public class SkillUI : MonoBehaviour
         CreateCanvas();
         CreateSkillSlots();
         CreateAutoToggle();
+        CreateSpeedToggle();
     }
 
     SkillManager cachedSkillMgr;
@@ -99,8 +107,8 @@ public class SkillUI : MonoBehaviour
         containerRT.sizeDelta = Vector2.zero;
         containerRT.anchoredPosition = Vector2.zero;
 
-        float slotSize = UIConstants.MinTouchTarget;
-        float spacing = UIConstants.Spacing_Medium;
+        float slotSize = SLOT_SIZE;
+        float spacing = SLOT_SPACING;
         float totalWidth = SLOT_COUNT * slotSize + (SLOT_COUNT - 1) * spacing;
         float startX = -totalWidth * 0.5f + slotSize * 0.5f;
 
@@ -113,8 +121,16 @@ public class SkillUI : MonoBehaviour
             rt.anchorMin = new Vector2(0.5f, 0f);
             rt.anchorMax = new Vector2(0.5f, 0f);
             rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(startX + i * (slotSize + spacing), UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
+            rt.anchoredPosition = new Vector2(startX + i * (slotSize + spacing), UIConstants.NavBar_Height + UIConstants.Spacing_Large);
             rt.sizeDelta = new Vector2(slotSize, slotSize);
+
+            // Border frame (dark outline)
+            var border = UIHelper.MakePanel("Border", slot.transform, new Color(0, 0, 0, 0.8f));
+            var brt = border.GetComponent<RectTransform>();
+            brt.anchorMin = Vector2.zero;
+            brt.anchorMax = Vector2.one;
+            brt.offsetMin = new Vector2(-2, -2);
+            brt.offsetMax = new Vector2(2, 2);
 
             var bg = slot.AddComponent<Image>();
             bg.color = UIColors.Panel_Inner;
@@ -125,26 +141,28 @@ public class SkillUI : MonoBehaviour
             btn.onClick.AddListener(() => OnSlotClicked(slotIdx));
             btn.targetGraphic = bg;
 
-            // Skill name
+            // Skill name (icon char + name, lower half)
             nameTexts[i] = UIHelper.MakeText("Name", slot.transform, "",
-                UIConstants.Font_Tab, TextAlignmentOptions.Center);
+                UIConstants.Font_StatLabel, TextAlignmentOptions.Center);
             var nameRT = nameTexts[i].GetComponent<RectTransform>();
             UIHelper.FillParent(nameRT);
-            nameRT.anchoredPosition = new Vector2(0, 3);
+            nameRT.anchoredPosition = new Vector2(0, 4);
 
-            // Cooldown overlay
+            // Cooldown overlay (top-down fill)
             var cdObj = UIHelper.MakeUI("CooldownOverlay", slot.transform);
             cooldownOverlays[i] = cdObj.AddComponent<Image>();
-            cooldownOverlays[i].color = UIColors.Overlay_Dark;
+            cooldownOverlays[i].color = new Color(0, 0, 0, 0.72f);
             cooldownOverlays[i].type = Image.Type.Filled;
             cooldownOverlays[i].fillMethod = Image.FillMethod.Vertical;
-            cooldownOverlays[i].fillOrigin = 0;
+            cooldownOverlays[i].fillOrigin = 1; // top-down
             cooldownOverlays[i].fillAmount = 0f;
             UIHelper.FillParent(cdObj.GetComponent<RectTransform>());
 
-            // Cooldown timer text
+            // Cooldown timer text (large center number)
             cooldownTexts[i] = UIHelper.MakeText("Timer", slot.transform, "",
-                UIConstants.Font_StatValue, TextAlignmentOptions.Center);
+                18f, TextAlignmentOptions.Center, Color.white);
+            cooldownTexts[i].fontStyle = FontStyles.Bold;
+            UIHelper.AddTextShadow(cooldownTexts[i]);
             UIHelper.FillParent(cooldownTexts[i].GetComponent<RectTransform>());
         }
     }
@@ -161,8 +179,25 @@ public class SkillUI : MonoBehaviour
         toggleRT.anchorMin = new Vector2(1f, 0f);
         toggleRT.anchorMax = new Vector2(1f, 0f);
         toggleRT.pivot = new Vector2(1f, 0f);
-        toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Medium);
+        toggleRT.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Large + AUTO_BTN_H + UIConstants.Spacing_Small);
         toggleRT.sizeDelta = new Vector2(AUTO_BTN_W, AUTO_BTN_H);
+    }
+
+    void CreateSpeedToggle()
+    {
+        var (btn, img) = UIHelper.MakeButton("SpeedToggle", canvas.transform,
+            UIColors.Button_Brown, "1x", UIConstants.Font_Tab);
+        speedToggleButton = btn;
+        speedToggleButton.onClick.AddListener(OnSpeedToggleClicked);
+        speedToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
+        speedToggleText.fontStyle = FontStyles.Bold;
+
+        var rt = btn.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 0f);
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(1f, 0f);
+        rt.anchoredPosition = new Vector2(-UIConstants.Spacing_Medium, UIConstants.NavBar_Height + UIConstants.Spacing_Large);
+        rt.sizeDelta = new Vector2(SPEED_BTN_W, SPEED_BTN_H);
     }
 
     /// <summary>
@@ -174,6 +209,8 @@ public class SkillUI : MonoBehaviour
             slotsContainer.SetActive(false);
         if (autoToggleButton != null)
             autoToggleButton.gameObject.SetActive(false);
+        if (speedToggleButton != null)
+            speedToggleButton.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -185,6 +222,8 @@ public class SkillUI : MonoBehaviour
             slotsContainer.SetActive(true);
         if (autoToggleButton != null)
             autoToggleButton.gameObject.SetActive(true);
+        if (speedToggleButton != null)
+            speedToggleButton.gameObject.SetActive(true);
     }
 
     public void RefreshSlots()
@@ -226,13 +265,15 @@ public class SkillUI : MonoBehaviour
         if (remaining <= 0f)
         {
             cooldownOverlays[slot].fillAmount = 0f;
-            cooldownTexts[slot].text = "";
+            cooldownTexts[slot].text = "<size=10>준비!</size>";
+            cooldownTexts[slot].color = new Color(0.6f, 1f, 0.5f);
             slotBgs[slot].color = readyColors[slot];
         }
         else
         {
             cooldownOverlays[slot].fillAmount = remaining / total;
             cooldownTexts[slot].text = Mathf.CeilToInt(remaining).ToString();
+            cooldownTexts[slot].color = Color.white;
             slotBgs[slot].color = cooldownColors[slot];
         }
     }
@@ -265,6 +306,14 @@ public class SkillUI : MonoBehaviour
         bool isAuto = SkillManager.Instance.autoUse;
         autoToggleText.text = isAuto ? "자동" : "수동";
         autoToggleButton.GetComponent<Image>().color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
+    }
+
+    void OnSpeedToggleClicked()
+    {
+        isDoubleSpeed = !isDoubleSpeed;
+        Time.timeScale = isDoubleSpeed ? 2f : 1f;
+        speedToggleText.text = isDoubleSpeed ? "2x" : "1x";
+        speedToggleButton.GetComponent<Image>().color = isDoubleSpeed ? UIColors.Button_Yellow : UIColors.Button_Brown;
     }
 
     void OnDestroy()

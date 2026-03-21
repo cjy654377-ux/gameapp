@@ -28,12 +28,18 @@ public class HpBar : MonoBehaviour
         }
     }
 
-    const float BAR_WIDTH = 0.8f;
-    const float BAR_HEIGHT = 0.08f;
+    const float BAR_WIDTH_ALLY  = 0.9f;
+    const float BAR_WIDTH_ENEMY = 0.75f;
+    const float BAR_HEIGHT_ALLY  = 0.11f;
+    const float BAR_HEIGHT_ENEMY = 0.08f;
     const float BORDER = 0.02f;
-    const float Y_OFFSET = 1.0f;
+    const float Y_OFFSET = 1.1f;
     const float ICON_SIZE = 0.15f;
     const float ICON_SPACING = 0.18f;
+
+    // computed per-unit
+    float barWidth;
+    float barHeight;
 
     void Start()
     {
@@ -44,6 +50,10 @@ public class HpBar : MonoBehaviour
         statusController = GetComponent<StatusEffectController>();
         if (statusController != null)
             statusController.OnEffectsChanged += RefreshStatusIcons;
+
+        bool isAlly = unit != null && unit.CurrentTeam == BattleUnit.Team.Ally;
+        barWidth  = isAlly ? BAR_WIDTH_ALLY  : BAR_WIDTH_ENEMY;
+        barHeight = isAlly ? BAR_HEIGHT_ALLY : BAR_HEIGHT_ENEMY;
 
         CreateBar();
     }
@@ -63,10 +73,12 @@ public class HpBar : MonoBehaviour
         barRoot.SetParent(transform, false);
         barRoot.localPosition = new Vector3(0, Y_OFFSET, 0);
 
+        bool isAlly = unit != null && unit.CurrentTeam == BattleUnit.Team.Ally;
+
         // Border (black outline)
         var borderObj = new GameObject("Border");
         borderObj.transform.SetParent(barRoot, false);
-        borderObj.transform.localScale = new Vector3(BAR_WIDTH + BORDER * 2, BAR_HEIGHT + BORDER * 2, 1);
+        borderObj.transform.localScale = new Vector3(barWidth + BORDER * 2, barHeight + BORDER * 2, 1);
         borderRenderer = borderObj.AddComponent<SpriteRenderer>();
         borderRenderer.sprite = pixelSprite;
         borderRenderer.color = Color.black;
@@ -75,25 +87,26 @@ public class HpBar : MonoBehaviour
         // Background (dark)
         var bgObj = new GameObject("BG");
         bgObj.transform.SetParent(barRoot, false);
-        bgObj.transform.localScale = new Vector3(BAR_WIDTH, BAR_HEIGHT, 1);
+        bgObj.transform.localScale = new Vector3(barWidth, barHeight, 1);
         bgRenderer = bgObj.AddComponent<SpriteRenderer>();
         bgRenderer.sprite = pixelSprite;
         bgRenderer.color = UIColors.ProgressBar_BG;
         bgRenderer.sortingOrder = 90;
 
-        // Fill (gradient green)
+        // Fill
         var fillObj = new GameObject("Fill");
         fillObj.transform.SetParent(barRoot, false);
-        fillObj.transform.localPosition = new Vector3(-BAR_WIDTH * 0.5f, 0, 0);
+        fillObj.transform.localPosition = new Vector3(-barWidth * 0.5f, 0, 0);
         fillTransform = fillObj.transform;
 
         var innerFill = new GameObject("Inner");
         innerFill.transform.SetParent(fillObj.transform, false);
-        innerFill.transform.localPosition = new Vector3(BAR_WIDTH * 0.5f, 0, 0);
-        innerFill.transform.localScale = new Vector3(BAR_WIDTH, BAR_HEIGHT, 1);
+        innerFill.transform.localPosition = new Vector3(barWidth * 0.5f, 0, 0);
+        innerFill.transform.localScale = new Vector3(barWidth, barHeight, 1);
         fillRenderer = innerFill.AddComponent<SpriteRenderer>();
         fillRenderer.sprite = pixelSprite;
-        fillRenderer.color = UIColors.ProgressBar_Fill;
+        // 아군: 청록 계열, 적군: 녹색→황→적 그라디언트 (UpdateBar에서 동적 설정)
+        fillRenderer.color = isAlly ? new Color(0.3f, 0.85f, 0.7f) : UIColors.ProgressBar_Fill;
         fillRenderer.sortingOrder = 91;
     }
 
@@ -104,11 +117,23 @@ public class HpBar : MonoBehaviour
 
         fillTransform.localScale = new Vector3(ratio, 1, 1);
 
-        // Color gradient: green -> yellow -> red
-        if (ratio > 0.5f)
-            fillRenderer.color = Color.Lerp(UIColors.Text_Gold, UIColors.ProgressBar_Fill, (ratio - 0.5f) * 2f);
+        bool isAlly = unit != null && unit.CurrentTeam == BattleUnit.Team.Ally;
+        if (isAlly)
+        {
+            // 아군: 청록(풀체력) → 노랑(절반) → 빨강(위험)
+            if (ratio > 0.5f)
+                fillRenderer.color = Color.Lerp(UIColors.Text_Gold, new Color(0.3f, 0.85f, 0.7f), (ratio - 0.5f) * 2f);
+            else
+                fillRenderer.color = Color.Lerp(UIColors.Defeat_Red, UIColors.Text_Gold, ratio * 2f);
+        }
         else
-            fillRenderer.color = Color.Lerp(UIColors.Defeat_Red, UIColors.Text_Gold, ratio * 2f);
+        {
+            // 적군: 녹→황→적 그라디언트
+            if (ratio > 0.5f)
+                fillRenderer.color = Color.Lerp(UIColors.Text_Gold, UIColors.ProgressBar_Fill, (ratio - 0.5f) * 2f);
+            else
+                fillRenderer.color = Color.Lerp(UIColors.Defeat_Red, UIColors.Text_Gold, ratio * 2f);
+        }
     }
 
     void RefreshStatusIcons()
@@ -121,7 +146,7 @@ public class HpBar : MonoBehaviour
         if (statusController == null || barRoot == null) return;
 
         var effects = statusController.ActiveEffects;
-        float startX = -BAR_WIDTH * 0.5f;
+        float startX = -barWidth * 0.5f;
 
         for (int i = 0; i < effects.Count; i++)
         {
