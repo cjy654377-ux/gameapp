@@ -12,8 +12,12 @@ public class OfflineRewardManager : MonoBehaviour
     /// gold, gem, offlineMinutes
     /// </summary>
     public event System.Action<int, int, float> OnOfflineReward;
+    public event System.Action<int, int> OnDoubleRewardAd;
 
     const float MIN_REWARD_MINUTES = 1f;
+
+    private int lastGoldReward = 0;
+    private int lastGemReward = 0;
 
     void Awake()
     {
@@ -66,6 +70,9 @@ public class OfflineRewardManager : MonoBehaviour
         int goldReward = minutesInt * GOLD_PER_MINUTE;
         int gemReward = minutesInt / GEM_INTERVAL_MINUTES;
 
+        lastGoldReward = goldReward;
+        lastGemReward = gemReward;
+
         if (goldReward > 0 && GoldManager.Instance != null)
             GoldManager.Instance.AddGold(goldReward);
 
@@ -79,6 +86,20 @@ public class OfflineRewardManager : MonoBehaviour
     void SaveCurrentTime()
     {
         PlayerPrefs.SetString(SaveKeys.LastPlayTime, GetUnixTimestamp().ToString());
+    }
+
+    public void ApplyDoubleRewardAd()
+    {
+        int doubleGold = lastGoldReward;
+        int doubleGem = lastGemReward;
+
+        if (doubleGold > 0 && GoldManager.Instance != null)
+            GoldManager.Instance.AddGold(doubleGold);
+
+        if (doubleGem > 0 && GemManager.Instance != null)
+            GemManager.Instance.AddGem(doubleGem);
+
+        OnDoubleRewardAd?.Invoke(doubleGold, doubleGem);
     }
 
     long GetUnixTimestamp()
