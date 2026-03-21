@@ -11,6 +11,8 @@ public class ShopPanel : MonoBehaviour
 {
     GameObject shopListContainer;
     readonly List<GameObject> shopListItems = new();
+    Button freeGemBtn;
+    TextMeshProUGUI freeGemBtnText;
 
     System.Action<string, string, System.Action> showConfirm;
 
@@ -29,10 +31,96 @@ public class ShopPanel : MonoBehaviour
         contentRT.offsetMin = Vector2.zero;
         contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
+        BuildFreeGemButton(content.transform);
         BuildShopList(content.transform);
     }
 
-    public void Refresh() => RefreshShopList();
+    public void Refresh()
+    {
+        RefreshFreeGemButton();
+        RefreshShopList();
+    }
+
+    // ════════════════════════════════════════
+    // 무료 보석 버튼
+    // ════════════════════════════════════════
+
+    void BuildFreeGemButton(Transform parent)
+    {
+        var container = UIHelper.MakeUI("FreeGemContainer", parent);
+        var crt = container.GetComponent<RectTransform>();
+        crt.anchorMin = new Vector2(0, 1);
+        crt.anchorMax = new Vector2(1, 1);
+        crt.pivot = new Vector2(0.5f, 1);
+        crt.sizeDelta = new Vector2(0, 60f);
+        crt.anchoredPosition = new Vector2(0, 0);
+
+        var (btn, _) = UIHelper.MakeSpriteButton("FreeGemBtn", container.transform,
+            UISprites.Btn2_WS, UIColors.Button_Blue, "", UIConstants.Font_Button);
+        freeGemBtn = btn;
+        btn.onClick.AddListener(OnFreeGemClicked);
+
+        var brt = btn.GetComponent<RectTransform>();
+        brt.anchorMin = new Vector2(0.05f, 0.1f);
+        brt.anchorMax = new Vector2(0.95f, 0.9f);
+        brt.offsetMin = Vector2.zero;
+        brt.offsetMax = Vector2.zero;
+
+        freeGemBtnText = UIHelper.MakeText("Label", btn.transform, "무료 보석 (광고) - 10개",
+            UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
+        freeGemBtnText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(freeGemBtnText);
+        UIHelper.FillParent(freeGemBtnText.GetComponent<RectTransform>());
+
+        RefreshFreeGemButton();
+    }
+
+    void OnFreeGemClicked()
+    {
+        // 광고 가능 여부 체크
+        if (AdManager.Instance != null && !AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
+        {
+            string cooldownText = AdManager.Instance.GetCooldownText(AdManager.AdRewardType.FreeGem);
+            ToastNotification.Instance?.Show("무료 보석 재시도", cooldownText, UIColors.Text_Gold);
+            return;
+        }
+
+        // 광고 시청
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedAd(
+                AdManager.AdRewardType.FreeGem,
+                success =>
+                {
+                    if (success)
+                    {
+                        GemManager.Instance?.AddGem(10);
+                        ToastNotification.Instance?.Show("무료 보석!", "보석 10개 획득!", UIColors.Text_Gold);
+                        RefreshFreeGemButton();
+                        Refresh();
+                    }
+                }
+            );
+        }
+    }
+
+    void RefreshFreeGemButton()
+    {
+        if (freeGemBtn == null || freeGemBtnText == null) return;
+
+        if (AdManager.Instance != null && AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
+        {
+            freeGemBtn.interactable = true;
+            freeGemBtnText.text = "무료 보석 (광고) - 10개";
+            freeGemBtnText.color = Color.white;
+        }
+        else if (AdManager.Instance != null)
+        {
+            freeGemBtn.interactable = false;
+            freeGemBtnText.text = AdManager.Instance.GetCooldownText(AdManager.AdRewardType.FreeGem);
+            freeGemBtnText.color = UIColors.Text_Secondary;
+        }
+    }
 
     // ════════════════════════════════════════
     // 상점 리스트

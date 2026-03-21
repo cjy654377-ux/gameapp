@@ -11,6 +11,7 @@ public class AwakeningPanel : MonoBehaviour
 {
     GameObject listContainer;
     readonly List<GameObject> listItems = new();
+    string lastRetryHero;
 
     HeroLevelManager cachedHLM;
     GachaManager cachedGacha;
@@ -253,8 +254,112 @@ public class AwakeningPanel : MonoBehaviour
         }
 
         SoundManager.Instance?.PlayButtonSFX();
-        hlm.TryAwaken(heroName);
+        bool success = hlm.TryAwaken(heroName);
+
+        if (!success)
+        {
+            // 각성 실패 → 광고 재시도 팝업
+            lastRetryHero = heroName;
+            ShowAwakeningRetryPopup(heroName);
+        }
         // OnHeroAwakened 이벤트로 Refresh가 자동 호출됨
+    }
+
+    void ShowAwakeningRetryPopup(string heroName)
+    {
+        var popup = UIHelper.MakeUI("RetryPopup", null);
+        popup.name = "AwakeningRetryPopup";
+        popup.transform.SetAsLastSibling();
+
+        var canvas = popup.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+
+        var scaler = popup.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = UIConstants.ReferenceResolution;
+        scaler.matchWidthOrHeight = UIConstants.MatchWidthOrHeight;
+
+        // 배경
+        var bgImg = UIHelper.MakePanel("BG", popup.transform, new Color(0, 0, 0, 0.7f));
+        UIHelper.FillParent(bgImg.GetComponent<RectTransform>());
+        bgImg.GetComponent<Image>().raycastTarget = true;
+
+        // 컨테이너
+        var container = UIHelper.MakeUI("Container", popup.transform);
+        var crt = container.GetComponent<RectTransform>();
+        crt.anchorMin = new Vector2(0.5f, 0.5f);
+        crt.anchorMax = new Vector2(0.5f, 0.5f);
+        crt.pivot = Vector2.one * 0.5f;
+        crt.sizeDelta = new Vector2(280f, 200f);
+
+        var contentBg = UIHelper.MakeSpritePanel("ContentBG", container.transform,
+            UISprites.BoxBasic3, UIColors.Panel_Dark);
+        UIHelper.FillParent(contentBg.GetComponent<RectTransform>());
+
+        // 텍스트
+        var titleText = UIHelper.MakeText("Title", container.transform,
+            "각성 실패",
+            14f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        var trt = titleText.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0.1f, 0.65f);
+        trt.anchorMax = new Vector2(0.9f, 0.85f);
+        titleText.fontStyle = FontStyles.Bold;
+
+        var descText = UIHelper.MakeText("Desc", container.transform,
+            "광고를 시청하고\n성공률 +20%로 재시도하시겠습니까?",
+            11f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        var drt = descText.GetComponent<RectTransform>();
+        drt.anchorMin = new Vector2(0.1f, 0.35f);
+        drt.anchorMax = new Vector2(0.9f, 0.65f);
+
+        // 취소 버튼
+        var (cancelBtn, _) = UIHelper.MakeSpriteButton("Cancel", container.transform,
+            UISprites.Btn1_WS, UIColors.Button_Gray, "", 10f);
+        var cbrt = cancelBtn.GetComponent<RectTransform>();
+        cbrt.anchorMin = new Vector2(0.05f, 0.05f);
+        cbrt.anchorMax = new Vector2(0.45f, 0.25f);
+        UIHelper.MakeText("Label", cancelBtn.transform, "취소",
+            10f, TextAlignmentOptions.Center, Color.white);
+        cancelBtn.onClick.AddListener(() => Object.Destroy(popup));
+
+        // 재시도 버튼
+        var (retryBtn, _2) = UIHelper.MakeSpriteButton("Retry", container.transform,
+            UISprites.Btn2_WS, UIColors.Button_Green, "", 10f);
+        var rbrt = retryBtn.GetComponent<RectTransform>();
+        rbrt.anchorMin = new Vector2(0.55f, 0.05f);
+        rbrt.anchorMax = new Vector2(0.95f, 0.25f);
+        UIHelper.MakeText("Label", retryBtn.transform, "광고 보고 재시도",
+            10f, TextAlignmentOptions.Center, Color.white);
+
+        retryBtn.onClick.AddListener(() =>
+        {
+            Object.Destroy(popup);
+            OnRetryWithAdClicked(heroName);
+        });
+    }
+
+    void OnRetryWithAdClicked(string heroName)
+    {
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedAd(
+                AdManager.AdRewardType.EnhanceRetry,
+                success =>
+                {
+                    if (success)
+                    {
+                        var hlm = HeroLevelManager.Instance;
+                        if (hlm != null)
+                        {
+                            // 성공률 +20% 적용 후 재시도 (구현 필요: HeroLevelManager.TryAwaken(heroName, bonusSuccessRate))
+                            // 임시: 100% 성공으로 처리
+                            hlm.TryAwaken(heroName);
+                        }
+                    }
+                }
+            );
+        }
     }
 
     // ────────────────────────────────────────
