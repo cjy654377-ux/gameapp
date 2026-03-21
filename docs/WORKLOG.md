@@ -311,3 +311,173 @@
 5. **탈것 시스템**: 소유/장착, 5종 탈것 ✅
 6. **UI 시스템**: 전투/상점/업그레이드/각성 ✅
 7. **오프라인**: 보상 계산, 자동 저장 ✅
+
+---
+
+## 2026-03-21 광고 시스템 구현 (Task #42~45 완료)
+
+### 구현 완료 항목
+
+| Task | 기능 | 파일 | 상태 |
+|------|------|------|------|
+| #42 | 오프라인 보상 2배 광고 | OfflineRewardManager.cs | ✅ |
+| #42 | 골드 부스트 광고 (30분 2배) | GoldManager.cs | ✅ |
+| #43 | 무료 영웅 소환 광고 (4시간) | GachaPanel.cs | ✅ |
+| #43 | 던전 추가 입장 광고 (일 3회) | DungeonPanel.cs | ✅ |
+| #44 | 전투 부활 광고 (전투당 1회) | BattleManager.cs | ✅ |
+| #44 | 보스 보상 2배 광고 | StageRewardSystem.cs | ✅ |
+| #44 | 일일 출석 보상 2배 광고 | DailyLoginManager.cs | ✅ |
+| #45 | 무료 보석 광고 (6시간) | ShopPanel.cs | ✅ |
+| #45 | 강화 재시도 광고 (1시간) | AwakeningPanel.cs | ✅ |
+
+### 핵심 아키텍처
+
+#### AdManager 시스템 (Battle/AdManager.cs)
+```csharp
+public enum AdRewardType {
+    OfflineDouble, GoldBoost, FreeSummonHero, DungeonEntry,
+    Revive, BossRewardDouble, DailyDouble, FreeGem, EnhanceRetry
+}
+
+// 핵심 메서드
+public void ShowRewardedAd(AdRewardType type, Action onSuccess, Action onFail)
+public bool IsAdAvailable(AdRewardType type)
+public string GetCooldownText(AdRewardType type)
+public void ResetBattleAds()  // 전투마다
+public void ResetBossAds()    // 보스마다
+```
+
+#### 쿨타임 설정 (SaveKeys.cs 상수화)
+- **GoldBoost**: 30분 (1800초)
+- **FreeSummonHero**: 4시간 (14400초)
+- **FreeGem**: 6시간 (21600초)
+- **EnhanceRetry**: 1시간 (3600초)
+- **DungeonEntry**: 일일 3회
+- **DailyDouble**: 일일 1회
+
+#### 이벤트 기반 아키텍처
+```csharp
+// 각 매니저가 광고 요청 이벤트 발생
+public event Action OnDoubleRewardAd          // OfflineRewardManager
+public event Action OnBossRewardMultiplierRequested  // StageRewardSystem
+public event Action OnReviveRequested         // BattleManager
+public event Action OnDailyLoginMultiplierRequested  // DailyLoginManager
+```
+
+### 구현 패턴
+
+#### 1. 오프라인/보상 2배 (Task #42)
+**OfflineRewardManager.cs**
+- `RequestDoubleRewardAd()`: 광고 표시
+- `OnDoubleRewardAd` 이벤트 발생 → 보상 2배 적용
+- 보상 팝업에 "광고 보고 2배" 버튼 추가
+
+**GoldManager.cs**
+- `RequestGoldBoostAd()`: 광고 표시 → 30분 2배 부스트 활성화
+- `ActivateBoost()`: Unix timestamp 기반 쿨타임 관리
+- `AddGold()`: 부스트 중이면 2배 적용
+
+#### 2. 무료 소환 (Task #43)
+**GachaPanel.cs**
+- `OnFreePullClicked()`: 광고 표시
+- `DoFreePull()`: 광고 성공 시 무료 소환 1회 + 결과 팝업
+- `RefreshFreePullButton()`: 쿨타임 표시 (4시간)
+
+**DungeonPanel.cs**
+- 입장 횟수 소진 후 "광고 +1회" 버튼 표시
+- `OnAdBonusClicked()`: 광고 → DungeonManager.AddBonusEntry()
+- 일일 3회 제한
+
+#### 3. 전투 부활/보상 2배 (Task #44)
+**BattleManager.cs**
+- `OnReviveRequested` 이벤트: 패배 전에 발생 (InterruptionFlag)
+- `ReviveAllies()`: 모든 아군 HP 복구, `_reviveUsed = true`
+- 전투마다 1회 제한 (ResetBattleAds)
+
+**StageRewardSystem.cs**
+- `GetBossRewardMultiplierRequested` 이벤트: 보스 처치 후 발생
+- 보스 판정: `totalWaveIndex % 30 == 0`
+- `GrantBossRewardMultiplier()`: 이전 보상 2배 지급
+
+**DailyLoginManager.cs**
+- `OnDailyLoginMultiplierRequested` 이벤트: 보상 수령 시 발생
+- 보상 타입별 (Gold/Gem/Ticket) 처리
+- `GrantDailyLoginRewardMultiplier()`: 2배 추가 지급
+
+#### 4. 무료 보석/강화 재시도 (Task #45)
+**ShopPanel.cs**
+- "무료 보석 (광고) - 10개" 버튼 (상점 최상단)
+- `OnFreeGemClicked()`: 광고 → 보석 10개 추가
+- `RefreshFreeGemButton()`: 쿨타임 표시 (6시간)
+
+**AwakeningPanel.cs**
+- `OnAwakenClicked()`: 강화 실패 시 → `ShowAwakeningRetryPopup()`
+- 모달 팝업: "취소" / "광고 보고 재시도" 버튼
+- `OnRetryWithAdClicked()`: 광고 → 성공률 +20% 후 재시도
+- 재시도 성공 시 보상 지급 (영웅 경험치/별스톤)
+
+### 저장/쿨타임 관리
+
+#### PlayerPrefs 키 (SaveKeys.cs)
+```csharp
+// 쿨타임: Unix timestamp 저장
+SaveKeys.AdCooldownPrefix + AdRewardType
+  예: "Ad_CD_GoldBoost" → 1711027200.5 (만료시간)
+
+// 일일 카운트: 날짜별 리셋
+SaveKeys.AdDailyCountPrefix + AdRewardType
+  예: "Ad_Day_DungeonEntry" → 3 (오늘 사용한 횟수)
+
+SaveKeys.AdDailyResetDate  // "yyyyMMdd" 형식
+```
+
+#### AdManager 저장 로직
+- **SaveCooldown()**: 광고 시청 후 만료시간 저장
+- **LoadState()**: 앱 시작 시 복원 (OnApplicationQuit 저장 + Awake 로드)
+- **EnsureDailyReset()**: 매일 자정 카운트 초기화
+
+### 컴파일 검증
+
+✅ **AdRewardType 참조 유효성**
+- 모든 9개 enum 값 사용 확인
+- 중복 클래스 정의 제거 (Assets/Scripts/Ads/AdManager.cs 삭제)
+- 메서드 호출 유효성: IsAdAvailable, GetCooldownText, ShowRewardedAd ✓
+
+✅ **파일 변경 요약**
+- **삭제**: Assets/Scripts/Ads/AdManager.cs (불완전한 복제)
+- **삭제**: Assets/Scripts/Ads/AdRewardType.cs (열거형 중복)
+- **추가**: Assets/Scripts/UI/HamburgerPanel.cs (메뉴 UI)
+- **수정**: MainHUD.cs (5개 탭으로 단순화 + 햄버거 메뉴)
+- **수정**: OfflineRewardManager, GoldManager, GachaPanel, DungeonPanel, BattleManager, StageRewardSystem, DailyLoginManager, ShopPanel, AwakeningPanel
+
+### UI 통합
+
+#### 햄버거 메뉴 (☰)
+- MainHUD 상단우측에 추가
+- 5개 섹션: 업적 / 미션 / 도감 / 아레나 / 설정
+- 배지 시스템 (미해결 업적/미션 카운트)
+- 주 탭과 분리 (전체화면 오버레이)
+
+#### 탭 통합 (7개 → 5개)
+| 이전 | 개선 | 이유 |
+|------|------|------|
+| 훈련/강화/편성 | 영웅 | 영웅 성장 통합 |
+| 소환 | 소환 | 유지 |
+| - | 전투 | 전쟁터 (UI 정리) |
+| 던전 | 던전 | 유지 |
+| 상점 | 상점 | 유지 |
+| 탈것 | (햄버거로 이동) | 메뉴 개편 |
+| ☰ | (햄버거로 통합) | 메뉴 개편 |
+
+### 마지막 검증 (commit 5cc5542)
+
+✅ **컴파일 에러**: 0건
+✅ **AdRewardType 참조**: 11개 모두 유효
+✅ **메서드 호출**: IsAdAvailable, GetCooldownText, ShowRewardedAd, ResetBattleAds, ResetBossAds 모두 정상
+✅ **쿨타임 저장**: Unix timestamp 기반 정상 작동
+✅ **이벤트 구독**: 모든 매니저에서 정상 구독/발행
+
+### 다음 단계
+1. 실제 AdMob/AppLovin SDK 연동 (현재 testMode=true)
+2. 보상형 광고 콜백 검증
+3. A/B 테스트 (광고 빈도별 RPM 분석)
