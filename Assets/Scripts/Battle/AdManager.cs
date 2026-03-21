@@ -135,6 +135,9 @@ public class AdManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>세션 시작 후 30분간 광고 버튼 초기 숨김 여부.</summary>
+    public bool IsInitialHidePeriod() => Time.realtimeSinceStartup < 1800f;
+
     /// <summary>남은 쿨타임 문자열 "H:MM:SS" 또는 빈 문자열(사용 가능).</summary>
     public string GetCooldownText(AdRewardType type)
     {

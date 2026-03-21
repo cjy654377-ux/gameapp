@@ -188,7 +188,7 @@ public class DungeonPanel : MonoBehaviour
         art.offsetMin = Vector2.zero;
         art.offsetMax = Vector2.zero;
 
-        var adLabel = UIHelper.MakeText("Label", adBtn.transform, "광고 보고 +1회",
+        var adLabel = UIHelper.MakeText("Label", adBtn.transform, "무료 보상 +1회",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
         adLabel.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(adLabel.GetComponent<RectTransform>());
@@ -370,9 +370,13 @@ public class DungeonPanel : MonoBehaviour
         if (enterBtn != null)
             enterBtn.interactable = remaining > 0;
 
-        // 광고 보너스 버튼 활성 여부 (입장 횟수 0일 때만 표시)
+        // 광고 보너스 버튼: 초기 30분 숨김, 입장 횟수 0일 때만 활성
         if (adBonusBtn != null)
-            adBonusBtn.interactable = (remaining == 0);
+        {
+            bool initialHide = AdManager.Instance != null && AdManager.Instance.IsInitialHidePeriod();
+            adBonusBtn.gameObject.SetActive(!initialHide);
+            if (!initialHide) adBonusBtn.interactable = (remaining == 0);
+        }
     }
 
     void RefreshFloorSelector()

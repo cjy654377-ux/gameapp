@@ -66,7 +66,7 @@ public class ShopPanel : MonoBehaviour
         brt.offsetMin = Vector2.zero;
         brt.offsetMax = Vector2.zero;
 
-        freeGemBtnText = UIHelper.MakeText("Label", btn.transform, "무료 보석 (광고) - 10개",
+        freeGemBtnText = UIHelper.MakeText("Label", btn.transform, "무료 보상 - 보석 10개",
             UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
         freeGemBtnText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(freeGemBtnText);
@@ -105,10 +105,15 @@ public class ShopPanel : MonoBehaviour
     {
         if (freeGemBtn == null || freeGemBtnText == null) return;
 
+        // 초기 30분 숨김
+        bool initialHide = AdManager.Instance != null && AdManager.Instance.IsInitialHidePeriod();
+        freeGemBtn.gameObject.SetActive(!initialHide);
+        if (initialHide) return;
+
         if (AdManager.Instance != null && AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
         {
             freeGemBtn.interactable = true;
-            freeGemBtnText.text = "무료 보석 (광고) - 10개";
+            freeGemBtnText.text = "무료 보상 - 보석 10개";
             freeGemBtnText.color = Color.white;
         }
         else if (AdManager.Instance != null)

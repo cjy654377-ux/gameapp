@@ -515,7 +515,7 @@ public class EnhancePanel : MonoBehaviour
                     retryRT.offsetMin = Vector2.zero;
                     retryRT.offsetMax = Vector2.zero;
 
-                    string retryLabel = adAvail ? "광고\n재시도" : "쿨다운";
+                    string retryLabel = adAvail ? "무료\n재시도" : "쿨다운";
                     var retryText = UIHelper.MakeText("Label", retryBtn.transform, retryLabel,
                         6f, TextAlignmentOptions.Center,
                         adAvail ? Color.white : UIColors.Text_Disabled);

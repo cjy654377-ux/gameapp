@@ -29,6 +29,8 @@ public class MainHUD : MonoBehaviour
     GameObject gemContainer;
     GameObject stoneContainer;
     GameObject scrollContainer;
+    TextMeshProUGUI awakeStoneText;
+    GameObject awakeStoneContainer;
     TextMeshProUGUI stageText;
     TextMeshProUGUI areaNameText;
     Image progressBarFill;
@@ -122,6 +124,7 @@ public class MainHUD : MonoBehaviour
     UpgradeManager cachedUpgradeMgr;
     HeroLevelManager cachedHeroLevelMgr;
     System.Action<string, int> _onHeroLevelUp;
+    AwakeningStoneManager cachedAwakeStoneMgr;
 
     void Start()
     {
@@ -172,10 +175,15 @@ public class MainHUD : MonoBehaviour
             cachedHeroLevelMgr.OnHeroLevelUp += _onHeroLevelUp;
         }
 
+        cachedAwakeStoneMgr = AwakeningStoneManager.Instance;
+        if (cachedAwakeStoneMgr != null)
+            cachedAwakeStoneMgr.OnStoneChanged += UpdateAwakeStone;
+
         UpdateGold(cachedGoldMgr != null ? cachedGoldMgr.Gold : 0);
         UpdateGem(cachedGemMgr != null ? cachedGemMgr.Gem : 0);
         UpdateStone(cachedStoneMgr != null ? cachedStoneMgr.Stone : 0);
         UpdateScroll(cachedScrollMgr != null ? cachedScrollMgr.Scroll : 0);
+        UpdateAwakeStone(cachedAwakeStoneMgr != null ? cachedAwakeStoneMgr.Stone : 0);
         if (cachedStageMgr != null)
         {
             if (stageText != null) stageText.text = cachedStageMgr.GetStageText();
@@ -347,6 +355,11 @@ public class MainHUD : MonoBehaviour
         CreateResourceDisplay(hudBar.transform, "Scroll", UISprites.IconSkill,
             new Color(0.88f, 0.68f, 1.00f), new Vector2(0.77f, 0.08f), new Vector2(0.88f, 0.92f),
             out scrollText, out scrollContainer);
+
+        // 각성석 (영웅탭 전용, gem 위치 공유)
+        CreateResourceDisplay(hudBar.transform, "AwakeStone", UISprites.IconSword,
+            new Color(1.00f, 0.70f, 0.30f), new Vector2(0.45f, 0.08f), new Vector2(0.62f, 0.92f),
+            out awakeStoneText, out awakeStoneContainer);
 
         // 햄버거 버튼 (☰)
         var hamBtn = UIHelper.MakeUI("HamburgerBtn", hudBar.transform);
@@ -1028,16 +1041,27 @@ public class MainHUD : MonoBehaviour
     // 탭별 재화 컨텍스트 표시
     void UpdateCurrencyDisplay(int tabIdx)
     {
-        // -1: 전투(패널 없음) → 골드만
-        bool showGold   = true;
-        bool showGem    = (tabIdx == 1 || tabIdx == 4); // 소환, 상점
-        bool showStone  = (tabIdx == 1);                 // 소환
-        bool showScroll = (tabIdx == 1);                 // 소환
+        // -1: 전투(패널 없음) / 2: 전투탭 → 골드만
+        // 0: 영웅 → 골드+각성석
+        // 1: 소환 → 보석+소환석+주문서
+        // 3: 던전 → 골드
+        // 4: 상점 → 골드+보석
+        bool showGold       = (tabIdx != 1);                  // 소환탭만 골드 숨김
+        bool showGem        = (tabIdx == 1 || tabIdx == 4);   // 소환, 상점
+        bool showStone      = (tabIdx == 1);                   // 소환
+        bool showScroll     = (tabIdx == 1);                   // 소환
+        bool showAwakeStone = (tabIdx == 0);                   // 영웅
 
-        if (goldContainer   != null) goldContainer.SetActive(showGold);
-        if (gemContainer    != null) gemContainer.SetActive(showGem);
-        if (stoneContainer  != null) stoneContainer.SetActive(showStone);
-        if (scrollContainer != null) scrollContainer.SetActive(showScroll);
+        if (goldContainer      != null) goldContainer.SetActive(showGold);
+        if (gemContainer       != null) gemContainer.SetActive(showGem);
+        if (stoneContainer     != null) stoneContainer.SetActive(showStone);
+        if (scrollContainer    != null) scrollContainer.SetActive(showScroll);
+        if (awakeStoneContainer != null) awakeStoneContainer.SetActive(showAwakeStone);
+    }
+
+    void UpdateAwakeStone(int stone)
+    {
+        if (awakeStoneText != null) awakeStoneText.text = UIHelper.FormatNumber(stone);
     }
 
     void UpdateGold(int gold)
@@ -1380,6 +1404,8 @@ public class MainHUD : MonoBehaviour
             cachedUpgradeMgr.OnUpgraded -= UpdateCombatPower;
         if (cachedHeroLevelMgr != null && _onHeroLevelUp != null)
             cachedHeroLevelMgr.OnHeroLevelUp -= _onHeroLevelUp;
+        if (cachedAwakeStoneMgr != null)
+            cachedAwakeStoneMgr.OnStoneChanged -= UpdateAwakeStone;
     }
 
 
