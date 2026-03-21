@@ -1263,56 +1263,19 @@ public class MainHUD : MonoBehaviour
 
     void UpdateBadges()
     {
-        // 영웅 탭 (index 0): 레벨업 or 각성 가능한 영웅 수
-        var dm = DeckManager.Instance;
-        var hlm = HeroLevelManager.Instance;
-        int heroCount = 0;
-        if (dm != null && hlm != null)
-        {
-            for (int i = 0; i < dm.roster.Count; i++)
-            {
-                var p = dm.roster[i];
-                if (p == null || p.isEnemy) continue;
-                string heroName = p.characterName;
-                int lv = hlm.GetLevel(heroName);
-                bool canLevel = lv < HeroLevelManager.MAX_LEVEL &&
-                                hlm.GetCopies(heroName) >= hlm.GetCopiesNeeded(lv);
-                if (canLevel || hlm.CanAwaken(heroName))
-                    heroCount++;
-            }
-        }
-        SetBadge(0, heroCount);
+        var nbs = NotificationBadgeSystem.Instance;
+        if (nbs == null) return;
 
-        // 소환 탭 (index 1): 무료 소환 가능 시 배지
-        int gachaFreeBadge = 0;
-        var gachaMgr = GachaManager.Instance;
-        if (gachaMgr != null && gachaMgr.CanFreePull())
-            gachaFreeBadge = 1;
-        SetBadge(1, gachaFreeBadge);
+        SetBadge(0, nbs.GetHeroBadgeCount());
+        SetBadge(1, nbs.GetGachaBadgeCount());
+        SetBadge(3, nbs.GetDungeonBadgeCount());
+        SetBadge(4, nbs.GetShopBadgeCount());
 
-        // 던전 탭 (index 3): 입장 가능한 던전 있을 때
-        int dungeonBadge = 0;
-        var dungeonMgr = DungeonManager.Instance;
-        if (dungeonMgr != null &&
-            (dungeonMgr.CanEnter(DungeonType.Hero)  ||
-             dungeonMgr.CanEnter(DungeonType.Mount) ||
-             dungeonMgr.CanEnter(DungeonType.Skill)))
-            dungeonBadge = 1;
-        SetBadge(3, dungeonBadge);
-
-        // 상점 탭 (index 4): 무료 보석 광고 가능 시
-        int shopBadge = 0;
-        if (AdManager.Instance != null &&
-            AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
-            shopBadge = 1;
-        SetBadge(4, shopBadge);
-
-        // 햄버거 배지: 미수령 업적 + 미션 보상 수
-        int rewardCount = hamburgerPanel != null ? hamburgerPanel.GetUnclaimedRewardCount() : 0;
+        int hamburgerCount = nbs.GetHamburgerBadgeCount();
         if (hamburgerBadge != null)
         {
-            hamburgerBadge.SetActive(rewardCount > 0);
-            if (hamburgerBadgeText != null) hamburgerBadgeText.text = rewardCount.ToString();
+            hamburgerBadge.SetActive(hamburgerCount > 0);
+            if (hamburgerBadgeText != null) hamburgerBadgeText.text = hamburgerCount.ToString();
         }
     }
 

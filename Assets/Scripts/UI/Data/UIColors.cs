@@ -74,7 +74,8 @@ public static class UIColors
     public static readonly Color ListItem_Completed = new Color(0.82f, 0.92f, 0.75f);
     public static readonly Color ListItem_Claimed = new Color(0.82f, 0.78f, 0.72f);
 
-    // Defeat
+    // Badge / Defeat
+    public static readonly Color Badge_Red  = HexColor("#E02222");
     public static readonly Color Defeat_Red = HexColor("#CC3333");
     public static readonly Color Overlay_Dark = new Color(0, 0, 0, 0.7f);
 
