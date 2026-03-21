@@ -4,8 +4,9 @@
 public static class SaveKeys
 {
     // 경제
-    public const string Gold            = "Gold";
-    public const string Gem             = "Gem";
+    public const string Gold              = "Gold";
+    public const string Gem               = "Gem";
+    public const string GoldBoostEndTime  = "Gold_BoostEndTime";
 
     // 스테이지
     public const string TotalWaveIndex  = "TotalWaveIndex";
@@ -81,4 +82,10 @@ public static class SaveKeys
     public const string AdCooldownPrefix  = "Ad_CD_";   // + AdRewardType 이름
     public const string AdDailyCountPrefix = "Ad_Day_"; // + AdRewardType 이름
     public const string AdDailyResetDate  = "Ad_DailyReset";
+
+    // 명성 (아레나 전용 통화)
+    public const string Reputation = "Reputation";
+
+    // 각성석 (던전 고단계 보상, 영웅 각성 재료)
+    public const string AwakeningStone = "AwakeningStone";
 }

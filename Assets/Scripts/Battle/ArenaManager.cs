@@ -21,6 +21,10 @@ public class ArenaManager : MonoBehaviour
     const int STREAK_BONUS = 5;
     const int DAILY_ATTEMPTS = 10;
 
+    // 명성 지급
+    const int WIN_REPUTATION = 10;
+    const int STREAK_REP_BONUS = 3;
+
     int attemptsToday;
     string lastResetDate;
 
@@ -109,7 +113,11 @@ public class ArenaManager : MonoBehaviour
             int points = WIN_POINTS + WinStreak * STREAK_BONUS;
             ArenaPoints += points;
             WinStreak++;
-            ToastNotification.Instance?.Show("아레나 승리!", $"+{points}P", UIColors.Text_Gold);
+
+            int rep = WIN_REPUTATION + WinStreak * STREAK_REP_BONUS;
+            ReputationManager.Instance?.AddReputation(rep);
+
+            ToastNotification.Instance?.Show("아레나 승리!", $"+{points}P  명성 +{rep}", UIColors.Text_Gold);
         }
         else
         {

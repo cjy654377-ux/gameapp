@@ -38,6 +38,8 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<SpellScrollManager>("SpellScrollManager");
         EnsureSystem<DungeonManager>("DungeonManager");
         EnsureSystem<AdManager>("AdManager");
+        EnsureSystem<ReputationManager>("ReputationManager");
+        EnsureSystem<AwakeningStoneManager>("AwakeningStoneManager");
 
         // 프리셋 자동 로드 (Inspector 할당이 깨진 경우)
         AutoLoadAllyPresets();

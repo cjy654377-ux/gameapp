@@ -85,7 +85,7 @@ public class DungeonManager : MonoBehaviour
     {
         if (data == null) return;
         int reward = data.CalcReward();
-        GiveReward(data.dungeonType, reward);
+        GiveReward(data.dungeonType, reward, data.stage);
         OnDungeonCleared?.Invoke(data.dungeonType, reward);
     }
 
@@ -111,13 +111,21 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    void GiveReward(DungeonType type, int amount)
+    void GiveReward(DungeonType type, int amount, int stage = 0)
     {
         switch (type)
         {
-            case DungeonType.Hero:  GemManager.Instance?.AddGem(amount);             break;
-            case DungeonType.Mount: SummonStoneManager.Instance?.AddStone(amount);   break;
-            case DungeonType.Skill: SpellScrollManager.Instance?.AddScroll(amount);  break;
+            case DungeonType.Hero:
+                GemManager.Instance?.AddGem(amount);
+                // 10단계 이상 영웅 던전: 각성석 추가 보상 (10단계당 1개)
+                if (stage >= 10)
+                {
+                    int stones = stage / 10;
+                    AwakeningStoneManager.Instance?.AddStone(stones);
+                }
+                break;
+            case DungeonType.Mount: SummonStoneManager.Instance?.AddStone(amount);  break;
+            case DungeonType.Skill: SpellScrollManager.Instance?.AddScroll(amount); break;
         }
     }
 

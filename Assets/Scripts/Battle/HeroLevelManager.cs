@@ -205,6 +205,39 @@ public class HeroLevelManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>각성석 소모 비용 (성급별). 카피 대신 각성석으로 각성 가능.</summary>
+    public int GetAwakeStoneCost(int star) => star switch
+    {
+        1 => 3,
+        2 => 6,
+        3 => 12,
+        4 => 25,
+        5 => 50,
+        _ => 3
+    };
+
+    /// <summary>각성석으로 각성 가능 여부 (카피 무관).</summary>
+    public bool CanAwakenWithStone(string heroName)
+    {
+        if (GetAwakeningStage(heroName) >= MAX_AWAKENING) return false;
+        int cost = GetAwakeStoneCost(GetStarRank(heroName));
+        return AwakeningStoneManager.Instance != null && AwakeningStoneManager.Instance.Stone >= cost;
+    }
+
+    /// <summary>각성석 소모로 각성 시도. 성공 시 true.</summary>
+    public bool TryAwakenWithStone(string heroName)
+    {
+        if (GetAwakeningStage(heroName) >= MAX_AWAKENING) return false;
+        int cost = GetAwakeStoneCost(GetStarRank(heroName));
+        if (AwakeningStoneManager.Instance == null || !AwakeningStoneManager.Instance.SpendStone(cost))
+            return false;
+
+        heroAwakening[heroName] = (heroAwakening.TryGetValue(heroName, out int cur) ? cur : 0) + 1;
+        OnHeroAwakened?.Invoke(heroName, heroAwakening[heroName]);
+        SaveHero(heroName);
+        return true;
+    }
+
     public float GetAwakeningMultiplier(string heroName)
     {
         int awakening = GetAwakeningStage(heroName);
