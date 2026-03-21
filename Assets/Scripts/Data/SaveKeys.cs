@@ -66,6 +66,11 @@ public static class SaveKeys
     public const string DungeonAdBonusCount = "Dungeon_AdBonusCount";
     public const string DungeonAdBonusDate  = "Dungeon_AdBonusDate";
 
+    // 던전 최고 층수 (타입별)
+    public const string DungeonBestFloorHero  = "dung_best_Hero";
+    public const string DungeonBestFloorMount = "dung_best_Mount";
+    public const string DungeonBestFloorSkill = "dung_best_Skill";
+
     // 탈것
     public const string MountOwned    = "Mount_Owned";
     public const string MountEquipped = "Mount_Equipped";

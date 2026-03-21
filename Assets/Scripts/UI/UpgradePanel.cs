@@ -289,4 +289,10 @@ public class UpgradePanel : MonoBehaviour
         for (int i = activeCount; i < items.Count; i++)
             if (items[i] != null) items[i].SetActive(false);
     }
+
+    void OnDestroy()
+    {
+        // 동적 생성된 버튼들은 GameObjects 파괴 시 함께 정리되므로
+        // RemoveAllListeners는 안전성을 위한 추가 정리
+    }
 }

@@ -617,4 +617,14 @@ public class EnhancePanel : MonoBehaviour
         for (int i = activeCount; i < items.Count; i++)
             if (items[i] != null) items[i].SetActive(false);
     }
+
+    void OnDestroy()
+    {
+        if (subTabBtns != null)
+        {
+            for (int i = 0; i < subTabBtns.Length; i++)
+                if (subTabBtns[i] != null)
+                    subTabBtns[i].onClick.RemoveAllListeners();
+        }
+    }
 }

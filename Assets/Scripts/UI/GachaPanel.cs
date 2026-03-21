@@ -570,4 +570,17 @@ public class GachaPanel : MonoBehaviour
         StarGrade.Star2 => "★★",
         _               => "★",
     };
+
+    void OnDestroy()
+    {
+        if (heroTabBtn != null) heroTabBtn.onClick.RemoveListener(ShowHeroTab);
+        if (mountTabBtn != null) mountTabBtn.onClick.RemoveListener(ShowMountTab);
+        if (skillTabBtn != null) skillTabBtn.onClick.RemoveListener(ShowSkillTab);
+        if (singleBtn != null) singleBtn.onClick.RemoveListener(OnSinglePull);
+        if (multiBtn != null) multiBtn.onClick.RemoveListener(OnMultiPull);
+        if (probBtn != null) probBtn.onClick.RemoveListener(ShowProbabilityInfo);
+        if (freePullBtn != null) freePullBtn.onClick.RemoveListener(OnFreePull);
+        if (skillPullBtn != null) skillPullBtn.onClick.RemoveListener(OnSkillPull);
+        if (skillInfoBtn != null) skillInfoBtn.onClick.RemoveListener(ShowSkillProbInfo);
+    }
 }

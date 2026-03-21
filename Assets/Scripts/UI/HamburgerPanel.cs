@@ -562,4 +562,16 @@ public class HamburgerPanel : MonoBehaviour
             items.RemoveAt(i);
         }
     }
+
+    void OnDestroy()
+    {
+        if (subTabBtns != null)
+        {
+            for (int i = 0; i < subTabBtns.Length; i++)
+                if (subTabBtns[i] != null)
+                    subTabBtns[i].onClick.RemoveAllListeners();
+        }
+        if (arenaBattleBtn != null)
+            arenaBattleBtn.onClick.RemoveListener(OnArenaBattle);
+    }
 }

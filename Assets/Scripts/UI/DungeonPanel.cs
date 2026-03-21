@@ -393,13 +393,13 @@ public class DungeonPanel : MonoBehaviour
     int GetBestFloorForSelected()
     {
         // DungeonManager는 bestFloor를 직접 노출하지 않으므로 PlayerPrefs에서 직접 읽기
-        // (DungeonManager 내부 키와 동일: SaveKeys를 사용하지 않아 결합 방지)
+        // (DungeonManager 내부 키와 동일)
         string key = selectedType switch
         {
-            DungeonType.Hero  => "dung_best_Hero",
-            DungeonType.Mount => "dung_best_Mount",
-            DungeonType.Skill => "dung_best_Skill",
-            _                 => "dung_best_Hero"
+            DungeonType.Hero  => SaveKeys.DungeonBestFloorHero,
+            DungeonType.Mount => SaveKeys.DungeonBestFloorMount,
+            DungeonType.Skill => SaveKeys.DungeonBestFloorSkill,
+            _                 => SaveKeys.DungeonBestFloorHero
         };
         return PlayerPrefs.GetInt(key, 0);
     }

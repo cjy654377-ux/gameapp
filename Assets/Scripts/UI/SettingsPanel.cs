@@ -149,4 +149,10 @@ public class SettingsPanel : MonoBehaviour
         PlayerPrefs.Save();
         ToastNotification.Instance?.Show("데이터 초기화", "게임을 재시작합니다", UIColors.Defeat_Red);
     }
+
+    void OnDestroy()
+    {
+        if (bgmSlider != null) bgmSlider.onValueChanged.RemoveAllListeners();
+        if (sfxSlider != null) sfxSlider.onValueChanged.RemoveAllListeners();
+    }
 }

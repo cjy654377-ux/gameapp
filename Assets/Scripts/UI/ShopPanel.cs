@@ -283,4 +283,9 @@ public class ShopPanel : MonoBehaviour
             items.RemoveAt(i);
         }
     }
+
+    void OnDestroy()
+    {
+        if (freeGemBtn != null) freeGemBtn.onClick.RemoveListener(OnFreeGemClicked);
+    }
 }

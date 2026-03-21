@@ -343,4 +343,9 @@ public class MountItemRow : MonoBehaviour
         StarGrade.Star2 => UIColors.Rarity_Uncommon,
         _               => UIColors.Rarity_Common,
     };
+
+    void OnDestroy()
+    {
+        // 모든 버튼은 동적 생성되며, 부모 GameObject 파괴 시 함께 정리됨
+    }
 }

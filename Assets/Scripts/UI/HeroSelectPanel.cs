@@ -276,4 +276,9 @@ public class HeroSelectPanel : MonoBehaviour
         StarGrade.Star5 => "5성",
         _               => ""
     };
+
+    void OnDestroy()
+    {
+        // 모든 버튼들은 Init()의 local 변수로, popup GameObject 파괴 시 함께 정리됨
+    }
 }
