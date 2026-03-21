@@ -32,7 +32,7 @@ public class DailyLoginManager : MonoBehaviour
         public int amount;
     }
 
-    public enum RewardType { Gold, Gem, GachaTicket }
+    public enum RewardType { Gold, Gem, GachaTicket, SummonStone, AwakeningStone, Star4HeroTicket }
 
     // 28일 보상 테이블
     static readonly DailyReward[] REWARDS = new DailyReward[CYCLE_DAYS]
@@ -129,17 +129,48 @@ public class DailyLoginManager : MonoBehaviour
         if (ClaimedToday) return false;
 
         var reward = GetTodayReward();
-        switch (reward.type)
+        int dayNum = CurrentDay + 1; // 1-indexed
+
+        // 마일스톤 특별 보상 (7일, 14일, 30일)
+        if (dayNum == 7)
         {
-            case RewardType.Gold:
-                GoldManager.Instance?.AddGold(reward.amount);
-                break;
-            case RewardType.Gem:
-                GemManager.Instance?.AddGem(reward.amount);
-                break;
-            case RewardType.GachaTicket:
-                GemManager.Instance?.AddGem(GachaManager.SINGLE_PULL_COST);
-                break;
+            // 7일: 보석 100
+            GemManager.Instance?.AddGem(100);
+        }
+        else if (dayNum == 14)
+        {
+            // 14일: 소환석 10 + 각성석 5
+            SummonStoneManager.Instance?.AddStone(10);
+            AwakeningStoneManager.Instance?.AddStone(5);
+        }
+        else if (dayNum == 30)
+        {
+            // 30일: Star4 영웅 보장 티켓 (따로 처리 필요)
+            // 현재 구현: 보석 추가 대신 별도의 티켓 시스템 필요
+            GemManager.Instance?.AddGem(500); // 임시: 고급 보석 보상
+            // TODO: Star4 영웅 보장 시스템 구현 필요
+        }
+        else
+        {
+            // 일반 보상
+            switch (reward.type)
+            {
+                case RewardType.Gold:
+                    GoldManager.Instance?.AddGold(reward.amount);
+                    break;
+                case RewardType.Gem:
+                    GemManager.Instance?.AddGem(reward.amount);
+                    break;
+                case RewardType.GachaTicket:
+                    GemManager.Instance?.AddGem(GachaManager.SINGLE_PULL_COST);
+                    break;
+                case RewardType.SummonStone:
+                    SummonStoneManager.Instance?.AddStone(reward.amount);
+                    break;
+                case RewardType.AwakeningStone:
+                    AwakeningStoneManager.Instance?.AddStone(reward.amount);
+                    break;
+            }
         }
 
         ClaimedToday = true;
@@ -174,6 +205,11 @@ public class DailyLoginManager : MonoBehaviour
     {
         if (_dailyLoginMultiplierUsed) return;
 
+        int dayNum = CurrentDay + 1; // 1-indexed
+
+        // 마일스톤은 2배 광고 미지원
+        if (dayNum == 7 || dayNum == 14 || dayNum == 30) return;
+
         switch (_lastClaimedReward.type)
         {
             case RewardType.Gold:
@@ -184,6 +220,12 @@ public class DailyLoginManager : MonoBehaviour
                 break;
             case RewardType.GachaTicket:
                 GemManager.Instance?.AddGem(GachaManager.SINGLE_PULL_COST);
+                break;
+            case RewardType.SummonStone:
+                SummonStoneManager.Instance?.AddStone(_lastClaimedReward.amount);
+                break;
+            case RewardType.AwakeningStone:
+                AwakeningStoneManager.Instance?.AddStone(_lastClaimedReward.amount);
                 break;
         }
 
