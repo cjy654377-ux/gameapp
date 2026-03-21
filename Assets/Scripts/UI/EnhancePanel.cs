@@ -323,7 +323,8 @@ public class EnhancePanel : MonoBehaviour
                 {
                     if (HeroLevelManager.Instance != null)
                     {
-                        HeroLevelManager.Instance.TryLevelUp(capturedName);
+                        if (HeroLevelManager.Instance.TryLevelUp(capturedName))
+                            SoundManager.Instance?.PlayUISound(UISoundType.levelup);
                         RefreshHeroUI();
                     }
                 });

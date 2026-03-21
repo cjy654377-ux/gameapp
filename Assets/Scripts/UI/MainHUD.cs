@@ -847,7 +847,10 @@ public class MainHUD : MonoBehaviour
         closeImg2.color = UIColors.Button_Brown;
         var closeBtnComp = closeBtn2.AddComponent<Button>();
         closeBtnComp.targetGraphic = closeImg2;
-        closeBtnComp.onClick.AddListener(() => hamburgerOverlay.SetActive(false));
+        closeBtnComp.onClick.AddListener(() => {
+            SoundManager.Instance?.PlayUISound(UISoundType.button_click);
+            hamburgerOverlay.SetActive(false);
+        });
         var cbrt = closeBtn2.GetComponent<RectTransform>();
         cbrt.anchorMin = new Vector2(1, 0.5f);
         cbrt.anchorMax = new Vector2(1, 0.5f);
@@ -921,7 +924,7 @@ public class MainHUD : MonoBehaviour
 
     void OnTabClicked(int idx)
     {
-        SoundManager.Instance?.PlayButtonSFX();
+        SoundManager.Instance?.PlayUISound(UISoundType.tab_switch);
         // 전투 탭(i==2): 패널 없음 → 열린 패널만 닫기
         if (idx == 2) { StartCoroutine(ClosePanelFade()); return; }
         if (activeTab == idx) { StartCoroutine(ClosePanelFade()); return; }
@@ -988,7 +991,7 @@ public class MainHUD : MonoBehaviour
     void ToggleHamburger()
     {
         if (hamburgerOverlay == null) return;
-        SoundManager.Instance?.PlayButtonSFX();
+        SoundManager.Instance?.PlayUISound(UISoundType.button_click);
         bool nowActive = !hamburgerOverlay.activeSelf;
         hamburgerOverlay.SetActive(nowActive);
         if (nowActive) hamburgerPanel?.Refresh();
@@ -996,6 +999,7 @@ public class MainHUD : MonoBehaviour
 
     void ClosePanel()
     {
+        SoundManager.Instance?.PlayUISound(UISoundType.button_click);
         if (activeTab >= 0)
             tabPanels[activeTab].SetActive(false);
         activeTab = -1;
@@ -1539,8 +1543,8 @@ public class MainHUD : MonoBehaviour
 
         confirmBtn.onClick.AddListener(() =>
         {
+            SoundManager.Instance?.PlayUISound(UISoundType.button_click);
             offlinePopup.SetActive(false);
-            SoundManager.Instance?.PlayButtonSFX();
         });
 
         offlinePopup.SetActive(false);
@@ -1633,10 +1637,10 @@ public class MainHUD : MonoBehaviour
         UIHelper.FillParent(yesLabel.GetComponent<RectTransform>());
         yesBtn.onClick.AddListener(() =>
         {
+            SoundManager.Instance?.PlayUISound(UISoundType.button_click);
             confirmPopup.SetActive(false);
             pendingConfirmAction?.Invoke();
             pendingConfirmAction = null;
-            SoundManager.Instance?.PlayButtonSFX();
         });
 
         // NO 버튼 — Btn4_WS (빨간색)
@@ -1654,9 +1658,9 @@ public class MainHUD : MonoBehaviour
         UIHelper.FillParent(noLabel.GetComponent<RectTransform>());
         noBtn.onClick.AddListener(() =>
         {
+            SoundManager.Instance?.PlayUISound(UISoundType.button_click);
             confirmPopup.SetActive(false);
             pendingConfirmAction = null;
-            SoundManager.Instance?.PlayButtonSFX();
         });
 
         confirmPopup.SetActive(false);

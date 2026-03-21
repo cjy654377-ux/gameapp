@@ -252,8 +252,8 @@ public class AwakeningPanel : MonoBehaviour
             return;
         }
 
-        SoundManager.Instance?.PlayButtonSFX();
         bool success = hlm.TryAwaken(heroName);
+        if (success) SoundManager.Instance?.PlayUISound(UISoundType.awakening);
 
         if (!success)
         {

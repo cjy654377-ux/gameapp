@@ -107,6 +107,7 @@ public class HeroLevelManager : MonoBehaviour
 
         heroCopies[heroName] -= needed;
         heroLevels[heroName]++;
+        SoundManager.Instance?.PlayUISound(UISoundType.levelup);
         OnHeroLevelUp?.Invoke(heroName, heroLevels[heroName]);
         SaveHero(heroName);
         return true;
@@ -206,6 +207,7 @@ public class HeroLevelManager : MonoBehaviour
 
         heroCopies[heroName] -= needed;
         heroAwakening[heroName]++;
+        SoundManager.Instance?.PlayUISound(UISoundType.awakening);
         OnHeroAwakened?.Invoke(heroName, heroAwakening[heroName]);
         SaveHero(heroName);
         return true;
@@ -239,6 +241,7 @@ public class HeroLevelManager : MonoBehaviour
             return false;
 
         heroAwakening[heroName] = (heroAwakening.TryGetValue(heroName, out int cur) ? cur : 0) + 1;
+        SoundManager.Instance?.PlayUISound(UISoundType.awakening);
         OnHeroAwakened?.Invoke(heroName, heroAwakening[heroName]);
         SaveHero(heroName);
         return true;

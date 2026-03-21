@@ -214,6 +214,8 @@ public class AchievementManager : MonoBehaviour
         if (GemManager.Instance != null)
             GemManager.Instance.AddGem(ach.gemReward);
 
+        SoundManager.Instance?.PlayUISound(UISoundType.achievement);
+
         return true;
     }
 

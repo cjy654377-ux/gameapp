@@ -459,7 +459,10 @@ public class GachaPanel : MonoBehaviour
                     resultText.text = $"<color=#7FD44C>NEW!</color> <color=#{hexColor}>[{starLabel}] {hero.characterName}</color> 획득!";
             }
             if (heroResultRT != null)
+            {
+                SoundManager.Instance?.PlayUISound(UISoundType.gacha_reveal);
                 StartCoroutine(CardFlip(heroResultRT, GetRarityColor(hero.starGrade)));
+            }
         }
         else
         {
@@ -540,6 +543,7 @@ public class GachaPanel : MonoBehaviour
             resultText.text = sb.ToString().TrimEnd();
 
             // 카드 뒤집기: scaleX 1→0→1
+            SoundManager.Instance?.PlayUISound(UISoundType.gacha_reveal);
             float t = 0;
             while (t < 0.08f && !_multiPullSkip)
             {
@@ -754,7 +758,10 @@ public class GachaPanel : MonoBehaviour
             skillResultText.text = $"<color=#{hex}>[{starLabel}]</color> {skill.iconChar} <color=#{hex}>{skill.skillName}</color> 획득!";
 
         if (skillResultRT != null)
+        {
+            SoundManager.Instance?.PlayUISound(UISoundType.gacha_reveal);
             StartCoroutine(CardFlip(skillResultRT, GetRarityColor(skill.starGrade)));
+        }
 
         ToastNotification.Instance?.Show("스킬 소환!", $"{skill.skillName} 획득", GetRarityColor(skill.starGrade));
         RefreshSkillScrollText();
