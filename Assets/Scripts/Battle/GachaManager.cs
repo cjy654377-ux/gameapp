@@ -61,6 +61,8 @@ public class GachaManager : MonoBehaviour
 
         RebuildStarPools();
         LoadPityCounter();
+        _isFirstPull      = PlayerPrefs.GetInt(SaveKeys.FirstPullDone, 0) == 0;
+        _isFirstMultiPull = PlayerPrefs.GetInt(SaveKeys.FirstMultiPullDone, 0) == 0;
     }
 
     void RebuildStarPools()
@@ -157,7 +159,18 @@ public class GachaManager : MonoBehaviour
             return null;
         }
 
-        var hero = PullOne();
+        CharacterPreset hero;
+        if (_isFirstPull)
+        {
+            hero = PullGuaranteed(StarGrade.Star3);
+            _isFirstPull = false;
+            PlayerPrefs.SetInt(SaveKeys.FirstPullDone, 1);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            hero = PullOne();
+        }
         HandlePullResult(hero);
         IncrementPityCounter();
         SoundManager.Instance?.PlayGachaSFX();
@@ -264,6 +277,19 @@ public class GachaManager : MonoBehaviour
             IncrementPityCounter();
         }
 
+        // 첫 10연차: 최소 1개 Star3 보장
+        if (_isFirstMultiPull)
+        {
+            bool hasStar3Plus = false;
+            for (int i = 0; i < MULTI_PULL_COUNT; i++)
+                if (results[i] != null && results[i].starGrade >= StarGrade.Star3) { hasStar3Plus = true; break; }
+            if (!hasStar3Plus)
+                results[UnityEngine.Random.Range(0, MULTI_PULL_COUNT)] = PullGuaranteed(StarGrade.Star3);
+            _isFirstMultiPull = false;
+            PlayerPrefs.SetInt(SaveKeys.FirstMultiPullDone, 1);
+            PlayerPrefs.Save();
+        }
+
         // 결과 처리 (중복/신규)
         for (int i = 0; i < MULTI_PULL_COUNT; i++)
             HandlePullResult(results[i]);
@@ -311,6 +337,24 @@ public class GachaManager : MonoBehaviour
         OnMultiPulled?.Invoke(results);
         DailyMissionManager.Instance?.RegisterGacha();
         return results;
+    }
+
+    /// <summary>
+    /// 특정 등급 이상 보장 뽑기 (보장 풀 비어있으면 폴백)
+    /// </summary>
+    CharacterPreset PullGuaranteed(StarGrade minGrade)
+    {
+        var pool = GetPool(minGrade);
+        if (pool.Count > 0)
+            return pool[UnityEngine.Random.Range(0, pool.Count)];
+        // 폴백: 낮은 등급
+        for (int g = (int)minGrade - 1; g >= 1; g--)
+        {
+            var fallback = GetPool((StarGrade)g);
+            if (fallback.Count > 0)
+                return fallback[UnityEngine.Random.Range(0, fallback.Count)];
+        }
+        return allHeroes[UnityEngine.Random.Range(0, allHeroes.Length)];
     }
 
     /// <summary>

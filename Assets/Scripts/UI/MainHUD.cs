@@ -86,6 +86,11 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI bossHpText;
     BattleUnit trackedBoss;
 
+    // 아군 HP 위기 경고 비네트
+    Image vignetteImage;
+    const float VIGNETTE_HP_THRESHOLD = 0.20f;
+    float vignettePhase;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -215,6 +220,9 @@ public class MainHUD : MonoBehaviour
             badgeTimer = BADGE_INTERVAL;
             UpdateBadges();
         }
+
+        // 아군 HP 위기 비네트
+        UpdateVignette();
     }
 
     // ════════════════════════════════════════
@@ -237,6 +245,7 @@ public class MainHUD : MonoBehaviour
         CreateOfflinePopup();
         CreateConfirmPopup();
         CreateBossHpBar();
+        CreateVignette();
     }
 
     void CreateCanvas()
@@ -1375,6 +1384,57 @@ public class MainHUD : MonoBehaviour
         UIHelper.FillParent(bossHpText.GetComponent<RectTransform>());
 
         bossHpBarRoot.SetActive(false);
+    }
+
+    void CreateVignette()
+    {
+        // 전체 화면 덮는 빨간 비네트 (가장자리만 보이도록 중앙 투명)
+        // ScreenFader와 별도 캔버스가 아닌 기존 canvas 안에 생성
+        var vigObj = UIHelper.MakeUI("CrisisVignette", canvas.transform);
+        vignetteImage = vigObj.AddComponent<Image>();
+        vignetteImage.color = new Color(1f, 0f, 0f, 0f);
+        vignetteImage.raycastTarget = false;
+        var rt = vigObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+    }
+
+    void UpdateVignette()
+    {
+        if (vignetteImage == null) return;
+
+        var bm = BattleManager.Instance;
+        if (bm == null) { vignetteImage.color = new Color(1f, 0f, 0f, 0f); return; }
+
+        // 아군 중 HP 20% 이하 유닛 체크
+        bool inCrisis = false;
+        var allies = bm.allyUnits;
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var u = allies[i];
+            if (u == null || u.IsDead) continue;
+            if (u.maxHp > 0 && u.CurrentHp / u.maxHp <= VIGNETTE_HP_THRESHOLD)
+            {
+                inCrisis = true;
+                break;
+            }
+        }
+
+        if (inCrisis)
+        {
+            vignettePhase += Time.unscaledDeltaTime * 3f;
+            float alpha = (Mathf.Sin(vignettePhase) * 0.5f + 0.5f) * 0.28f;
+            vignetteImage.color = new Color(1f, 0f, 0f, alpha);
+        }
+        else
+        {
+            vignettePhase = 0f;
+            var c = vignetteImage.color;
+            if (c.a > 0f)
+                vignetteImage.color = new Color(1f, 0f, 0f, Mathf.Max(0f, c.a - Time.unscaledDeltaTime * 2f));
+        }
     }
 
     void OnDestroy()
