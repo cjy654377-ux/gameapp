@@ -90,15 +90,12 @@ public class ShopPanel : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.FreeGem,
-                success =>
+                () =>
                 {
-                    if (success)
-                    {
-                        GemManager.Instance?.AddGem(10);
-                        ToastNotification.Instance?.Show("무료 보석!", "보석 10개 획득!", UIColors.Text_Gold);
-                        RefreshFreeGemButton();
-                        Refresh();
-                    }
+                    GemManager.Instance?.AddGem(10);
+                    ToastNotification.Instance?.Show("무료 보석!", "보석 10개 획득!", UIColors.Text_Gold);
+                    RefreshFreeGemButton();
+                    Refresh();
                 }
             );
         }

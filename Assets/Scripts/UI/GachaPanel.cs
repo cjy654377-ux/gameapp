@@ -433,11 +433,7 @@ public class GachaPanel : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.FreeSummonHero,
-                success =>
-                {
-                    if (success)
-                        DoFreePull();
-                }
+                () => DoFreePull()
             );
         }
     }

@@ -111,11 +111,7 @@ public class GoldManager : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.GoldBoost,
-                success =>
-                {
-                    if (success)
-                        ActivateBoost();
-                }
+                () => ActivateBoost()
             );
         }
     }

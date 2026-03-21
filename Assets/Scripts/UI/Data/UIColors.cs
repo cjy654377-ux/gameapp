@@ -13,6 +13,7 @@ public static class UIColors
     // Panel / Border (따뜻한 나무 톤)
     public static readonly Color Panel_Border = HexColor("#A07040");
     public static readonly Color Panel_Inner = HexColor("#4A2C18");
+    public static readonly Color Panel_Dark = HexColor("#1A0D08");
     public static readonly Color Panel_Selected = HexColor("#5A7A2A");
 
     // Tab (고동색 나무 기반)

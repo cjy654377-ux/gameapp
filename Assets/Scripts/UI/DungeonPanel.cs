@@ -313,19 +313,16 @@ public class DungeonPanel : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.DungeonEntry,
-                success =>
+                () =>
                 {
-                    if (success)
+                    if (dm.AddBonusEntry(selectedType))
                     {
-                        if (dm.AddBonusEntry(selectedType))
-                        {
-                            ToastNotification.Instance?.Show("보너스 입장!", "광고 덕분에 +1회 추가!", UIColors.Button_Green);
-                            RefreshInfo();
-                        }
-                        else
-                        {
-                            ToastNotification.Instance?.Show("보너스 입장 불가", "일일 광고 제한을 초과했습니다.", UIColors.Defeat_Red);
-                        }
+                        ToastNotification.Instance?.Show("보너스 입장!", "광고 덕분에 +1회 추가!", UIColors.Button_Green);
+                        RefreshInfo();
+                    }
+                    else
+                    {
+                        ToastNotification.Instance?.Show("보너스 입장 불가", "일일 광고 제한을 초과했습니다.", UIColors.Defeat_Red);
                     }
                 }
             );

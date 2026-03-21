@@ -26,6 +26,7 @@ public class EnhancePanel : MonoBehaviour
     TextMeshProUGUI equipInfoText;
 
     System.Action<string> showHeroSelect;
+    string _lastFailedEnhId;
 
     // ════════════════════════════════════════
     // 초기화
@@ -465,32 +466,86 @@ public class EnhancePanel : MonoBehaviour
                 var materials = em.GetEnhanceMaterials(equip.id);
                 bool canEnhance = materials.Count > 0 && equip.rarity < 5;
 
-                var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
-                    canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
-                    canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
-                if (!canEnhance && _3.sprite != null) _3.color = new Color(0.70f, 0.70f, 0.70f);
-                var enhBtnRT = enhBtn.GetComponent<RectTransform>();
-                enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
-                enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
-                enhBtnRT.offsetMin = Vector2.zero;
-                enhBtnRT.offsetMax = Vector2.zero;
-
-                var enhBtnText = UIHelper.MakeText("Label", enhBtn.transform, "강화",
-                    7f, TextAlignmentOptions.Center,
-                    canEnhance ? Color.white : UIColors.Text_Disabled);
-                enhBtnText.fontStyle = FontStyles.Bold;
-                UIHelper.FillParent(enhBtnText.GetComponent<RectTransform>());
-
-                if (canEnhance)
+                bool showRetry = (_lastFailedEnhId == equip.id);
+                if (showRetry)
                 {
-                    string enhId = equip.id;
-                    string matId = materials[0].id;
-                    enhBtn.onClick.AddListener(() =>
+                    // 강화 실패 후: 광고 재시도 버튼 표시
+                    bool adAvail = AdManager.Instance != null &&
+                                   AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.EnhanceRetry);
+                    var (retryBtn, _4) = UIHelper.MakeSpriteButton($"Retry_{i}", item.transform,
+                        adAvail ? UISprites.Btn2_WS : UISprites.Btn1_WS,
+                        adAvail ? UIColors.Button_Blue : UIColors.Button_Gray, "", 6f);
+                    var retryRT = retryBtn.GetComponent<RectTransform>();
+                    retryRT.anchorMin = new Vector2(0.72f, 0.52f);
+                    retryRT.anchorMax = new Vector2(0.84f, 0.95f);
+                    retryRT.offsetMin = Vector2.zero;
+                    retryRT.offsetMax = Vector2.zero;
+
+                    string retryLabel = adAvail ? "광고\n재시도" : "쿨다운";
+                    var retryText = UIHelper.MakeText("Label", retryBtn.transform, retryLabel,
+                        6f, TextAlignmentOptions.Center,
+                        adAvail ? Color.white : UIColors.Text_Disabled);
+                    retryText.fontStyle = FontStyles.Bold;
+                    UIHelper.FillParent(retryText.GetComponent<RectTransform>());
+
+                    if (adAvail)
                     {
-                        if (EquipmentManager.Instance != null && EquipmentManager.Instance.EnhanceItem(enhId, matId))
-                            ToastNotification.Instance?.Show("강화 성공!", "등급 상승!", UIColors.Text_Gold);
-                        RefreshEquipmentUI();
-                    });
+                        retryBtn.onClick.AddListener(() =>
+                        {
+                            AdManager.Instance?.ShowRewardedAd(AdManager.AdRewardType.EnhanceRetry, () =>
+                            {
+                                EquipmentManager.Instance?.BoostNextEnhance(0.20f);
+                                ToastNotification.Instance?.Show("성공률 UP!", "+20% 보너스 적용됨", UIColors.Button_Blue);
+                                RefreshEquipmentUI();
+                            });
+                        });
+                    }
+                }
+                else
+                {
+                    // 일반 강화 버튼
+                    var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
+                        canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
+                        canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
+                    if (!canEnhance && _3.sprite != null) _3.color = new Color(0.70f, 0.70f, 0.70f);
+                    var enhBtnRT = enhBtn.GetComponent<RectTransform>();
+                    enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
+                    enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
+                    enhBtnRT.offsetMin = Vector2.zero;
+                    enhBtnRT.offsetMax = Vector2.zero;
+
+                    string enhRate = canEnhance
+                        ? $"강화\n{Mathf.RoundToInt(em.GetEnhanceSuccessRate(equip.rarity) * 100f)}%"
+                        : "강화";
+                    var enhBtnText = UIHelper.MakeText("Label", enhBtn.transform, enhRate,
+                        6f, TextAlignmentOptions.Center,
+                        canEnhance ? Color.white : UIColors.Text_Disabled);
+                    enhBtnText.fontStyle = FontStyles.Bold;
+                    UIHelper.FillParent(enhBtnText.GetComponent<RectTransform>());
+
+                    if (canEnhance)
+                    {
+                        string enhId = equip.id;
+                        string matId = materials[0].id;
+                        float rate = em.GetEnhanceSuccessRate(equip.rarity);
+                        enhBtn.onClick.AddListener(() =>
+                        {
+                            var emI = EquipmentManager.Instance;
+                            if (emI == null) return;
+                            if (emI.EnhanceItem(enhId, matId))
+                            {
+                                _lastFailedEnhId = null;
+                                ToastNotification.Instance?.Show("강화 성공!", "등급 상승!", UIColors.Text_Gold);
+                            }
+                            else if (emI.LastEnhanceFailed)
+                            {
+                                _lastFailedEnhId = enhId;
+                                int pct = Mathf.RoundToInt(rate * 100f);
+                                ToastNotification.Instance?.Show("강화 실패!", $"성공률 {pct}% — 재료 소모됨", UIColors.Defeat_Red);
+                            }
+                            RefreshEquipmentUI();
+                        });
+                    }
                 }
 
                 var (disBtn, _2) = UIHelper.MakeSpriteButton($"Dis_{i}", item.transform,

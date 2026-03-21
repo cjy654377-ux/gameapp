@@ -95,11 +95,7 @@ public class OfflineRewardManager : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.OfflineDouble,
-                success =>
-                {
-                    if (success)
-                        ApplyDoubleRewardAd();
-                }
+                () => ApplyDoubleRewardAd()
             );
         }
     }

@@ -345,17 +345,14 @@ public class AwakeningPanel : MonoBehaviour
         {
             AdManager.Instance.ShowRewardedAd(
                 AdManager.AdRewardType.EnhanceRetry,
-                success =>
+                () =>
                 {
-                    if (success)
+                    var hlm = HeroLevelManager.Instance;
+                    if (hlm != null)
                     {
-                        var hlm = HeroLevelManager.Instance;
-                        if (hlm != null)
-                        {
-                            // 성공률 +20% 적용 후 재시도 (구현 필요: HeroLevelManager.TryAwaken(heroName, bonusSuccessRate))
-                            // 임시: 100% 성공으로 처리
-                            hlm.TryAwaken(heroName);
-                        }
+                        // 성공률 +20% 적용 후 재시도 (구현 필요: HeroLevelManager.TryAwaken(heroName, bonusSuccessRate))
+                        // 임시: 100% 성공으로 처리
+                        hlm.TryAwaken(heroName);
                     }
                 }
             );
