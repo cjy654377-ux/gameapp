@@ -51,11 +51,22 @@ public static class SaveKeys
     // 튜토리얼
     public const string TutorialStep = "TutorialStep";
 
+    // 재화 (소환석/주문서)
+    public const string SummonStone = "SummonStone";
+    public const string SpellScroll = "SpellScroll";
+
+    // 던전 입장 횟수 (일일 초기화)
+    public const string DungeonHeroEntries  = "Dungeon_HeroEntries";
+    public const string DungeonMountEntries = "Dungeon_MountEntries";
+    public const string DungeonSkillEntries = "Dungeon_SkillEntries";
+    public const string DungeonLastResetDate = "Dungeon_LastResetDate";
+
     // 프리픽스 키 (동적 접미사)
     public const string SkillLevelPrefix      = "SkillLv_";
     public const string HeroLevelPrefix       = "HeroLevel_";
     public const string HeroCopiesPrefix      = "HeroCopies_";
     public const string HeroStarPrefix        = "HeroStar_";
+    public const string HeroAwakeningPrefix   = "HeroAwaken_";
     public const string DeckSlotPrefix        = "Deck_";
     public const string AchievementPrefix     = "Ach_";
     public const string AchievementClaimedPrefix = "AchClaimed_";
