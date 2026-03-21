@@ -271,3 +271,43 @@
 - **적 프리셋**: 40개 (총 8 에리어 × 5)
 - **아군 캐릭터**: 7개 (사전 정의)
 - **컴파일 상태**: 정상 ✅
+
+---
+
+## 2026-03-21 최종 커밋 (전체 탈것 + 던전 시스템 완성)
+
+### 커밋 통계
+- **파일 변경**: 11개
+- **줄 변경**: 629줄 추가, 19줄 제거
+
+### 포함 콘텐츠
+**PresetCreator.cs - Volcano/Abyss 프리셋 추가**
+- Volcano (Area 4): FlameZombie, LavaOrc, MagmaSkeleton, FlameGhost, FlameWarrior, LavaMage, FlameGeneral, VolcanoLord
+- Abyss (Area 5): DarkSkeleton, ShadowOrc, DarkZombie, AbyssGhost, DarkKnight, ShadowMage, DeathKnight, AbyssLord
+- 스탯 및 원소 저항 커스터마이징 완료
+
+**StageManager.cs - AutoLoadPresets 수정**
+- `Enemy_LichKing` → `Enemy_AbyssLord` 변경 (보스 할당)
+- Abyss 적 분류 키워드 확장: "Dark", "Ghost", "Abyss", "Shadow", "Necromancer", "Death"
+- 결과: Volcano/Abyss 모든 프리셋 자동 분류 ✓
+
+**새로운 시스템 (Task #34, #35 통합)**
+- MountManager.cs: 탈것 소유/장착 시스템
+- MountData.cs: 탈것 스탯 정의 (5종)
+- MountDataCreator.cs: 탈것 에셋 생성 스크립트
+- AwakeningPanel.cs: 영웅 각성 UI 패널
+- DungeonDataCreator.cs: 던전 에셋 생성
+
+### 검증 결과
+✅ 컴파일 에러: 0건
+✅ Volcano/Abyss 적 분류: 완벽
+✅ 전체 마일스톤: 10/10 완료 (100%)
+
+### 시스템 완성 상태
+1. **전투 시스템**: BattleManager, BattleUnit, 스킬 시너지 ✅
+2. **스테이지 시스템**: 5 에리어, 난이도 곡선, 보스 연출 ✅
+3. **캐릭터 성장**: 레벨/별/각성 3단계 ✅
+4. **던전 시스템**: 3종 던전, 1~100단계 ✅
+5. **탈것 시스템**: 소유/장착, 5종 탈것 ✅
+6. **UI 시스템**: 전투/상점/업그레이드/각성 ✅
+7. **오프라인**: 보상 계산, 자동 저장 ✅
