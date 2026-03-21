@@ -2,14 +2,15 @@ using UnityEngine;
 
 /// <summary>
 /// Tutorial progression manager. Tracks steps via PlayerPrefs and shows overlay messages.
-/// Steps:
-/// 0 -> 전투 시작 시: "적이 나타났다! 화면을 탭하여 번개를 내려보세요!"
-/// 1 -> 첫 웨이브 클리어 시: "웨이브 클리어! 골드를 획득했습니다."
-/// 2 -> 골드 50 이상: "하단의 훈련 탭에서 번개를 강화하세요."
-/// 3 -> 골드 사용 후(업그레이드 구매): "소환 탭에서 새로운 영웅을 뽑아보세요!"
-/// 4 -> 보석 50 이상: "편성 탭에서 영웅을 배치하세요."
-/// 5 -> 스킬 장착됨: "스킬 버튼으로 강력한 스킬을 사용하세요."
-/// 6 -> 5웨이브 도달: "상점 탭에서 미션 보상을 확인하세요!"
+/// Steps (5탭 기준: 영웅0/소환1/전투2/던전3/상점4):
+/// 0 -> 전투 시작: 화면 탭 안내
+/// 1 -> 첫 웨이브 클리어: 골드 획득 안내
+/// 2 -> 골드 50+: [영웅] 탭 편성 안내
+/// 3 -> 덱 1명+: [소환] 탭 안내
+/// 4 -> 덱 3명+: [던전] 탭 도전 안내
+/// 5 -> 스킬 장착: 시너지 안내
+/// 6 -> 5웨이브: 재화 6종 설명
+/// 7 -> 10웨이브: 각성/탈것 시스템 안내
 /// </summary>
 public class TutorialManager : MonoBehaviour
 {
@@ -22,17 +23,18 @@ public class TutorialManager : MonoBehaviour
     bool tutorialComplete;
     TutorialOverlay overlay;
 
-    const int TOTAL_STEPS = 7;
+    const int TOTAL_STEPS = 8;
 
     static readonly string[] MESSAGES =
     {
-        "적이 나타났다!\n화면을 탭하여 번개를 내려보세요!",
+        "적이 나타났다!\n화면을 탭하여 공격하세요!",
         "웨이브 클리어!\n골드를 획득했습니다.",
-        "하단의 <color=#FFD700>훈련</color> 탭에서\n번개를 강화하세요.",
+        "하단의 <color=#FFD700>영웅</color> 탭을 눌러\n영웅을 편성해보세요.",
         "<color=#FFD700>소환</color> 탭에서\n새로운 영웅을 뽑아보세요!",
-        "<color=#87CEEB>편성</color> 탭에서\n영웅을 배치하세요.",
-        "스킬 버튼으로\n강력한 스킬을 사용하세요.",
-        "<color=#FFD700>상점 > 미션</color> 탭에서\n미션 보상을 확인하세요!",
+        "<color=#87CEEB>던전</color> 탭에 도전하여\n각성석과 소환석을 모으세요!",
+        "스킬 <color=#FF6B6B>시너지</color>로\n전투력을 높여보세요!",
+        "재화 6종을 모으세요:\n<color=#FFD700>골드·보석·소환석·주문서·각성석·명성</color>",
+        "<color=#FF9900>각성 & 탈것</color>으로\n영웅을 더욱 강화하세요!",
     };
 
     // Cached references for safe unsubscribe
@@ -106,17 +108,21 @@ public class TutorialManager : MonoBehaviour
                     BattleManager.Instance.CurrentState == BattleManager.BattleState.Fighting)
                     ShowStep(0);
                 break;
-            case 3: // 소환 유도 (업그레이드 1회 이상)
-                if (TapDamageSystem.Instance != null && TapDamageSystem.Instance.tapDamageLevel > 1)
+            case 3: // 소환 유도 (덱에 영웅 1명+)
+                if (DeckManager.Instance != null && DeckManager.Instance.roster.Count >= 1)
                     ShowStep(3);
                 break;
-            case 4: // 편성 유도
-                if (DeckManager.Instance != null && DeckManager.Instance.roster.Count > 3)
+            case 4: // 던전 유도 (덱에 영웅 3명+)
+                if (DeckManager.Instance != null && DeckManager.Instance.roster.Count >= 3)
                     ShowStep(4);
                 break;
-            case 5: // 스킬 유도
+            case 5: // 시너지 유도 (스킬 장착)
                 if (SkillManager.Instance != null && SkillManager.Instance.equippedSkills.Count > 0)
                     ShowStep(5);
+                break;
+            case 7: // 각성/탈것 유도 (10웨이브+)
+                if (StageManager.Instance != null && StageManager.Instance.TotalWaveIndex >= 10)
+                    ShowStep(7);
                 break;
         }
     }
@@ -128,6 +134,8 @@ public class TutorialManager : MonoBehaviour
             ShowStep(1);
         else if (currentStep == 6 && wave >= 5)
             ShowStep(6);
+        else if (currentStep == 7 && wave >= 10)
+            ShowStep(7);
     }
 
     void OnGoldChanged(int gold)

@@ -410,6 +410,46 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// <summary>
+    /// maxGrade 이하 비장착 장비를 전부 분해. (count, totalGold) 반환.
+    /// </summary>
+    public (int count, int totalGold) DismantleAll(int maxGrade = 2)
+    {
+        int count = 0, totalGold = 0;
+        for (int i = inventory.Count - 1; i >= 0; i--)
+        {
+            var item = inventory[i];
+            if (item.rarity > maxGrade) continue;
+            if (!string.IsNullOrEmpty(item.equippedTo)) continue; // 장착 중 제외
+            totalGold += item.rarity * DISMANTLE_GOLD_PER_RARITY;
+            inventory.RemoveAt(i);
+            count++;
+        }
+        if (count > 0)
+        {
+            GoldManager.Instance?.AddGold(totalGold);
+            SaveInventory();
+            OnEquipmentChanged?.Invoke();
+        }
+        return (count, totalGold);
+    }
+
+    /// <summary>
+    /// maxGrade 이하 비장착 장비 수 및 예상 골드 미리보기.
+    /// </summary>
+    public (int count, int totalGold) PreviewDismantleAll(int maxGrade = 2)
+    {
+        int count = 0, totalGold = 0;
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            var item = inventory[i];
+            if (item.rarity > maxGrade || !string.IsNullOrEmpty(item.equippedTo)) continue;
+            totalGold += item.rarity * DISMANTLE_GOLD_PER_RARITY;
+            count++;
+        }
+        return (count, totalGold);
+    }
+
+    /// <summary>
     /// 다음 강화 성공률을 boost만큼 높임 (광고 시청 보상)
     /// </summary>
     public void BoostNextEnhance(float boost = 0.20f)
@@ -430,6 +470,7 @@ public class EquipmentManager : MonoBehaviour
     /// <summary>
     /// 장비 강화: 같은 슬롯+등급 아이템 2개 소모 → 확률적으로 1등급 상승
     /// 실패 시 재료만 소모, LastEnhanceFailed = true
+    /// 골드 비용: rarity * 100 (강화 레벨에 따라 증가)
     /// </summary>
     public bool EnhanceItem(string targetId, string materialId)
     {
@@ -442,6 +483,11 @@ public class EquipmentManager : MonoBehaviour
         if (target.slot != material.slot) return false; // 같은 슬롯만
         if (target.rarity != material.rarity) return false; // 같은 등급만
         if (!string.IsNullOrEmpty(material.equippedTo)) return false; // 재료 장착 중 불가
+
+        // 강화 비용: 현재 등급 * 100
+        int enhanceCost = target.rarity * 100;
+        if (GoldManager.Instance == null || !GoldManager.Instance.SpendGold(enhanceCost))
+            return false;
 
         float successRate = GetEnhanceSuccessRate(target.rarity);
         _enhanceSuccessBonus = 0f; // 보너스 소비

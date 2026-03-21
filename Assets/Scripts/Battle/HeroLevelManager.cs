@@ -14,6 +14,7 @@ public class HeroLevelManager : MonoBehaviour
     const float HP_PER_LEVEL  = 12f;
     const float ATK_PER_LEVEL = 2.5f;
     const float DEF_PER_LEVEL = 1f;
+    const int GOLD_PER_LEVEL = 100;
 
     private Dictionary<string, int> heroLevels = new();
     private Dictionary<string, int> heroCopies = new(); // 중복 소환 횟수 (강화 재료)
@@ -86,7 +87,7 @@ public class HeroLevelManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 중복 카드를 소모하여 레벨업
+    /// 중복 카드를 소모하여 레벨업 (골드 비용 포함)
     /// </summary>
     public bool TryLevelUp(string heroName)
     {
@@ -98,6 +99,11 @@ public class HeroLevelManager : MonoBehaviour
 
         int needed = GetCopiesNeeded(level);
         if (heroCopies[heroName] < needed) return false;
+
+        // 레벨업 비용: 레벨 * 100
+        int goldCost = level * GOLD_PER_LEVEL;
+        if (GoldManager.Instance == null || !GoldManager.Instance.SpendGold(goldCost))
+            return false;
 
         heroCopies[heroName] -= needed;
         heroLevels[heroName]++;

@@ -357,9 +357,21 @@ public class EnhancePanel : MonoBehaviour
         equipInfoText.fontStyle = FontStyles.Bold;
         var irt = equipInfoText.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0, 0.88f);
-        irt.anchorMax = new Vector2(1, 1);
+        irt.anchorMax = new Vector2(0.55f, 1);
         irt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
         irt.offsetMax = Vector2.zero;
+
+        // 일괄 분해 버튼 (Star1/Star2 장비 전부)
+        var (dismantleAllBtn, _da) = UIHelper.MakeSpriteButton("DismantleAllBtn", content.transform,
+            UISprites.Btn1_WS, UIColors.Defeat_Red, "", UIConstants.Font_SmallInfo);
+        var daRT = dismantleAllBtn.GetComponent<RectTransform>();
+        daRT.anchorMin = new Vector2(0.57f, 0.90f);
+        daRT.anchorMax = new Vector2(0.98f, 0.99f);
+        daRT.offsetMin = daRT.offsetMax = Vector2.zero;
+        var daLabel = UIHelper.MakeText("Label", dismantleAllBtn.transform, "일괄 분해 (★1~2)",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        UIHelper.FillParent(daLabel.GetComponent<RectTransform>());
+        dismantleAllBtn.onClick.AddListener(OnDismantleAllClicked);
 
         var scrollObj = UIHelper.MakeUI("EquipScroll", content.transform);
         var scrollRT = scrollObj.GetComponent<RectTransform>();

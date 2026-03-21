@@ -1662,6 +1662,9 @@ public class MainHUD : MonoBehaviour
         confirmPopup.SetActive(false);
     }
 
+    public void ShowConfirmDialog(string title, string desc, System.Action onConfirm)
+        => ShowConfirm(title, desc, onConfirm);
+
     void ShowConfirm(string title, string desc, System.Action onConfirm)
     {
         if (confirmPopup == null) return;
