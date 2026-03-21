@@ -224,6 +224,16 @@ public class DeckManager : MonoBehaviour
 
     public const int MAX_PRESETS = 3;
 
+    /// <summary>현재 덱 전체의 전투력 합산 (HP + ATK*3 + DEF*2)</summary>
+    public int GetTotalCombatPower()
+    {
+        int total = 0;
+        for (int i = 0; i < MAX_DECK_SIZE; i++)
+            if (deck[i] != null)
+                total += UpgradeManager.CalcCombatPower(deck[i]);
+        return total;
+    }
+
     /// <summary>현재 덱을 프리셋 슬롯에 저장</summary>
     public void SavePreset(int slot)
     {

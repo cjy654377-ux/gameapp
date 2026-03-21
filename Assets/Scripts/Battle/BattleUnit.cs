@@ -139,7 +139,7 @@ public class BattleUnit : MonoBehaviour
         // Stun check
         if (stunTimer > 0f)
         {
-            stunTimer -= Time.deltaTime;
+            stunTimer -= Time.unscaledDeltaTime;
             return;
         }
 
@@ -149,7 +149,7 @@ public class BattleUnit : MonoBehaviour
         // Buff timer
         if (buffTimer > 0f)
         {
-            buffTimer -= Time.deltaTime;
+            buffTimer -= Time.unscaledDeltaTime;
             if (buffTimer <= 0f)
             {
                 buffAtk = 0f;
@@ -161,7 +161,7 @@ public class BattleUnit : MonoBehaviour
         // Support roles: heal/buff allies first
         if (CurrentTeam == Team.Ally && role != RoleType.Attacker)
         {
-            supportTimer -= Time.deltaTime;
+            supportTimer -= Time.unscaledDeltaTime;
             if (supportTimer <= 0f)
             {
                 if (TrySupportAction())
@@ -178,7 +178,7 @@ public class BattleUnit : MonoBehaviour
 
         if (target == null || target.IsDead)
         {
-            retargetTimer -= Time.deltaTime;
+            retargetTimer -= Time.unscaledDeltaTime;
             if (retargetTimer <= 0f)
             {
                 target = BattleManager.Instance.FindNearestEnemy(this);
@@ -282,7 +282,7 @@ public class BattleUnit : MonoBehaviour
             if (skills[i] == null) continue;
             if (skillCooldowns[i] > 0f)
             {
-                skillCooldowns[i] -= Time.deltaTime;
+                skillCooldowns[i] -= Time.unscaledDeltaTime;
                 OnSkillCooldownChanged?.Invoke(i, skillCooldowns[i], skills[i].cooldown);
             }
             else

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 public class GachaPanel : MonoBehaviour
 {
     const int SKILL_PULL_COST = 1; // 주문서 1개
+    const float AD_INITIAL_HIDE_SEC = 1800f; // 세션 시작 후 30분간 광고 버튼 숨김
 
     TextMeshProUGUI gemText;
     TextMeshProUGUI resultText;
@@ -32,6 +33,9 @@ public class GachaPanel : MonoBehaviour
     Button skillTabBtn;
 
     System.Action<string, string, System.Action> showConfirm;
+
+    // 10연차 스킵
+    bool _multiPullSkip;
 
     public void Init(Transform parent, System.Action<string, string, System.Action> showConfirmCallback)
     {
@@ -226,9 +230,13 @@ public class GachaPanel : MonoBehaviour
         fbrt.anchorMin = new Vector2(0.05f, 0.30f);
         fbrt.anchorMax = new Vector2(0.95f, 0.38f);
         fbrt.offsetMin = fbrt.offsetMax = Vector2.zero;
-        freeBtnText = UIHelper.MakeText("Label", freePullBtn.transform, "무료 소환 (광고)",
+        freeBtnText = UIHelper.MakeText("Label", freePullBtn.transform, "무료 보상",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
         UIHelper.FillParent(freeBtnText.GetComponent<RectTransform>());
+
+        // 세션 시작 후 30분간 광고 버튼 숨김 (자발적 노출)
+        if (UnityEngine.Time.realtimeSinceStartup < AD_INITIAL_HIDE_SEC)
+            freePullBtn.gameObject.SetActive(false);
 
         // 결과 표시
         var resultBg = UIHelper.MakeSpritePanel("ResultBG", parent,
@@ -242,6 +250,11 @@ public class GachaPanel : MonoBehaviour
             10f, TextAlignmentOptions.Center, Color.white);
         UIHelper.AddTextShadow(resultText);
         UIHelper.FillParent(resultText.GetComponent<RectTransform>());
+
+        // 탭하면 10연차 애니메이션 스킵
+        var skipBtn = resultBg.gameObject.AddComponent<Button>();
+        skipBtn.transition = Selectable.Transition.None;
+        skipBtn.onClick.AddListener(() => _multiPullSkip = true);
     }
 
     // ────────────────────────────────────────
@@ -408,20 +421,39 @@ public class GachaPanel : MonoBehaviour
 
     IEnumerator ShowMultiResults(CharacterPreset[] results)
     {
+        _multiPullSkip = false;
         if (resultText == null || heroResultRT == null) yield break;
         resultText.text = "";
+
+        // 전체 결과 문자열 미리 생성 (스킵용)
+        var allSb = new System.Text.StringBuilder();
+        for (int k = 0; k < results.Length; k++)
+        {
+            if (results[k] == null) continue;
+            string hexK = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(results[k].starGrade));
+            allSb.Append($"<color=#{hexK}>{results[k].characterName}</color>  ");
+        }
 
         var sb = new System.Text.StringBuilder();
         for (int i = 0; i < results.Length; i++)
         {
             if (results[i] == null) continue;
+
+            // 스킵: 즉시 전부 표시
+            if (_multiPullSkip)
+            {
+                resultText.text = allSb.ToString().TrimEnd();
+                heroResultRT.localScale = Vector3.one;
+                yield break;
+            }
+
             string hex = UnityEngine.ColorUtility.ToHtmlStringRGB(GetRarityColor(results[i].starGrade));
             sb.Append($"<color=#{hex}>{results[i].characterName}</color>  ");
             resultText.text = sb.ToString().TrimEnd();
 
             // 카드 뒤집기: scaleX 1→0→1
             float t = 0;
-            while (t < 0.08f)
+            while (t < 0.08f && !_multiPullSkip)
             {
                 t += Time.unscaledDeltaTime;
                 heroResultRT.localScale = new Vector3(Mathf.Lerp(1f, 0f, t / 0.08f), 1f, 1f);
@@ -434,7 +466,7 @@ public class GachaPanel : MonoBehaviour
                 img.color = new Color(rc.r * 0.4f, rc.g * 0.4f, rc.b * 0.4f, 0.85f);
             }
             t = 0;
-            while (t < 0.1f)
+            while (t < 0.1f && !_multiPullSkip)
             {
                 t += Time.unscaledDeltaTime;
                 heroResultRT.localScale = new Vector3(Mathf.Lerp(0f, 1f, t / 0.1f), 1f, 1f);
@@ -442,7 +474,8 @@ public class GachaPanel : MonoBehaviour
             }
             heroResultRT.localScale = Vector3.one;
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            if (!_multiPullSkip)
+                yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 
@@ -509,10 +542,18 @@ public class GachaPanel : MonoBehaviour
     {
         if (freeBtn == null || freeBtnText == null) return;
 
+        // 세션 시작 후 30분간 숨김
+        if (UnityEngine.Time.realtimeSinceStartup < AD_INITIAL_HIDE_SEC)
+        {
+            freeBtn.gameObject.SetActive(false);
+            return;
+        }
+        freeBtn.gameObject.SetActive(true);
+
         if (AdManager.Instance != null && AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeSummonHero))
         {
             freeBtn.interactable = true;
-            freeBtnText.text = "무료 소환 (광고)";
+            freeBtnText.text = "무료 보상";
             freeBtnText.color = Color.white;
         }
         else if (AdManager.Instance != null)

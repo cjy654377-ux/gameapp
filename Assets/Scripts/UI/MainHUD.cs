@@ -24,6 +24,11 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI gemText;
     TextMeshProUGUI stoneText;
     TextMeshProUGUI scrollText;
+    // 재화 컨테이너 (탭별 표시/숨김용)
+    GameObject goldContainer;
+    GameObject gemContainer;
+    GameObject stoneContainer;
+    GameObject scrollContainer;
     TextMeshProUGUI stageText;
     TextMeshProUGUI areaNameText;
     Image progressBarFill;
@@ -38,6 +43,13 @@ public class MainHUD : MonoBehaviour
     // Kill Counter
     TextMeshProUGUI killCountText;
     int killCount;
+
+    // Revenge stack UI
+    GameObject revengeIcon;
+    TextMeshProUGUI revengeText;
+
+    // Combat Power
+    TextMeshProUGUI combatPowerText;
 
 
     // Bottom Nav
@@ -107,6 +119,9 @@ public class MainHUD : MonoBehaviour
     StageManager cachedStageMgr;
     BattleManager cachedBattleMgr;
     OfflineRewardManager cachedOfflineMgr;
+    UpgradeManager cachedUpgradeMgr;
+    HeroLevelManager cachedHeroLevelMgr;
+    System.Action<string, int> _onHeroLevelUp;
 
     void Start()
     {
@@ -137,6 +152,7 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged += OnStageChanged;
             cachedStageMgr.OnBossSpawned += OnBossSpawned;
             cachedStageMgr.OnWaveCleared += OnWaveCleared;
+            cachedStageMgr.OnRevengeStackChanged += UpdateRevengeUI;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged += OnBattleStateChanged;
@@ -144,6 +160,17 @@ public class MainHUD : MonoBehaviour
         cachedOfflineMgr = OfflineRewardManager.Instance;
         if (cachedOfflineMgr != null)
             cachedOfflineMgr.OnOfflineReward += OnOfflineReward;
+
+        cachedUpgradeMgr = UpgradeManager.Instance;
+        if (cachedUpgradeMgr != null)
+            cachedUpgradeMgr.OnUpgraded += UpdateCombatPower;
+
+        cachedHeroLevelMgr = HeroLevelManager.Instance;
+        if (cachedHeroLevelMgr != null)
+        {
+            _onHeroLevelUp = (_, __) => UpdateCombatPower();
+            cachedHeroLevelMgr.OnHeroLevelUp += _onHeroLevelUp;
+        }
 
         UpdateGold(cachedGoldMgr != null ? cachedGoldMgr.Gold : 0);
         UpdateGem(cachedGemMgr != null ? cachedGemMgr.Gem : 0);
@@ -193,6 +220,7 @@ public class MainHUD : MonoBehaviour
         CreateHUDBar();
         CreateWaveBanner();
         CreateKillCounter();
+        CreateRevengeIcon();
 
         heroSelectPanel = safeAreaRoot.AddComponent<HeroSelectPanel>();
         heroSelectPanel.Init(safeAreaRoot.transform, () => enhancePanel?.Refresh());
@@ -290,25 +318,35 @@ public class MainHUD : MonoBehaviour
         UIHelper.AddTextShadow(progressText);
         UIHelper.FillParent(progressText.GetComponent<RectTransform>());
 
+        // Combat Power (전투력) — 프로그레스바 위 우측
+        combatPowerText = UIHelper.MakeText("CombatPower", stageContainer.transform, "⚔ -",
+            7f, TextAlignmentOptions.MidlineLeft, new Color(1f, 0.85f, 0.4f));
+        UIHelper.AddTextShadow(combatPowerText);
+        var cprt = combatPowerText.GetComponent<RectTransform>();
+        cprt.anchorMin = new Vector2(0.36f, 0.52f);
+        cprt.anchorMax = new Vector2(1f, 0.9f);
+        cprt.offsetMin = new Vector2(2, 0);
+        cprt.offsetMax = Vector2.zero;
+
         // Gold
         CreateResourceDisplay(hudBar.transform, "Gold", UISprites.IconGold,
             UIColors.Text_Gold, new Vector2(0.27f, 0.08f), new Vector2(0.44f, 0.92f),
-            out goldText);
+            out goldText, out goldContainer);
 
         // Gem (보석)
         CreateResourceDisplay(hudBar.transform, "Gem", UISprites.IconDiamond,
             UIColors.Text_Diamond, new Vector2(0.45f, 0.08f), new Vector2(0.62f, 0.92f),
-            out gemText);
+            out gemText, out gemContainer);
 
         // 소환석
         CreateResourceDisplay(hudBar.transform, "Stone", UISprites.IconPotion1,
             new Color(0.55f, 0.88f, 1.00f), new Vector2(0.63f, 0.08f), new Vector2(0.80f, 0.92f),
-            out stoneText);
+            out stoneText, out stoneContainer);
 
         // 주문서
         CreateResourceDisplay(hudBar.transform, "Scroll", UISprites.IconSkill,
             new Color(0.88f, 0.68f, 1.00f), new Vector2(0.77f, 0.08f), new Vector2(0.88f, 0.92f),
-            out scrollText);
+            out scrollText, out scrollContainer);
 
         // 햄버거 버튼 (☰)
         var hamBtn = UIHelper.MakeUI("HamburgerBtn", hudBar.transform);
@@ -344,7 +382,8 @@ public class MainHUD : MonoBehaviour
     }
 
     void CreateResourceDisplay(Transform parent, string name, Sprite iconSprite,
-        Color iconColor, Vector2 anchorMin, Vector2 anchorMax, out TextMeshProUGUI valueText)
+        Color iconColor, Vector2 anchorMin, Vector2 anchorMax, out TextMeshProUGUI valueText,
+        out GameObject containerOut)
     {
         // BoxIcon1 스프라이트로 리소스 컨테이너
         var container = UIHelper.MakeSpritePanel($"{name}BG", parent,
@@ -402,6 +441,7 @@ public class MainHUD : MonoBehaviour
         vrt.anchorMax = new Vector2(1, 1);
         vrt.offsetMin = Vector2.zero;
         vrt.offsetMax = new Vector2(-3, 0);
+        containerOut = container.gameObject;
     }
 
     // ── Wave Banner (중앙 상단) ──
@@ -476,6 +516,41 @@ public class MainHUD : MonoBehaviour
         krt.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
     }
 
+    void CreateRevengeIcon()
+    {
+        revengeIcon = UIHelper.MakeUI("RevengeIcon", safeAreaRoot.transform);
+        var bg = UIHelper.MakeSpritePanel("RevengeBG", revengeIcon.transform,
+            UISprites.BoxIcon1, new Color(0.5f, 0.05f, 0.05f, 0.9f));
+        UIHelper.FillParent(bg.GetComponent<RectTransform>());
+
+        var rt = revengeIcon.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0, 0.5f);
+        rt.anchorMax = new Vector2(0, 0.5f);
+        rt.pivot = new Vector2(0, 0.5f);
+        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 22);
+        rt.sizeDelta = new Vector2(72, 22);
+
+        revengeText = UIHelper.MakeText("RevengeText", revengeIcon.transform, "복수자 x1",
+            UIConstants.Font_Tab, TextAlignmentOptions.Center, new Color(1f, 0.6f, 0.4f));
+        revengeText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(revengeText);
+        UIHelper.FillParent(revengeText.GetComponent<RectTransform>());
+
+        revengeIcon.SetActive(false);
+    }
+
+    void UpdateRevengeUI(int stack)
+    {
+        if (revengeIcon == null) return;
+        if (stack <= 0)
+        {
+            revengeIcon.SetActive(false);
+            return;
+        }
+        revengeIcon.SetActive(true);
+        if (revengeText != null)
+            revengeText.text = $"복수자 x{stack}";
+    }
 
     // ── Bottom Nav Bar (하단) ──
     // 탭 아이콘용 SPUM 스프라이트 (인덱스)
@@ -794,9 +869,29 @@ public class MainHUD : MonoBehaviour
     {
         if (state == BattleManager.BattleState.Defeat)
         {
-            if (StageManager.Instance != null)
-                StageManager.Instance.RewindAndRestart();
+            var stageMgr = StageManager.Instance;
+            if (stageMgr != null)
+            {
+                stageMgr.RewindAndRestart();
+                // 복수자 스택 메시지 (RewindAndRestart가 스택을 올린 직후)
+                ShowRevengeBanner(stageMgr.RevengeStack);
+            }
         }
+    }
+
+    void ShowRevengeBanner(int stack)
+    {
+        if (waveBanner == null || waveBannerText == null || stack <= 0) return;
+        int atkPct = stack * 8;
+        waveBannerText.text = $"복수자의 분노가 타오릅니다! (ATK+{atkPct}%)";
+        waveBannerText.color = new Color(1f, 0.45f, 0.1f);
+
+        var outline = waveBanner.GetComponent<Outline>();
+        if (outline != null) outline.effectColor = new Color(0.7f, 0.1f, 0f, 0.8f);
+
+        if (waveBannerCG != null) waveBannerCG.alpha = 1f;
+        waveBanner.SetActive(true);
+        waveBannerTimer = 2.5f;
     }
 
     /// <summary>외부에서 탭 전환 (재화 부족 안내 바로가기 등)</summary>
@@ -843,6 +938,7 @@ public class MainHUD : MonoBehaviour
         tabPanels[idx].SetActive(true);
         SkillUI.IsTabPanelOpen = true;
         UpdateTabVisuals();
+        UpdateCurrencyDisplay(idx);
         if (idx == 0) enhancePanel?.Refresh();
         if (idx == 1) gachaPanel?.Refresh();
         if (idx == 3) dungeonPanel?.Refresh();
@@ -883,6 +979,7 @@ public class MainHUD : MonoBehaviour
         activeTab = -1;
         SkillUI.IsTabPanelOpen = false;
         UpdateTabVisuals();
+        UpdateCurrencyDisplay(-1); // 전투 화면: 골드만
     }
 
     void UpdateTabVisuals()
@@ -928,6 +1025,21 @@ public class MainHUD : MonoBehaviour
     // UPDATES
     // ════════════════════════════════════════
 
+    // 탭별 재화 컨텍스트 표시
+    void UpdateCurrencyDisplay(int tabIdx)
+    {
+        // -1: 전투(패널 없음) → 골드만
+        bool showGold   = true;
+        bool showGem    = (tabIdx == 1 || tabIdx == 4); // 소환, 상점
+        bool showStone  = (tabIdx == 1);                 // 소환
+        bool showScroll = (tabIdx == 1);                 // 소환
+
+        if (goldContainer   != null) goldContainer.SetActive(showGold);
+        if (gemContainer    != null) gemContainer.SetActive(showGem);
+        if (stoneContainer  != null) stoneContainer.SetActive(showStone);
+        if (scrollContainer != null) scrollContainer.SetActive(showScroll);
+    }
+
     void UpdateGold(int gold)
     {
         if (goldText != null) goldText.text = UIHelper.FormatNumber(gold);
@@ -950,14 +1062,35 @@ public class MainHUD : MonoBehaviour
 
     void UpdateProgress(int wave)
     {
-        int total = StageManager.Instance != null ? StageManager.Instance.wavesPerStage : 10;
+        // 에리어 전체 진행도로 변경: 현재 에리어 내 완료 웨이브 / 에리어 총 웨이브
+        var sm = StageManager.Instance;
+        if (sm == null) return;
+
+        int wavesPerArea = sm.wavesPerStage * sm.stagesPerArea;
+        int completedInArea = sm.TotalWaveIndex % wavesPerArea;
+        int remaining = wavesPerArea - completedInArea;
+
         if (progressBarFill != null)
-        {
-            // Image.Type.Filled 이므로 fillAmount 사용 (anchorMax 조작은 Filled 타입에서 무효)
-            progressBarFill.fillAmount = total > 0 ? (float)wave / total : 0f;
-        }
+            progressBarFill.fillAmount = wavesPerArea > 0 ? (float)completedInArea / wavesPerArea : 0f;
+
         if (progressText != null)
-            progressText.SetText("{0}/{1}", wave, total);
+            progressText.text = remaining > 0 ? $"▶{remaining}w" : "NEXT!";
+    }
+
+    void UpdateCombatPower()
+    {
+        if (combatPowerText == null) return;
+        var bm = BattleManager.Instance;
+        if (bm == null || bm.allyUnits.Count == 0) { combatPowerText.text = "⚔ -"; return; }
+
+        int totalCp = 0;
+        for (int i = 0; i < bm.allyUnits.Count; i++)
+        {
+            var u = bm.allyUnits[i];
+            if (u != null)
+                totalCp += Mathf.RoundToInt(u.maxHp + u.atk * 3f + u.def * 2f);
+        }
+        combatPowerText.text = $"⚔ {UIHelper.FormatNumber(totalCp)}";
     }
 
     void ShowWaveBanner(int wave)
@@ -1130,7 +1263,7 @@ public class MainHUD : MonoBehaviour
 
     void UpdateBadges()
     {
-        // 영웅 탭 (index 0): 레벨업 가능한 영웅 수
+        // 영웅 탭 (index 0): 레벨업 or 각성 가능한 영웅 수
         var dm = DeckManager.Instance;
         var hlm = HeroLevelManager.Instance;
         int heroCount = 0;
@@ -1140,9 +1273,11 @@ public class MainHUD : MonoBehaviour
             {
                 var p = dm.roster[i];
                 if (p == null || p.isEnemy) continue;
-                int lv = hlm.GetLevel(p.characterName);
-                if (lv >= HeroLevelManager.MAX_LEVEL) continue;
-                if (hlm.GetCopies(p.characterName) >= hlm.GetCopiesNeeded(lv))
+                string heroName = p.characterName;
+                int lv = hlm.GetLevel(heroName);
+                bool canLevel = lv < HeroLevelManager.MAX_LEVEL &&
+                                hlm.GetCopies(heroName) >= hlm.GetCopiesNeeded(lv);
+                if (canLevel || hlm.CanAwaken(heroName))
                     heroCount++;
             }
         }
@@ -1154,6 +1289,23 @@ public class MainHUD : MonoBehaviour
         if (gachaMgr != null && gachaMgr.CanFreePull())
             gachaFreeBadge = 1;
         SetBadge(1, gachaFreeBadge);
+
+        // 던전 탭 (index 3): 입장 가능한 던전 있을 때
+        int dungeonBadge = 0;
+        var dungeonMgr = DungeonManager.Instance;
+        if (dungeonMgr != null &&
+            (dungeonMgr.CanEnter(DungeonType.Hero)  ||
+             dungeonMgr.CanEnter(DungeonType.Mount) ||
+             dungeonMgr.CanEnter(DungeonType.Skill)))
+            dungeonBadge = 1;
+        SetBadge(3, dungeonBadge);
+
+        // 상점 탭 (index 4): 무료 보석 광고 가능 시
+        int shopBadge = 0;
+        if (AdManager.Instance != null &&
+            AdManager.Instance.IsAdAvailable(AdManager.AdRewardType.FreeGem))
+            shopBadge = 1;
+        SetBadge(4, shopBadge);
 
         // 햄버거 배지: 미수령 업적 + 미션 보상 수
         int rewardCount = hamburgerPanel != null ? hamburgerPanel.GetUnclaimedRewardCount() : 0;
@@ -1255,11 +1407,16 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged -= OnStageChanged;
             cachedStageMgr.OnBossSpawned -= OnBossSpawned;
             cachedStageMgr.OnWaveCleared -= OnWaveCleared;
+            cachedStageMgr.OnRevengeStackChanged -= UpdateRevengeUI;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged -= OnBattleStateChanged;
         if (cachedOfflineMgr != null)
             cachedOfflineMgr.OnOfflineReward -= OnOfflineReward;
+        if (cachedUpgradeMgr != null)
+            cachedUpgradeMgr.OnUpgraded -= UpdateCombatPower;
+        if (cachedHeroLevelMgr != null && _onHeroLevelUp != null)
+            cachedHeroLevelMgr.OnHeroLevelUp -= _onHeroLevelUp;
     }
 
 
@@ -1351,9 +1508,15 @@ public class MainHUD : MonoBehaviour
         int currentWave = StageManager.Instance != null ? StageManager.Instance.CurrentWave : 0;
         string waveStr = currentWave > 0 ? $"\n현재 웨이브: <color=#AADDFF>Wave {currentWave}</color>" : "";
 
+        var orm = OfflineRewardManager.Instance;
+        int copies = orm != null ? orm.LastCopiesReward : 0;
+        int fragments = orm != null ? orm.LastFragmentsReward : 0;
+
         string rewardStr = $"접속하지 않은 {timeStr} 동안\n";
         if (gold > 0) rewardStr += $"<color=#FFD700>골드 +{gold}</color>  ";
-        if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>";
+        if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>\n";
+        if (copies > 0) rewardStr += $"<color=#AAFFAA>영웅 카드 +{copies}</color>  ";
+        if (fragments > 0) rewardStr += $"<color=#FFCCAA>장비 조각 +{fragments}</color>";
         rewardStr += waveStr;
 
         offlineText.text = rewardStr;

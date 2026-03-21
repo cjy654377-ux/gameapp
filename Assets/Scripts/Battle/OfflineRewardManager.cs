@@ -7,6 +7,9 @@ public class OfflineRewardManager : MonoBehaviour
     private const int GOLD_PER_MINUTE = 10;
     private const int GEM_INTERVAL_MINUTES = 10;
     private const int MAX_OFFLINE_MINUTES = 480;
+    private const int COPY_INTERVAL_MINUTES = 60;    // 60분마다 영웅 카드 1장
+    private const int FRAGMENT_INTERVAL_MINUTES = 30; // 30분마다 장비 조각 1개
+    public const string SAVE_KEY_FRAGMENTS = "EquipFragments";
 
     /// <summary>
     /// gold, gem, offlineMinutes
@@ -18,6 +21,14 @@ public class OfflineRewardManager : MonoBehaviour
 
     private int lastGoldReward = 0;
     private int lastGemReward = 0;
+    public int LastCopiesReward { get; private set; }
+    public int LastFragmentsReward { get; private set; }
+
+    public static int EquipFragments
+    {
+        get => PlayerPrefs.GetInt(SAVE_KEY_FRAGMENTS, 0);
+        set => PlayerPrefs.SetInt(SAVE_KEY_FRAGMENTS, Mathf.Max(0, value));
+    }
 
     void Awake()
     {
@@ -69,9 +80,13 @@ public class OfflineRewardManager : MonoBehaviour
 
         int goldReward = minutesInt * GOLD_PER_MINUTE;
         int gemReward = minutesInt / GEM_INTERVAL_MINUTES;
+        int copyReward = minutesInt / COPY_INTERVAL_MINUTES;
+        int fragmentReward = minutesInt / FRAGMENT_INTERVAL_MINUTES;
 
         lastGoldReward = goldReward;
         lastGemReward = gemReward;
+        LastCopiesReward = copyReward;
+        LastFragmentsReward = fragmentReward;
 
         if (goldReward > 0 && GoldManager.Instance != null)
             GoldManager.Instance.AddGold(goldReward);
@@ -79,8 +94,33 @@ public class OfflineRewardManager : MonoBehaviour
         if (gemReward > 0 && GemManager.Instance != null)
             GemManager.Instance.AddGem(gemReward);
 
+        // 영웅 카드: 덱 영웅 중 랜덤에게 추가
+        if (copyReward > 0)
+            ApplyCopyRewards(copyReward);
+
+        // 장비 조각: PlayerPrefs에 누적
+        if (fragmentReward > 0)
+            EquipFragments += fragmentReward;
+
         OnOfflineReward?.Invoke(goldReward, gemReward, cappedMinutes);
         SaveCurrentTime();
+    }
+
+    void ApplyCopyRewards(int count)
+    {
+        var hlm = HeroLevelManager.Instance;
+        var dm = DeckManager.Instance;
+        if (hlm == null || dm == null) return;
+
+        var activeDeck = dm.GetActiveDeck();
+        if (activeDeck.Count == 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            var preset = activeDeck[Random.Range(0, activeDeck.Count)];
+            if (preset != null)
+                hlm.AddCopy(preset.characterName);
+        }
     }
 
     void SaveCurrentTime()

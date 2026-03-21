@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class BattleBackground : MonoBehaviour
 {
+    public static BattleBackground Instance { get; private set; }
+
     static readonly string[] AreaBackgrounds = {
         "Backgrounds/bg_grass_field",  // Grass
         "Backgrounds/bg_medieval",     // Desert
@@ -39,9 +41,14 @@ public class BattleBackground : MonoBehaviour
     private float midTileWidth;
     private int currentArea = -1;
     private Camera cachedCamera;
+    private bool caveDarknessActive;
+    private Color originalMidTint;
 
     void Awake()
     {
+        if (Instance == null) Instance = this;
+        else { Destroy(gameObject); return; }
+
         cachedCamera = Camera.main;
         SetArea(DEFAULT_AREA);
     }
@@ -150,8 +157,42 @@ public class BattleBackground : MonoBehaviour
         }
     }
 
+    public void ApplyCaveDarkness(bool apply)
+    {
+        caveDarknessActive = apply;
+
+        if (apply)
+        {
+            // 가장자리를 어둡게 하기 위해 중경 및 배경 밝기 감소
+            for (int i = 0; i < midTiles.Count; i++)
+            {
+                if (midTiles[i] != null)
+                {
+                    Color darkColor = midTiles[i].color * 0.4f;
+                    darkColor.a = 1f;
+                    midTiles[i].color = darkColor;
+                }
+            }
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                if (tiles[i] != null)
+                {
+                    Color darkColor = tiles[i].color * 0.5f;
+                    darkColor.a = 1f;
+                    tiles[i].color = darkColor;
+                }
+            }
+        }
+        else
+        {
+            // 원래 색상 복원 (에리어 재설정)
+            SetArea(currentArea);
+        }
+    }
+
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (StageManager.Instance != null)
             StageManager.Instance.OnAreaChanged -= SetArea;
     }

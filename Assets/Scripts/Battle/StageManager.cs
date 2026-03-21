@@ -122,6 +122,12 @@ public class StageManager : MonoBehaviour
     public event System.Action<int> OnAreaChanged;
     public event System.Action<int> OnStageCleared;
 
+    // Revenge system
+    public int RevengeStack { get; private set; }
+    private int lastDefeatWaveIndex = -1;
+    public const int MAX_REVENGE_STACK = 5;
+    public event System.Action<int> OnRevengeStackChanged;
+
     float waveTimer;
     bool waitingForNextWave;
     bool isTransitioning;
@@ -229,7 +235,6 @@ public class StageManager : MonoBehaviour
     {
         if (!waitingForNextWave || isTransitioning) return;
 
-        var manager = BattleManager.Instance;
         if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) return;
 
         bool allDead = true;
@@ -255,6 +260,14 @@ public class StageManager : MonoBehaviour
 
     void AdvanceWave()
     {
+        // Reset revenge stack on successful progress
+        if (RevengeStack > 0)
+        {
+            RevengeStack = 0;
+            lastDefeatWaveIndex = -1;
+            OnRevengeStackChanged?.Invoke(0);
+        }
+
         int prevStage = CurrentStage;
         int prevArea = CurrentArea;
 
@@ -359,6 +372,7 @@ public class StageManager : MonoBehaviour
 
     void SpawnWaveImmediate()
     {
+        waveCountInArea++;
         var manager = BattleManager.Instance;
         var factory = CharacterFactory.Instance;
         if (manager == null || factory == null) return;
@@ -397,6 +411,9 @@ public class StageManager : MonoBehaviour
 
         waveTimer = waveCooldown;
         waitingForNextWave = true;
+
+        // 웨이브 시작 시 에리어 기믹 코루틴 시작 (이전 코루틴은 자동 중지)
+        StartAreaMechanic();
     }
 
     void SpawnNormalEnemy(CharacterFactory factory, BattleManager manager, float spawnX, float battleZoneH)
@@ -626,6 +643,16 @@ public class StageManager : MonoBehaviour
         SoundManager.Instance?.PlayDefeatSFX();
         AchievementManager.Instance?.ResetBossTracking();
 
+        // Revenge stack: same wave = stack+1, new wave = stack reset to 1
+        if (lastDefeatWaveIndex == TotalWaveIndex)
+            RevengeStack = Mathf.Min(RevengeStack + 1, MAX_REVENGE_STACK);
+        else
+        {
+            RevengeStack = 1;
+            lastDefeatWaveIndex = TotalWaveIndex;
+        }
+        OnRevengeStackChanged?.Invoke(RevengeStack);
+
         if (TotalWaveIndex > 0)
             TotalWaveIndex--;
         PlayerPrefs.SetInt(SaveKeys.TotalWaveIndex, TotalWaveIndex);
@@ -771,6 +798,131 @@ public class StageManager : MonoBehaviour
                 if (camShake != null) camShake.Shake(AREA_BOSS_SHAKE_MAG * 0.4f, AREA_BOSS_SHAKE_DUR * 0.5f);
             }
             yield return new WaitForSeconds(BOSS_AOE_INTERVAL);
+        }
+    }
+
+    // ─── Area Mechanics Coroutines ───
+
+    Coroutine areaMechanicCoroutine;
+
+    void StartAreaMechanic()
+    {
+        if (areaMechanicCoroutine != null)
+            StopCoroutine(areaMechanicCoroutine);
+
+        areaMechanicCoroutine = StartCoroutine(RunAreaMechanic());
+    }
+
+    System.Collections.IEnumerator RunAreaMechanic()
+    {
+        switch (CurrentAreaEnum)
+        {
+            case GameArea.Desert:
+                yield return StartCoroutine(DesertMechanicRoutine());
+                break;
+            case GameArea.Cave:
+                yield return StartCoroutine(CaveMechanicRoutine());
+                break;
+            case GameArea.Volcano:
+                yield return StartCoroutine(VolcanoMechanicRoutine());
+                break;
+            case GameArea.Abyss:
+                yield return StartCoroutine(AbyssMechanicRoutine());
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 사막: 15초마다 모래폭풍 (전체 아군 ATK -10%, 5초)
+    /// </summary>
+    System.Collections.IEnumerator DesertMechanicRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(15f);
+            var manager = BattleManager.Instance;
+            if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) break;
+
+            for (int i = 0; i < manager.allyUnits.Count; i++)
+            {
+                var ally = manager.allyUnits[i];
+                if (ally == null || ally.IsDead) continue;
+                float atkReduction = -ally.atk * 0.1f;
+                ally.ApplyBuff(atkReduction, 0, 5f);
+            }
+
+            DamagePopup.Create(Vector3.zero, 0f, false, "모래폭풍!");
+        }
+    }
+
+    /// <summary>
+    /// 동굴: 시야 제한 (화면 가장자리 어둡게)
+    /// </summary>
+    System.Collections.IEnumerator CaveMechanicRoutine()
+    {
+        var bgController = BattleBackground.Instance;
+        if (bgController != null)
+            bgController.ApplyCaveDarkness(true);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+            var manager = BattleManager.Instance;
+            if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) break;
+        }
+
+        if (bgController != null)
+            bgController.ApplyCaveDarkness(false);
+    }
+
+    /// <summary>
+    /// 화산: 3초마다 용암 데미지 (전체 유닛 maxHP 1%)
+    /// </summary>
+    System.Collections.IEnumerator VolcanoMechanicRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(3f);
+            var manager = BattleManager.Instance;
+            if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) break;
+
+            foreach (var unit in manager.allyUnits)
+            {
+                if (unit != null && !unit.IsDead)
+                    unit.TakeDamage(unit.maxHp * 0.01f);
+            }
+            foreach (var unit in manager.enemyUnits)
+            {
+                if (unit != null && !unit.IsDead)
+                    unit.TakeDamage(unit.maxHp * 0.01f);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 심연: 10초마다 랜덤 아군 1명 3초 행동불능
+    /// </summary>
+    System.Collections.IEnumerator AbyssMechanicRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(10f);
+            var manager = BattleManager.Instance;
+            if (manager == null || manager.CurrentState != BattleManager.BattleState.Fighting) break;
+
+            var aliveAllies = new List<BattleUnit>();
+            foreach (var ally in manager.allyUnits)
+            {
+                if (ally != null && !ally.IsDead)
+                    aliveAllies.Add(ally);
+            }
+
+            if (aliveAllies.Count > 0)
+            {
+                BattleUnit target = aliveAllies[Random.Range(0, aliveAllies.Count)];
+                target.ApplyStun(3f);
+                DamagePopup.Create(target.transform.position + Vector3.up * 0.7f, 0f, false, "STUN!");
+            }
         }
     }
 }

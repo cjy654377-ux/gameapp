@@ -150,6 +150,16 @@ public class UpgradeManager : MonoBehaviour
             defBonus += unit.baseDef * ssm.GetDefPercent() / 100f;
         }
 
+        // Revenge stack bonus (ATK+8%, HP+10%, DEF+5% per stack, allies only)
+        var sm = StageManager.Instance;
+        if (sm != null && sm.RevengeStack > 0 && unit.CurrentTeam == BattleUnit.Team.Ally)
+        {
+            int stack = sm.RevengeStack;
+            hpBonus  += unit.baseMaxHp * (stack * 0.10f);
+            atkBonus += unit.baseAtk   * (stack * 0.08f);
+            defBonus += unit.baseDef   * (stack * 0.05f);
+        }
+
         // HP 비율 유지
         float hpRatio = unit.maxHp > 0 ? unit.CurrentHp / unit.maxHp : 1f;
         unit.maxHp = unit.baseMaxHp + hpBonus;
@@ -165,4 +175,36 @@ public class UpgradeManager : MonoBehaviour
     public float GetHpBonus() => HpLevel * HP_PER_LEVEL;
     public float GetAtkBonus() => AtkLevel * ATK_PER_LEVEL;
     public float GetDefBonus() => DefLevel * DEF_PER_LEVEL;
+
+    /// <summary>
+    /// CharacterPreset 기반 전투력 계산 (HP + ATK*3 + DEF*2) + 업그레이드/영웅레벨 보너스
+    /// </summary>
+    public static int CalcCombatPower(CharacterPreset preset)
+    {
+        if (preset == null) return 0;
+
+        float hp  = preset.maxHp;
+        float atk = preset.atk;
+        float def = preset.def;
+
+        // 글로벌 업그레이드 보너스
+        var um = Instance;
+        if (um != null)
+        {
+            hp  += um.HpLevel  * HP_PER_LEVEL;
+            atk += um.AtkLevel * ATK_PER_LEVEL;
+            def += um.DefLevel * DEF_PER_LEVEL;
+        }
+
+        // 영웅 개별 레벨 보너스
+        var hlm = HeroLevelManager.Instance;
+        if (hlm != null)
+        {
+            hp  += hlm.GetHpBonus(preset.characterName);
+            atk += hlm.GetAtkBonus(preset.characterName);
+            def += hlm.GetDefBonus(preset.characterName);
+        }
+
+        return Mathf.RoundToInt(hp + atk * 3f + def * 2f);
+    }
 }

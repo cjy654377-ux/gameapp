@@ -78,7 +78,7 @@ public class GoldManager : MonoBehaviour
         }
 
         if (!isDirty) return;
-        saveTimer += Time.deltaTime;
+        saveTimer += Time.unscaledDeltaTime;
         if (saveTimer >= SAVE_INTERVAL)
         {
             FlushSave();
