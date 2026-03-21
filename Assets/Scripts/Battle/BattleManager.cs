@@ -14,6 +14,11 @@ public class BattleManager : MonoBehaviour
 
     public event System.Action<BattleState> OnBattleStateChanged;
 
+    // 던전 모드
+    public bool IsDungeonMode { get; private set; } = false;
+    private int _currentDungeonType = -1;
+    private int _currentDungeonStage = 1;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -30,7 +35,7 @@ public class BattleManager : MonoBehaviour
     {
         if (CurrentState != BattleState.Fighting) return;
 
-        // Check defeat only (waves are continuous, no victory condition here)
+        // 아군 전멸 체크
         bool allAlliesDead = true;
         for (int i = 0; i < allyUnits.Count; i++)
         {
@@ -38,13 +43,47 @@ public class BattleManager : MonoBehaviour
         }
 
         if (allAlliesDead)
+        {
             SetState(BattleState.Defeat);
+            return;
+        }
+
+        // 던전 모드: 적 전멸 체크 → Victory
+        if (IsDungeonMode)
+        {
+            bool allEnemiesDead = true;
+            for (int i = 0; i < enemyUnits.Count; i++)
+            {
+                if (enemyUnits[i] != null && !enemyUnits[i].IsDead) { allEnemiesDead = false; break; }
+            }
+
+            if (allEnemiesDead)
+                SetState(BattleState.Victory);
+        }
     }
 
     void SetState(BattleState state)
     {
         CurrentState = state;
         OnBattleStateChanged?.Invoke(state);
+    }
+
+    public void EnterDungeonMode(int dungeonType, int stage)
+    {
+        IsDungeonMode = true;
+        _currentDungeonType = dungeonType;
+        _currentDungeonStage = stage;
+        enemyUnits.Clear();
+        CurrentState = BattleState.Preparing;
+    }
+
+    public void ExitDungeonMode()
+    {
+        IsDungeonMode = false;
+        _currentDungeonType = -1;
+        _currentDungeonStage = 1;
+        enemyUnits.Clear();
+        CurrentState = BattleState.Preparing;
     }
 
     void OnDestroy()
