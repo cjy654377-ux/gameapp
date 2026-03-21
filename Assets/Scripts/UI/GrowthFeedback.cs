@@ -101,6 +101,7 @@ public class GrowthFeedback : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedHLM != null)
         {
             cachedHLM.OnHeroLevelUp  -= OnHeroLevelUp;

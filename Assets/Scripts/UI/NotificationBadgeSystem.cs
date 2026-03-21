@@ -165,4 +165,9 @@ public class NotificationBadgeSystem : MonoBehaviour
             default: return false;
         }
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 }

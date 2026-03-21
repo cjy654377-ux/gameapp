@@ -1292,8 +1292,7 @@ public class MainHUD : MonoBehaviour
     {
         for (int i = items.Count - 1; i >= activeCount; i--)
         {
-            if (items[i] != null && !items[i].activeSelf)
-                Object.Destroy(items[i]);
+            if (items[i] != null) Object.Destroy(items[i]);
             items.RemoveAt(i);
         }
     }
@@ -1443,6 +1442,7 @@ public class MainHUD : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         HideBossHpBar(); // 보스 이벤트 구독 해제
 
         if (cachedGoldMgr != null)

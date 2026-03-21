@@ -118,4 +118,9 @@ public class ScreenFader : MonoBehaviour
         fadeRT.offsetMin = Vector2.zero;
         fadeRT.offsetMax = Vector2.zero;
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 }

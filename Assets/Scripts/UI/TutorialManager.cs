@@ -79,6 +79,7 @@ public class TutorialManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedGoldMgr != null)
             cachedGoldMgr.OnGoldChanged -= OnGoldChanged;
         if (cachedStageMgr != null)
