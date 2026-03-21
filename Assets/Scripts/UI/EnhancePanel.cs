@@ -9,11 +9,13 @@ using System.Collections.Generic;
 /// </summary>
 public class EnhancePanel : MonoBehaviour
 {
-    int subTab; // 0=영웅, 1=장비
+    int subTab; // 0=영웅, 1=장비, 2=각성
     Button[] subTabBtns;
     TextMeshProUGUI[] subTabLabels;
     GameObject heroRoot;
     GameObject equipRoot;
+    GameObject awakeningRoot;
+    AwakeningPanel awakeningPanel;
 
     GameObject heroListContainer;
     readonly List<GameObject> heroListItems = new();
@@ -50,14 +52,14 @@ public class EnhancePanel : MonoBehaviour
         stbRT.pivot = new Vector2(0.5f, 1);
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
-        string[] subNames = { "영웅", "장비" };
-        subTabBtns = new Button[2];
-        subTabLabels = new TextMeshProUGUI[2];
+        string[] subNames = { "영웅", "장비", "각성" };
+        subTabBtns = new Button[3];
+        subTabLabels = new TextMeshProUGUI[3];
 
-        for (int s = 0; s < 2; s++)
+        for (int s = 0; s < 3; s++)
         {
-            float xMin = s * 0.5f;
-            float xMax = (s + 1) * 0.5f;
+            float xMin = s * (1f / 3f);
+            float xMax = (s + 1) * (1f / 3f);
             var (btn, btnImg) = UIHelper.MakeSpriteButton($"SubTab_{subNames[s]}", subTabBarBg.transform,
                 UISprites.Btn1_WS, UIColors.Tab_Inactive, "", 0);
             if (UISprites.Btn1_WS != null) btnImg.color = Color.white;
@@ -97,6 +99,17 @@ public class EnhancePanel : MonoBehaviour
         equipRT.offsetMax = new Vector2(0, -subTabH);
         BuildEquipmentContent(equipRoot.transform);
 
+        // 각성 루트
+        awakeningRoot = UIHelper.MakeUI("AwakeningRoot", content.transform);
+        var awakRT = awakeningRoot.GetComponent<RectTransform>();
+        awakRT.anchorMin = Vector2.zero;
+        awakRT.anchorMax = new Vector2(1, 1);
+        awakRT.offsetMin = Vector2.zero;
+        awakRT.offsetMax = new Vector2(0, -subTabH);
+        awakeningPanel = awakeningRoot.AddComponent<AwakeningPanel>();
+        awakeningPanel.Init(awakeningRoot.transform);
+        awakeningRoot.SetActive(false);
+
         subTab = 0;
         UpdateSubTabVisuals();
     }
@@ -111,13 +124,14 @@ public class EnhancePanel : MonoBehaviour
         subTab = subIdx;
         UpdateSubTabVisuals();
         if (subIdx == 0) RefreshHeroUI();
-        else RefreshEquipmentUI();
+        else if (subIdx == 1) RefreshEquipmentUI();
+        else awakeningPanel?.Refresh();
     }
 
     void UpdateSubTabVisuals()
     {
         if (subTabBtns == null) return;
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 3; i++)
         {
             bool active = (i == subTab);
             var img = subTabBtns[i].GetComponent<Image>();
@@ -130,15 +144,17 @@ public class EnhancePanel : MonoBehaviour
                 img.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
             subTabLabels[i].color = active ? Color.white : UIColors.Text_Secondary;
         }
-        if (heroRoot != null) heroRoot.SetActive(subTab == 0);
-        if (equipRoot != null) equipRoot.SetActive(subTab == 1);
+        if (heroRoot != null)      heroRoot.SetActive(subTab == 0);
+        if (equipRoot != null)     equipRoot.SetActive(subTab == 1);
+        if (awakeningRoot != null) awakeningRoot.SetActive(subTab == 2);
     }
 
     public void Refresh()
     {
         UpdateSubTabVisuals();
         if (subTab == 0) RefreshHeroUI();
-        else RefreshEquipmentUI();
+        else if (subTab == 1) RefreshEquipmentUI();
+        else awakeningPanel?.Refresh();
     }
 
     // ════════════════════════════════════════

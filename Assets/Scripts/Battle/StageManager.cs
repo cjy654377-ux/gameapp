@@ -167,12 +167,12 @@ public class StageManager : MonoBehaviour
             if (n == "Enemy_FlameGeneral")     { volcanoMidBoss  = p; continue; }
             if (n == "Enemy_VolcanoLord")      { volcanoAreaBoss = p; continue; }
             if (n == "Enemy_DeathKnight")      { abyssMidBoss    = p; continue; }
-            if (n == "Enemy_LichKing")         { abyssAreaBoss   = p; continue; }
+            if (n == "Enemy_AbyssLord")        { abyssAreaBoss   = p; continue; }
 
             // 에리어 분류
             if (n.Contains("Flame") || n.Contains("Lava") || n.Contains("FireImp") || n.Contains("Magma"))
                 volcanoEnemies.Add(p);
-            else if (n.Contains("Dark") || n.Contains("Ghost") || n.Contains("Necromancer"))
+            else if (n.Contains("Dark") || n.Contains("Ghost") || n.Contains("Abyss") || n.Contains("Shadow") || n.Contains("Necromancer") || n.Contains("Death"))
                 abyssEnemies.Add(p);
             else if (n.Contains("Desert") || n.Contains("Mummy") || n.Contains("Pharaoh"))
                 desertEnemies.Add(p);
