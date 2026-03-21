@@ -33,6 +33,9 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<TutorialManager>("TutorialManager");
         EnsureSystem<ObjectPool>("ObjectPool");
         EnsureSystem<ToastNotification>("ToastNotification");
+        EnsureSystem<SummonStoneManager>("SummonStoneManager");
+        EnsureSystem<SpellScrollManager>("SpellScrollManager");
+        EnsureSystem<DungeonManager>("DungeonManager");
 
         // 프리셋 자동 로드 (Inspector 할당이 깨진 경우)
         AutoLoadAllyPresets();
