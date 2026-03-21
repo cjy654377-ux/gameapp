@@ -47,6 +47,10 @@ public class GoldManager : MonoBehaviour
         Gold += finalAmount;
         isDirty = true;
         OnGoldChanged?.Invoke(Gold);
+
+        // 통계 기록
+        if (GameStatsManager.Instance != null)
+            GameStatsManager.Instance.AddGoldEarned(finalAmount);
     }
 
     public bool SpendGold(int amount)

@@ -589,12 +589,13 @@ public class BattleUnit : MonoBehaviour
         SetState(UnitState.Dead);
         OnDeath?.Invoke();
 
-        // Track kills for HUD + daily missions + achievements
+        // Track kills for HUD + daily missions + achievements + stats
         if (CurrentTeam == Team.Enemy)
         {
             MainHUD.Instance?.AddKill();
             DailyMissionManager.Instance?.RegisterKill();
             AchievementManager.Instance?.RegisterKill();
+            GameStatsManager.Instance?.AddKill();
         }
 
         if (animator != null)

@@ -98,6 +98,10 @@ public static class SaveKeys
     // 천장 (pity)
     public const string PityCounter = "Gacha_PityCounter";
 
+    // 첫 뽑기 보장
+    public const string FirstPullDone      = "Gacha_FirstPullDone";
+    public const string FirstMultiPullDone = "Gacha_FirstMultiPullDone";
+
     // 명성 (아레나 전용 통화)
     public const string Reputation = "Reputation";
 
@@ -117,4 +121,11 @@ public static class SaveKeys
     // 친구 시스템
     public const string FriendGiftDate          = "Friend_GiftDate";
     public const string FriendReinforcementDate = "Friend_ReinfDate";
+
+    // 통계
+    public const string StatsTotalKills       = "Stats_TotalKills";
+    public const string StatsTotalGoldEarned  = "Stats_TotalGoldEarned";
+    public const string StatsHighestWave      = "Stats_HighestWave";
+    public const string StatsTotalPlayTime    = "Stats_TotalPlayTime";
+    public const string StatsTotalPulls       = "Stats_TotalPulls";
 }

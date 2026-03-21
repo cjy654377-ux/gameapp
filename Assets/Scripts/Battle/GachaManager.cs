@@ -44,6 +44,8 @@ public class GachaManager : MonoBehaviour
     readonly List<CharacterPreset> star5Pool = new();
 
     private int pityCounter = 0;
+    private bool _isFirstPull;
+    private bool _isFirstMultiPull;
 
     void Awake()
     {
