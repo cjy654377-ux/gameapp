@@ -175,12 +175,16 @@ public class AwakeningPanel : MonoBehaviour
             {
                 copyStr = $"카피: {copies}";
             }
-            else
+            else if (needed > 0 && needed <= 10)
             {
-                int filled = needed > 0 ? Mathf.Min(copies, needed) : 0;
-                int empty  = needed > 0 ? Mathf.Max(needed - copies, 0) : 0;
+                int filled = Mathf.Min(copies, needed);
+                int empty  = needed - filled;
                 string bar = $"<color=#2E7D32>{new string('\u25A0', filled)}</color><color=#8B6914>{new string('\u25A1', empty)}</color>";
                 copyStr = $"{bar} {copies}/{needed}";
+            }
+            else
+            {
+                copyStr = $"카피: {copies}/{needed}";
             }
             var copyText = UIHelper.MakeText("Copy", item.transform, copyStr,
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, copyColor);
