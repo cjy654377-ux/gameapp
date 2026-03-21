@@ -104,6 +104,22 @@ public class GoldManager : MonoBehaviour
         FlushSave();
     }
 
+    public void RequestGoldBoostAd()
+    {
+        // 광고 시청 후 부스트 활성화
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedAd(
+                AdManager.AdRewardType.GoldBoost,
+                success =>
+                {
+                    if (success)
+                        ActivateBoost();
+                }
+            );
+        }
+    }
+
     public void ActivateBoost()
     {
         float now = (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;

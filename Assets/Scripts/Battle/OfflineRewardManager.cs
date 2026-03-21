@@ -88,6 +88,22 @@ public class OfflineRewardManager : MonoBehaviour
         PlayerPrefs.SetString(SaveKeys.LastPlayTime, GetUnixTimestamp().ToString());
     }
 
+    public void RequestDoubleRewardAd()
+    {
+        // 광고 시청 후 보상
+        if (AdManager.Instance != null)
+        {
+            AdManager.Instance.ShowRewardedAd(
+                AdManager.AdRewardType.OfflineDouble,
+                success =>
+                {
+                    if (success)
+                        ApplyDoubleRewardAd();
+                }
+            );
+        }
+    }
+
     public void ApplyDoubleRewardAd()
     {
         int doubleGold = lastGoldReward;
