@@ -11,7 +11,6 @@ public class AwakeningPanel : MonoBehaviour
 {
     GameObject listContainer;
     readonly List<GameObject> listItems = new();
-    string lastRetryHero;
 
     HeroLevelManager cachedHLM;
     GachaManager cachedGacha;
@@ -259,7 +258,6 @@ public class AwakeningPanel : MonoBehaviour
         if (!success)
         {
             // 각성 실패 → 광고 재시도 팝업
-            lastRetryHero = heroName;
             ShowAwakeningRetryPopup(heroName);
         }
         // OnHeroAwakened 이벤트로 Refresh가 자동 호출됨

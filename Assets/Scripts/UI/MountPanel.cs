@@ -17,6 +17,9 @@ public class MountPanel : MonoBehaviour
     readonly List<MountItemRow> rows = new();
     System.Action<string, string, System.Action> showConfirm;
 
+    MountManager cachedMM;
+    SummonStoneManager cachedSM;
+
     // 레이아웃 상수
     const float ROW_HEIGHT        = 0.11f;
     const float ROW_GAP           = 0.005f;
@@ -205,25 +208,23 @@ public class MountPanel : MonoBehaviour
 
     void SubscribeEvents()
     {
-        var mm = MountManager.Instance;
-        if (mm == null) return;
-        mm.OnMountPulled   += OnMountPulled;
-        mm.OnMountEquipped += OnMountEquipped;
+        cachedMM = MountManager.Instance;
+        if (cachedMM == null) return;
+        cachedMM.OnMountPulled   += OnMountPulled;
+        cachedMM.OnMountEquipped += OnMountEquipped;
 
-        var sm = SummonStoneManager.Instance;
-        if (sm != null) sm.OnStoneChanged += OnStoneChanged;
+        cachedSM = SummonStoneManager.Instance;
+        if (cachedSM != null) cachedSM.OnStoneChanged += OnStoneChanged;
     }
 
     void UnsubscribeEvents()
     {
-        var mm = MountManager.Instance;
-        if (mm != null)
+        if (cachedMM != null)
         {
-            mm.OnMountPulled   -= OnMountPulled;
-            mm.OnMountEquipped -= OnMountEquipped;
+            cachedMM.OnMountPulled   -= OnMountPulled;
+            cachedMM.OnMountEquipped -= OnMountEquipped;
         }
-        var sm = SummonStoneManager.Instance;
-        if (sm != null) sm.OnStoneChanged -= OnStoneChanged;
+        if (cachedSM != null) cachedSM.OnStoneChanged -= OnStoneChanged;
     }
 
     void OnMountPulled(MountData data)

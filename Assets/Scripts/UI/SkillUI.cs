@@ -290,6 +290,7 @@ public class SkillUI : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedSkillMgr != null)
         {
             cachedSkillMgr.OnCooldownChanged -= UpdateCooldown;

@@ -520,4 +520,9 @@ public class DeckUI : MonoBehaviour
         if (preset.attackAnimType == AttackAnimType.Magic) return "<color=#6B3FA0>◇</color>";
         return "<color=#CC3333>⚔</color>";
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
 }
