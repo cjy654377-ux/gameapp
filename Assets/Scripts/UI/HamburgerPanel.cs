@@ -64,6 +64,15 @@ public class HamburgerPanel : MonoBehaviour
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
         string[] subNames = { "업적", "미션", "도감", "아레나", "퀘스트", "친구", "설정" };
+        Sprite[] subIcons = {
+            UISprites.IconQuest,        // 업적
+            UISprites.FlatIcon(3),      // 미션
+            UISprites.IconInven,        // 도감
+            UISprites.SpumIcon(136),    // 아레나 (방패+검)
+            UISprites.IconQuest,        // 퀘스트
+            UISprites.FlatIcon(10),     // 친구
+            UISprites.IconSetting       // 설정
+        };
         int subCount = subNames.Length;
         subTabBtns   = new Button[subCount];
         subTabLabels = new TextMeshProUGUI[subCount];
@@ -81,10 +90,27 @@ public class HamburgerPanel : MonoBehaviour
             brt.offsetMin = new Vector2(1, 1);
             brt.offsetMax = new Vector2(-1, -1);
 
+            // 아이콘 (좌측)
+            if (subIcons[s] != null)
+            {
+                var icon = UIHelper.MakeIcon($"Icon_{s}", btn.transform, subIcons[s], new Color(0.85f, 0.82f, 0.78f));
+                var irt = icon.GetComponent<RectTransform>();
+                irt.anchorMin = new Vector2(0, 0.1f);
+                irt.anchorMax = new Vector2(0, 0.9f);
+                irt.pivot = new Vector2(0, 0.5f);
+                irt.anchoredPosition = new Vector2(2, 0);
+                irt.sizeDelta = new Vector2(14, 0);
+            }
+
+            // 라벨 (아이콘 오른쪽)
             var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
-                9f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+                8f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
             label.fontStyle = FontStyles.Bold;
-            UIHelper.FillParent(label.GetComponent<RectTransform>());
+            var lrt = label.GetComponent<RectTransform>();
+            lrt.anchorMin = new Vector2(0.3f, 0);
+            lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = Vector2.zero;
+            lrt.offsetMax = Vector2.zero;
 
             subTabBtns[s]   = btn;
             subTabLabels[s] = label;

@@ -45,6 +45,12 @@ public static class UISprites
     public static Sprite IconSkill     => Load("UI/Icon_Skill");
     public static Sprite IconSword     => Load("UI/Icon_Sword");
     public static Sprite IconPotion1   => Load("UI/Icon_Potion1");
+    public static Sprite IconPotion2   => Load("UI/Icon_Potion2");
+    public static Sprite IconSetting   => Load("UI/Icon_Setting");
+    public static Sprite IconEquip     => Load("UI/Icon_Equip");
+    public static Sprite IconPost      => Load("UI/Icon_Post");
+    public static Sprite IconMoney     => Load("UI/Icon_Money");
+    public static Sprite IconTime      => Load("UI/Icon_Time");
 
     // ── Icons (Theme2 / System) ────────────────────────────────
     /// 숫자 인덱스 아이콘 (Spum_Icon131 ~ Spum_Icon207). 범위 밖이면 null.

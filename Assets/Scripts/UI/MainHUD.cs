@@ -356,7 +356,7 @@ public class MainHUD : MonoBehaviour
             out gemText, out gemContainer);
 
         // 소환석
-        CreateResourceDisplay(hudBar.transform, "Stone", UISprites.IconPotion1,
+        CreateResourceDisplay(hudBar.transform, "Stone", UISprites.IconEquip,
             new Color(0.55f, 0.88f, 1.00f), new Vector2(0.63f, 0.08f), new Vector2(0.80f, 0.92f),
             out stoneText, out stoneContainer);
 
@@ -366,7 +366,7 @@ public class MainHUD : MonoBehaviour
             out scrollText, out scrollContainer);
 
         // 각성석 (영웅탭 전용, gem 위치 공유)
-        CreateResourceDisplay(hudBar.transform, "AwakeStone", UISprites.IconSword,
+        CreateResourceDisplay(hudBar.transform, "AwakeStone", UISprites.IconPotion1,
             new Color(1.00f, 0.70f, 0.30f), new Vector2(0.45f, 0.08f), new Vector2(0.62f, 0.92f),
             out awakeStoneText, out awakeStoneContainer);
 
@@ -591,11 +591,11 @@ public class MainHUD : MonoBehaviour
         navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 58);
 
         // 탭 아이콘 스프라이트 할당 (SPUM 아이콘 활용)
-        tabSpriteIcons[0] = UISprites.IconSkill;     // 영웅
-        tabSpriteIcons[1] = UISprites.IconPotion1;   // 소환
-        tabSpriteIcons[2] = UISprites.IconSword;     // 전투 (center)
-        tabSpriteIcons[3] = UISprites.IconInven;     // 던전
-        tabSpriteIcons[4] = UISprites.IconQuest;     // 상점
+        tabSpriteIcons[0] = UISprites.IconSword;          // 영웅 (검)
+        tabSpriteIcons[1] = UISprites.IconDiamond;        // 소환 (다이아몬드)
+        tabSpriteIcons[2] = UISprites.SpumIcon(136);      // 전투 (방패+검)
+        tabSpriteIcons[3] = UISprites.SpumIcon(145);      // 던전 (성)
+        tabSpriteIcons[4] = UISprites.IconGold;           // 상점 (골드)
 
         float tabWidth = 1f / TAB_COUNT;
         for (int i = 0; i < TAB_COUNT; i++)
