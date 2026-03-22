@@ -37,6 +37,9 @@ public class TutorialManager : MonoBehaviour
         "<color=#FF9900>각성 & 탈것</color>으로\n영웅을 더욱 강화하세요!",
     };
 
+    float nextTutorialTime;   // 튜토리얼 간 3초 대기
+    float battleStartRealtime = -1f; // step 0: 전투 시작 2초 후 체크
+
     // Cached references for safe unsubscribe
     GoldManager cachedGoldMgr;
     StageManager cachedStageMgr;
@@ -101,13 +104,19 @@ public class TutorialManager : MonoBehaviour
     public void CheckAndShowTutorial()
     {
         if (tutorialComplete || IsTutorialActive) return;
+        if (Time.realtimeSinceStartup < nextTutorialTime) return;
 
         switch (currentStep)
         {
-            case 0: // 전투 시작
+            case 0: // 전투 시작 2초 후
                 if (BattleManager.Instance != null &&
                     BattleManager.Instance.CurrentState == BattleManager.BattleState.Fighting)
-                    ShowStep(0);
+                {
+                    if (battleStartRealtime < 0f)
+                        battleStartRealtime = Time.realtimeSinceStartup;
+                    if (Time.realtimeSinceStartup - battleStartRealtime >= 2f)
+                        ShowStep(0);
+                }
                 break;
             case 3: // 소환 유도 (덱에 영웅 1명+)
                 if (DeckManager.Instance != null && DeckManager.Instance.roster.Count >= 1)
@@ -166,6 +175,7 @@ public class TutorialManager : MonoBehaviour
         PlayerPrefs.SetInt(SaveKeys.TutorialStep, currentStep);
         PlayerPrefs.Save();
         IsTutorialActive = false;
+        nextTutorialTime = Time.realtimeSinceStartup + 3f; // 다음 튜토리얼까지 3초 대기
 
         if (currentStep >= TOTAL_STEPS)
             tutorialComplete = true;

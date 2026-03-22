@@ -10,6 +10,7 @@ public class TutorialOverlay : MonoBehaviour
 {
     GameObject panel;
     TextMeshProUGUI messageText;
+    TextMeshProUGUI tapHintText;
     Button confirmButton;
     Button fullScreenButton;
 
@@ -72,7 +73,7 @@ public class TutorialOverlay : MonoBehaviour
         msgRT.offsetMax = Vector2.zero;
         messageText.textWrappingMode = TextWrappingModes.Normal;
 
-        // Confirm button
+        // Confirm button (위로 올려 hint 텍스트 공간 확보)
         var (btn, btnImg) = UIHelper.MakeButton(
             "ConfirmButton", container.transform,
             UIColors.Button_Green,
@@ -80,11 +81,24 @@ public class TutorialOverlay : MonoBehaviour
         );
         confirmButton = btn;
         var btnRT = btnImg.GetComponent<RectTransform>();
-        btnRT.anchorMin = new Vector2(0.25f, 0f);
-        btnRT.anchorMax = new Vector2(0.75f, 0.35f);
+        btnRT.anchorMin = new Vector2(0.25f, 0.15f);
+        btnRT.anchorMax = new Vector2(0.75f, 0.38f);
         btnRT.offsetMin = Vector2.zero;
         btnRT.offsetMax = Vector2.zero;
         confirmButton.onClick.AddListener(Hide);
+
+        // "탭하여 계속" 힌트 텍스트 (확인 버튼 아래)
+        tapHintText = UIHelper.MakeText(
+            "TapHintText", container.transform,
+            "화면을 탭하여 계속", 13f,
+            TextAlignmentOptions.Center,
+            new Color(1f, 1f, 1f, 0.6f)
+        );
+        var hintRT = tapHintText.GetComponent<RectTransform>();
+        hintRT.anchorMin = new Vector2(0.1f, 0f);
+        hintRT.anchorMax = new Vector2(0.9f, 0.13f);
+        hintRT.offsetMin = Vector2.zero;
+        hintRT.offsetMax = Vector2.zero;
     }
 
     public void ShowMessage(string text)
@@ -93,6 +107,7 @@ public class TutorialOverlay : MonoBehaviour
         messageText.text = text;
         panel.SetActive(true);
         isShowing = true;
+        Time.timeScale = 0f; // 게임 일시정지
     }
 
     public void Hide()
@@ -100,6 +115,7 @@ public class TutorialOverlay : MonoBehaviour
         if (!isShowing) return;
         isShowing = false;
         panel.SetActive(false);
+        Time.timeScale = 1f; // 게임 재개
 
         if (TutorialManager.Instance != null)
             TutorialManager.Instance.CompleteTutorialStep(TutorialManager.Instance.CurrentStep);
