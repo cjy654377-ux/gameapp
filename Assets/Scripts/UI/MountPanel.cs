@@ -165,15 +165,15 @@ public class MountPanel : MonoBehaviour
             float yMax = 1f - (ROW_GAP + (ROW_HEIGHT + ROW_GAP) * i);
             float yMin = yMax - ROW_HEIGHT;
 
-            var row = new GameObject($"MountRow_{i}");
-            row.transform.SetParent(listContent, false);
-            var rowRT = row.AddComponent<RectTransform>();
+            var row = UIHelper.MakeUI($"MountRow_{i}", listContent);
+            var rowRT = row.GetComponent<RectTransform>();
             rowRT.anchorMin = new Vector2(0.02f, yMin);
             rowRT.anchorMax = new Vector2(0.98f, yMax);
             rowRT.offsetMin = rowRT.offsetMax = Vector2.zero;
 
-            var rowBg = row.AddComponent<Image>();
-            rowBg.color = equipped ? UIColors.Button_Yellow : UIColors.Panel_Inner;
+            var rowBg = UIHelper.MakeSpritePanel("RowBG", row.transform, UISprites.BoxBasic1,
+                equipped ? UIColors.Button_Yellow : UIColors.Panel_Inner);
+            UIHelper.FillParent(rowBg.GetComponent<RectTransform>());
 
             var item = row.AddComponent<MountItemRow>();
             item.Init(name, equipped, showConfirm, this);
@@ -277,7 +277,7 @@ public class MountItemRow : MonoBehaviour
         string btnLabel = equipped ? "해제" : "장착";
         Color btnColor  = equipped ? UIColors.Defeat_Red : UIColors.Button_Green;
         var (btn, _) = UIHelper.MakeSpriteButton("EquipBtn", transform,
-            UISprites.Btn1_WS, btnColor, "", 8f);
+            UISprites.Btn2_WS, btnColor, "", 8f);
         var btnRT = btn.GetComponent<RectTransform>();
         btnRT.anchorMin = new Vector2(0.62f, 0.1f);
         btnRT.anchorMax = new Vector2(0.98f, 0.9f);

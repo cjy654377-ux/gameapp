@@ -48,7 +48,7 @@ public class EnhancePanel : MonoBehaviour
         // 서브탭 바
         float subTabH = 30f;
         var subTabBarBg = UIHelper.MakeSpritePanel("SubTabBar", content.transform,
-            UISprites.Board, UIColors.Background_Dark);
+            UISprites.BoxBasic3, UIColors.Background_Dark);
         var stbRT = subTabBarBg.GetComponent<RectTransform>();
         stbRT.anchorMin = new Vector2(0, 1);
         stbRT.anchorMax = new Vector2(1, 1);

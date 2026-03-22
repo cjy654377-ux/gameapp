@@ -380,7 +380,7 @@ public class AwakeningPanel : MonoBehaviour
         }
         else
         {
-            obj = UIHelper.MakePanel(name, parent, bgColor).gameObject;
+            obj = UIHelper.MakeSpritePanel(name, parent, UISprites.BoxBasic1, bgColor).gameObject;
             pool.Add(obj);
         }
         reuseIdx++;

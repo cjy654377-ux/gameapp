@@ -646,10 +646,17 @@ public class MainHUD : MonoBehaviour
             indicator.gameObject.SetActive(false);
             tabIndicators[i] = indicator;
 
-            // 아이콘 — 7탭 기준으로 아이콘 영역 조정 (0.15~0.85 가로, 0.35~0.90 세로)
+            // 전투탭(center): BoxIcon1 프레임으로 강조
+            if (i == 2 && UISprites.BoxIcon1 != null)
+            {
+                var frame = UIHelper.MakeSpritePanel("Frame", tabObj.transform, UISprites.BoxIcon1, Color.white);
+                UIHelper.FillParent(frame.GetComponent<RectTransform>());
+            }
+
+            // 아이콘
             if (tabSpriteIcons[i] != null)
             {
-                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], new Color(0.85f, 0.82f, 0.78f));
+                var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], new Color(0.6f, 0.58f, 0.54f, 0.6f));
                 var icrt = iconImg.GetComponent<RectTransform>();
                 icrt.anchorMin = new Vector2(0.15f, 0.35f);
                 icrt.anchorMax = new Vector2(0.85f, 0.90f);
@@ -1077,13 +1084,13 @@ public class MainHUD : MonoBehaviour
             if (tabIconTexts[i] != null)
                 tabIconTexts[i].color = active ? UIColors.Text_Gold : UIColors.Text_Secondary;
 
-            // 스프라이트 아이콘 색상 조정
+            // 스프라이트 아이콘: 선택=밝게, 미선택=어둡게(0.6 alpha)
             var iconImgObj = tabButtons[i].transform.Find("Icon");
             if (iconImgObj != null)
             {
                 var iconImg = iconImgObj.GetComponent<Image>();
                 if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? UIColors.Text_Gold : new Color(0.85f, 0.82f, 0.78f);
+                    iconImg.color = active ? Color.white : new Color(0.6f, 0.58f, 0.54f, 0.6f);
             }
 
             tabIndicators[i].gameObject.SetActive(active);

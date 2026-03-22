@@ -880,7 +880,7 @@ public class HamburgerPanel : MonoBehaviour
             candidate.GetComponent<Image>().color = color;
             return candidate;
         }
-        var img = UIHelper.MakePanel(name, parent, color);
+        var img = UIHelper.MakeSpritePanel(name, parent, UISprites.BoxBasic3, color);
         items.Add(img.gameObject);
         return img.gameObject;
     }
