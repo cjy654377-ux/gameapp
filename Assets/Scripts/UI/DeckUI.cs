@@ -557,6 +557,10 @@ public class DeckUI : MonoBehaviour
             var nameText = UIHelper.MakeText("Info", item.transform, preset.characterName,
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, COLOR_NAME_DARK);
             nameText.fontStyle = FontStyles.Bold;
+            nameText.overflowMode = TextOverflowModes.Ellipsis;
+            nameText.enableAutoSizing = true;
+            nameText.fontSizeMin = 6f;
+            nameText.fontSizeMax = UIConstants.Font_SmallInfo;
             var nrt = nameText.GetComponent<RectTransform>();
             nrt.anchorMin = new Vector2(0.13f, 0.48f);
             nrt.anchorMax = new Vector2(0.60f, 1);

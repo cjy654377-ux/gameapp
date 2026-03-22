@@ -71,7 +71,12 @@ public class SynergyUI : MonoBehaviour
 
     void CreatePanel()
     {
-        panel = UIHelper.MakeUI("SynergyPanel", canvas.transform);
+        // SafeArea 루트
+        var safeRoot = UIHelper.MakeUI("SafeAreaRoot", canvas.transform);
+        safeRoot.AddComponent<SafeAreaAdapter>();
+        UIHelper.FillParent(safeRoot.GetComponent<RectTransform>());
+
+        panel = UIHelper.MakeUI("SynergyPanel", safeRoot.transform);
         var rt = panel.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0f, 1f);
         rt.anchorMax = new Vector2(0f, 1f);

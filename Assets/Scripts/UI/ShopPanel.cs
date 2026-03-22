@@ -175,14 +175,22 @@ public class ShopPanel : MonoBehaviour
             var nameText = UIHelper.MakeText("Name", item.transform, shopItem.displayName,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
             nameText.fontStyle = FontStyles.Bold;
+            nameText.overflowMode = TextOverflowModes.Ellipsis;
+            nameText.enableAutoSizing = true;
+            nameText.fontSizeMin = 7f;
+            nameText.fontSizeMax = UIConstants.Font_StatLabel;
             var nrt = nameText.GetComponent<RectTransform>();
-            nrt.anchorMin = new Vector2(0, 0.5f); nrt.anchorMax = new Vector2(0.4f, 1);
+            nrt.anchorMin = new Vector2(0, 0.5f); nrt.anchorMax = new Vector2(0.45f, 1);
             nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0); nrt.offsetMax = Vector2.zero;
 
             var descText = UIHelper.MakeText("Desc", item.transform, shopItem.description,
                 8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
+            descText.overflowMode = TextOverflowModes.Ellipsis;
+            descText.enableAutoSizing = true;
+            descText.fontSizeMin = 6f;
+            descText.fontSizeMax = 8f;
             var drt = descText.GetComponent<RectTransform>();
-            drt.anchorMin = new Vector2(0, 0); drt.anchorMax = new Vector2(0.4f, 0.5f);
+            drt.anchorMin = new Vector2(0, 0); drt.anchorMax = new Vector2(0.45f, 0.5f);
             drt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0); drt.offsetMax = Vector2.zero;
 
             string priceStr = shopItem.gemCost > 0 ? $"◆{shopItem.gemCost} 보석" :
