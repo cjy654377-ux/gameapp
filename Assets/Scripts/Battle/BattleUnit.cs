@@ -726,26 +726,31 @@ public class BattleUnit : MonoBehaviour
 
         if (equip)
         {
-            if (string.IsNullOrEmpty(item.weaponSprite)) return;
+            // weaponSprite 없으면 등급별 기본값 사용
+            string spriteName = !string.IsNullOrEmpty(item.weaponSprite)
+                ? item.weaponSprite
+                : GetFallbackSpriteName(item.slot, item.rarity);
+            if (string.IsNullOrEmpty(spriteName)) return;
+
             switch (item.slot)
             {
                 case EquipmentSlot.Weapon:
-                    var ws = CharacterFactory.FindWeaponSprite(item.weaponSprite);
+                    var ws = CharacterFactory.FindWeaponSprite(spriteName);
                     if (ws != null) foreach (var sr in renderers)
                         if (sr.gameObject.name == "R_Weapon") { sr.sprite = ws; break; }
                     break;
                 case EquipmentSlot.Shield:
-                    var ss = CharacterFactory.FindWeaponSprite(item.weaponSprite);
+                    var ss = CharacterFactory.FindWeaponSprite(spriteName);
                     if (ss != null) foreach (var sr in renderers)
                         if (sr.gameObject.name == "L_Weapon") { sr.sprite = ss; break; }
                     break;
                 case EquipmentSlot.Helmet:
-                    var hs = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/4_Helmet/{item.weaponSprite}");
+                    var hs = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/4_Helmet/{spriteName}");
                     if (hs != null && hs.Length > 0) foreach (var sr in renderers)
                         if (sr.gameObject.name == "11_Helmet1") { sr.sprite = hs[0]; break; }
                     break;
                 case EquipmentSlot.Armor:
-                    var armorSpr = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{item.weaponSprite}");
+                    var armorSpr = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{spriteName}");
                     if (armorSpr != null && armorSpr.Length > 0)
                         ApplyArmorSprites(renderers, armorSpr);
                     break;
@@ -796,4 +801,13 @@ public class BattleUnit : MonoBehaviour
                 sr.sprite = CharacterFactory.FindSubSprite(armorSprites, "Right") ?? sr.sprite;
         }
     }
+
+    static string GetFallbackSpriteName(EquipmentSlot slot, int rarity) => slot switch
+    {
+        EquipmentSlot.Weapon => rarity switch { 1 => "Sword", 2 => "Sword_2", 3 => "Sword_3", _ => "Sword_4" },
+        EquipmentSlot.Shield => rarity switch { 1 => "Shield", 2 => "Shield_2", 3 => "Shield_3", _ => "Shield_4" },
+        EquipmentSlot.Armor  => rarity switch { 1 => "Armor1", 2 => "Armor2", 3 => "Armor3", _ => "Armor4" },
+        EquipmentSlot.Helmet => rarity switch { 1 => "Helm1", 2 => "Helm2", 3 => "Helm3", _ => "Helm4" },
+        _ => ""
+    };
 }

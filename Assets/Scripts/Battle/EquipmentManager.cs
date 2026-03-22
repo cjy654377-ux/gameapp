@@ -303,6 +303,9 @@ public class EquipmentManager : MonoBehaviour
         var slots = new EquipmentSlot[] { EquipmentSlot.Weapon, EquipmentSlot.Armor, EquipmentSlot.Shield };
         item.slot = slots[UnityEngine.Random.Range(0, slots.Length)];
 
+        // 등급별 기본 스프라이트 이름 자동 배정
+        item.weaponSprite = GetDefaultSpriteName(item.slot, rarity);
+
         // 이름
         string prefix = RARITY_PREFIX[rarity];
         string slotName = SLOT_NAME.TryGetValue(item.slot, out var sn) ? sn : "장비";
@@ -602,6 +605,18 @@ public class EquipmentManager : MonoBehaviour
     {
         FlushSave();
     }
+
+    /// <summary>
+    /// 슬롯과 등급으로 기본 SPUM 스프라이트 이름 반환
+    /// </summary>
+    static string GetDefaultSpriteName(EquipmentSlot slot, int rarity) => slot switch
+    {
+        EquipmentSlot.Weapon => rarity switch { 1 => "Sword", 2 => "Sword_2", 3 => "Sword_3", _ => "Sword_4" },
+        EquipmentSlot.Shield => rarity switch { 1 => "Shield", 2 => "Shield_2", 3 => "Shield_3", _ => "Shield_4" },
+        EquipmentSlot.Armor  => rarity switch { 1 => "Armor1", 2 => "Armor2", 3 => "Armor3", _ => "Armor4" },
+        EquipmentSlot.Helmet => rarity switch { 1 => "Helm1", 2 => "Helm2", 3 => "Helm3", _ => "Helm4" },
+        _ => ""
+    };
 
     void LoadInventory()
     {
