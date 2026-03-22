@@ -203,9 +203,12 @@ public class DeckUI : MonoBehaviour
             var fmBadgeBg = fmBadgeObj.AddComponent<Image>();
             fmBadgeBg.color = new Color(0.1f, 0.1f, 0.3f, 0.75f);
             var fmBadgeRT = fmBadgeObj.GetComponent<RectTransform>();
-            fmBadgeRT.anchorMin = new Vector2(0.62f, 0.72f);
+            // 최소 44x44 터치 타겟 (HIG 기준) — 우상단 고정
+            fmBadgeRT.anchorMin = new Vector2(1f, 1f);
             fmBadgeRT.anchorMax = new Vector2(1f, 1f);
-            fmBadgeRT.offsetMin = fmBadgeRT.offsetMax = Vector2.zero;
+            fmBadgeRT.pivot = new Vector2(1f, 1f);
+            fmBadgeRT.sizeDelta = new Vector2(44f, 44f);
+            fmBadgeRT.anchoredPosition = Vector2.zero;
             var fmBtn = fmBadgeObj.AddComponent<Button>();
             fmBtn.targetGraphic = fmBadgeBg;
             fmBtn.onClick.AddListener(() =>

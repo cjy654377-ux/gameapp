@@ -48,6 +48,7 @@ public class SkillUI : MonoBehaviour
     // Buff bar (left of skill slots)
     const int BUFF_ROW_COUNT = 4;
     readonly TextMeshProUGUI[] buffTexts = new TextMeshProUGUI[BUFF_ROW_COUNT];
+    readonly Image[] buffIcons = new Image[BUFF_ROW_COUNT];
     float buffRefreshTimer;
     const float BUFF_REFRESH_INTERVAL = 0.5f;
 
@@ -197,7 +198,7 @@ public class SkillUI : MonoBehaviour
         toggleRT.anchorMin = new Vector2(0.5f, 0f);
         toggleRT.anchorMax = new Vector2(0.5f, 0f);
         toggleRT.pivot = new Vector2(0f, 0f);
-        toggleRT.anchoredPosition = new Vector2(rightEdge + UIConstants.Spacing_Small - 4f, UIConstants.NavBar_Height + UIConstants.Spacing_Large + SLOT_SIZE * 0.25f);
+        toggleRT.anchoredPosition = new Vector2(rightEdge - 4f, UIConstants.NavBar_Height + UIConstants.Spacing_Large + SLOT_SIZE * 0.25f);
         toggleRT.sizeDelta = new Vector2(AUTO_BTN_W, AUTO_BTN_H);
     }
 
@@ -219,12 +220,28 @@ public class SkillUI : MonoBehaviour
             rt.anchorMin = new Vector2(0.5f, 0f);
             rt.anchorMax = new Vector2(0.5f, 0f);
             rt.pivot = new Vector2(1f, 0f);
-            rt.anchoredPosition = new Vector2(leftEdge, baseY + i * (ROW_H + 2f));
+            rt.anchoredPosition = new Vector2(leftEdge + 8f, baseY + i * (ROW_H + 2f)); // 8px SafeArea 안쪽
             rt.sizeDelta = new Vector2(ROW_W, ROW_H);
+
+            // 좌단 아이콘
+            buffIcons[i] = UIHelper.MakeIcon($"BuffIcon_{i}", row.transform, null, Color.white);
+            buffIcons[i].preserveAspect = true;
+            buffIcons[i].raycastTarget = false;
+            var biRT = buffIcons[i].GetComponent<RectTransform>();
+            biRT.anchorMin = new Vector2(0f, 0.1f);
+            biRT.anchorMax = new Vector2(0f, 0.9f);
+            biRT.pivot = new Vector2(0f, 0.5f);
+            biRT.sizeDelta = new Vector2(14f, 0f);
+            biRT.anchoredPosition = new Vector2(2f, 0f);
 
             buffTexts[i] = UIHelper.MakeText($"BuffText_{i}", row.transform, "",
                 8f, TextAlignmentOptions.MidlineLeft, Color.white);
-            UIHelper.FillParent(buffTexts[i].GetComponent<RectTransform>());
+            buffTexts[i].raycastTarget = false;
+            var btRT = buffTexts[i].GetComponent<RectTransform>();
+            btRT.anchorMin = new Vector2(0f, 0f);
+            btRT.anchorMax = new Vector2(1f, 1f);
+            btRT.offsetMin = new Vector2(18f, 0f);
+            btRT.offsetMax = Vector2.zero;
             row.SetActive(false);
         }
     }
@@ -244,34 +261,34 @@ public class SkillUI : MonoBehaviour
         // 복수자 스택
         var sm = StageManager.Instance;
         if (sm != null && sm.RevengeStack > 0)
-            SetBuffRow(row++, $"🔥 복수자 x{sm.RevengeStack}", new Color(1f, 0.5f, 0.2f));
+            SetBuffRow(row++, $"복수자 x{sm.RevengeStack}", new Color(1f, 0.5f, 0.2f), UISprites.IconPotion1);
 
         // 골드 부스트
         var gm = GoldManager.Instance;
         if (gm != null && gm.IsBoostActive)
         {
             int remain = Mathf.CeilToInt(gm.GetBoostTimeRemaining() / 60f);
-            SetBuffRow(row++, $"💰 2x {remain}m", new Color(1f, 0.85f, 0.2f));
+            SetBuffRow(row++, $"2x {remain}m", new Color(1f, 0.85f, 0.2f), UISprites.IconGold);
         }
 
         // 시너지 ATK 보너스
         var ssm = SkillSynergyManager.Instance;
         if (ssm != null && ssm.GetAtkPercent() > 0)
-            SetBuffRow(row++, $"⚡ ATK+{ssm.GetAtkPercent():F0}%", new Color(0.5f, 1f, 1f));
+            SetBuffRow(row++, $"ATK+{ssm.GetAtkPercent():F0}%", new Color(0.5f, 1f, 1f), UISprites.IconSkill);
 
         // 에리어 디버프 (Desert, Cave, Volcano, Abyss)
         if (sm != null && sm.CurrentAreaEnum != StageManager.GameArea.Grass)
         {
             string areaDebuff = sm.CurrentAreaEnum switch
             {
-                StageManager.GameArea.Desert  => "🌪 모래폭풍",
-                StageManager.GameArea.Cave    => "🛡 중갑 적",
-                StageManager.GameArea.Volcano => "🔥 용암지대",
-                StageManager.GameArea.Abyss   => "💀 심연",
+                StageManager.GameArea.Desert  => "모래폭풍",
+                StageManager.GameArea.Cave    => "중갑 적",
+                StageManager.GameArea.Volcano => "용암지대",
+                StageManager.GameArea.Abyss   => "심연",
                 _ => ""
             };
             if (!string.IsNullOrEmpty(areaDebuff))
-                SetBuffRow(row++, areaDebuff, new Color(1f, 0.4f, 0.4f));
+                SetBuffRow(row++, areaDebuff, new Color(1f, 0.4f, 0.4f), UISprites.IconSword);
         }
 
         // 사용하지 않는 행 숨기기
@@ -282,13 +299,18 @@ public class SkillUI : MonoBehaviour
         }
     }
 
-    void SetBuffRow(int idx, string text, Color color)
+    void SetBuffRow(int idx, string text, Color color, Sprite icon = null)
     {
         if (idx >= BUFF_ROW_COUNT || buffTexts[idx] == null) return;
         var rowGO = buffTexts[idx].transform.parent.gameObject;
         rowGO.SetActive(true);
         buffTexts[idx].text = text;
         buffTexts[idx].color = color;
+        if (buffIcons[idx] != null)
+        {
+            buffIcons[idx].sprite = icon;
+            buffIcons[idx].color = icon != null ? color : Color.clear;
+        }
     }
 
 

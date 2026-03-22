@@ -156,7 +156,7 @@ public class SynergyUI : MonoBehaviour
 
         // 활성 표시 (★)
         string prefix = active ? "★ " : "○ ";
-        Color nameCol = active ? Color.white : new Color(0.55f, 0.52f, 0.48f);
+        Color nameCol = active ? Color.white : new Color(0.65f, 0.65f, 0.65f);
         var nameText = UIHelper.MakeText("Name", item.transform, prefix + syn.synergyName,
             8f, TextAlignmentOptions.MidlineLeft, nameCol);
         nameText.fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
