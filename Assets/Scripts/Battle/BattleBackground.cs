@@ -43,6 +43,7 @@ public class BattleBackground : MonoBehaviour
     private Camera cachedCamera;
     private bool caveDarknessActive;
     private Color originalMidTint;
+    private StageManager cachedStageMgr;
 
     void Awake()
     {
@@ -55,8 +56,9 @@ public class BattleBackground : MonoBehaviour
 
     void Start()
     {
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnAreaChanged += SetArea;
+        cachedStageMgr = StageManager.Instance;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnAreaChanged += SetArea;
     }
 
     public void SetArea(int area)
@@ -193,7 +195,7 @@ public class BattleBackground : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
-        if (StageManager.Instance != null)
-            StageManager.Instance.OnAreaChanged -= SetArea;
+        if (cachedStageMgr != null)
+            cachedStageMgr.OnAreaChanged -= SetArea;
     }
 }

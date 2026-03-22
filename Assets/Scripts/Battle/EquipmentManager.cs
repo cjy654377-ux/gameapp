@@ -135,6 +135,7 @@ public class EquipmentManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (Instance == this) Instance = null;
         if (cachedStageMgr != null)
         {
             cachedStageMgr.OnStageCleared -= OnStageCleared;
