@@ -98,6 +98,7 @@ public class GachaPanel : MonoBehaviour
         barRT.offsetMin = barRT.offsetMax = Vector2.zero;
 
         string[] labels = { "영웅 소환", "탈것", "스킬" };
+        Sprite[] gachaTabIcons = { UISprites.IconDiamond, UISprites.SpumIcon(136), UISprites.IconSkill };
         Button[] buttons = new Button[3];
 
         for (int i = 0; i < 3; i++)
@@ -110,8 +111,20 @@ public class GachaPanel : MonoBehaviour
             brt.anchorMin = new Vector2(xMin, 0.05f);
             brt.anchorMax = new Vector2(xMax, 0.95f);
             brt.offsetMin = brt.offsetMax = Vector2.zero;
-            UIHelper.MakeText("Label", btn.transform, labels[i],
+
+            var gachaIcon = UIHelper.MakeIcon("TabIcon", btn.transform, gachaTabIcons[i], Color.white);
+            var gicRT = gachaIcon.GetComponent<RectTransform>();
+            gicRT.anchorMin = new Vector2(0.03f, 0.1f);
+            gicRT.anchorMax = new Vector2(0.27f, 0.9f);
+            gicRT.offsetMin = gicRT.offsetMax = Vector2.zero;
+
+            var tabLabel = UIHelper.MakeText("Label", btn.transform, labels[i],
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+            var tlRT = tabLabel.GetComponent<RectTransform>();
+            tlRT.anchorMin = new Vector2(0.27f, 0f);
+            tlRT.anchorMax = new Vector2(1f, 1f);
+            tlRT.offsetMin = tlRT.offsetMax = Vector2.zero;
+
             buttons[i] = btn;
         }
 

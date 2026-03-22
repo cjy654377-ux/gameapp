@@ -56,6 +56,7 @@ public class EnhancePanel : MonoBehaviour
         stbRT.sizeDelta = new Vector2(0, subTabH);
 
         string[] subNames = { "편성", "레벨업", "장비", "각성" };
+        Sprite[] subTabIcons = { UISprites.IconSword, UISprites.FlatIcon(1), UISprites.IconEquip, UISprites.IconPotion1 };
         subTabBtns   = new Button[4];
         subTabLabels = new TextMeshProUGUI[4];
 
@@ -72,10 +73,19 @@ public class EnhancePanel : MonoBehaviour
             brt.offsetMin = new Vector2(3, 3);
             brt.offsetMax = new Vector2(-3, -3);
 
+            var tabIcon = UIHelper.MakeIcon("TabIcon", btn.transform, subTabIcons[s], Color.white);
+            var tabIconRT = tabIcon.GetComponent<RectTransform>();
+            tabIconRT.anchorMin = new Vector2(0.03f, 0.1f);
+            tabIconRT.anchorMax = new Vector2(0.27f, 0.9f);
+            tabIconRT.offsetMin = tabIconRT.offsetMax = Vector2.zero;
+
             var label = UIHelper.MakeText("Label", btn.transform, subNames[s],
                 UIConstants.Font_Tab, TextAlignmentOptions.Center, UIColors.Text_Secondary);
             label.fontStyle = FontStyles.Bold;
-            UIHelper.FillParent(label.GetComponent<RectTransform>());
+            var labelRT = label.GetComponent<RectTransform>();
+            labelRT.anchorMin = new Vector2(0.27f, 0f);
+            labelRT.anchorMax = new Vector2(1f, 1f);
+            labelRT.offsetMin = labelRT.offsetMax = Vector2.zero;
 
             subTabBtns[s]   = btn;
             subTabLabels[s] = label;

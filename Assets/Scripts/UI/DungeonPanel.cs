@@ -22,6 +22,7 @@ public class DungeonPanel : MonoBehaviour
     DungeonManager cachedDungeonMgr;
 
     static readonly string[] TypeNames  = { "영웅 던전", "탈것 던전", "스킬 던전" };
+    static Sprite[] DungeonTypeIcons => new[] { UISprites.IconSword, UISprites.SpumIcon(136), UISprites.IconSkill };
     static readonly string[] TypeRewards = { "보상: 보석", "보상: 소환석", "보상: 주문서" };
     static readonly Color[] TypeColors =
     {
@@ -70,11 +71,20 @@ public class DungeonPanel : MonoBehaviour
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
 
+            var dungIcon = UIHelper.MakeIcon("TypeIcon", btn.transform, DungeonTypeIcons[i], Color.white);
+            var dungIconRT = dungIcon.GetComponent<RectTransform>();
+            dungIconRT.anchorMin = new Vector2(0.03f, 0.1f);
+            dungIconRT.anchorMax = new Vector2(0.30f, 0.9f);
+            dungIconRT.offsetMin = dungIconRT.offsetMax = Vector2.zero;
+
             var label = UIHelper.MakeText("Label", btn.transform, TypeNames[i],
                 11f, TextAlignmentOptions.Center, Color.white);
             label.fontStyle = FontStyles.Bold;
             UIHelper.AddTextShadow(label);
-            UIHelper.FillParent(label.GetComponent<RectTransform>());
+            var dungLabelRT = label.GetComponent<RectTransform>();
+            dungLabelRT.anchorMin = new Vector2(0.30f, 0f);
+            dungLabelRT.anchorMax = new Vector2(1f, 1f);
+            dungLabelRT.offsetMin = dungLabelRT.offsetMax = Vector2.zero;
         }
     }
 

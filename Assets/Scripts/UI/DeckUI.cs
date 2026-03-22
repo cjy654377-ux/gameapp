@@ -575,6 +575,17 @@ public class DeckUI : MonoBehaviour
             starRT.sizeDelta = Vector2.zero;
             starRT.anchoredPosition = Vector2.zero;
 
+            // 장비 상태 아이콘 (60-68%)
+            bool hasEquip = EquipmentManager.Instance != null &&
+                EquipmentManager.Instance.GetEquippedItems(preset.characterName).Count > 0;
+            var equipIcon = UIHelper.MakeIcon("EquipIcon", item.transform,
+                UISprites.IconEquip, hasEquip ? UIColors.Button_Green : new Color(0.5f, 0.5f, 0.5f, 0.5f));
+            var equipIconRT = equipIcon.GetComponent<RectTransform>();
+            equipIconRT.anchorMin = new Vector2(0.61f, 0.18f);
+            equipIconRT.anchorMax = new Vector2(0.69f, 0.82f);
+            equipIconRT.offsetMin = equipIconRT.offsetMax = Vector2.zero;
+            equipIcon.raycastTarget = false;
+
             // 상태 버튼 — 스프라이트 사용
             string statusStr = inDeck ? "해제" : "편성";
             Sprite statusSprite = inDeck ? UISprites.Btn1_WS : UISprites.Btn2_WS;

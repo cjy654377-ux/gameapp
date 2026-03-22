@@ -172,6 +172,16 @@ public class ShopPanel : MonoBehaviour
             irt.pivot = new Vector2(0.5f, 1);
             irt.anchoredPosition = new Vector2(0, y); irt.sizeDelta = new Vector2(0, itemH);
 
+            // 재화 아이콘 (좌단)
+            Sprite currencyIcon = shopItem.gemCost > 0 ? UISprites.IconDiamond :
+                                  shopItem.goldCost > 0 ? UISprites.IconGold : UISprites.FlatIcon(1);
+            var shopIcon = UIHelper.MakeIcon("CurrencyIcon", item.transform, currencyIcon, Color.white);
+            var siRT = shopIcon.GetComponent<RectTransform>();
+            siRT.anchorMin = new Vector2(0.01f, 0.15f);
+            siRT.anchorMax = new Vector2(0.09f, 0.85f);
+            siRT.offsetMin = siRT.offsetMax = Vector2.zero;
+            shopIcon.raycastTarget = false;
+
             var nameText = UIHelper.MakeText("Name", item.transform, shopItem.displayName,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
             nameText.fontStyle = FontStyles.Bold;
@@ -180,8 +190,8 @@ public class ShopPanel : MonoBehaviour
             nameText.fontSizeMin = 7f;
             nameText.fontSizeMax = UIConstants.Font_StatLabel;
             var nrt = nameText.GetComponent<RectTransform>();
-            nrt.anchorMin = new Vector2(0, 0.5f); nrt.anchorMax = new Vector2(0.55f, 1);
-            nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0); nrt.offsetMax = Vector2.zero;
+            nrt.anchorMin = new Vector2(0.10f, 0.5f); nrt.anchorMax = new Vector2(0.55f, 1);
+            nrt.offsetMin = new Vector2(UIConstants.Spacing_Small, 0); nrt.offsetMax = Vector2.zero;
 
             var descText = UIHelper.MakeText("Desc", item.transform, shopItem.description,
                 8f, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkSecondary);
