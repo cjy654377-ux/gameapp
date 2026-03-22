@@ -457,8 +457,6 @@ public class BattleUnit : MonoBehaviour
         if (isCrit)
         {
             DamagePopup.CreateCritical(transform.position + Vector3.up * 0.6f, damage);
-            if (Camera.main != null)
-                Camera.main.GetComponent<QuarterViewCamera>()?.Shake(0.12f, 0.08f);
         }
         else
         {

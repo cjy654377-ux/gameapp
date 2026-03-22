@@ -540,9 +540,6 @@ public class StageManager : MonoBehaviour
         var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
         if (camShake != null)
         {
-            float shakeMag = isAreaBoss ? AREA_BOSS_SHAKE_MAG : MID_BOSS_SHAKE_MAG;
-            float shakeDur = isAreaBoss ? AREA_BOSS_SHAKE_DUR : MID_BOSS_SHAKE_DUR;
-            camShake.Shake(shakeMag, shakeDur);
         }
     }
 
@@ -799,7 +796,6 @@ public class StageManager : MonoBehaviour
                 // 카메라 셰이크
                 var cam = GetMainCamera();
                 var camShake = cam != null ? cam.GetComponent<QuarterViewCamera>() : null;
-                if (camShake != null) camShake.Shake(AREA_BOSS_SHAKE_MAG * 0.4f, AREA_BOSS_SHAKE_DUR * 0.5f);
             }
             yield return new WaitForSeconds(BOSS_AOE_INTERVAL);
         }
