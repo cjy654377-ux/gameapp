@@ -192,8 +192,7 @@ public class MountPanel : MonoBehaviour
                 $"소환석 {MountManager.PULL_COST}개 필요", UIColors.Defeat_Red);
             return;
         }
-        showConfirm?.Invoke("탈것 소환",
-            $"소환석 {MountManager.PULL_COST}개를 사용합니다.\n진행하시겠습니까?", DoPull);
+        DoPull();
     }
 
     void DoPull()
@@ -299,12 +298,8 @@ public class MountItemRow : MonoBehaviour
             }
             else
             {
-                showConfirm?.Invoke("탈것 장착",
-                    $"{capturedName}을(를) 장착하시겠습니까?",
-                    () => {
-                        MountManager.Instance?.EquipMount(capturedName);
-                        owner?.Refresh();
-                    });
+                MountManager.Instance?.EquipMount(capturedName);
+                owner?.Refresh();
             }
         });
     }

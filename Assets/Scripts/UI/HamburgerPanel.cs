@@ -208,11 +208,24 @@ public class HamburgerPanel : MonoBehaviour
 
     void BuildAchievementList(Transform parent)
     {
+        // 일괄 수령 버튼
+        var (claimAllBtn, _) = UIHelper.MakeSpriteButton("ClaimAllBtn", parent,
+            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_SmallInfo);
+        claimAllBtn.onClick.AddListener(OnClaimAllAchievements);
+        var cbrt = claimAllBtn.GetComponent<RectTransform>();
+        cbrt.anchorMin = new Vector2(0.05f, 0.92f);
+        cbrt.anchorMax = new Vector2(0.95f, 0.99f);
+        cbrt.offsetMin = cbrt.offsetMax = Vector2.zero;
+        var cbLabel = UIHelper.MakeText("Label", claimAllBtn.transform, "전부 수령",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        cbLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(cbLabel.GetComponent<RectTransform>());
+
         var scrollObj = UIHelper.MakeUI("AchieveScroll", parent);
         var scrollRT = scrollObj.GetComponent<RectTransform>();
         scrollRT.anchorMin = Vector2.zero; scrollRT.anchorMax = Vector2.one;
         scrollRT.offsetMin = new Vector2(UIConstants.Spacing_Small, UIConstants.Spacing_Small);
-        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, 0);
+        scrollRT.offsetMax = new Vector2(-UIConstants.Spacing_Small, -0.08f);
 
         var scrollRect = scrollObj.AddComponent<ScrollRect>();
         scrollRect.horizontal = false; scrollRect.vertical = true;
@@ -309,6 +322,29 @@ public class HamburgerPanel : MonoBehaviour
 
         TrimExcess(achieveListItems, active);
         achieveListContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Abs(y));
+    }
+
+    void OnClaimAllAchievements()
+    {
+        var am = AchievementManager.Instance;
+        if (am == null) return;
+        var achievements = am.GetAchievements();
+        int claimedCount = 0;
+        for (int i = 0; i < achievements.Count; i++)
+        {
+            var ach = achievements[i];
+            if (ach.completed && !ach.claimed)
+            {
+                am.ClaimReward(ach.id);
+                claimedCount++;
+            }
+        }
+        if (claimedCount > 0)
+        {
+            ToastNotification.Instance?.Show("전부 수령!", $"보상 {claimedCount}개 수령", UIColors.Text_Gold);
+            SoundManager.Instance?.PlayGoldSFX();
+            RefreshAchievementUI();
+        }
     }
 
     // ════════════════════════════════════════
@@ -555,12 +591,28 @@ public class HamburgerPanel : MonoBehaviour
         float pad = UIConstants.Spacing_Medium;
 
         // ── 일일 퀘스트 헤더 ──
-        var header = UIHelper.MakeText("QuestHeader", parent, "일일 퀘스트",
+        var headerContainer = UIHelper.MakeUI("QuestHeaderRow", parent);
+        var hcrt = headerContainer.GetComponent<RectTransform>();
+        hcrt.anchorMin = new Vector2(0, 0.80f); hcrt.anchorMax = new Vector2(1, 0.90f);
+        hcrt.offsetMin = hcrt.offsetMax = Vector2.zero;
+
+        var header = UIHelper.MakeText("QuestHeader", headerContainer.transform, "일일 퀘스트",
             UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Gold);
         header.fontStyle = FontStyles.Bold;
         var hrt = header.GetComponent<RectTransform>();
-        hrt.anchorMin = new Vector2(0, 0.80f); hrt.anchorMax = new Vector2(1, 0.90f);
+        hrt.anchorMin = Vector2.zero; hrt.anchorMax = new Vector2(0.5f, 1);
         hrt.offsetMin = new Vector2(pad, 0); hrt.offsetMax = Vector2.zero;
+
+        var (claimQuestBtn, _) = UIHelper.MakeSpriteButton("ClaimQuestBtn", headerContainer.transform,
+            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_SmallInfo);
+        claimQuestBtn.onClick.AddListener(OnClaimAllQuests);
+        var cqrt = claimQuestBtn.GetComponent<RectTransform>();
+        cqrt.anchorMin = new Vector2(0.5f, 0.1f); cqrt.anchorMax = new Vector2(1, 0.9f);
+        cqrt.offsetMin = new Vector2(2, 0); cqrt.offsetMax = new Vector2(-pad, 0);
+        var cqLabel = UIHelper.MakeText("Label", claimQuestBtn.transform, "전부 수령",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        cqLabel.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(cqLabel.GetComponent<RectTransform>());
 
         // ── 퀘스트 리스트 컨테이너 ──
         questListContainer = UIHelper.MakeUI("QuestList", parent);
@@ -719,6 +771,29 @@ public class HamburgerPanel : MonoBehaviour
         if (!won)
             ToastNotification.Instance?.Show("패배...", "다음 주에 다시 도전하세요", UIColors.Defeat_Red);
         RefreshQuestUI();
+    }
+
+    void OnClaimAllQuests()
+    {
+        var qm = DailyQuestManager.Instance;
+        if (qm == null) return;
+        var quests = qm.GetQuests();
+        int claimedCount = 0;
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var q = quests[i];
+            if (q.currentCount >= q.targetCount && !q.claimed)
+            {
+                qm.ClaimReward(q.id);
+                claimedCount++;
+            }
+        }
+        if (claimedCount > 0)
+        {
+            ToastNotification.Instance?.Show("전부 수령!", $"보상 {claimedCount}개 수령", UIColors.Text_Gold);
+            SoundManager.Instance?.PlayGoldSFX();
+            RefreshQuestUI();
+        }
     }
 
     // ════════════════════════════════════════

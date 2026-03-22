@@ -438,11 +438,8 @@ public class GachaPanel : MonoBehaviour
             MainHUD.Instance?.SwitchToTab(3);
             return;
         }
-        showConfirm?.Invoke("소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", () =>
-        {
-            DoSinglePull();
-            RefreshPityText();
-        });
+        DoSinglePull();
+        RefreshPityText();
     }
 
     void DoSinglePull()
@@ -496,11 +493,8 @@ public class GachaPanel : MonoBehaviour
             MainHUD.Instance?.SwitchToTab(3);
             return;
         }
-        showConfirm?.Invoke("10연 소환 확인", $"보석 {cost}개를 사용합니다.\n진행하시겠습니까?", () =>
-        {
-            DoMultiPull();
-            RefreshPityText();
-        });
+        DoMultiPull();
+        RefreshPityText();
     }
 
     void DoMultiPull()
@@ -599,16 +593,13 @@ public class GachaPanel : MonoBehaviour
             MainHUD.Instance?.SwitchToTab(3);
             return;
         }
-        showConfirm?.Invoke("100연 소환 확인", $"보석 {cost}개를 사용합니다.\n(4500→4000 할인 적용)\n진행하시겠습니까?", () =>
-        {
-            var results = GachaManager.Instance?.HundredPull();
-            if (results != null)
-                StartCoroutine(ShowHundredResults(results));
-            else if (resultText != null)
-                resultText.text = "<color=#CC3333>보석이 부족합니다</color>";
-            Refresh();
-            RefreshPityText();
-        });
+        var results = GachaManager.Instance?.HundredPull();
+        if (results != null)
+            StartCoroutine(ShowHundredResults(results));
+        else if (resultText != null)
+            resultText.text = "<color=#CC3333>보석이 부족합니다</color>";
+        Refresh();
+        RefreshPityText();
     }
 
     IEnumerator ShowHundredResults(CharacterPreset[] results)
@@ -751,7 +742,7 @@ public class GachaPanel : MonoBehaviour
             ToastNotification.Instance?.Show("주문서 부족!", $"주문서 {SKILL_PULL_COST}개 필요", UIColors.Defeat_Red);
             return;
         }
-        showConfirm?.Invoke("스킬 소환", $"주문서 {SKILL_PULL_COST}개를 사용합니다.\n진행하시겠습니까?", DoSkillPull);
+        DoSkillPull();
     }
 
     void DoSkillPull()
