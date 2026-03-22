@@ -94,11 +94,18 @@ public class BattleManager : MonoBehaviour
     {
         for (int i = 0; i < allyUnits.Count; i++)
         {
-            if (allyUnits[i] != null)
-                allyUnits[i].Heal(allyUnits[i].maxHp);
+            var unit = allyUnits[i];
+            if (unit == null) continue;
+            // Heal() is a no-op on dead units. Use Revive() to restore HP and re-enable the GameObject.
+            if (unit.IsDead || !unit.gameObject.activeSelf)
+                unit.Revive();
+            else
+                unit.Heal(unit.maxHp);
         }
         _reviveUsed = true;
-        // CurrentState는 이미 Fighting이므로 전투가 자동으로 재개됨
+        // Ensure state is Fighting so Update() loop resumes
+        if (CurrentState == BattleState.Defeat)
+            SetState(BattleState.Fighting);
     }
 
     void OnDestroy()

@@ -170,7 +170,8 @@ public class StatusEffectController : MonoBehaviour
         if (unit == null || unit.IsDead || activeEffects.Count == 0) return;
 
         bool changed = false;
-        float dt = Time.deltaTime;
+        // Use unscaledDeltaTime to match BattleUnit timers (stun/buff) and support timeScale changes
+        float dt = Time.unscaledDeltaTime;
 
         for (int i = activeEffects.Count - 1; i >= 0; i--)
         {

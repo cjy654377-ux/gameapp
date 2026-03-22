@@ -282,6 +282,9 @@ public class HeroLevelManager : MonoBehaviour
         PlayerPrefs.SetInt(SaveKeys.HeroLevelPrefix + name, heroLevels[name]);
         PlayerPrefs.SetInt(SaveKeys.HeroCopiesPrefix + name, heroCopies[name]);
         PlayerPrefs.SetInt(SaveKeys.HeroAwakeningPrefix + name, heroAwakening[name]);
+        // Also persist star rank so SaveAll() / OnApplicationPause covers all hero data.
+        if (heroStars.TryGetValue(name, out int star))
+            PlayerPrefs.SetInt(SaveKeys.HeroStarPrefix + name, star);
     }
 
     public void LoadHero(string name)
@@ -289,6 +292,8 @@ public class HeroLevelManager : MonoBehaviour
         heroLevels[name] = PlayerPrefs.GetInt(SaveKeys.HeroLevelPrefix + name, 1);
         heroCopies[name] = PlayerPrefs.GetInt(SaveKeys.HeroCopiesPrefix + name, 0);
         heroAwakening[name] = PlayerPrefs.GetInt(SaveKeys.HeroAwakeningPrefix + name, 0);
+        // Load star rank alongside other stats so GetStarRank() reads a consistent snapshot.
+        heroStars[name] = PlayerPrefs.GetInt(SaveKeys.HeroStarPrefix + name, 1);
     }
 
     void OnApplicationPause(bool pause)

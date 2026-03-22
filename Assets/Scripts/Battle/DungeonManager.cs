@@ -122,11 +122,14 @@ public class DungeonManager : MonoBehaviour
 
     void AddUsed(DungeonType type, int delta)
     {
+        // NOTE: delta may be negative (BuyExtraEntry / AddBonusEntry use -1 to grant extra entries).
+        // Do NOT clamp to 0 here — _used can go negative to represent bonus entries above the default.
+        // GetRemainingEntries already applies Mathf.Max(0, ...) for the public-facing count.
         switch (type)
         {
-            case DungeonType.Hero:  _heroUsed  = Mathf.Max(0, _heroUsed  + delta); break;
-            case DungeonType.Mount: _mountUsed = Mathf.Max(0, _mountUsed + delta); break;
-            case DungeonType.Skill: _skillUsed = Mathf.Max(0, _skillUsed + delta); break;
+            case DungeonType.Hero:  _heroUsed  += delta; break;
+            case DungeonType.Mount: _mountUsed += delta; break;
+            case DungeonType.Skill: _skillUsed += delta; break;
         }
     }
 

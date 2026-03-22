@@ -61,7 +61,8 @@ public class SkillManager : MonoBehaviour
             if (cooldownTimers[i] > 0f)
             {
                 float prev = cooldownTimers[i];
-                cooldownTimers[i] -= Time.deltaTime;
+                // Use unscaledDeltaTime to match BattleUnit.UpdateSkills() and support timeScale changes (배속/슬로모션)
+                cooldownTimers[i] -= Time.unscaledDeltaTime;
                 // 0.1초 이상 변화 또는 쿨다운 완료 시에만 이벤트 (GC 절감)
                 if (prev - cooldownTimers[i] >= 0.1f || cooldownTimers[i] <= 0f)
                     OnCooldownChanged?.Invoke(i, cooldownTimers[i], equippedSkills[i].cooldown);

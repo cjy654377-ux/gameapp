@@ -851,7 +851,9 @@ public class StageManager : MonoBehaviour
             {
                 var ally = manager.allyUnits[i];
                 if (ally == null || ally.IsDead) continue;
-                float atkReduction = -ally.atk * 0.1f;
+                // Use baseAtk (not current atk) so the reduction is always 10% of the unit's base stat,
+                // preventing compounding debuffs when multiple storms hit a already-debuffed unit.
+                float atkReduction = -ally.baseAtk * 0.1f;
                 ally.ApplyBuff(atkReduction, 0, 5f);
             }
 
@@ -932,6 +934,8 @@ public class StageManager : MonoBehaviour
 
     void OnDestroy()
     {
+        // Ensure timeScale is restored if BossSlowMotion coroutine was mid-execution when destroyed.
+        Time.timeScale = 1f;
         if (Instance == this) Instance = null;
     }
 }
