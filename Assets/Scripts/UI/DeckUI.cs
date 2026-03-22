@@ -502,6 +502,7 @@ public class DeckUI : MonoBehaviour
 
         var dm = DeckManager.Instance;
         if (dm == null) return;
+        var em = EquipmentManager.Instance;
 
         float y = 0;
 
@@ -590,8 +591,7 @@ public class DeckUI : MonoBehaviour
             starRT.anchoredPosition = Vector2.zero;
 
             // 장비 상태 아이콘 (60-68%)
-            bool hasEquip = EquipmentManager.Instance != null &&
-                EquipmentManager.Instance.GetEquippedItems(preset.characterName).Count > 0;
+            bool hasEquip = em != null && em.GetEquippedItems(preset.characterName).Count > 0;
             var equipIcon = UIHelper.MakeIcon("EquipIcon", item.transform,
                 UISprites.IconEquip, hasEquip ? UIColors.Button_Green : new Color(0.5f, 0.5f, 0.5f, 0.5f));
             var equipIconRT = equipIcon.GetComponent<RectTransform>();
@@ -752,5 +752,6 @@ public class DeckUI : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
+        portraitCache.Clear();
     }
 }

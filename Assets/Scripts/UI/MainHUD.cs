@@ -60,6 +60,8 @@ public class MainHUD : MonoBehaviour
     const int TAB_COUNT = 5;
     readonly Button[] tabButtons = new Button[TAB_COUNT];
     readonly Image[] tabIndicators = new Image[TAB_COUNT];
+    readonly Image[] tabImages = new Image[TAB_COUNT];
+    readonly Image[] tabIconImages = new Image[TAB_COUNT];
     readonly TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[TAB_COUNT];
     readonly TextMeshProUGUI[] tabIconTexts = new TextMeshProUGUI[TAB_COUNT];
 
@@ -86,10 +88,6 @@ public class MainHUD : MonoBehaviour
     TextMeshProUGUI bossHpText;
     BattleUnit trackedBoss;
 
-    // 아군 HP 위기 경고 비네트
-    Image vignetteImage;
-    const float VIGNETTE_HP_THRESHOLD = 0.20f;
-    float vignettePhase;
 
     void Awake()
     {
@@ -229,7 +227,6 @@ public class MainHUD : MonoBehaviour
             UpdateBadges();
         }
 
-        // 아군 HP 위기 비네트 — 제거됨 (연출 수준 낮음)
     }
 
     // ════════════════════════════════════════
@@ -252,7 +249,6 @@ public class MainHUD : MonoBehaviour
         CreateOfflinePopup();
         CreateConfirmPopup();
         CreateBossHpBar();
-        // CreateVignette(); — 빨간 점멸 제거
         CreateLoadingScreen();
 
         // 영웅 상세 팝업 + 스킬 정보 팝업 싱글톤 생성
@@ -651,6 +647,7 @@ public class MainHUD : MonoBehaviour
             tabButtons[i] = tabObj.AddComponent<Button>();
             tabButtons[i].targetGraphic = tabImg;
             tabButtons[i].onClick.AddListener(() => OnTabClicked(idx));
+            tabImages[i] = tabImg;
 
             var trt = tabObj.GetComponent<RectTransform>();
             trt.anchorMin = new Vector2(xMin, 0);
@@ -688,6 +685,7 @@ public class MainHUD : MonoBehaviour
             if (tabSpriteIcons[i] != null)
             {
                 var iconImg = UIHelper.MakeIcon("Icon", tabObj.transform, tabSpriteIcons[i], new Color(0.6f, 0.58f, 0.54f, 0.6f));
+                tabIconImages[i] = iconImg;
                 var icrt = iconImg.GetComponent<RectTransform>();
                 icrt.anchorMin = new Vector2(0.15f, 0.35f);
                 icrt.anchorMax = new Vector2(0.85f, 0.90f);
@@ -1093,17 +1091,12 @@ public class MainHUD : MonoBehaviour
         for (int i = 0; i < TAB_COUNT; i++)
         {
             bool active = (i == activeTab);
-            var tabImg = tabButtons[i].GetComponent<Image>();
-
-            if (UISprites.Btn1_WS != null)
+            if (tabImages[i] != null)
             {
-                // 선택: 따뜻한 골드 tint, 미선택: 일반 흰색
-                tabImg.color = active ? new Color(1.00f, 0.92f, 0.68f) : Color.white;
-                tabButtons[i].transform.localScale = Vector3.one; // 크기 변화 없음
-            }
-            else
-            {
-                tabImg.color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
+                if (UISprites.Btn1_WS != null)
+                    tabImages[i].color = active ? new Color(1.00f, 0.92f, 0.68f) : Color.white;
+                else
+                    tabImages[i].color = active ? UIColors.Tab_Active : UIColors.Tab_Inactive;
             }
 
             // 라벨: 선택=밝은 골드, 미선택=크림색
@@ -1115,13 +1108,8 @@ public class MainHUD : MonoBehaviour
                 tabIconTexts[i].color = active ? UIColors.Text_Gold : UIColors.Text_Secondary;
 
             // 스프라이트 아이콘: 선택=밝게, 미선택=어둡게(0.6 alpha)
-            var iconImgObj = tabButtons[i].transform.Find("Icon");
-            if (iconImgObj != null)
-            {
-                var iconImg = iconImgObj.GetComponent<Image>();
-                if (iconImg != null && iconImg.sprite != null)
-                    iconImg.color = active ? Color.white : new Color(0.6f, 0.58f, 0.54f, 0.6f);
-            }
+            if (tabIconImages[i] != null && tabIconImages[i].sprite != null)
+                tabIconImages[i].color = active ? Color.white : new Color(0.6f, 0.58f, 0.54f, 0.6f);
 
             tabIndicators[i].gameObject.SetActive(active);
         }
@@ -1341,42 +1329,6 @@ public class MainHUD : MonoBehaviour
     float badgeTimer;
     const float BADGE_INTERVAL = 2f;
 
-    // ── List pooling helpers ──
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
-        string name, Transform parent, Color color)
-    {
-        while (reuseIdx < items.Count)
-        {
-            var candidate = items[reuseIdx++];
-            if (candidate == null) continue;
-            // Clear children for fresh rebuild
-            for (int c = candidate.transform.childCount - 1; c >= 0; c--)
-                Object.Destroy(candidate.transform.GetChild(c).gameObject);
-            candidate.SetActive(true);
-            candidate.name = name;
-            candidate.GetComponent<Image>().color = color;
-            return candidate;
-        }
-        var img = UIHelper.MakePanel(name, parent, color);
-        items.Add(img.gameObject);
-        return img.gameObject;
-    }
-
-    static void TrimExcess(List<GameObject> items, int activeCount)
-    {
-        for (int i = items.Count - 1; i >= activeCount; i--)
-        {
-            if (items[i] != null) Object.Destroy(items[i]);
-            items.RemoveAt(i);
-        }
-    }
-
     void UpdateBadges()
     {
         var nbs = NotificationBadgeSystem.Instance;
@@ -1467,57 +1419,6 @@ public class MainHUD : MonoBehaviour
         UIHelper.FillParent(bossHpText.GetComponent<RectTransform>());
 
         bossHpBarRoot.SetActive(false);
-    }
-
-    void CreateVignette()
-    {
-        // 전체 화면 덮는 빨간 비네트 (가장자리만 보이도록 중앙 투명)
-        // ScreenFader와 별도 캔버스가 아닌 기존 canvas 안에 생성
-        var vigObj = UIHelper.MakeUI("CrisisVignette", canvas.transform);
-        vignetteImage = vigObj.AddComponent<Image>();
-        vignetteImage.color = new Color(1f, 0f, 0f, 0f);
-        vignetteImage.raycastTarget = false;
-        var rt = vigObj.GetComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-    }
-
-    void UpdateVignette()
-    {
-        if (vignetteImage == null) return;
-
-        var bm = BattleManager.Instance;
-        if (bm == null) { vignetteImage.color = new Color(1f, 0f, 0f, 0f); return; }
-
-        // 아군 중 HP 20% 이하 유닛 체크
-        bool inCrisis = false;
-        var allies = bm.allyUnits;
-        for (int i = 0; i < allies.Count; i++)
-        {
-            var u = allies[i];
-            if (u == null || u.IsDead) continue;
-            if (u.maxHp > 0 && u.CurrentHp / u.maxHp <= VIGNETTE_HP_THRESHOLD)
-            {
-                inCrisis = true;
-                break;
-            }
-        }
-
-        if (inCrisis)
-        {
-            vignettePhase += Time.unscaledDeltaTime * 3f;
-            float alpha = (Mathf.Sin(vignettePhase) * 0.5f + 0.5f) * 0.28f;
-            vignetteImage.color = new Color(1f, 0f, 0f, alpha);
-        }
-        else
-        {
-            vignettePhase = 0f;
-            var c = vignetteImage.color;
-            if (c.a > 0f)
-                vignetteImage.color = new Color(1f, 0f, 0f, Mathf.Max(0f, c.a - Time.unscaledDeltaTime * 2f));
-        }
     }
 
     void OnDestroy()

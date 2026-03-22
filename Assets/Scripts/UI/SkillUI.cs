@@ -44,6 +44,7 @@ public class SkillUI : MonoBehaviour
     readonly Color[] cooldownColors = new Color[SLOT_COUNT];
     TextMeshProUGUI noSkillText;
     Button autoToggleButton;
+    Image autoToggleImage;
     TextMeshProUGUI autoToggleText;
     GameObject slotsContainer;
 
@@ -207,6 +208,7 @@ public class SkillUI : MonoBehaviour
         var (btn, img) = UIHelper.MakeSpriteButton("AutoToggle", slotsContainer.transform,
             UISprites.Btn1_WS, UIColors.Button_Green, "A", UIConstants.Font_LevelBadge);
         autoToggleButton = btn;
+        autoToggleImage = img;
         autoToggleButton.onClick.AddListener(OnAutoToggleClicked);
         autoToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
         autoToggleText.fontStyle = FontStyles.Bold;
@@ -479,7 +481,8 @@ public class SkillUI : MonoBehaviour
 
         bool isAuto = SkillManager.Instance.autoUse;
         autoToggleText.text = "A";
-        autoToggleButton.GetComponent<Image>().color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
+        if (autoToggleImage != null)
+            autoToggleImage.color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;
     }
 
 

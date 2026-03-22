@@ -183,7 +183,6 @@ public class SkillInfoPopup : MonoBehaviour
                 if (!string.IsNullOrEmpty(syn.requiredTag) && skill.tags != null
                     && System.Array.IndexOf(skill.tags, syn.requiredTag) >= 0)
                     { inSynergy = true; break; }
-                if (inSynergy) break;
             }
             synergyText.text = inSynergy ? "★ 시너지 활성 중" : "";
         }
