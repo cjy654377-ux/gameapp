@@ -922,6 +922,49 @@ public class MainHUD : MonoBehaviour
     /// <summary>외부에서 탭 전환 (재화 부족 안내 바로가기 등)</summary>
     public void SwitchToTab(int idx) => OnTabClicked(idx);
 
+    Coroutine highlightCoroutine;
+    int highlightTabIndex = -1;
+
+    /// <summary>튜토리얼용 탭 버튼 깜빡 하이라이트</summary>
+    public void HighlightTab(int tabIndex)
+    {
+        StopHighlight();
+        if (tabIndex < 0 || tabIndex >= TAB_COUNT || tabButtons[tabIndex] == null) return;
+        highlightTabIndex = tabIndex;
+        highlightCoroutine = StartCoroutine(TabBlinkRoutine(tabIndex));
+    }
+
+    public void StopHighlight()
+    {
+        if (highlightCoroutine != null)
+        {
+            StopCoroutine(highlightCoroutine);
+            highlightCoroutine = null;
+        }
+        if (highlightTabIndex >= 0 && highlightTabIndex < TAB_COUNT && tabButtons[highlightTabIndex] != null)
+        {
+            var img = tabButtons[highlightTabIndex].GetComponent<UnityEngine.UI.Image>();
+            if (img != null) img.color = highlightTabIndex == activeTab
+                ? new Color(1.00f, 0.92f, 0.68f) : Color.white;
+        }
+        highlightTabIndex = -1;
+    }
+
+    System.Collections.IEnumerator TabBlinkRoutine(int tabIndex)
+    {
+        var img = tabButtons[tabIndex].GetComponent<UnityEngine.UI.Image>();
+        if (img == null) yield break;
+        Color normalColor = tabIndex == activeTab ? new Color(1.00f, 0.92f, 0.68f) : Color.white;
+        Color highlightColor = new Color(1f, 0.85f, 0.2f);
+        while (true)
+        {
+            img.color = highlightColor;
+            yield return new WaitForSecondsRealtime(0.5f);
+            img.color = normalColor;
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+    }
+
     void OnTabClicked(int idx)
     {
         SoundManager.Instance?.PlayUISound(UISoundType.tab_switch);
