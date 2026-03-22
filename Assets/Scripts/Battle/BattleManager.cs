@@ -16,8 +16,6 @@ public class BattleManager : MonoBehaviour
     public event System.Action OnReviveRequested; // 광고 부활 팝업 트리거용
     public event System.Action OnEnemyKilled;
 
-    private bool _reviveUsed; // 이번 전투에서 부활 광고 사용 여부
-
     // === Dungeon Mode ===
     public bool IsDungeonMode { get; private set; }
     int dungeonType;
@@ -32,7 +30,6 @@ public class BattleManager : MonoBehaviour
     public void StartBattle()
     {
         CurrentState = BattleState.Fighting;
-        _reviveUsed = false;
         OnBattleStateChanged?.Invoke(CurrentState);
     }
 
@@ -102,7 +99,6 @@ public class BattleManager : MonoBehaviour
             else
                 unit.Heal(unit.maxHp);
         }
-        _reviveUsed = true;
         // Ensure state is Fighting so Update() loop resumes
         if (CurrentState == BattleState.Defeat)
             SetState(BattleState.Fighting);

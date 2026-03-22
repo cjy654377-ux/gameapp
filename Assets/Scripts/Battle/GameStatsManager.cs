@@ -41,8 +41,27 @@ public class GameStatsManager : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
+
+        if (_cachedStageMgr != null && _stageChangedHandler != null)
+            _cachedStageMgr.OnStageChanged -= _stageChangedHandler;
+
+        if (_cachedGachaMgr != null)
+        {
+            if (_heroPulledHandler  != null) _cachedGachaMgr.OnHeroPulled   -= _heroPulledHandler;
+            if (_freePulledHandler  != null) _cachedGachaMgr.OnFreePulled   -= _freePulledHandler;
+            if (_multiPulledHandler != null) _cachedGachaMgr.OnMultiPulled  -= _multiPulledHandler;
+        }
+
         SaveStats();
     }
+
+    // 이벤트 핸들러 캐시 (OnDestroy 해제용)
+    System.Action<int, int, int> _stageChangedHandler;
+    System.Action<CharacterPreset> _heroPulledHandler;
+    System.Action<CharacterPreset> _freePulledHandler;
+    System.Action<CharacterPreset[]> _multiPulledHandler;
+    StageManager _cachedStageMgr;
+    GachaManager _cachedGachaMgr;
 
     void Start()
     {
@@ -54,24 +73,26 @@ public class GameStatsManager : MonoBehaviour
         yield return null;
 
         // 킬 카운트는 BattleUnit.Die()에서 GameStatsManager.Instance.AddKill()로 직접 호출됨
-
-        // GoldManager 구독
-        var gm = GoldManager.Instance;
-        if (gm != null)
-            gm.OnGoldChanged += (gold) => OnGoldEarned(gold);
+        // 골드 통계는 AddGoldEarned()로 직접 호출됨
 
         // StageManager 구독
-        var sm = StageManager.Instance;
-        if (sm != null)
-            sm.OnStageChanged += (area, stage, wave) => UpdateHighestWave(wave);
+        _cachedStageMgr = StageManager.Instance;
+        if (_cachedStageMgr != null)
+        {
+            _stageChangedHandler = (area, stage, wave) => UpdateHighestWave(wave);
+            _cachedStageMgr.OnStageChanged += _stageChangedHandler;
+        }
 
         // GachaManager 구독
-        var gacha = GachaManager.Instance;
-        if (gacha != null)
+        _cachedGachaMgr = GachaManager.Instance;
+        if (_cachedGachaMgr != null)
         {
-            gacha.OnHeroPulled += (_) => AddPull();
-            gacha.OnFreePulled += (_) => AddPull();
-            gacha.OnMultiPulled += (results) => AddMultiPulls(results != null ? results.Length : 0);
+            _heroPulledHandler   = (_) => AddPull();
+            _freePulledHandler   = (_) => AddPull();
+            _multiPulledHandler  = (results) => AddMultiPulls(results != null ? results.Length : 0);
+            _cachedGachaMgr.OnHeroPulled   += _heroPulledHandler;
+            _cachedGachaMgr.OnFreePulled   += _freePulledHandler;
+            _cachedGachaMgr.OnMultiPulled  += _multiPulledHandler;
         }
     }
 
@@ -80,13 +101,6 @@ public class GameStatsManager : MonoBehaviour
         totalKills++;
         SaveStats();
         OnTotalKillsChanged?.Invoke(totalKills);
-    }
-
-    public void OnGoldEarned(int totalGold)
-    {
-        // GoldManager.OnGoldChanged는 현재 보유 골드를 전달하므로, 직접 tracking은 어렵다.
-        // 대신 GoldManager에서 직접 호출되도록 수정하거나, 이벤트를 추가해야 함.
-        // 임시로: 세션 시작 시 기록한 초기값과 비교해서 추가된 골드를 계산
     }
 
     public void AddGoldEarned(int amount)
