@@ -267,6 +267,9 @@ public class EnhancePanel : MonoBehaviour
             var item = ReuseOrCreate(heroListItems, ref heroReuse,
                 $"Hero_{heroName}", heroListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeHeroCount++;
+            // BoxIcon1 프레임
+            var itemImg = item.GetComponent<Image>();
+            if (UISprites.BoxIcon1 != null) { itemImg.sprite = UISprites.BoxIcon1; itemImg.type = Image.Type.Sliced; itemImg.color = new Color(0.97f, 0.93f, 0.85f); }
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
             irt.anchorMax = new Vector2(1, 1);
@@ -277,6 +280,18 @@ public class EnhancePanel : MonoBehaviour
             int level = hlm != null ? hlm.GetLevel(heroName) : 1;
             int copies = hlm != null ? hlm.GetCopies(heroName) : 0;
             int needed = hlm != null ? hlm.GetCopiesNeeded(level) : 1;
+            int star = hlm != null ? hlm.GetStarRank(heroName) : 1;
+
+            // 성급 색상 테두리 (좌측 띠)
+            Color starBorderCol = star switch {
+                2 => UIColors.Rarity_Uncommon, 3 => UIColors.Rarity_Rare,
+                4 => UIColors.Rarity_Epic, 5 => UIColors.Rarity_Legendary,
+                _ => UIColors.Rarity_Common
+            };
+            var starStrip = UIHelper.MakePanel("StarBorder", item.transform, starBorderCol);
+            var ssRT = starStrip.GetComponent<RectTransform>();
+            ssRT.anchorMin = new Vector2(0, 0.05f); ssRT.anchorMax = new Vector2(0.025f, 0.95f);
+            ssRT.offsetMin = ssRT.offsetMax = Vector2.zero;
 
             var nameText = UIHelper.MakeText("Name", item.transform, heroName,
                 UIConstants.Font_StatLabel, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
@@ -287,7 +302,6 @@ public class EnhancePanel : MonoBehaviour
             nrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
             nrt.offsetMax = Vector2.zero;
 
-            int star = hlm != null ? hlm.GetStarRank(heroName) : 1;
             string starStr = new string('\u2605', star);
             var lvText = UIHelper.MakeText("Lv", item.transform, $"Lv.{level} {starStr}",
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, UIColors.Text_DarkGold);
@@ -469,6 +483,9 @@ public class EnhancePanel : MonoBehaviour
             var item = ReuseOrCreate(equipListItems, ref equipReuse,
                 $"Equip_{i}", equipListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             activeEquipCount++;
+            // BoxBasic1 프레임
+            var equipItemImg = item.GetComponent<Image>();
+            if (UISprites.BoxBasic1 != null) { equipItemImg.sprite = UISprites.BoxBasic1; equipItemImg.type = Image.Type.Sliced; equipItemImg.color = new Color(0.96f, 0.92f, 0.86f); }
             var ert = item.GetComponent<RectTransform>();
             ert.anchorMin = new Vector2(0, 1);
             ert.anchorMax = new Vector2(1, 1);

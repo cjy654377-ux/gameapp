@@ -141,11 +141,11 @@ public class DeckUI : MonoBehaviour
             var slot = UIHelper.MakeUI($"Slot_{i}", content.transform);
             deckSlotObjs[i] = slot;
 
-            // BoxProfile 스프라이트로 슬롯 배경
+            // BoxIcon1 스프라이트로 슬롯 배경
             var bg = slot.AddComponent<Image>();
-            if (UISprites.BoxProfile != null)
+            if (UISprites.BoxIcon1 != null)
             {
-                bg.sprite = UISprites.BoxProfile;
+                bg.sprite = UISprites.BoxIcon1;
                 bg.type = Image.Type.Sliced;
                 bg.color = Color.white;
             }
@@ -400,7 +400,7 @@ public class DeckUI : MonoBehaviour
             if (preset != null)
             {
                 count++;
-                if (UISprites.BoxProfile != null)
+                if (UISprites.BoxIcon1 != null)
                     deckSlotBgs[i].color = Color.white;
                 else
                     deckSlotBgs[i].color = UIColors.Panel_Inner;
@@ -426,7 +426,7 @@ public class DeckUI : MonoBehaviour
             }
             else
             {
-                if (UISprites.BoxProfile != null)
+                if (UISprites.BoxIcon1 != null)
                     deckSlotBgs[i].color = COLOR_SLOT_EMPTY;
                 else
                     deckSlotBgs[i].color = UIColors.Background_Dark;

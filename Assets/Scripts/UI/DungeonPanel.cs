@@ -61,7 +61,7 @@ public class DungeonPanel : MonoBehaviour
         {
             int idx = i;
             var (btn, img) = UIHelper.MakeSpriteButton($"DungType_{i}", parent,
-                UISprites.Btn1_WS, TypeColors[i], "", UIConstants.Font_Button);
+                UISprites.BoxBasic1, TypeColors[i], "", UIConstants.Font_Button);
             btn.onClick.AddListener(() => SelectType((DungeonType)idx));
             typeButtonImgs[i] = img;
 
@@ -128,7 +128,7 @@ public class DungeonPanel : MonoBehaviour
 
         // - 버튼
         var (minusBtn, _) = UIHelper.MakeSpriteButton("MinusBtn", parent,
-            UISprites.Btn1_WS, UIColors.Button_Brown, "", UIConstants.Font_Button);
+            UISprites.BoxIcon1, UIColors.Button_Brown, "", UIConstants.Font_Button);
         minusBtn.onClick.AddListener(() => ChangeFloor(-1));
         var mrt = minusBtn.GetComponent<RectTransform>();
         mrt.anchorMin = new Vector2(0.05f, 0.36f);
@@ -157,7 +157,7 @@ public class DungeonPanel : MonoBehaviour
 
         // + 버튼
         var (plusBtn, _) = UIHelper.MakeSpriteButton("PlusBtn", parent,
-            UISprites.Btn1_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+            UISprites.BoxIcon1, UIColors.Button_Green, "", UIConstants.Font_Button);
         plusBtn.onClick.AddListener(() => ChangeFloor(1));
         var prt = plusBtn.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.75f, 0.36f);
@@ -205,7 +205,7 @@ public class DungeonPanel : MonoBehaviour
 
         // 입장 버튼
         var (btn, _2) = UIHelper.MakeSpriteButton("EnterBtn", parent,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+            UISprites.Btn1_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
         enterBtn = btn;
         btn.onClick.AddListener(OnEnterClicked);
         var rt = btn.GetComponent<RectTransform>();

@@ -263,7 +263,7 @@ public class GachaPanel : MonoBehaviour
 
         // 100연 소환 버튼 (할인 강조)
         var (hundredBtn, _h) = UIHelper.MakeSpriteButton("HundredPull", parent,
-            UISprites.Btn3_WS, new Color(0.6f, 0.1f, 0.8f), "", UIConstants.Font_Button);
+            UISprites.Btn3_WS, new Color(0.85f, 0.15f, 0.10f), "", UIConstants.Font_Button);
         hundredBtn.onClick.AddListener(OnHundredPull);
         var hbrt = hundredBtn.GetComponent<RectTransform>();
         hbrt.anchorMin = new Vector2(0.05f, 0.56f);
@@ -313,7 +313,7 @@ public class GachaPanel : MonoBehaviour
 
         // 결과 표시
         var resultBg = UIHelper.MakeSpritePanel("ResultBG", parent,
-            UISprites.BoxBasic3, new Color(0.30f, 0.22f, 0.15f, 0.7f));
+            UISprites.BoxIcon1, new Color(0.30f, 0.22f, 0.15f, 0.7f));
         heroResultRT = resultBg.GetComponent<RectTransform>();
         heroResultRT.anchorMin = new Vector2(0.05f, 0.02f);
         heroResultRT.anchorMax = new Vector2(0.95f, 0.40f);

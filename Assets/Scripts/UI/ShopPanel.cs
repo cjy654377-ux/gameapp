@@ -167,6 +167,9 @@ public class ShopPanel : MonoBehaviour
             var shopItem = items[i];
             var item = ReuseOrCreate(shopListItems, ref reuse, $"Shop_{i}", shopListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
             active++;
+            // BoxBasic1 배경
+            var shopItemImg = item.GetComponent<Image>();
+            if (UISprites.BoxBasic1 != null) { shopItemImg.sprite = UISprites.BoxBasic1; shopItemImg.type = Image.Type.Sliced; shopItemImg.color = new Color(0.96f, 0.92f, 0.86f); }
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1); irt.anchorMax = new Vector2(1, 1);
             irt.pivot = new Vector2(0.5f, 1);
