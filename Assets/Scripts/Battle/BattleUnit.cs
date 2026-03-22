@@ -58,6 +58,8 @@ public class BattleUnit : MonoBehaviour
     private StatusEffectController statusEffects;
     private float retargetTimer;
 
+    [HideInInspector] public CharacterPreset cachedPreset;
+
     public StatusEffectController StatusEffects => statusEffects;
 
     // Temp buff tracking (public read for UpgradeManager compatibility)
@@ -707,5 +709,91 @@ public class BattleUnit : MonoBehaviour
 
         if (newState == UnitState.Attacking)
             animator.SetTrigger("2_Attack");
+    }
+
+    // ────────────────────────────────────────
+    // 장비 외형 변경
+    // ────────────────────────────────────────
+
+    /// <summary>
+    /// 장비 장착/해제 시 SPUM 스프라이트를 교체.
+    /// equip=true → item.weaponSprite 적용, false → cachedPreset 기본 스프라이트 복원.
+    /// </summary>
+    public void UpdateEquipmentVisual(EquipmentItem item, bool equip)
+    {
+        if (item == null) return;
+        var renderers = GetComponentsInChildren<SpriteRenderer>();
+
+        if (equip)
+        {
+            if (string.IsNullOrEmpty(item.weaponSprite)) return;
+            switch (item.slot)
+            {
+                case EquipmentSlot.Weapon:
+                    var ws = CharacterFactory.FindWeaponSprite(item.weaponSprite);
+                    if (ws != null) foreach (var sr in renderers)
+                        if (sr.gameObject.name == "R_Weapon") { sr.sprite = ws; break; }
+                    break;
+                case EquipmentSlot.Shield:
+                    var ss = CharacterFactory.FindWeaponSprite(item.weaponSprite);
+                    if (ss != null) foreach (var sr in renderers)
+                        if (sr.gameObject.name == "L_Weapon") { sr.sprite = ss; break; }
+                    break;
+                case EquipmentSlot.Helmet:
+                    var hs = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/4_Helmet/{item.weaponSprite}");
+                    if (hs != null && hs.Length > 0) foreach (var sr in renderers)
+                        if (sr.gameObject.name == "11_Helmet1") { sr.sprite = hs[0]; break; }
+                    break;
+                case EquipmentSlot.Armor:
+                    var armorSpr = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{item.weaponSprite}");
+                    if (armorSpr != null && armorSpr.Length > 0)
+                        ApplyArmorSprites(renderers, armorSpr);
+                    break;
+            }
+        }
+        else
+        {
+            if (cachedPreset == null) return;
+            switch (item.slot)
+            {
+                case EquipmentSlot.Weapon:
+                    var ws = CharacterFactory.FindWeaponSprite(cachedPreset.weaponSprite);
+                    foreach (var sr in renderers)
+                        if (sr.gameObject.name == "R_Weapon") { sr.sprite = ws; break; }
+                    break;
+                case EquipmentSlot.Shield:
+                    var ss = CharacterFactory.FindWeaponSprite(cachedPreset.shieldSprite);
+                    foreach (var sr in renderers)
+                        if (sr.gameObject.name == "L_Weapon") { sr.sprite = ss; break; }
+                    break;
+                case EquipmentSlot.Helmet:
+                    var hs = !string.IsNullOrEmpty(cachedPreset.helmetSprite)
+                        ? CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/4_Helmet/{cachedPreset.helmetSprite}") : null;
+                    foreach (var sr in renderers)
+                        if (sr.gameObject.name == "11_Helmet1") { sr.sprite = hs != null && hs.Length > 0 ? hs[0] : null; break; }
+                    break;
+                case EquipmentSlot.Armor:
+                    if (!string.IsNullOrEmpty(cachedPreset.armorSprite))
+                    {
+                        var armorSpr = CharacterFactory.LoadSprites($"Addons/Legacy/0_Unit/0_Sprite/5_Armor/{cachedPreset.armorSprite}");
+                        if (armorSpr != null && armorSpr.Length > 0)
+                            ApplyArmorSprites(renderers, armorSpr);
+                    }
+                    break;
+            }
+        }
+    }
+
+    static void ApplyArmorSprites(SpriteRenderer[] renderers, Sprite[] armorSprites)
+    {
+        foreach (var sr in renderers)
+        {
+            if (sr.gameObject.name == "BodyArmor")
+                sr.sprite = CharacterFactory.FindSubSprite(armorSprites, "Body");
+            else if (sr.gameObject.name == "25_L_Shoulder")
+                sr.sprite = CharacterFactory.FindSubSprite(armorSprites, "Left") ?? sr.sprite;
+            else if (sr.gameObject.name == "-15_R_Shoulder")
+                sr.sprite = CharacterFactory.FindSubSprite(armorSprites, "Right") ?? sr.sprite;
+        }
     }
 }

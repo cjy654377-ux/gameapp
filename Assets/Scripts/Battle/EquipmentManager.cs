@@ -18,6 +18,7 @@ public class EquipmentItem
     public float bonusDef;
     public string equippedTo;   // heroName, empty if unequipped
     public string setId;        // 세트 ID (전사/마법사/수호자)
+    public string weaponSprite; // SPUM 스프라이트 이름 (예: "Sword_3"), 외형 변경용
 
     public EquipmentItem()
     {
@@ -215,6 +216,13 @@ public class EquipmentManager : MonoBehaviour
         }
 
         item.equippedTo = heroName;
+
+        // 전투 중 SPUM 외형 갱신
+        var bm = BattleManager.Instance;
+        if (bm != null)
+            foreach (var unit in bm.allyUnits)
+                if (unit != null && unit.unitName == heroName) { unit.UpdateEquipmentVisual(item, true); break; }
+
         SaveInventory();
         OnEquipmentChanged?.Invoke();
         SoundManager.Instance?.PlayEquipSFX();
@@ -229,6 +237,12 @@ public class EquipmentManager : MonoBehaviour
         var item = FindItem(itemId);
         if (item == null) return false;
         if (string.IsNullOrEmpty(item.equippedTo)) return false;
+
+        // 전투 중 SPUM 외형 복원
+        var bm = BattleManager.Instance;
+        if (bm != null)
+            foreach (var unit in bm.allyUnits)
+                if (unit != null && unit.unitName == item.equippedTo) { unit.UpdateEquipmentVisual(item, false); break; }
 
         item.equippedTo = "";
         SaveInventory();

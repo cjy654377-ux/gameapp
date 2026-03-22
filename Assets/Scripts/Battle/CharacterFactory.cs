@@ -125,6 +125,7 @@ public class CharacterFactory : MonoBehaviour
     static void ConfigureBattleUnit(BattleUnit battleUnit, CharacterPreset preset, BattleUnit.Team team)
     {
         battleUnit.unitName       = preset.characterName;
+        battleUnit.cachedPreset   = preset;
         battleUnit.maxHp          = preset.maxHp;
         battleUnit.atk            = preset.atk;
         battleUnit.def            = preset.def;
@@ -385,7 +386,7 @@ public class CharacterFactory : MonoBehaviour
         }
     }
 
-    static Sprite[] LoadSprites(string path)
+    public static Sprite[] LoadSprites(string path)
     {
         if (spriteCache.TryGetValue(path, out var cached))
             return cached;
@@ -394,7 +395,7 @@ public class CharacterFactory : MonoBehaviour
         return loaded;
     }
 
-    Sprite FindSubSprite(Sprite[] sprites, string subName)
+    public static Sprite FindSubSprite(Sprite[] sprites, string subName)
     {
         for (int i = 0; i < sprites.Length; i++)
             if (sprites[i].name == subName) return sprites[i];
@@ -411,7 +412,7 @@ public class CharacterFactory : MonoBehaviour
         }
     }
 
-    Sprite FindWeaponSprite(string weaponName)
+    public static Sprite FindWeaponSprite(string weaponName)
     {
         string[] folders = {
             "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/0_Sword",
