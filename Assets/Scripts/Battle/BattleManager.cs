@@ -49,12 +49,6 @@ public class BattleManager : MonoBehaviour
 
         if (allAlliesDead)
         {
-            // 부활 기회가 남아있으면 광고 팝업 발생
-            if (!_reviveUsed)
-            {
-                OnReviveRequested?.Invoke();
-                return; // 상태 전환하지 않고 대기
-            }
             SetState(BattleState.Defeat);
             return;
         }
