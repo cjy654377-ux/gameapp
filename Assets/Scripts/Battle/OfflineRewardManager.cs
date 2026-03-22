@@ -7,7 +7,8 @@ public class OfflineRewardManager : MonoBehaviour
     private const int GOLD_PER_MINUTE = 10;
     private const int EXP_PER_MINUTE = 2;
     private const int GEM_INTERVAL_MINUTES = 10;
-    private const int MAX_OFFLINE_MINUTES = 480;
+    private const float MAX_OFFLINE_HOURS = 8f;
+    private const int MAX_OFFLINE_MINUTES = (int)(MAX_OFFLINE_HOURS * 60); // 480분
     private const int COPY_INTERVAL_MINUTES = 60;    // 60분마다 영웅 카드 1장
     private const int FRAGMENT_INTERVAL_MINUTES = 30; // 30분마다 장비 조각 1개
     public const string SAVE_KEY_FRAGMENTS = "EquipFragments";
@@ -77,7 +78,9 @@ public class OfflineRewardManager : MonoBehaviour
             return;
         }
 
-        float cappedMinutes = Mathf.Min(elapsedMinutes, MAX_OFFLINE_MINUTES);
+        float elapsedHours = elapsedMinutes / 60f;
+        float cappedHours = Mathf.Min(elapsedHours, MAX_OFFLINE_HOURS);
+        float cappedMinutes = cappedHours * 60f;
         int minutesInt = Mathf.FloorToInt(cappedMinutes);
 
         int goldReward = minutesInt * GOLD_PER_MINUTE;
