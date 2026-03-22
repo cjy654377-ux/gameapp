@@ -221,8 +221,7 @@ public class MainHUD : MonoBehaviour
             UpdateBadges();
         }
 
-        // 아군 HP 위기 비네트
-        UpdateVignette();
+        // 아군 HP 위기 비네트 — 제거됨 (연출 수준 낮음)
     }
 
     // ════════════════════════════════════════
@@ -245,7 +244,7 @@ public class MainHUD : MonoBehaviour
         CreateOfflinePopup();
         CreateConfirmPopup();
         CreateBossHpBar();
-        CreateVignette();
+        // CreateVignette(); — 빨간 점멸 제거
     }
 
     void CreateCanvas()
