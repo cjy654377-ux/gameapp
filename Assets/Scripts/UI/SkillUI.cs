@@ -30,7 +30,7 @@ public class SkillUI : MonoBehaviour
     const float READY_COLOR_MULT = 0.70f;
     const float COOLDOWN_COLOR_MULT = 0.18f;
     const float AUTO_BTN_W = 56f;
-    const float AUTO_BTN_H = 36f;
+    const float AUTO_BTN_H = 44f;
     const float SLOT_SIZE = 58f;
     const float SLOT_SPACING = 6f;
 
@@ -197,14 +197,14 @@ public class SkillUI : MonoBehaviour
         toggleRT.anchorMin = new Vector2(0.5f, 0f);
         toggleRT.anchorMax = new Vector2(0.5f, 0f);
         toggleRT.pivot = new Vector2(0f, 0f);
-        toggleRT.anchoredPosition = new Vector2(rightEdge + UIConstants.Spacing_Small, UIConstants.NavBar_Height + UIConstants.Spacing_Large + SLOT_SIZE * 0.25f);
-        toggleRT.sizeDelta = new Vector2(28f, 28f);
+        toggleRT.anchoredPosition = new Vector2(rightEdge + UIConstants.Spacing_Small - 4f, UIConstants.NavBar_Height + UIConstants.Spacing_Large + SLOT_SIZE * 0.25f);
+        toggleRT.sizeDelta = new Vector2(AUTO_BTN_W, AUTO_BTN_H);
     }
 
     void CreateBuffBar()
     {
         float totalWidth = SLOT_COUNT * SLOT_SIZE + (SLOT_COUNT - 1) * SLOT_SPACING;
-        float leftEdge = -totalWidth * 0.5f - 8f;
+        float leftEdge = -totalWidth * 0.5f;
         const float ROW_H = 18f;
         const float ROW_W = 64f;
         float baseY = UIConstants.NavBar_Height + UIConstants.Spacing_Large;

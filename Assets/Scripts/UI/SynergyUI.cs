@@ -171,7 +171,7 @@ public class SynergyUI : MonoBehaviour
         string condStr = BuildConditionString(syn);
         string bonusStr = BuildBonusString(syn.bonus);
         string infoStr = active ? bonusStr : condStr;
-        Color infoCol = active ? new Color(0.9f, 0.85f, 0.5f) : new Color(0.5f, 0.5f, 0.45f);
+        Color infoCol = active ? new Color(0.9f, 0.85f, 0.5f) : new Color(0.65f, 0.65f, 0.58f);
         var bonusText = UIHelper.MakeText("Info", item.transform, infoStr,
             6f, TextAlignmentOptions.MidlineLeft, infoCol);
         bonusText.raycastTarget = false;
