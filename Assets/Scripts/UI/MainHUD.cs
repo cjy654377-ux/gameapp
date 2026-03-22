@@ -730,10 +730,9 @@ public class MainHUD : MonoBehaviour
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
-            // Header bar — Board 스프라이트 (진한 나무 프레임)
+            // Header bar — BoxBanner 타이틀바
             var header = UIHelper.MakeSpritePanel("Header", panel.transform,
-                UISprites.Board, UIColors.Background_Dark);
-            // Board 스프라이트 원본 색상 유지
+                UISprites.BoxBanner, UIColors.Background_Dark);
             var hrt = header.GetComponent<RectTransform>();
             hrt.anchorMin = new Vector2(0, 1);
             hrt.anchorMax = new Vector2(1, 1);
@@ -1637,10 +1636,9 @@ public class MainHUD : MonoBehaviour
         bg.color = UIColors.Overlay_Dark;
         UIHelper.FillParent(confirmPopup.GetComponent<RectTransform>());
 
-        // 패널 — BoxBasic1 스프라이트
+        // 패널 — Board 스프라이트 (나무 프레임 테두리)
         var panelBg = UIHelper.MakeSpritePanel("Panel", confirmPopup.transform,
-            UISprites.BoxBasic1, UIColors.Background_Panel);
-        // BoxBasic1 스프라이트 원본 색상 유지
+            UISprites.Board, UIColors.Background_Panel);
         var panel = panelBg;
         var prt = panel.GetComponent<RectTransform>();
         prt.anchorMin = new Vector2(0.1f, 0.36f);
@@ -1663,6 +1661,35 @@ public class MainHUD : MonoBehaviour
         confirmTitleText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(confirmTitleText);
         UIHelper.FillParent(confirmTitleText.GetComponent<RectTransform>());
+
+        // 닫기 버튼 (BtnX)
+        var popupClose = UIHelper.MakeUI("CloseBtn", titleBanner.transform);
+        var popupCloseImg = popupClose.AddComponent<Image>();
+        if (UISprites.BtnX != null)
+        {
+            popupCloseImg.sprite = UISprites.BtnX;
+            popupCloseImg.type = Image.Type.Simple;
+            popupCloseImg.preserveAspect = true;
+            popupCloseImg.color = Color.white;
+        }
+        else
+        {
+            popupCloseImg.color = UIColors.Button_Brown;
+        }
+        var popupCloseBtn = popupClose.AddComponent<Button>();
+        popupCloseBtn.targetGraphic = popupCloseImg;
+        popupCloseBtn.onClick.AddListener(() =>
+        {
+            SoundManager.Instance?.PlayUISound(UISoundType.button_click);
+            confirmPopup.SetActive(false);
+            pendingConfirmAction = null;
+        });
+        var pcrt = popupClose.GetComponent<RectTransform>();
+        pcrt.anchorMin = new Vector2(1, 0.5f);
+        pcrt.anchorMax = new Vector2(1, 0.5f);
+        pcrt.pivot = new Vector2(1, 0.5f);
+        pcrt.anchoredPosition = new Vector2(-4, 0);
+        pcrt.sizeDelta = new Vector2(20, 20);
 
         confirmDescText = UIHelper.MakeText("Desc", panel.transform, "",
             UIConstants.Font_StatValue, TextAlignmentOptions.Center, UIColors.Text_Dark);
@@ -1693,9 +1720,9 @@ public class MainHUD : MonoBehaviour
             pendingConfirmAction = null;
         });
 
-        // NO 버튼 — Btn4_WS (빨간색)
+        // NO 버튼 — Btn3_WS (빨간/위험)
         var (noBtn, _) = UIHelper.MakeSpriteButton("NoBtn", panel.transform,
-            UISprites.Btn4_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
+            UISprites.Btn3_WS, UIColors.Defeat_Red, "", UIConstants.Font_Button);
         var nbrt = noBtn.GetComponent<RectTransform>();
         nbrt.anchorMin = new Vector2(0.08f, 0.06f);
         nbrt.anchorMax = new Vector2(0.45f, 0.28f);

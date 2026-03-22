@@ -187,8 +187,8 @@ public class SkillUI : MonoBehaviour
         float totalWidth = SLOT_COUNT * SLOT_SIZE + (SLOT_COUNT - 1) * SLOT_SPACING;
         float rightEdge = totalWidth * 0.5f;
 
-        var (btn, img) = UIHelper.MakeButton("AutoToggle", slotsContainer.transform,
-            UIColors.Button_Green, "A", UIConstants.Font_LevelBadge);
+        var (btn, img) = UIHelper.MakeSpriteButton("AutoToggle", slotsContainer.transform,
+            UISprites.Btn1_WS, UIColors.Button_Green, "A", UIConstants.Font_LevelBadge);
         autoToggleButton = btn;
         autoToggleButton.onClick.AddListener(OnAutoToggleClicked);
         autoToggleText = btn.GetComponentInChildren<TextMeshProUGUI>();
