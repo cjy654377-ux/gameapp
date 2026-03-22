@@ -225,8 +225,8 @@ public class SettingsPanel : MonoBehaviour
         }
 
         // 토글 상태 로드
-        damageNumbersVisible = PlayerPrefs.GetInt("ShowDamageNumbers", 1) == 1;
-        screenLockPrevented = PlayerPrefs.GetInt("ScreenLockPrevented", 0) == 1;
+        damageNumbersVisible = PlayerPrefs.GetInt(SaveKeys.ShowDamageNumbers, 1) == 1;
+        screenLockPrevented = PlayerPrefs.GetInt(SaveKeys.ScreenLockPrevented, 0) == 1;
 
         if (damageToggleText != null)
             damageToggleText.text = damageNumbersVisible ? "활성화" : "비활성화";
@@ -320,8 +320,7 @@ public class SettingsPanel : MonoBehaviour
 
     void OnToggleDamageNumbers()
     {
-        // PlayerPrefs에 저장
-        PlayerPrefs.SetInt("ShowDamageNumbers", damageNumbersVisible ? 1 : 0);
+        PlayerPrefs.SetInt(SaveKeys.ShowDamageNumbers, damageNumbersVisible ? 1 : 0);
         PlayerPrefs.Save();
         ToastNotification.Instance?.Show("데미지 숫자",
             damageNumbersVisible ? "활성화됨" : "비활성화됨",
@@ -330,9 +329,8 @@ public class SettingsPanel : MonoBehaviour
 
     void OnToggleScreenLock()
     {
-        // Screen.sleepTimeout: -1 = 절대 슬립 안 함, 기본값 = -1 또는 플랫폼별
         Screen.sleepTimeout = screenLockPrevented ? -1 : 0;
-        PlayerPrefs.SetInt("ScreenLockPrevented", screenLockPrevented ? 1 : 0);
+        PlayerPrefs.SetInt(SaveKeys.ScreenLockPrevented, screenLockPrevented ? 1 : 0);
         PlayerPrefs.Save();
         ToastNotification.Instance?.Show("화면 잠금",
             screenLockPrevented ? "방지 활성화" : "기본값으로 복원",

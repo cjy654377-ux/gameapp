@@ -21,6 +21,10 @@ public static class SaveKeys
     public const string BgmVolume       = "BGMVolume";
     public const string SfxVolume       = "SFXVolume";
 
+    // 설정
+    public const string ShowDamageNumbers    = "ShowDamageNumbers";
+    public const string ScreenLockPrevented  = "ScreenLockPrevented";
+
     // 오프라인 보상
     public const string LastPlayTime    = "LastPlayTime";
 
