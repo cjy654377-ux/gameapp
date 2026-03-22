@@ -14,6 +14,11 @@ public class SettingsPanel : MonoBehaviour
     TextMeshProUGUI sfxValueText;
     TextMeshProUGUI loginStatusText;
 
+    bool damageNumbersVisible = true;
+    bool screenLockPrevented = false;
+    TextMeshProUGUI damageToggleText;
+    TextMeshProUGUI lockToggleText;
+
     public void Init(Transform parent)
     {
         var content = UIHelper.MakeUI("SettingsContent", parent);
@@ -36,6 +41,14 @@ public class SettingsPanel : MonoBehaviour
                 SoundManager.Instance?.SetSFXVolume(val);
                 if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(val * 100)}%";
             });
+
+        // 데미지 숫자 표시 토글
+        AddToggleButton(content.transform, "DamageToggleBtn", "데미지 숫자 표시", 0.48f, 0.58f,
+            ref damageToggleText, ref damageNumbersVisible, OnToggleDamageNumbers);
+
+        // 화면 잠금 방지 토글
+        AddToggleButton(content.transform, "LockToggleBtn", "화면 잠금 방지", 0.36f, 0.46f,
+            ref lockToggleText, ref screenLockPrevented, OnToggleScreenLock);
 
         // 로그인 상태 텍스트
         loginStatusText = UIHelper.MakeText("LoginStatus", content.transform, "로그인 중...",
@@ -87,6 +100,50 @@ public class SettingsPanel : MonoBehaviour
         txt.fontStyle = FontStyles.Bold;
         UIHelper.FillParent(txt.GetComponent<RectTransform>());
         btn.onClick.AddListener(onClick);
+    }
+
+    void AddToggleButton(Transform parent, string name, string label, float yMin, float yMax,
+        ref TextMeshProUGUI toggleText, ref bool toggleState, UnityEngine.Events.UnityAction onClick)
+    {
+        var rowBg = UIHelper.MakeSpritePanel($"{name}Row", parent,
+            UISprites.BoxBasic3, UIColors.Panel_Inner);
+        var rrt = rowBg.GetComponent<RectTransform>();
+        rrt.anchorMin = new Vector2(0, yMin);
+        rrt.anchorMax = new Vector2(1, yMax);
+        rrt.offsetMin = new Vector2(0, 2);
+        rrt.offsetMax = new Vector2(0, -2);
+
+        var labelText = UIHelper.MakeText("Label", rowBg.transform, label,
+            UIConstants.Font_StatValue, TextAlignmentOptions.MidlineLeft, UIColors.Text_Dark);
+        labelText.fontStyle = FontStyles.Bold;
+        var lrt = labelText.GetComponent<RectTransform>();
+        lrt.anchorMin = new Vector2(0, 0);
+        lrt.anchorMax = new Vector2(0.6f, 1);
+        lrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
+        lrt.offsetMax = Vector2.zero;
+
+        var (toggleBtn, _) = UIHelper.MakeSpriteButton("Toggle", rowBg.transform,
+            UISprites.Btn2_WS, toggleState ? UIColors.Button_Green : UIColors.Button_Brown,
+            "", UIConstants.Font_SmallInfo);
+        var trt = toggleBtn.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0.65f, 0.15f);
+        trt.anchorMax = new Vector2(0.95f, 0.85f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        toggleText = UIHelper.MakeText("Status", toggleBtn.transform, toggleState ? "활성화" : "비활성화",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+        toggleText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(toggleText.GetComponent<RectTransform>());
+
+        toggleBtn.onClick.AddListener(() =>
+        {
+            toggleState = !toggleState;
+            var btnImg = toggleBtn.GetComponent<Image>();
+            btnImg.color = toggleState ? UIColors.Button_Green : UIColors.Button_Brown;
+            if (toggleText != null) toggleText.text = toggleState ? "활성화" : "비활성화";
+            onClick?.Invoke();
+        });
     }
 
     void RefreshLoginStatus()
@@ -166,6 +223,15 @@ public class SettingsPanel : MonoBehaviour
             sfxSlider.SetValueWithoutNotify(sm.sfxVolume);
             if (sfxValueText != null) sfxValueText.text = $"{Mathf.RoundToInt(sm.sfxVolume * 100)}%";
         }
+
+        // 토글 상태 로드
+        damageNumbersVisible = PlayerPrefs.GetInt("ShowDamageNumbers", 1) == 1;
+        screenLockPrevented = PlayerPrefs.GetInt("ScreenLockPrevented", 0) == 1;
+
+        if (damageToggleText != null)
+            damageToggleText.text = damageNumbersVisible ? "활성화" : "비활성화";
+        if (lockToggleText != null)
+            lockToggleText.text = screenLockPrevented ? "활성화" : "비활성화";
     }
 
     void BuildVolumeSlider(Transform parent, string label, float yMin, float yMax,
@@ -250,6 +316,27 @@ public class SettingsPanel : MonoBehaviour
         // 씬 리로드하여 메모리 값도 초기화
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void OnToggleDamageNumbers()
+    {
+        // PlayerPrefs에 저장
+        PlayerPrefs.SetInt("ShowDamageNumbers", damageNumbersVisible ? 1 : 0);
+        PlayerPrefs.Save();
+        ToastNotification.Instance?.Show("데미지 숫자",
+            damageNumbersVisible ? "활성화됨" : "비활성화됨",
+            UIColors.Button_Green);
+    }
+
+    void OnToggleScreenLock()
+    {
+        // Screen.sleepTimeout: -1 = 절대 슬립 안 함, 기본값 = -1 또는 플랫폼별
+        Screen.sleepTimeout = screenLockPrevented ? -1 : 0;
+        PlayerPrefs.SetInt("ScreenLockPrevented", screenLockPrevented ? 1 : 0);
+        PlayerPrefs.Save();
+        ToastNotification.Instance?.Show("화면 잠금",
+            screenLockPrevented ? "방지 활성화" : "기본값으로 복원",
+            UIColors.Button_Green);
     }
 
     void OnDestroy()

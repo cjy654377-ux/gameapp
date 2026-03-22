@@ -462,6 +462,23 @@ public class MainHUD : MonoBehaviour
         vrt.anchorMax = new Vector2(1, 1);
         vrt.offsetMin = Vector2.zero;
         vrt.offsetMax = new Vector2(-3, 0);
+
+        // 버튼 컴포넌트 추가 및 재화 획득처 안내
+        var btn = container.AddComponent<Button>();
+        btn.targetGraphic = container.GetComponent<Image>();
+
+        string sourceText = name switch
+        {
+            "Gold"   => "골드 획득: 전투 승리 / 오프라인 보상 / 장비 분해",
+            "Gem"    => "보석 획득: 던전 클리어 / 업적 달성 / 광고 시청",
+            "Stone"  => "소환석 획득: 탈것 던전",
+            "Scroll" => "주문서 획득: 스킬 던전",
+            _        => "각성석 획득: 특별 보상"
+        };
+        btn.onClick.AddListener(() =>
+            ToastNotification.Instance?.Show(name, sourceText, valueColor)
+        );
+
         containerOut = container.gameObject;
     }
 
