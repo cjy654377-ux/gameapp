@@ -1605,17 +1605,17 @@ public class MainHUD : MonoBehaviour
         rrt.offsetMin = Vector2.zero;
         rrt.offsetMax = Vector2.zero;
 
-        // Confirm button — Btn2_WS (녹색)
+        // 받기 버튼 — Btn1_WS (크게)
         var (confirmBtn, _) = UIHelper.MakeSpriteButton("ConfirmBtn", panel.transform,
-            UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
+            UISprites.Btn1_WS, UIColors.Button_Green, "", UIConstants.Font_Button);
         var cbrt = confirmBtn.GetComponent<RectTransform>();
-        cbrt.anchorMin = new Vector2(0.2f, 0f);
-        cbrt.anchorMax = new Vector2(0.8f, 0f);
+        cbrt.anchorMin = new Vector2(0.15f, 0f);
+        cbrt.anchorMax = new Vector2(0.85f, 0f);
         cbrt.pivot = new Vector2(0.5f, 0f);
-        cbrt.sizeDelta = new Vector2(0, 38);
+        cbrt.sizeDelta = new Vector2(0, 48);
         cbrt.anchoredPosition = new Vector2(0, 10);
 
-        var confirmText = UIHelper.MakeText("Label", confirmBtn.transform, "확인",
+        var confirmText = UIHelper.MakeText("Label", confirmBtn.transform, "받기",
             UIConstants.Font_Button, TextAlignmentOptions.Center, Color.white);
         confirmText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(confirmText);
@@ -1644,12 +1644,12 @@ public class MainHUD : MonoBehaviour
         var orm = OfflineRewardManager.Instance;
         int copies = orm != null ? orm.LastCopiesReward : 0;
 
-        string rewardStr = $"접속하지 않은 {timeStr} 동안\n";
-        if (gold > 0) rewardStr += $"<color=#FFD700>골드 +{gold}</color>  ";
-        if (gem > 0) rewardStr += $"<color=#87CEEB>보석 +{gem}</color>\n";
-        if (exp > 0) rewardStr += $"<color=#FFAAFF>경험치 +{exp}</color>  ";
-        if (copies > 0) rewardStr += $"<color=#AAFFAA>영웅 카드 +{copies}</color>\n";
-        if (fragments > 0) rewardStr += $"<color=#FFCCAA>장비 조각 +{fragments}</color>";
+        string rewardStr = $"<b>⏰ {timeStr} 방치</b>\n";
+        if (gold > 0) rewardStr += $"★ <color=#FFD700><b>+{gold}</b> 골드</color>\n";
+        if (gem > 0) rewardStr += $"◆ <color=#87CEEB><b>+{gem}</b> 보석</color>\n";
+        if (exp > 0) rewardStr += $"▲ <color=#FFAAFF><b>+{exp}</b> 경험치</color>\n";
+        if (copies > 0) rewardStr += $"♦ <color=#AAFFAA><b>+{copies}</b> 영웅 카드</color>\n";
+        if (fragments > 0) rewardStr += $"⚙ <color=#FFCCAA><b>+{fragments}</b> 장비 조각</color>";
         rewardStr += waveStr;
 
         offlineText.text = rewardStr;

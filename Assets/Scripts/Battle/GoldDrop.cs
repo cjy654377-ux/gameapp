@@ -146,6 +146,29 @@ public class GoldDrop : MonoBehaviour
 
         SoundManager.Instance?.PlayGoldSFX();
         DamagePopup.CreateGold(transform.position + Vector3.up * POPUP_HEIGHT, goldAmount);
+        StartCoroutine(FlyToHUD());
+    }
+
+    System.Collections.IEnumerator FlyToHUD()
+    {
+        float duration = 0.35f;
+        float elapsed = 0f;
+        Vector3 startPos = transform.position;
+        Vector3 startScale = transform.localScale;
+
+        // HUD 골드 위치: 화면 좌상단 근처 (WorldToScreenPoint 역산)
+        var cam = Camera.main;
+        Vector3 hudScreenPos = new Vector3(Screen.width * 0.12f, Screen.height * 0.92f, 10f);
+        Vector3 endPos = cam != null ? cam.ScreenToWorldPoint(hudScreenPos) : startPos + Vector3.up * 3f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            transform.localScale = Vector3.Lerp(startScale, startScale * 0.05f, t);
+            yield return null;
+        }
         ReturnToPool();
     }
 
