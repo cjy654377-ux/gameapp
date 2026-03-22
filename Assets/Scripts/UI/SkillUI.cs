@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 public class SkillUI : MonoBehaviour
@@ -41,6 +42,7 @@ public class SkillUI : MonoBehaviour
     Image[] slotBgs = new Image[SLOT_COUNT];
     readonly Color[] readyColors = new Color[SLOT_COUNT];
     readonly Color[] cooldownColors = new Color[SLOT_COUNT];
+    TextMeshProUGUI noSkillText;
     Button autoToggleButton;
     TextMeshProUGUI autoToggleText;
     GameObject slotsContainer;
@@ -179,6 +181,21 @@ public class SkillUI : MonoBehaviour
             UIHelper.AddTextShadow(cooldownTexts[i]);
             UIHelper.FillParent(cooldownTexts[i].GetComponent<RectTransform>());
         }
+
+        // 스킬 없을 때 안내 텍스트
+        float totalWidthHint = SLOT_COUNT * SLOT_SIZE + (SLOT_COUNT - 1) * SLOT_SPACING;
+        noSkillText = UIHelper.MakeText("NoSkillHint", slotsContainer.transform,
+            "스킬이 없습니다",
+            UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, new Color(0.8f, 0.8f, 0.8f, 0.85f));
+        noSkillText.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(noSkillText);
+        var nstRT = noSkillText.GetComponent<RectTransform>();
+        nstRT.anchorMin = new Vector2(0.5f, 0f);
+        nstRT.anchorMax = new Vector2(0.5f, 0f);
+        nstRT.pivot = new Vector2(0.5f, 0f);
+        nstRT.sizeDelta = new Vector2(totalWidthHint, 26f);
+        nstRT.anchoredPosition = new Vector2(0, UIConstants.NavBar_Height + UIConstants.Spacing_Large);
+        noSkillText.gameObject.SetActive(false);
     }
 
     void CreateAutoToggle()
@@ -348,6 +365,9 @@ public class SkillUI : MonoBehaviour
                 slotObjects[i].SetActive(true);
                 nameTexts[i].text = $"{skills[i].iconChar}\n<size=10>{skills[i].skillName}</size>";
 
+                // 길게 누르기 → 스킬 정보 팝업
+                SkillInfoPopup.AddLongPress(slotObjects[i], skills[i]);
+
                 Color rarityColor = skills[i].starGrade switch
                 {
                     StarGrade.Star1 => UIColors.Rarity_Common,
@@ -366,6 +386,9 @@ public class SkillUI : MonoBehaviour
                 slotObjects[i].SetActive(false);
             }
         }
+
+        bool anyActive = skills.Count > 0 && skills.Exists(s => s != null);
+        if (noSkillText != null) noSkillText.gameObject.SetActive(!anyActive && !_isTabPanelOpen);
     }
 
     void UpdateCooldown(int slot, float remaining, float total)

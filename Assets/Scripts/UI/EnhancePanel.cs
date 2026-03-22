@@ -26,6 +26,7 @@ public class EnhancePanel : MonoBehaviour
     GameObject equipListContainer;
     readonly List<GameObject> equipListItems = new();
     TextMeshProUGUI equipInfoText;
+    GameObject emptyEquipStateObj;
 
     System.Action<string> showHeroSelect;
     string _lastFailedEnhId;
@@ -676,7 +677,32 @@ public class EnhancePanel : MonoBehaviour
 
         TrimExcess(equipListItems, activeEquipCount);
         var containerRT = equipListContainer.GetComponent<RectTransform>();
-        containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+
+        // 빈 상태 안내
+        if (activeEquipCount == 0)
+        {
+            if (emptyEquipStateObj == null)
+            {
+                emptyEquipStateObj = UIHelper.MakeSpritePanel("EmptyEquipState", equipListContainer.transform,
+                    UISprites.BoxBasic1, new Color(0.95f, 0.90f, 0.82f, 0.8f)).gameObject;
+                var eRT = emptyEquipStateObj.GetComponent<RectTransform>();
+                eRT.anchorMin = new Vector2(0.05f, 0); eRT.anchorMax = new Vector2(0.95f, 0);
+                eRT.pivot = new Vector2(0.5f, 0); eRT.sizeDelta = new Vector2(0, 60f);
+                eRT.anchoredPosition = Vector2.zero;
+                var emptyText = UIHelper.MakeText("EmptyMsg", emptyEquipStateObj.transform,
+                    "장비가 없습니다\n전투에서 보스를 처치하세요",
+                    UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Dark);
+                emptyText.fontStyle = FontStyles.Bold;
+                UIHelper.FillParent(emptyText.GetComponent<RectTransform>());
+            }
+            emptyEquipStateObj.SetActive(true);
+            containerRT.sizeDelta = new Vector2(0, 60f);
+        }
+        else
+        {
+            if (emptyEquipStateObj != null) emptyEquipStateObj.SetActive(false);
+            containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+        }
     }
 
     // ════════════════════════════════════════

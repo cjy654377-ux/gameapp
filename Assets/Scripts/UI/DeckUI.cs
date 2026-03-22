@@ -21,6 +21,7 @@ public class DeckUI : MonoBehaviour
     GameObject rosterContainer;
     readonly System.Collections.Generic.List<GameObject> rosterItems = new();
     TextMeshProUGUI deckHeaderText;
+    GameObject emptyHeroStateObj;
 
     int selectedDeckSlot = -1;
     readonly Color[] slotRarityColors = new Color[DeckManager.MAX_DECK_SIZE];
@@ -556,19 +557,29 @@ public class DeckUI : MonoBehaviour
             rrt.offsetMin = Vector2.zero;
             rrt.offsetMax = Vector2.zero;
 
-            // Name — 진한 갈색으로 확실한 대비
-            var nameText = UIHelper.MakeText("Info", item.transform, preset.characterName,
+            // Name — 진한 갈색으로 확실한 대비 (탭 시 상세 팝업)
+            var nameBtn = UIHelper.MakeUI("NameBtn", item.transform);
+            var nameBtnImg = nameBtn.AddComponent<Image>();
+            nameBtnImg.color = Color.clear;
+            var nameBtnComp = nameBtn.AddComponent<Button>();
+            nameBtnComp.targetGraphic = nameBtnImg;
+            var capturedPreset = preset;
+            nameBtnComp.onClick.AddListener(() => HeroDetailPopup.Instance?.Show(capturedPreset));
+            var nbrt = nameBtn.GetComponent<RectTransform>();
+            nbrt.anchorMin = new Vector2(0.13f, 0.48f);
+            nbrt.anchorMax = new Vector2(0.60f, 1);
+            nbrt.offsetMin = Vector2.zero;
+            nbrt.offsetMax = Vector2.zero;
+
+            var nameText = UIHelper.MakeText("Info", nameBtn.transform, preset.characterName,
                 UIConstants.Font_SmallInfo, TextAlignmentOptions.MidlineLeft, COLOR_NAME_DARK);
             nameText.fontStyle = FontStyles.Bold;
             nameText.overflowMode = TextOverflowModes.Ellipsis;
             nameText.enableAutoSizing = true;
             nameText.fontSizeMin = 6f;
             nameText.fontSizeMax = UIConstants.Font_SmallInfo;
-            var nrt = nameText.GetComponent<RectTransform>();
-            nrt.anchorMin = new Vector2(0.13f, 0.48f);
-            nrt.anchorMax = new Vector2(0.60f, 1);
-            nrt.offsetMin = Vector2.zero;
-            nrt.offsetMax = Vector2.zero;
+            nameText.raycastTarget = false;
+            UIHelper.FillParent(nameText.GetComponent<RectTransform>());
 
             // 성급 별 표시 (MakeStarRating)
             var starTr = UIHelper.MakeStarRating("Stars", item.transform, (int)preset.starGrade, 8f);
@@ -610,7 +621,46 @@ public class DeckUI : MonoBehaviour
         }
 
         var contentRT = rosterContainer.GetComponent<RectTransform>();
-        contentRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+
+        // 빈 상태 안내
+        if (rosterItems.Count == 0)
+        {
+            if (emptyHeroStateObj == null)
+            {
+                emptyHeroStateObj = UIHelper.MakeSpritePanel("EmptyHeroState", rosterContainer.transform,
+                    UISprites.BoxBasic1, new Color(0.95f, 0.90f, 0.82f, 0.8f)).gameObject;
+                var emptyRT = emptyHeroStateObj.GetComponent<RectTransform>();
+                emptyRT.anchorMin = new Vector2(0.05f, 0); emptyRT.anchorMax = new Vector2(0.95f, 0);
+                emptyRT.pivot = new Vector2(0.5f, 0); emptyRT.sizeDelta = new Vector2(0, 80f);
+                emptyRT.anchoredPosition = Vector2.zero;
+
+                var emptyText = UIHelper.MakeText("EmptyMsg", emptyHeroStateObj.transform,
+                    "아직 영웅이 없어요!\n소환 탭에서 뽑아보세요",
+                    UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, UIColors.Text_Dark);
+                emptyText.fontStyle = FontStyles.Bold;
+                var etRT = emptyText.GetComponent<RectTransform>();
+                etRT.anchorMin = new Vector2(0.05f, 0.45f); etRT.anchorMax = new Vector2(0.95f, 0.98f);
+                etRT.offsetMin = etRT.offsetMax = Vector2.zero;
+
+                var (gachaBtn, _) = UIHelper.MakeSpriteButton("GotoGachaBtn", emptyHeroStateObj.transform,
+                    UISprites.Btn2_WS, UIColors.Button_Green, "", UIConstants.Font_SmallInfo);
+                gachaBtn.onClick.AddListener(() => MainHUD.Instance?.SwitchToTab(1));
+                var gbRT = gachaBtn.GetComponent<RectTransform>();
+                gbRT.anchorMin = new Vector2(0.15f, 0.04f); gbRT.anchorMax = new Vector2(0.85f, 0.42f);
+                gbRT.offsetMin = gbRT.offsetMax = Vector2.zero;
+                var gLabel = UIHelper.MakeText("Label", gachaBtn.transform, "소환하러 가기",
+                    UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
+                gLabel.fontStyle = FontStyles.Bold;
+                UIHelper.FillParent(gLabel.GetComponent<RectTransform>());
+            }
+            emptyHeroStateObj.SetActive(true);
+            contentRT.sizeDelta = new Vector2(0, 80f);
+        }
+        else
+        {
+            if (emptyHeroStateObj != null) emptyHeroStateObj.SetActive(false);
+            contentRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
+        }
     }
 
     // ═══════════════════════════════════════

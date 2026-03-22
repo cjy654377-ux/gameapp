@@ -118,6 +118,10 @@ public class MainHUD : MonoBehaviour
     GameObject offlinePopup;
     TextMeshProUGUI offlineText;
 
+    // Loading screen
+    GameObject loadingScreen;
+    CanvasGroup loadingCG;
+
     // Cached references for safe unsubscribe
     GoldManager cachedGoldMgr;
     GemManager cachedGemMgr;
@@ -195,6 +199,10 @@ public class MainHUD : MonoBehaviour
             if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
         }
 
+        // 로딩 화면 페이드아웃
+        if (loadingScreen != null)
+            StartCoroutine(FadeOutLoading());
+
         // 출석 체크 팝업 (2프레임 지연 - UI 구독 완료 후)
         yield return null;
         if (DailyLoginManager.Instance != null && DailyLoginManager.Instance.ShouldShowPopup())
@@ -245,6 +253,13 @@ public class MainHUD : MonoBehaviour
         CreateConfirmPopup();
         CreateBossHpBar();
         // CreateVignette(); — 빨간 점멸 제거
+        CreateLoadingScreen();
+
+        // 영웅 상세 팝업 + 스킬 정보 팝업 싱글톤 생성
+        if (HeroDetailPopup.Instance == null)
+            new GameObject("HeroDetailPopup").AddComponent<HeroDetailPopup>();
+        if (SkillInfoPopup.Instance == null)
+            new GameObject("SkillInfoPopup").AddComponent<SkillInfoPopup>();
     }
 
     void CreateCanvas()
@@ -1770,6 +1785,56 @@ public class MainHUD : MonoBehaviour
         pendingConfirmAction = onConfirm;
         confirmPopup.SetActive(true);
         SoundManager.Instance?.PlayButtonSFX();
+    }
+
+    // ════════════════════════════════════════
+    // LOADING SCREEN
+    // ════════════════════════════════════════
+
+    void CreateLoadingScreen()
+    {
+        loadingScreen = UIHelper.MakeUI("LoadingScreen", canvas.transform);
+        loadingCG = loadingScreen.AddComponent<CanvasGroup>();
+        var bg = loadingScreen.AddComponent<Image>();
+        bg.color = Color.black;
+        UIHelper.FillParent(loadingScreen.GetComponent<RectTransform>());
+
+        var titleLabel = UIHelper.MakeText("GameTitle", loadingScreen.transform, "Wave Breaker",
+            24f, TextAlignmentOptions.Center, UIColors.Text_Gold);
+        titleLabel.fontStyle = FontStyles.Bold;
+        UIHelper.AddTextShadow(titleLabel);
+        var trt = titleLabel.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0, 0.45f);
+        trt.anchorMax = new Vector2(1, 0.65f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        var loadLabel = UIHelper.MakeText("Loading", loadingScreen.transform, "Loading...",
+            12f, TextAlignmentOptions.Center, UIColors.Text_Secondary);
+        var lrt = loadLabel.GetComponent<RectTransform>();
+        lrt.anchorMin = new Vector2(0, 0.30f);
+        lrt.anchorMax = new Vector2(1, 0.42f);
+        lrt.offsetMin = Vector2.zero;
+        lrt.offsetMax = Vector2.zero;
+
+        // sorting order 최상위
+        loadingScreen.transform.SetAsLastSibling();
+    }
+
+    System.Collections.IEnumerator FadeOutLoading()
+    {
+        yield return new WaitForSeconds(0.5f);
+        float duration = 0.5f;
+        float elapsed = 0;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (loadingCG != null)
+                loadingCG.alpha = 1f - (elapsed / duration);
+            yield return null;
+        }
+        if (loadingScreen != null)
+            Destroy(loadingScreen);
     }
 
     // ════════════════════════════════════════
