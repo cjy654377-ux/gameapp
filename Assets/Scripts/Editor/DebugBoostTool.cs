@@ -17,6 +17,14 @@ public static class DebugBoostTool
         Debug.Log("[DebugBoost] All upgrades Lv50, Gold=99999, Stage reset to 1-1.");
     }
 
+    [MenuItem("Tools/Debug/Reset Tutorial Only")]
+    static void ResetTutorial()
+    {
+        PlayerPrefs.SetInt(SaveKeys.TutorialStep, 0);
+        PlayerPrefs.Save();
+        Debug.Log("[DebugBoost] Tutorial reset to step 0.");
+    }
+
     [MenuItem("Tools/Debug/Reset All Progress")]
     static void ResetAll()
     {
