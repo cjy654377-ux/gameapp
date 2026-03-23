@@ -18,9 +18,8 @@ public class UpgradeManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
-
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
         HpLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeHp, 0);
         AtkLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeAtk, 0);
         DefLevel = PlayerPrefs.GetInt(SaveKeys.UpgradeDef, 0);

@@ -615,7 +615,7 @@ public class MainHUD : MonoBehaviour
         var navImg = navBar.AddComponent<Image>();
         navImg.color = Color.clear;
         UIHelper.SetAnchors(navBar, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0));
-        navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 58);
+        navBar.GetComponent<RectTransform>().sizeDelta = new Vector2(0, UIConstants.NavBar_Height);
 
         // 탭 아이콘 스프라이트 할당 (SPUM 아이콘 활용)
         tabSpriteIcons[0] = UISprites.IconSword;          // 영웅 (검)
@@ -740,7 +740,7 @@ public class MainHUD : MonoBehaviour
     void CreateTabPanels()
     {
         float refH = UIConstants.ReferenceResolution.y;
-        float navRatio = 58f / refH; // navBar height
+        float navRatio = UIConstants.NavBar_Height / refH;
 
         for (int i = 0; i < TAB_COUNT; i++)
         {

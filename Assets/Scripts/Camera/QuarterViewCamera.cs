@@ -7,6 +7,8 @@ public class QuarterViewCamera : MonoBehaviour
     public float followSpeed = 3f;
     public float lookAheadX = 1.5f;
 
+    const float CAMERA_Z_DEPTH = -10f;
+
     Camera cam;
 
     void Awake()
@@ -17,7 +19,7 @@ public class QuarterViewCamera : MonoBehaviour
         cam.orthographic = true;
         cam.orthographicSize = cameraSize;
 
-        transform.position = new Vector3(0, 0, -10f);
+        transform.position = new Vector3(0, 0, CAMERA_Z_DEPTH);
         transform.rotation = Quaternion.identity;
     }
 
@@ -42,7 +44,7 @@ public class QuarterViewCamera : MonoBehaviour
 
         float targetX = sumX / count + lookAheadX;
         float newX = Mathf.Lerp(transform.position.x, targetX, followSpeed * Time.deltaTime);
-        var pos = new Vector3(newX, 0, -10f);
+        var pos = new Vector3(newX, 0, CAMERA_Z_DEPTH);
         ApplyShake(ref pos);
         transform.position = pos;
     }

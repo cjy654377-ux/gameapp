@@ -232,22 +232,21 @@ public class AdManager : MonoBehaviour
     void LoadState()
     {
         double nowEpoch = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-        var types = (AdRewardType[])Enum.GetValues(typeof(AdRewardType));
-        for (int i = 0; i < types.Length; i++)
+        for (int i = 0; i < ALL_AD_TYPES.Length; i++)
         {
-            float expireAt = PlayerPrefs.GetFloat(SaveKeys.AdCooldownPrefix + types[i], 0);
+            float expireAt = PlayerPrefs.GetFloat(SaveKeys.AdCooldownPrefix + ALL_AD_TYPES[i], 0);
             if (expireAt > 0)
             {
                 float remaining = (float)(expireAt - nowEpoch);
-                if (remaining > 0) cooldowns[types[i]] = remaining;
+                if (remaining > 0) cooldowns[ALL_AD_TYPES[i]] = remaining;
             }
         }
 
         EnsureDailyReset();
-        for (int i = 0; i < types.Length; i++)
+        for (int i = 0; i < ALL_AD_TYPES.Length; i++)
         {
-            if (DailyMax.ContainsKey(types[i]))
-                dailyCounts[types[i]] = PlayerPrefs.GetInt(SaveKeys.AdDailyCountPrefix + types[i], 0);
+            if (DailyMax.ContainsKey(ALL_AD_TYPES[i]))
+                dailyCounts[ALL_AD_TYPES[i]] = PlayerPrefs.GetInt(SaveKeys.AdDailyCountPrefix + ALL_AD_TYPES[i], 0);
         }
     }
 
@@ -256,12 +255,11 @@ public class AdManager : MonoBehaviour
         string today = DateTime.Today.ToString("yyyyMMdd");
         if (PlayerPrefs.GetString(SaveKeys.AdDailyResetDate, "") == today) return;
 
-        var types = (AdRewardType[])Enum.GetValues(typeof(AdRewardType));
-        for (int i = 0; i < types.Length; i++)
+        for (int i = 0; i < ALL_AD_TYPES.Length; i++)
         {
-            if (!DailyMax.ContainsKey(types[i])) continue;
-            PlayerPrefs.DeleteKey(SaveKeys.AdDailyCountPrefix + types[i]);
-            dailyCounts.Remove(types[i]);
+            if (!DailyMax.ContainsKey(ALL_AD_TYPES[i])) continue;
+            PlayerPrefs.DeleteKey(SaveKeys.AdDailyCountPrefix + ALL_AD_TYPES[i]);
+            dailyCounts.Remove(ALL_AD_TYPES[i]);
         }
         PlayerPrefs.SetString(SaveKeys.AdDailyResetDate, today);
         PlayerPrefs.Save();
@@ -277,13 +275,12 @@ public class AdManager : MonoBehaviour
 
     void PersistCooldowns()
     {
-        var types = (AdRewardType[])Enum.GetValues(typeof(AdRewardType));
-        for (int i = 0; i < types.Length; i++)
+        for (int i = 0; i < ALL_AD_TYPES.Length; i++)
         {
-            if (cooldowns.TryGetValue(types[i], out float remaining) && remaining > 0)
-                SaveCooldown(types[i], remaining);
+            if (cooldowns.TryGetValue(ALL_AD_TYPES[i], out float remaining) && remaining > 0)
+                SaveCooldown(ALL_AD_TYPES[i], remaining);
             else
-                PlayerPrefs.DeleteKey(SaveKeys.AdCooldownPrefix + types[i]);
+                PlayerPrefs.DeleteKey(SaveKeys.AdCooldownPrefix + ALL_AD_TYPES[i]);
         }
         PlayerPrefs.Save();
     }

@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// 비동기 PvP 아레나: AI 상대 덱과 대전, 포인트 기반 랭킹

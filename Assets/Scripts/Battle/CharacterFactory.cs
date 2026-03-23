@@ -412,20 +412,21 @@ public class CharacterFactory : MonoBehaviour
         }
     }
 
+    static readonly string[] WeaponFolders = {
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/0_Sword",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/1_Axe",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/2_Bow",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/3_Shield",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/4_Spear",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/5_Wand",
+        "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/6_Hammer",
+    };
+
     public static Sprite FindWeaponSprite(string weaponName)
     {
-        string[] folders = {
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/0_Sword",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/1_Axe",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/2_Bow",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/3_Shield",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/4_Spear",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/5_Wand",
-            "Addons/Legacy/0_Unit/0_Sprite/6_Weapons/6_Hammer",
-        };
-        foreach (var folder in folders)
+        for (int i = 0; i < WeaponFolders.Length; i++)
         {
-            var sprite = Resources.Load<Sprite>($"{folder}/{weaponName}");
+            var sprite = Resources.Load<Sprite>($"{WeaponFolders[i]}/{weaponName}");
             if (sprite != null) return sprite;
         }
         return null;

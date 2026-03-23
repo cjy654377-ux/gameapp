@@ -75,6 +75,14 @@ public class BattleUnit : MonoBehaviour
     public event System.Action<int, float, float> OnSkillCooldownChanged; // slot, remaining, total
     public event System.Action<int, SkillData> OnSkillActivated;
 
+    // Animator parameter name constants
+    const string ANIM_MOVE     = "1_Move";
+    const string ANIM_ATTACK   = "2_Attack";
+    const string ANIM_DAMAGED  = "3_Damaged";
+    const string ANIM_DEATH    = "4_Death";
+    const string ANIM_IS_DEATH = "isDeath";
+    const float  DEATH_FADE_DURATION = 0.3f;
+
     static readonly Dictionary<AttackAnimType, string> AttackClipPaths = new()
     {
         { AttackAnimType.Melee,     "Addons/Legacy/0_Unit/1_Animation/02_Attack/00_MeleeAttack/0_Attack_Normal" },
@@ -241,7 +249,7 @@ public class BattleUnit : MonoBehaviour
                 mostInjured.Heal(healAmount);
                 supportTimer = healCooldown;
                 SetState(UnitState.Attacking);
-                if (animator != null) animator.SetTrigger("2_Attack");
+                if (animator != null) animator.SetTrigger(ANIM_ATTACK);
                 return true;
             }
         }
@@ -267,7 +275,7 @@ public class BattleUnit : MonoBehaviour
                 buffTarget.ApplyBuff(buffAtkBonus, buffDefBonus, buffDuration);
                 supportTimer = buffCooldown;
                 SetState(UnitState.Attacking);
-                if (animator != null) animator.SetTrigger("2_Attack");
+                if (animator != null) animator.SetTrigger(ANIM_ATTACK);
                 return true;
             }
         }
@@ -409,7 +417,7 @@ public class BattleUnit : MonoBehaviour
         {
             // 매 공격마다 애니메이션 트리거 발동
             if (animator != null)
-                animator.SetTrigger("2_Attack");
+                animator.SetTrigger(ANIM_ATTACK);
 
             float damage = CalcDamage(target);
             bool isCrit = Random.value < CRIT_CHANCE;
@@ -471,7 +479,7 @@ public class BattleUnit : MonoBehaviour
             SoundManager.Instance.PlayHitSFX();
 
         if (animator != null)
-            animator.SetTrigger("3_Damaged");
+            animator.SetTrigger(ANIM_DAMAGED);
 
         FlashWhite();
         KnockbackShake();
@@ -600,8 +608,8 @@ public class BattleUnit : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetBool("isDeath", true);
-            animator.SetTrigger("4_Death");
+            animator.SetBool(ANIM_IS_DEATH, true);
+            animator.SetTrigger(ANIM_DEATH);
         }
 
         // Stop flash before fade to preserve original colors
@@ -615,7 +623,7 @@ public class BattleUnit : MonoBehaviour
 
     System.Collections.IEnumerator DeathFadeOut()
     {
-        float duration = 0.3f;
+        float duration = DEATH_FADE_DURATION;
         float elapsed = 0f;
 
         // Collect all sprite renderers
@@ -691,8 +699,8 @@ public class BattleUnit : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetBool("isDeath", false);
-            animator.SetBool("1_Move", false);
+            animator.SetBool(ANIM_IS_DEATH, false);
+            animator.SetBool(ANIM_MOVE, false);
             animator.Rebind();
             animator.Update(0f);
         }
@@ -705,10 +713,10 @@ public class BattleUnit : MonoBehaviour
 
         if (animator == null) return;
 
-        animator.SetBool("1_Move", newState == UnitState.Moving);
+        animator.SetBool(ANIM_MOVE, newState == UnitState.Moving);
 
         if (newState == UnitState.Attacking)
-            animator.SetTrigger("2_Attack");
+            animator.SetTrigger(ANIM_ATTACK);
     }
 
     // ────────────────────────────────────────

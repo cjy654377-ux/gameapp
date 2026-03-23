@@ -20,9 +20,8 @@ public class StageRewardSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
-
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
         LoadClearedStages();
     }
 

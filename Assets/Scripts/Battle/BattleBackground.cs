@@ -42,7 +42,6 @@ public class BattleBackground : MonoBehaviour
     private int currentArea = -1;
     private Camera cachedCamera;
     private bool caveDarknessActive;
-    private Color originalMidTint;
     private StageManager cachedStageMgr;
 
     void Awake()
