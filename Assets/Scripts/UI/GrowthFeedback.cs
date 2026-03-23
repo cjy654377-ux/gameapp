@@ -169,16 +169,8 @@ public class GrowthFeedback : MonoBehaviour
 
     void OnAchievementCompleted(string id)
     {
-        var achs = AchievementManager.Instance?.GetAchievements();
-        if (achs == null) return;
-        for (int i = 0; i < achs.Count; i++)
-        {
-            if (achs[i].id == id)
-            {
-                StartCoroutine(AchieveBannerSlide(achs[i].name, achs[i].description));
-                return;
-            }
-        }
+        // 슬라이드 배너 제거 — 알림 뱃지로 대체
+        // 햄버거 메뉴 뱃지가 자동 갱신됨 (NotificationBadgeSystem)
     }
 
     IEnumerator AchieveBannerSlide(string title, string desc)
