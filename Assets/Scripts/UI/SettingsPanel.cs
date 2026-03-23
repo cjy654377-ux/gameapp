@@ -122,8 +122,9 @@ public class SettingsPanel : MonoBehaviour
         lrt.offsetMin = new Vector2(UIConstants.Spacing_Medium, 0);
         lrt.offsetMax = Vector2.zero;
 
+        bool initialState = toggleState;
         var (toggleBtn, _) = UIHelper.MakeSpriteButton("Toggle", rowBg.transform,
-            UISprites.Btn2_WS, toggleState ? UIColors.Button_Green : UIColors.Button_Brown,
+            UISprites.Btn2_WS, initialState ? UIColors.Button_Green : UIColors.Button_Brown,
             "", UIConstants.Font_SmallInfo);
         var trt = toggleBtn.GetComponent<RectTransform>();
         trt.anchorMin = new Vector2(0.65f, 0.15f);
@@ -131,17 +132,22 @@ public class SettingsPanel : MonoBehaviour
         trt.offsetMin = Vector2.zero;
         trt.offsetMax = Vector2.zero;
 
-        toggleText = UIHelper.MakeText("Status", toggleBtn.transform, toggleState ? "활성화" : "비활성화",
+        var statusText = UIHelper.MakeText("Status", toggleBtn.transform, initialState ? "활성화" : "비활성화",
             UIConstants.Font_SmallInfo, TextAlignmentOptions.Center, Color.white);
-        toggleText.fontStyle = FontStyles.Bold;
-        UIHelper.FillParent(toggleText.GetComponent<RectTransform>());
+        statusText.fontStyle = FontStyles.Bold;
+        UIHelper.FillParent(statusText.GetComponent<RectTransform>());
+        toggleText = statusText;
+
+        // 로컬 캡처용
+        var capturedText = statusText;
+        bool[] stateRef = { initialState };
 
         toggleBtn.onClick.AddListener(() =>
         {
-            toggleState = !toggleState;
+            stateRef[0] = !stateRef[0];
             var btnImg = toggleBtn.GetComponent<Image>();
-            btnImg.color = toggleState ? UIColors.Button_Green : UIColors.Button_Brown;
-            if (toggleText != null) toggleText.text = toggleState ? "활성화" : "비활성화";
+            btnImg.color = stateRef[0] ? UIColors.Button_Green : UIColors.Button_Brown;
+            if (capturedText != null) capturedText.text = stateRef[0] ? "활성화" : "비활성화";
             onClick?.Invoke();
         });
     }

@@ -475,8 +475,8 @@ public class MainHUD : MonoBehaviour
         vrt.offsetMax = new Vector2(-3, 0);
 
         // 버튼 컴포넌트 추가 및 재화 획득처 안내
-        var btn = container.AddComponent<Button>();
-        btn.targetGraphic = container.GetComponent<Image>();
+        var btn = container.gameObject.AddComponent<Button>();
+        btn.targetGraphic = container;
 
         string sourceText = name switch
         {
