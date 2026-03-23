@@ -86,6 +86,8 @@ public static class SaveKeys
     public const string HeroStarPrefix        = "HeroStar_";
     public const string HeroAwakeningPrefix   = "HeroAwaken_";
     public const string DeckSlotPrefix        = "Deck_";
+    public const string PresetSlotPrefix      = "Preset_";
+    public const string PresetSavedPrefix     = "PresetSaved_";
     public const string AchievementPrefix     = "Ach_";
     public const string AchievementClaimedPrefix = "AchClaimed_";
     public const string DailyMissionCurPrefix     = "DM_";

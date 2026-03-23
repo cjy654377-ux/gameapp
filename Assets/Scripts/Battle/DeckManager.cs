@@ -179,7 +179,7 @@ public class DeckManager : MonoBehaviour
     {
         for (int i = 0; i < MAX_DECK_SIZE; i++)
         {
-            string key = $"Deck_{i}";
+            string key = SaveKeys.DeckSlotPrefix + i;
             if (deck[i] != null)
                 PlayerPrefs.SetString(key, deck[i].name);
             else
@@ -194,7 +194,7 @@ public class DeckManager : MonoBehaviour
 
         for (int i = 0; i < MAX_DECK_SIZE; i++)
         {
-            string key = $"Deck_{i}";
+            string key = SaveKeys.DeckSlotPrefix + i;
             string presetName = PlayerPrefs.GetString(key, "");
 
             if (!string.IsNullOrEmpty(presetName))
@@ -269,10 +269,10 @@ public class DeckManager : MonoBehaviour
         if (slot < 0 || slot >= MAX_PRESETS) return;
         for (int i = 0; i < MAX_DECK_SIZE; i++)
         {
-            string key = $"Preset_{slot}_{i}";
+            string key = SaveKeys.PresetSlotPrefix + slot + "_" + i;
             PlayerPrefs.SetString(key, deck[i] != null ? deck[i].name : "");
         }
-        PlayerPrefs.SetInt($"PresetSaved_{slot}", 1);
+        PlayerPrefs.SetInt(SaveKeys.PresetSavedPrefix + slot, 1);
         PlayerPrefs.Save();
     }
 
@@ -284,7 +284,7 @@ public class DeckManager : MonoBehaviour
 
         for (int i = 0; i < MAX_DECK_SIZE; i++)
         {
-            string name = PlayerPrefs.GetString($"Preset_{slot}_{i}", "");
+            string name = PlayerPrefs.GetString(SaveKeys.PresetSlotPrefix + slot + "_" + i, "");
             deck[i] = string.IsNullOrEmpty(name) ? null : FindPresetByName(name);
         }
         SaveDeck();
@@ -296,6 +296,6 @@ public class DeckManager : MonoBehaviour
     public bool HasPreset(int slot)
     {
         if (slot < 0 || slot >= MAX_PRESETS) return false;
-        return PlayerPrefs.GetInt($"PresetSaved_{slot}", 0) == 1;
+        return PlayerPrefs.GetInt(SaveKeys.PresetSavedPrefix + slot, 0) == 1;
     }
 }
