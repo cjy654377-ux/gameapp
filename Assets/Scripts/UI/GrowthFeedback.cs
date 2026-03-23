@@ -121,23 +121,7 @@ public class GrowthFeedback : MonoBehaviour
 
     void OnHeroLevelUp(string heroName, int newLevel)
     {
-        var hlm = HeroLevelManager.Instance;
-        if (hlm == null) return;
-
-        // 이전 레벨 기준 보너스 (이미 올라갔으므로 -1)
-        int prevLv = newLevel - 1;
-        float prevAtk = (prevLv - 1) * 0.05f * 100f;
-        float prevHp  = (prevLv - 1) * 0.04f * 100f;
-        float curAtk  = hlm.GetAtkBonus(heroName) * 100f;
-        float curHp   = hlm.GetHpBonus(heroName)  * 100f;
-
-        string msg =
-            $"<size=20><b>{heroName}</b></size>\n" +
-            $"<color=#FFD700>Lv.{prevLv} → Lv.{newLevel}</color>\n\n" +
-            $"ATK +{curAtk:F0}%  <color=#888>(+{curAtk - prevAtk:F0}%)</color>\n" +
-            $"HP  +{curHp:F0}%  <color=#888>(+{curHp - prevHp:F0}%)</color>";
-
-        ShowLevelPopup(msg);
+        // 팝업 제거 — 플래시 이펙트만
         StartCoroutine(LevelUpFlash());
     }
 
