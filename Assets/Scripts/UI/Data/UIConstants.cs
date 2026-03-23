@@ -24,6 +24,7 @@ public static class UIConstants
 
     // Tab Bar
     public const float Tab_Height = 32f;
+    public const float SubTab_Height = 30f;
 
     // Panel
     public const float Panel_BorderWidth = 2f;

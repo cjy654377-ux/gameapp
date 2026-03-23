@@ -47,7 +47,7 @@ public class EnhancePanel : MonoBehaviour
         contentRT.offsetMax = new Vector2(0, -UIConstants.Tab_Height);
 
         // 서브탭 바
-        float subTabH = 30f;
+        float subTabH = UIConstants.SubTab_Height;
         var subTabBarBg = UIHelper.MakeSpritePanel("SubTabBar", content.transform,
             UISprites.BoxBasic3, UIColors.Background_Dark);
         var stbRT = subTabBarBg.GetComponent<RectTransform>();
@@ -251,7 +251,7 @@ public class EnhancePanel : MonoBehaviour
         var hlm = HeroLevelManager.Instance;
         if (dm == null) return;
 
-        RecycleList(heroListItems);
+        UIListPool.RecycleList(heroListItems);
         int heroReuse = 0;
 
         float itemH = 42f;
@@ -265,8 +265,8 @@ public class EnhancePanel : MonoBehaviour
             if (preset == null || preset.isEnemy) continue;
             string heroName = preset.characterName;
 
-            var item = ReuseOrCreate(heroListItems, ref heroReuse,
-                $"Hero_{heroName}", heroListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var item = UIListPool.ReuseOrCreate(heroListItems, ref heroReuse,
+                $"Hero_{heroName}", heroListContainer.transform, UIColors.ListItem_Normal);
             activeHeroCount++;
             // BoxIcon1 프레임
             var itemImg = item.GetComponent<Image>();
@@ -328,7 +328,7 @@ public class EnhancePanel : MonoBehaviour
             Sprite heroBtnSprite = canLevelUp ? UISprites.Btn2_WS : UISprites.Btn1_WS;
             var (btn, heroBtnImg) = UIHelper.MakeSpriteButton($"LvUp_{heroName}", item.transform,
                 heroBtnSprite, btnColor, "", 10f);
-            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (!canLevelUp && heroBtnImg.sprite != null) heroBtnImg.color = UIColors.Button_Disabled;
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f);
             btnRT.anchorMax = new Vector2(0.97f, 0.9f);
@@ -360,7 +360,7 @@ public class EnhancePanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(heroListItems, activeHeroCount);
+        UIListPool.TrimExcess(heroListItems, activeHeroCount);
         var containerRT = heroListContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
@@ -454,7 +454,7 @@ public class EnhancePanel : MonoBehaviour
         var em = EquipmentManager.Instance;
         if (em == null) return;
 
-        RecycleList(equipListItems);
+        UIListPool.RecycleList(equipListItems);
         int equipReuse = 0;
 
         var inv = em.Inventory;
@@ -481,8 +481,8 @@ public class EnhancePanel : MonoBehaviour
             Color rarityCol = equip.rarity >= 0 && equip.rarity < rarityColors.Length
                 ? rarityColors[equip.rarity] : UIColors.Text_DarkSecondary;
 
-            var item = ReuseOrCreate(equipListItems, ref equipReuse,
-                $"Equip_{i}", equipListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var item = UIListPool.ReuseOrCreate(equipListItems, ref equipReuse,
+                $"Equip_{i}", equipListContainer.transform, UIColors.ListItem_Normal);
             activeEquipCount++;
             // BoxBasic1 프레임
             var equipItemImg = item.GetComponent<Image>();
@@ -606,7 +606,7 @@ public class EnhancePanel : MonoBehaviour
                     var (enhBtn, _3) = UIHelper.MakeSpriteButton($"Enh_{i}", item.transform,
                         canEnhance ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                         canEnhance ? UIColors.Button_Green : UIColors.Button_Gray, "", 7f);
-                    if (!canEnhance && _3.sprite != null) _3.color = new Color(0.70f, 0.70f, 0.70f);
+                    if (!canEnhance && _3.sprite != null) _3.color = UIColors.Button_Disabled;
                     var enhBtnRT = enhBtn.GetComponent<RectTransform>();
                     enhBtnRT.anchorMin = new Vector2(0.72f, 0.52f);
                     enhBtnRT.anchorMax = new Vector2(0.84f, 0.95f);
@@ -675,7 +675,7 @@ public class EnhancePanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(equipListItems, activeEquipCount);
+        UIListPool.TrimExcess(equipListItems, activeEquipCount);
         var containerRT = equipListContainer.GetComponent<RectTransform>();
 
         // 빈 상태 안내
@@ -703,43 +703,6 @@ public class EnhancePanel : MonoBehaviour
             if (emptyEquipStateObj != null) emptyEquipStateObj.SetActive(false);
             containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
         }
-    }
-
-    // ════════════════════════════════════════
-    // 리스트 관리 유틸
-    // ════════════════════════════════════════
-
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
-        string name, Transform parent, Color bgColor)
-    {
-        GameObject go;
-        if (reuseIdx < items.Count && items[reuseIdx] != null)
-        {
-            go = items[reuseIdx];
-            go.SetActive(true);
-            for (int c = go.transform.childCount - 1; c >= 0; c--)
-                Object.Destroy(go.transform.GetChild(c).gameObject);
-        }
-        else
-        {
-            var img = UIHelper.MakePanel(name, parent, bgColor);
-            go = img.gameObject;
-            items.Add(go);
-        }
-        reuseIdx++;
-        return go;
-    }
-
-    static void TrimExcess(List<GameObject> items, int activeCount)
-    {
-        for (int i = activeCount; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
     }
 
     // ════════════════════════════════════════

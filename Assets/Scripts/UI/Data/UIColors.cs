@@ -34,6 +34,7 @@ public static class UIColors
     public static readonly Color Button_Yellow_Border = HexColor("#B8860B");
     public static readonly Color Button_Gray = HexColor("#6B6B6B");
     public static readonly Color Button_Brown = HexColor("#7B5230");
+    public static readonly Color Button_Disabled = new Color(0.70f, 0.70f, 0.70f);
     public static readonly Color Button_Blue  = HexColor("#2979FF");
     public static readonly Color Button_Brown_Top = HexColor("#8B6340");
     public static readonly Color Button_Brown_Bottom = HexColor("#5C3A20");

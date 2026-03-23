@@ -40,7 +40,7 @@ public class DeckUI : MonoBehaviour
     static readonly Color COLOR_SELECT_BORDER  = new Color(0.5f,  0.85f, 0.3f,  0.6f);
     static readonly Color COLOR_ITEM_FALLBACK_DECK = new Color(0.35f, 0.45f, 0.28f);
     static readonly Color COLOR_ITEM_FALLBACK_FREE = new Color(0.55f, 0.45f, 0.32f);
-    static readonly Color COLOR_BTN_DIM        = new Color(0.70f, 0.70f, 0.70f);
+    static readonly Color COLOR_BTN_DIM        = UIColors.Button_Disabled;
     static readonly Color COLOR_LABEL_DISABLED = new Color(0.60f, 0.60f, 0.60f);
 
     static Color GetRarityColor(StarGrade grade) => grade switch
@@ -604,7 +604,7 @@ public class DeckUI : MonoBehaviour
             string statusStr = inDeck ? "해제" : "편성";
             Sprite statusSprite = inDeck ? UISprites.Btn1_WS : UISprites.Btn2_WS;
             Color statusFallback = inDeck ? UIColors.Button_Brown : UIColors.Button_Green;
-            var (statusBtn, statusBtnImg) = UIHelper.MakeSpriteButton("Status", item.transform,
+            var (statusBtn, _) = UIHelper.MakeSpriteButton("Status", item.transform,
                 statusSprite, statusFallback, "", 9f);
             statusBtn.onClick.AddListener(() => OnRosterItemClicked(idx));
             var strt2 = statusBtn.GetComponent<RectTransform>();

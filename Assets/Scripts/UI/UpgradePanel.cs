@@ -151,7 +151,7 @@ public class UpgradePanel : MonoBehaviour
             text.text = canAfford ? $"{cost}G" : $"<color=#CC3333>{cost}G</color>";
         var img = b.GetComponent<Image>();
         if (img.sprite != null)
-            img.color = canAfford ? Color.white : new Color(0.70f, 0.70f, 0.70f);
+            img.color = canAfford ? Color.white : UIColors.Button_Disabled;
         else
             img.color = canAfford ? UIColors.Button_Green : UIColors.Button_Gray;
     }
@@ -167,7 +167,7 @@ public class UpgradePanel : MonoBehaviour
         var sum = SkillUpgradeManager.Instance;
         if (sm == null) return;
 
-        RecycleList(skillUpgradeItems);
+        UIListPool.RecycleList(skillUpgradeItems);
         int reuse = 0;
         float itemH = 38f;
         float spacing = 2f;
@@ -179,8 +179,8 @@ public class UpgradePanel : MonoBehaviour
             var skill = sm.equippedSkills[i];
             if (skill == null) continue;
 
-            var item = ReuseOrCreate(skillUpgradeItems, ref reuse,
-                $"SkillUp_{i}", skillUpgradeContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var item = UIListPool.ReuseOrCreate(skillUpgradeItems, ref reuse,
+                $"SkillUp_{i}", skillUpgradeContainer.transform, UIColors.ListItem_Normal);
             activeCount++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1);
@@ -222,7 +222,7 @@ public class UpgradePanel : MonoBehaviour
             var (btn, skillBtnImg) = UIHelper.MakeSpriteButton($"Up_{i}", item.transform,
                 canUp ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canUp ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (!canUp && skillBtnImg.sprite != null) skillBtnImg.color = UIColors.Button_Disabled;
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(0.68f, 0.1f);
             brt.anchorMax = new Vector2(0.97f, 0.9f);
@@ -248,51 +248,9 @@ public class UpgradePanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(skillUpgradeItems, activeCount);
+        UIListPool.TrimExcess(skillUpgradeItems, activeCount);
         var containerRT = skillUpgradeContainer.GetComponent<RectTransform>();
         containerRT.sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
 
-    // ════════════════════════════════════════
-    // 리스트 관리 유틸
-    // ════════════════════════════════════════
-
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
-        string name, Transform parent, Color bgColor)
-    {
-        GameObject go;
-        if (reuseIdx < items.Count && items[reuseIdx] != null)
-        {
-            go = items[reuseIdx];
-            go.SetActive(true);
-            for (int c = go.transform.childCount - 1; c >= 0; c--)
-                Object.Destroy(go.transform.GetChild(c).gameObject);
-        }
-        else
-        {
-            var img = UIHelper.MakePanel(name, parent, bgColor);
-            go = img.gameObject;
-            items.Add(go);
-        }
-        reuseIdx++;
-        return go;
-    }
-
-    static void TrimExcess(List<GameObject> items, int activeCount)
-    {
-        for (int i = activeCount; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    void OnDestroy()
-    {
-        // 동적 생성된 버튼들은 GameObjects 파괴 시 함께 정리되므로
-        // RemoveAllListeners는 안전성을 위한 추가 정리
-    }
 }

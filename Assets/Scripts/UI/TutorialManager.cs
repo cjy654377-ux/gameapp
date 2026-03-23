@@ -43,7 +43,6 @@ public class TutorialManager : MonoBehaviour
     float battleStartRealtime = -1f; // step 0: 전투 시작 3초 후 체크
 
     // Cached references for safe unsubscribe
-    GoldManager cachedGoldMgr;
     StageManager cachedStageMgr;
     GachaManager cachedGachaMgr;
 
@@ -71,12 +70,9 @@ public class TutorialManager : MonoBehaviour
     {
         yield return null;
 
-        cachedGoldMgr = GoldManager.Instance;
         cachedStageMgr = StageManager.Instance;
         cachedGachaMgr = GachaManager.Instance;
 
-        if (cachedGoldMgr != null)
-            cachedGoldMgr.OnGoldChanged += OnGoldChanged;
         if (cachedStageMgr != null)
             cachedStageMgr.OnStageChanged += OnStageChanged;
         if (cachedGachaMgr != null)
@@ -89,8 +85,6 @@ public class TutorialManager : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
-        if (cachedGoldMgr != null)
-            cachedGoldMgr.OnGoldChanged -= OnGoldChanged;
         if (cachedStageMgr != null)
             cachedStageMgr.OnStageChanged -= OnStageChanged;
         if (cachedGachaMgr != null)
@@ -155,8 +149,6 @@ public class TutorialManager : MonoBehaviour
         if (currentStep == 1)
             ShowStep(1);
     }
-
-    void OnGoldChanged(int gold) { } // 더 이상 골드 기반 트리거 없음
 
     void OnHeroPulled(CharacterPreset hero)
     {

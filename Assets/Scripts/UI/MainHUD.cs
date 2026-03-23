@@ -850,7 +850,7 @@ public class MainHUD : MonoBehaviour
     void CreateHamburgerOverlay()
     {
         float refH = UIConstants.ReferenceResolution.y;
-        float navRatio = 58f / refH;
+        float navRatio = UIConstants.NavBar_Height / refH;
         float hudRatio = UIConstants.HUD_Height / refH;
 
         hamburgerOverlay = UIHelper.MakeUI("HamburgerOverlay", safeAreaRoot.transform);

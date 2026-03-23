@@ -156,7 +156,7 @@ public class ShopPanel : MonoBehaviour
         var shop = ShopManager.Instance;
         if (shop == null) return;
 
-        RecycleList(shopListItems);
+        UIListPool.RecycleList(shopListItems);
         int reuse = 0;
         var items = shop.GetStockItems();
         float itemH = 52f, spacing = 4f, y = 0;
@@ -165,7 +165,7 @@ public class ShopPanel : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             var shopItem = items[i];
-            var item = ReuseOrCreate(shopListItems, ref reuse, $"Shop_{i}", shopListContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var item = UIListPool.ReuseOrCreate(shopListItems, ref reuse, $"Shop_{i}", shopListContainer.transform, UIColors.ListItem_Normal);
             active++;
             // BoxBasic1 배경
             var shopItemImg = item.GetComponent<Image>();
@@ -223,7 +223,7 @@ public class ShopPanel : MonoBehaviour
             var (btn, shopBtnImg) = UIHelper.MakeSpriteButton($"Buy_{i}", item.transform,
                 canBuy ? UISprites.Btn2_WS : UISprites.Btn1_WS,
                 canBuy ? UIColors.Button_Green : UIColors.Button_Gray, "", 10f);
-            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (!canBuy && shopBtnImg.sprite != null) shopBtnImg.color = UIColors.Button_Disabled;
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f); btnRT.anchorMax = new Vector2(0.97f, 0.9f);
             btnRT.offsetMin = Vector2.zero; btnRT.offsetMax = Vector2.zero;
@@ -263,46 +263,8 @@ public class ShopPanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(shopListItems, active);
+        UIListPool.TrimExcess(shopListItems, active);
         shopListContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Abs(y));
-    }
-
-    // ════════════════════════════════════════
-    // 리스트 관리 유틸
-    // ════════════════════════════════════════
-
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
-        string name, Transform parent, Color color)
-    {
-        while (reuseIdx < items.Count)
-        {
-            var candidate = items[reuseIdx++];
-            if (candidate == null) continue;
-            for (int c = candidate.transform.childCount - 1; c >= 0; c--)
-                Object.Destroy(candidate.transform.GetChild(c).gameObject);
-            candidate.SetActive(true);
-            candidate.name = name;
-            candidate.GetComponent<Image>().color = color;
-            return candidate;
-        }
-        var img = UIHelper.MakePanel(name, parent, color);
-        items.Add(img.gameObject);
-        return img.gameObject;
-    }
-
-    static void TrimExcess(List<GameObject> items, int activeCount)
-    {
-        for (int i = items.Count - 1; i >= activeCount; i--)
-        {
-            if (items[i] != null) Object.Destroy(items[i]);
-            items.RemoveAt(i);
-        }
     }
 
     void OnDestroy()

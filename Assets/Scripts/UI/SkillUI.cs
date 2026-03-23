@@ -357,8 +357,8 @@ public class SkillUI : MonoBehaviour
 
     public void RefreshSlots()
     {
-        if (SkillManager.Instance == null) return;
-        var skills = SkillManager.Instance.equippedSkills;
+        if (cachedSkillMgr == null) return;
+        var skills = cachedSkillMgr.equippedSkills;
 
         for (int i = 0; i < SLOT_COUNT; i++)
         {
@@ -470,16 +470,16 @@ public class SkillUI : MonoBehaviour
 
     void OnSlotClicked(int slot)
     {
-        if (SkillManager.Instance != null)
-            SkillManager.Instance.UseSkill(slot);
+        if (cachedSkillMgr != null)
+            cachedSkillMgr.UseSkill(slot);
     }
 
     void OnAutoToggleClicked()
     {
-        if (SkillManager.Instance == null) return;
-        SkillManager.Instance.autoUse = !SkillManager.Instance.autoUse;
+        if (cachedSkillMgr == null) return;
+        cachedSkillMgr.autoUse = !cachedSkillMgr.autoUse;
 
-        bool isAuto = SkillManager.Instance.autoUse;
+        bool isAuto = cachedSkillMgr.autoUse;
         autoToggleText.text = "A";
         if (autoToggleImage != null)
             autoToggleImage.color = isAuto ? UIColors.Button_Green : UIColors.Button_Gray;

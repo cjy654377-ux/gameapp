@@ -54,7 +54,7 @@ public class HamburgerPanel : MonoBehaviour
         contentRT.offsetMin = Vector2.zero;
         contentRT.offsetMax = Vector2.zero;
 
-        float subTabH = 30f;
+        float subTabH = UIConstants.SubTab_Height;
         var subTabBarBg = UIHelper.MakeSpritePanel("SubTabBar", content.transform,
             UISprites.BoxBasic3, UIColors.Background_Dark);
         var stbRT = subTabBarBg.GetComponent<RectTransform>();
@@ -248,7 +248,7 @@ public class HamburgerPanel : MonoBehaviour
         var am = AchievementManager.Instance;
         if (am == null) return;
 
-        RecycleList(achieveListItems);
+        UIListPool.RecycleList(achieveListItems);
         int reuse = 0;
         var achievements = am.GetAchievements();
         float itemH = 42f, spacing = 2f, y = 0;
@@ -260,7 +260,7 @@ public class HamburgerPanel : MonoBehaviour
             Color bgColor = ach.claimed ? UIColors.ListItem_Claimed :
                             ach.completed ? UIColors.ListItem_Completed : UIColors.ListItem_Normal;
 
-            var item = ReuseOrCreate(achieveListItems, ref reuse, $"Ach_{i}", achieveListContainer.transform, bgColor);
+            var item = UIListPool.ReuseOrCreate(achieveListItems, ref reuse, $"Ach_{i}", achieveListContainer.transform, bgColor);
             active++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1); irt.anchorMax = new Vector2(1, 1);
@@ -294,7 +294,7 @@ public class HamburgerPanel : MonoBehaviour
             else                    { btnLabel = "미달성"; btnSprite = UISprites.Btn1_WS; btnFallback = UIColors.Button_Gray; }
 
             var (btn, achBtnImg) = UIHelper.MakeSpriteButton($"AchBtn_{i}", item.transform, btnSprite, btnFallback, "", 10f);
-            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (ach.claimed && achBtnImg.sprite != null) achBtnImg.color = UIColors.Button_Disabled;
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.70f, 0.1f); btnRT.anchorMax = new Vector2(0.97f, 0.9f);
             btnRT.offsetMin = Vector2.zero; btnRT.offsetMax = Vector2.zero;
@@ -320,7 +320,7 @@ public class HamburgerPanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(achieveListItems, active);
+        UIListPool.TrimExcess(achieveListItems, active);
         achieveListContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
 
@@ -380,7 +380,7 @@ public class HamburgerPanel : MonoBehaviour
         var mm = DailyMissionManager.Instance;
         if (mm == null) return;
 
-        RecycleList(missionListItems);
+        UIListPool.RecycleList(missionListItems);
         int reuse = 0;
         var missions = mm.GetMissions();
         float itemH = 42f, spacing = 2f, y = 0;
@@ -393,7 +393,7 @@ public class HamburgerPanel : MonoBehaviour
             Color bgColor = mission.claimed ? UIColors.ListItem_Claimed :
                             completed ? UIColors.ListItem_Completed : UIColors.ListItem_Normal;
 
-            var item = ReuseOrCreate(missionListItems, ref reuse, $"Mission_{i}", missionListContainer.transform, bgColor);
+            var item = UIListPool.ReuseOrCreate(missionListItems, ref reuse, $"Mission_{i}", missionListContainer.transform, bgColor);
             active++;
             var irt = item.GetComponent<RectTransform>();
             irt.anchorMin = new Vector2(0, 1); irt.anchorMax = new Vector2(1, 1);
@@ -429,7 +429,7 @@ public class HamburgerPanel : MonoBehaviour
             else                  { btnLabel = "진행중"; mBtnSprite = UISprites.Btn1_WS; mBtnFallback = UIColors.Button_Gray; }
 
             var (btn, mBtnImg) = UIHelper.MakeSpriteButton($"MissionBtn_{i}", item.transform, mBtnSprite, mBtnFallback, "", 10f);
-            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = new Color(0.70f, 0.70f, 0.70f);
+            if (mission.claimed && mBtnImg.sprite != null) mBtnImg.color = UIColors.Button_Disabled;
             var btnRT = btn.GetComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.68f, 0.1f); btnRT.anchorMax = new Vector2(0.97f, 0.9f);
             btnRT.offsetMin = Vector2.zero; btnRT.offsetMax = Vector2.zero;
@@ -455,7 +455,7 @@ public class HamburgerPanel : MonoBehaviour
             y -= (itemH + spacing);
         }
 
-        TrimExcess(missionListItems, active);
+        UIListPool.TrimExcess(missionListItems, active);
         missionListContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Abs(y));
     }
 
@@ -539,7 +539,7 @@ public class HamburgerPanel : MonoBehaviour
         {
             var img = arenaBattleBtn.GetComponent<Image>();
             if (img.sprite != null)
-                img.color = am.CanBattle ? Color.white : new Color(0.70f, 0.70f, 0.70f);
+                img.color = am.CanBattle ? Color.white : UIColors.Button_Disabled;
             else
                 img.color = am.CanBattle ? UIColors.Button_Green : UIColors.Button_Gray;
         }
@@ -653,7 +653,7 @@ public class HamburgerPanel : MonoBehaviour
         // 일일 퀘스트 리스트
         if (questListContainer != null)
         {
-            RecycleList(questListItems);
+            UIListPool.RecycleList(questListItems);
             int reuse = 0;
             var qm = DailyQuestManager.Instance;
             if (qm != null)
@@ -671,7 +671,7 @@ public class HamburgerPanel : MonoBehaviour
                     Color bg = q.claimed ? UIColors.ListItem_Claimed :
                                done ? UIColors.ListItem_Completed : UIColors.ListItem_Normal;
 
-                    var item = ReuseOrCreate(questListItems, ref reuse, $"Q_{i}", questListContainer.transform, bg);
+                    var item = UIListPool.ReuseOrCreate(questListItems, ref reuse, $"Q_{i}", questListContainer.transform, bg);
                     active++;
                     var irt = item.GetComponent<RectTransform>();
                     irt.anchorMin = new Vector2(0, 1); irt.anchorMax = new Vector2(1, 1);
@@ -735,7 +735,7 @@ public class HamburgerPanel : MonoBehaviour
                     }
                     y -= (itemH + spacing);
                 }
-                TrimExcess(questListItems, active);
+                UIListPool.TrimExcess(questListItems, active);
             }
         }
 
@@ -932,43 +932,6 @@ public class HamburgerPanel : MonoBehaviour
     }
 
     // ════════════════════════════════════════
-    // 리스트 관리 유틸
-    // ════════════════════════════════════════
-
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> items, ref int reuseIdx,
-        string name, Transform parent, Color color)
-    {
-        while (reuseIdx < items.Count)
-        {
-            var candidate = items[reuseIdx++];
-            if (candidate == null) continue;
-            for (int c = candidate.transform.childCount - 1; c >= 0; c--)
-                Object.Destroy(candidate.transform.GetChild(c).gameObject);
-            candidate.SetActive(true);
-            candidate.name = name;
-            candidate.GetComponent<Image>().color = color;
-            return candidate;
-        }
-        var img = UIHelper.MakeSpritePanel(name, parent, UISprites.BoxBasic3, color);
-        items.Add(img.gameObject);
-        return img.gameObject;
-    }
-
-    static void TrimExcess(List<GameObject> items, int activeCount)
-    {
-        for (int i = items.Count - 1; i >= activeCount; i--)
-        {
-            if (items[i] != null) Object.Destroy(items[i]);
-            items.RemoveAt(i);
-        }
-    }
-
     void OnDestroy()
     {
         if (subTabBtns != null)

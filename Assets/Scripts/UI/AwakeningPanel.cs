@@ -101,7 +101,7 @@ public class AwakeningPanel : MonoBehaviour
         if (dm == null) return;
 
         // 기존 아이템 재활용
-        RecycleList(listItems);
+        UIListPool.RecycleList(listItems);
         int reuse = 0;
 
         const float ITEM_H   = 52f;
@@ -121,9 +121,10 @@ public class AwakeningPanel : MonoBehaviour
             int needed    = hlm != null ? hlm.GetAwakeningCopiesNeeded(star) : 999;
             bool canAwaken = hlm != null && hlm.CanAwaken(heroName);
 
-            var item = ReuseOrCreate(listItems, ref reuse,
+            var item = UIListPool.ReuseOrCreate(listItems, ref reuse,
                 $"Awake_{heroName}", listContainer.transform,
-                canAwaken ? new Color(0.90f, 0.95f, 0.85f) : new Color(0.90f, 0.87f, 0.82f));
+                canAwaken ? new Color(0.90f, 0.95f, 0.85f) : new Color(0.90f, 0.87f, 0.82f),
+                UISprites.BoxBasic1);
             count++;
 
             var irt = item.GetComponent<RectTransform>();
@@ -206,7 +207,7 @@ public class AwakeningPanel : MonoBehaviour
                 btnSprite, btnColor, "", 10f);
             btn.interactable = canAwaken && !isMax;
             if (!btn.interactable && btnImg.sprite != null)
-                btnImg.color = new Color(0.70f, 0.70f, 0.70f);
+                btnImg.color = UIColors.Button_Disabled;
             var brt = btn.GetComponent<RectTransform>();
             brt.anchorMin = new Vector2(0.68f, 0.1f);
             brt.anchorMax = new Vector2(0.97f, 0.9f);
@@ -357,33 +358,4 @@ public class AwakeningPanel : MonoBehaviour
         }
     }
 
-    // ────────────────────────────────────────
-    // List pooling helpers
-    // ────────────────────────────────────────
-
-    static void RecycleList(List<GameObject> items)
-    {
-        for (int i = 0; i < items.Count; i++)
-            if (items[i] != null) items[i].SetActive(false);
-    }
-
-    static GameObject ReuseOrCreate(List<GameObject> pool, ref int reuseIdx,
-        string name, Transform parent, Color bgColor)
-    {
-        GameObject obj;
-        if (reuseIdx < pool.Count && pool[reuseIdx] != null)
-        {
-            obj = pool[reuseIdx];
-            obj.SetActive(true);
-            foreach (Transform child in obj.transform)
-                Object.Destroy(child.gameObject);
-        }
-        else
-        {
-            obj = UIHelper.MakeSpritePanel(name, parent, UISprites.BoxBasic1, bgColor).gameObject;
-            pool.Add(obj);
-        }
-        reuseIdx++;
-        return obj;
-    }
 }

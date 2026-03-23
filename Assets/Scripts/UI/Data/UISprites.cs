@@ -24,7 +24,6 @@ public static class UISprites
     public static Sprite BoxIcon1    => Load("UI/Box_Icon1");
     public static Sprite BoxProfile  => Load("UI/Box_Profile");
 
-
     // ── Button ─────────────────────────────────────────────────
     /// 기본 버튼 (Wide Stretch 변형)
     public static Sprite Btn1_WS     => Load("UI/Button_Basic1_WS");
@@ -34,8 +33,6 @@ public static class UISprites
 
     /// 닫기 버튼
     public static Sprite BtnX        => Load("UI/Button_X");
-
-
 
     // ── Icons (Theme1 / Basic) ─────────────────────────────────
     public static Sprite IconGold      => Load("UI/Icon_Gold");

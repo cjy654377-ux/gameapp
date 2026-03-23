@@ -171,7 +171,7 @@ public class HeroSelectPanel : MonoBehaviour
             Color rarityCol = GetStarGradeColor(preset.starGrade);
             string rarityLabel = GetStarGradeLabel(preset.starGrade);
 
-            var itemImg = UIHelper.MakePanel($"Hero_{i}", listContainer.transform, new Color(0.92f, 0.88f, 0.82f));
+            var itemImg = UIHelper.MakePanel($"Hero_{i}", listContainer.transform, UIColors.ListItem_Normal);
             var item = itemImg.gameObject;
             listItems.Add(item);
             var irt = item.GetComponent<RectTransform>();
