@@ -143,11 +143,7 @@ public class ToastNotification : MonoBehaviour
 
     public void Show(string title, string subtitle, Color? accentColor = null)
     {
-        var color = accentColor ?? UIColors.Text_Gold;
-        queue.Enqueue((title, subtitle, color));
-
-        if (!isShowing)
-            StartCoroutine(ProcessQueue());
+        // 토스트/슬라이드 팝업 전부 비활성화 — 알림 뱃지로 대체
     }
 
     IEnumerator ProcessQueue()

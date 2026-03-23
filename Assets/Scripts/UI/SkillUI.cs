@@ -69,7 +69,7 @@ public class SkillUI : MonoBehaviour
         CreateCanvas();
         CreateSkillSlots();
         CreateAutoToggle();
-        CreateBuffBar();
+        // CreateBuffBar(); — 전투 화면 플로팅 UI 제거
     }
 
     SkillManager cachedSkillMgr;

@@ -162,7 +162,7 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged += OnStageChanged;
             cachedStageMgr.OnBossSpawned += OnBossSpawned;
             cachedStageMgr.OnWaveCleared += OnWaveCleared;
-            cachedStageMgr.OnRevengeStackChanged += UpdateRevengeUI;
+            // cachedStageMgr.OnRevengeStackChanged += UpdateRevengeUI; — 제거
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged += OnBattleStateChanged;
@@ -240,7 +240,7 @@ public class MainHUD : MonoBehaviour
         CreateHUDBar();
         CreateWaveBanner();
         CreateKillCounter();
-        CreateRevengeIcon();
+        // CreateRevengeIcon(); — 제거 (촌스러운 플로팅 UI)
 
         heroSelectPanel = safeAreaRoot.AddComponent<HeroSelectPanel>();
         heroSelectPanel.Init(safeAreaRoot.transform, () => enhancePanel?.Refresh());
@@ -1439,7 +1439,7 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged -= OnStageChanged;
             cachedStageMgr.OnBossSpawned -= OnBossSpawned;
             cachedStageMgr.OnWaveCleared -= OnWaveCleared;
-            cachedStageMgr.OnRevengeStackChanged -= UpdateRevengeUI;
+            // cachedStageMgr.OnRevengeStackChanged -= UpdateRevengeUI; — 제거
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged -= OnBattleStateChanged;
