@@ -1720,11 +1720,21 @@ public class MainHUD : MonoBehaviour
 
         // sorting order 최상위
         loadingScreen.transform.SetAsLastSibling();
+
+        // 안전장치: 3초 후 강제 제거 (DeferredSubscribe 실패 시 대비)
+        StartCoroutine(ForceRemoveLoading());
+    }
+
+    System.Collections.IEnumerator ForceRemoveLoading()
+    {
+        yield return new WaitForSecondsRealtime(3f);
+        if (loadingScreen != null)
+            Destroy(loadingScreen);
     }
 
     System.Collections.IEnumerator FadeOutLoading()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         float duration = 0.5f;
         float elapsed = 0;
         while (elapsed < duration)
