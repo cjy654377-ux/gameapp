@@ -53,6 +53,8 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<AwakeningStoneManager>("AwakeningStoneManager");
         EnsureSystem<AuthManager>("AuthManager");
         EnsureSystem<CloudSaveManager>("CloudSaveManager");
+        EnsureSystem<NotificationBadgeSystem>("NotificationBadgeSystem");
+        EnsureSystem<GrowthFeedback>("GrowthFeedback");
 
         // 앱 시작 시 게스트 자동 로그인 (아직 로그인 안 된 경우)
         if (AuthManager.Instance != null && !AuthManager.Instance.IsLoggedIn)

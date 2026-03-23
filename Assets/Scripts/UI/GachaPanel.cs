@@ -173,8 +173,15 @@ public class GachaPanel : MonoBehaviour
         SetSubTabActive(heroTabBtn,  true);
         SetSubTabActive(mountTabBtn, false);
         SetSubTabActive(skillTabBtn, false);
+        RefreshHeroGemText();
         RefreshPityText();
         RefreshGachaTabBadges();
+    }
+
+    void RefreshHeroGemText()
+    {
+        if (gemText != null && GemManager.Instance != null)
+            gemText.text = $"{GemManager.Instance.Gem}";
     }
 
     void ShowMountTab()
@@ -226,11 +233,20 @@ public class GachaPanel : MonoBehaviour
         gcrt.anchorMax = new Vector2(0.8f, 0.98f);
         gcrt.offsetMin = gcrt.offsetMax = Vector2.zero;
 
-        gemText = UIHelper.MakeText("GemInfo", gemContainer.transform, "보석: 0",
+        var gemIcon = UIHelper.MakeIcon("GemIcon", gemContainer.transform, UISprites.IconDiamond, Color.white);
+        var giRT = gemIcon.GetComponent<RectTransform>();
+        giRT.anchorMin = new Vector2(0.05f, 0.1f);
+        giRT.anchorMax = new Vector2(0.22f, 0.9f);
+        giRT.offsetMin = giRT.offsetMax = Vector2.zero;
+
+        gemText = UIHelper.MakeText("GemInfo", gemContainer.transform, "0",
             UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Diamond);
         gemText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(gemText);
-        UIHelper.FillParent(gemText.GetComponent<RectTransform>());
+        var gtRT = gemText.GetComponent<RectTransform>();
+        gtRT.anchorMin = new Vector2(0.22f, 0f);
+        gtRT.anchorMax = new Vector2(1f, 1f);
+        gtRT.offsetMin = gtRT.offsetMax = Vector2.zero;
 
         // 1회 소환 버튼
         var (singleBtn, _) = UIHelper.MakeSpriteButton("SinglePull", parent,
@@ -344,11 +360,20 @@ public class GachaPanel : MonoBehaviour
         scrt.anchorMax = new Vector2(0.8f, 0.98f);
         scrt.offsetMin = scrt.offsetMax = Vector2.zero;
 
-        skillScrollText = UIHelper.MakeText("ScrollInfo", scrollContainer.transform, "주문서: 0",
+        var scrollIcon = UIHelper.MakeIcon("ScrollIcon", scrollContainer.transform, UISprites.IconSkill, Color.white);
+        var siRT = scrollIcon.GetComponent<RectTransform>();
+        siRT.anchorMin = new Vector2(0.05f, 0.1f);
+        siRT.anchorMax = new Vector2(0.22f, 0.9f);
+        siRT.offsetMin = siRT.offsetMax = Vector2.zero;
+
+        skillScrollText = UIHelper.MakeText("ScrollInfo", scrollContainer.transform, "0",
             UIConstants.Font_StatLabel, TextAlignmentOptions.Center, new Color(0.88f, 0.68f, 1.00f));
         skillScrollText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(skillScrollText);
-        UIHelper.FillParent(skillScrollText.GetComponent<RectTransform>());
+        var ssRT = skillScrollText.GetComponent<RectTransform>();
+        ssRT.anchorMin = new Vector2(0.22f, 0f);
+        ssRT.anchorMax = new Vector2(1f, 1f);
+        ssRT.offsetMin = ssRT.offsetMax = Vector2.zero;
 
         // 스킬 소환 버튼 (주문서 1개)
         var (pullBtn, _) = UIHelper.MakeSpriteButton("SkillPull", parent,
@@ -395,7 +420,7 @@ public class GachaPanel : MonoBehaviour
     {
         if (skillScrollText == null) return;
         int scrolls = SpellScrollManager.Instance != null ? SpellScrollManager.Instance.Scroll : 0;
-        skillScrollText.text = $"주문서: {scrolls}";
+        skillScrollText.text = $"{scrolls}";
     }
 
     void RefreshPityText()
@@ -418,7 +443,7 @@ public class GachaPanel : MonoBehaviour
     public void Refresh()
     {
         if (gemText != null && GemManager.Instance != null)
-            gemText.text = $"보석: {GemManager.Instance.Gem}";
+            gemText.text = $"{GemManager.Instance.Gem}";
         mountPanel?.Refresh();
         RefreshSkillScrollText();
         RefreshPityText();

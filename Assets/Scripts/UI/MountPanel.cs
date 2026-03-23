@@ -55,11 +55,20 @@ public class MountPanel : MonoBehaviour
         rt.anchorMax = new Vector2(0.95f, 0.99f);
         rt.offsetMin = rt.offsetMax = Vector2.zero;
 
-        stoneText = UIHelper.MakeText("StoneInfo", bar.transform, "소환석: 0",
+        var stoneIcon = UIHelper.MakeIcon("StoneIcon", bar.transform, UISprites.SpumIcon(136), Color.white);
+        var siRT = stoneIcon.GetComponent<RectTransform>();
+        siRT.anchorMin = new Vector2(0.05f, 0.1f);
+        siRT.anchorMax = new Vector2(0.22f, 0.9f);
+        siRT.offsetMin = siRT.offsetMax = Vector2.zero;
+
+        stoneText = UIHelper.MakeText("StoneInfo", bar.transform, "0",
             UIConstants.Font_StatLabel, TextAlignmentOptions.Center, UIColors.Text_Gold);
         stoneText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(stoneText);
-        UIHelper.FillParent(stoneText.GetComponent<RectTransform>());
+        var stRT = stoneText.GetComponent<RectTransform>();
+        stRT.anchorMin = new Vector2(0.22f, 0f);
+        stRT.anchorMax = new Vector2(1f, 1f);
+        stRT.offsetMin = stRT.offsetMax = Vector2.zero;
     }
 
     void BuildPullButton(Transform parent)
@@ -118,7 +127,7 @@ public class MountPanel : MonoBehaviour
     {
         if (stoneText == null) return;
         int stones = SummonStoneManager.Instance != null ? SummonStoneManager.Instance.Stone : 0;
-        stoneText.text = $"소환석: {stones}";
+        stoneText.text = $"{stones}";
     }
 
     void RefreshList()
