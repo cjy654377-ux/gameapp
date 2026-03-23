@@ -139,8 +139,8 @@ public class StageManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
 
         // Inspector에서 할당 안 된 경우 Resources에서 자동 로드
         AutoLoadPresets();

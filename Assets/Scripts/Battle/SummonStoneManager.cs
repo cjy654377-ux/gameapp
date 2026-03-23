@@ -17,9 +17,8 @@ public class SummonStoneManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
-
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
         Stone = PlayerPrefs.GetInt(SaveKeys.SummonStone, 0);
     }
 

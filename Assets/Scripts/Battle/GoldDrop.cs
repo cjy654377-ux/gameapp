@@ -36,6 +36,11 @@ public class GoldDrop : MonoBehaviour
     const float BLINK_FREQ = 6f;
     const float COLLIDER_SIZE = 1f;
     const float POPUP_HEIGHT = 0.3f;
+    const float FLY_TO_HUD_DURATION = 0.35f;
+    const float HUD_GOLD_SCREEN_X = 0.12f;
+    const float HUD_GOLD_SCREEN_Y = 0.92f;
+    const float HUD_Z_DEPTH = 10f;
+    const float FINAL_SCALE_MULT = 0.05f;
 
     public static void Spawn(Vector3 position, int amount)
     {
@@ -151,22 +156,20 @@ public class GoldDrop : MonoBehaviour
 
     System.Collections.IEnumerator FlyToHUD()
     {
-        float duration = 0.35f;
         float elapsed = 0f;
         Vector3 startPos = transform.position;
         Vector3 startScale = transform.localScale;
 
-        // HUD 골드 위치: 화면 좌상단 근처 (WorldToScreenPoint 역산)
         var cam = Camera.main;
-        Vector3 hudScreenPos = new Vector3(Screen.width * 0.12f, Screen.height * 0.92f, 10f);
+        Vector3 hudScreenPos = new Vector3(Screen.width * HUD_GOLD_SCREEN_X, Screen.height * HUD_GOLD_SCREEN_Y, HUD_Z_DEPTH);
         Vector3 endPos = cam != null ? cam.ScreenToWorldPoint(hudScreenPos) : startPos + Vector3.up * 3f;
 
-        while (elapsed < duration)
+        while (elapsed < FLY_TO_HUD_DURATION)
         {
             elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / FLY_TO_HUD_DURATION);
             transform.position = Vector3.Lerp(startPos, endPos, t);
-            transform.localScale = Vector3.Lerp(startScale, startScale * 0.05f, t);
+            transform.localScale = Vector3.Lerp(startScale, startScale * FINAL_SCALE_MULT, t);
             yield return null;
         }
         ReturnToPool();

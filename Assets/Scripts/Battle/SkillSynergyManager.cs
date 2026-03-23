@@ -22,9 +22,8 @@ public class SkillSynergyManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
-
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
         allSynergies = Resources.LoadAll<SkillSynergyData>("Synergies");
     }
 

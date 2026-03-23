@@ -20,8 +20,8 @@ public class SkillManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
     }
 
     void Start()

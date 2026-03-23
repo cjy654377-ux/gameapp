@@ -35,8 +35,8 @@ public class OfflineRewardManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
     }
 
     void OnDestroy()

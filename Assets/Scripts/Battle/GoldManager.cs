@@ -14,16 +14,16 @@ public class GoldManager : MonoBehaviour
 
     private float boostMultiplier = 1f;
     private float boostEndTime = 0f;
-    private const float BOOST_DURATION_SECONDS = 1800f; // 30분
+    private const float BOOST_DURATION_SECONDS = 1800f;
+    private const float BOOST_INACTIVE = 0f;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
 
         Gold = PlayerPrefs.GetInt(SaveKeys.Gold, 0);
 
-        // Boost 타이머 복구
         string boostTimeStr = PlayerPrefs.GetString(SaveKeys.GoldBoostEndTime, "0");
         if (double.TryParse(boostTimeStr, out double boostTime))
             boostEndTime = (float)boostTime;
@@ -31,26 +31,15 @@ public class GoldManager : MonoBehaviour
 
     public void AddGold(int amount)
     {
-        // Boost 종료 시간 확인
-        float now = (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
-        if (now >= boostEndTime)
-        {
-            boostMultiplier = 1f;
-            boostEndTime = 0f;
-        }
-        else
-        {
-            boostMultiplier = 2f;
-        }
+        boostMultiplier = (GetCurrentUnixTime() < boostEndTime) ? 2f : 1f;
+        if (boostMultiplier == 1f)
+            boostEndTime = BOOST_INACTIVE;
 
         int finalAmount = Mathf.RoundToInt(amount * boostMultiplier);
         Gold += finalAmount;
         isDirty = true;
         OnGoldChanged?.Invoke(Gold);
-
-        // 통계 기록
-        if (GameStatsManager.Instance != null)
-            GameStatsManager.Instance.AddGoldEarned(finalAmount);
+        GameStatsManager.Instance?.AddGoldEarned(finalAmount);
     }
 
     public bool SpendGold(int amount)
@@ -64,19 +53,15 @@ public class GoldManager : MonoBehaviour
 
     void Update()
     {
-        // Boost 타이머 업데이트
         if (boostEndTime > 0)
         {
-            float now = (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
-            float remainingSeconds = Mathf.Max(0f, boostEndTime - now);
+            float remainingSeconds = Mathf.Max(0f, boostEndTime - GetCurrentUnixTime());
             if (remainingSeconds > 0)
-            {
                 OnBoostTimerChanged?.Invoke(remainingSeconds);
-            }
             else
             {
                 boostMultiplier = 1f;
-                boostEndTime = 0f;
+                boostEndTime = BOOST_INACTIVE;
                 PlayerPrefs.DeleteKey(SaveKeys.GoldBoostEndTime);
             }
         }
@@ -84,9 +69,7 @@ public class GoldManager : MonoBehaviour
         if (!isDirty) return;
         saveTimer += Time.unscaledDeltaTime;
         if (saveTimer >= SAVE_INTERVAL)
-        {
             FlushSave();
-        }
     }
 
     void FlushSave()
@@ -122,8 +105,7 @@ public class GoldManager : MonoBehaviour
 
     public void ActivateBoost()
     {
-        float now = (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
-        boostEndTime = now + BOOST_DURATION_SECONDS;
+        boostEndTime = GetCurrentUnixTime() + BOOST_DURATION_SECONDS;
         boostMultiplier = 2f;
         PlayerPrefs.SetString(SaveKeys.GoldBoostEndTime, boostEndTime.ToString("F0"));
         PlayerPrefs.Save();
@@ -133,8 +115,12 @@ public class GoldManager : MonoBehaviour
     public float GetBoostTimeRemaining()
     {
         if (boostEndTime <= 0) return 0f;
-        float now = (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
-        return Mathf.Max(0f, boostEndTime - now);
+        return Mathf.Max(0f, boostEndTime - GetCurrentUnixTime());
+    }
+
+    static float GetCurrentUnixTime()
+    {
+        return (float)System.DateTime.UtcNow.Subtract(new System.DateTime(1970, 1, 1)).TotalSeconds;
     }
 
     public bool IsBoostActive => GetBoostTimeRemaining() > 0;
