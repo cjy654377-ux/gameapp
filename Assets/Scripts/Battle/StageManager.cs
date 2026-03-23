@@ -148,7 +148,7 @@ public class StageManager : MonoBehaviour
         int saved = PlayerPrefs.GetInt(SaveKeys.TotalWaveIndex, 0);
         TotalWaveIndex = saved;
         CalcStageFromTotal(saved);
-        SoundManager.Instance?.PlayAreaBGM(CurrentArea);
+        // BGM은 Awake에서 재생하지 않음 — MainHUD 로딩 완료 후 StartFirstWave에서 재생
     }
 
     void AutoLoadPresets()
