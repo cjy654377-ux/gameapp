@@ -37,6 +37,17 @@ public class BattleSetup : MonoBehaviour
         EnsureSystem<SummonStoneManager>("SummonStoneManager");
         EnsureSystem<SpellScrollManager>("SpellScrollManager");
         EnsureSystem<DungeonManager>("DungeonManager");
+        EnsureSystem<SkillManager>("SkillManager");
+        EnsureSystem<SkillUpgradeManager>("SkillUpgradeManager");
+        EnsureSystem<SkillSynergyManager>("SkillSynergyManager");
+        EnsureSystem<DailyMissionManager>("DailyMissionManager");
+        EnsureSystem<DailyLoginManager>("DailyLoginManager");
+        EnsureSystem<CollectionManager>("CollectionManager");
+        EnsureSystem<ArenaManager>("ArenaManager");
+        EnsureSystem<DailyQuestManager>("DailyQuestManager");
+        EnsureSystem<WeeklyBossManager>("WeeklyBossManager");
+        EnsureSystem<FriendManager>("FriendManager");
+        EnsureSystem<GameStatsManager>("GameStatsManager");
         EnsureSystem<AdManager>("AdManager");
         EnsureSystem<ReputationManager>("ReputationManager");
         EnsureSystem<AwakeningStoneManager>("AwakeningStoneManager");

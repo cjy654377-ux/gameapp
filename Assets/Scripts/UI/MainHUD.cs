@@ -197,9 +197,9 @@ public class MainHUD : MonoBehaviour
             if (areaNameText != null) areaNameText.text = cachedStageMgr.GetAreaName();
         }
 
-        // 로딩 화면 페이드아웃
+        // 로딩 화면 즉시 제거
         if (loadingScreen != null)
-            StartCoroutine(FadeOutLoading());
+            Destroy(loadingScreen);
 
         // 출석 체크 팝업 (2프레임 지연 - UI 구독 완료 후)
         yield return null;
