@@ -20,7 +20,10 @@ public class DailyLoginManager : MonoBehaviour
     private DailyReward _lastClaimedReward;
     private bool _dailyLoginMultiplierUsed;
 
-    const int CYCLE_DAYS = 28;
+    const int CYCLE_DAYS      = 28;
+    const int MILESTONE_DAY1  = 7;
+    const int MILESTONE_DAY2  = 14;
+    const int MILESTONE_DAY3  = 30;
     const string KEY_DAY       = "DailyLogin_Day";
     const string KEY_LAST_DATE = "DailyLogin_LastDate";
     const string DATE_FORMAT   = "yyyy-MM-dd";
@@ -132,18 +135,18 @@ public class DailyLoginManager : MonoBehaviour
         int dayNum = CurrentDay + 1; // 1-indexed
 
         // 마일스톤 특별 보상 (7일, 14일, 30일)
-        if (dayNum == 7)
+        if (dayNum == MILESTONE_DAY1)
         {
             // 7일: 보석 100
             GemManager.Instance?.AddGem(100);
         }
-        else if (dayNum == 14)
+        else if (dayNum == MILESTONE_DAY2)
         {
             // 14일: 소환석 10 + 각성석 5
             SummonStoneManager.Instance?.AddStone(10);
             AwakeningStoneManager.Instance?.AddStone(5);
         }
-        else if (dayNum == 30)
+        else if (dayNum == MILESTONE_DAY3)
         {
             // 30일: Star4 영웅 보장 티켓 (따로 처리 필요)
             // 현재 구현: 보석 추가 대신 별도의 티켓 시스템 필요
@@ -208,7 +211,7 @@ public class DailyLoginManager : MonoBehaviour
         int dayNum = CurrentDay + 1; // 1-indexed
 
         // 마일스톤은 2배 광고 미지원
-        if (dayNum == 7 || dayNum == 14 || dayNum == 30) return;
+        if (dayNum == MILESTONE_DAY1 || dayNum == MILESTONE_DAY2 || dayNum == MILESTONE_DAY3) return;
 
         switch (_lastClaimedReward.type)
         {

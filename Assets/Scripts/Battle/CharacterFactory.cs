@@ -217,6 +217,13 @@ public class CharacterFactory : MonoBehaviour
         }
     }
 
+    static readonly Dictionary<string, string> HorsePartNameMap = new()
+    {
+        { "Head", "Head" }, { "Neck", "Neck" },
+        { "BodyFront", "BodyFront" }, { "BodyBack", "BodyBack" },
+        { "Tail", "Tail" }, { "Acc", "Acc" },
+    };
+
     void ApplyHorseSprites(Transform horseRoot, string horseName)
     {
         var horseSprites = LoadSprites($"Addons/Legacy/1_Horse/0_Sprite/0_Body/{horseName}");
@@ -226,18 +233,11 @@ public class CharacterFactory : MonoBehaviour
         foreach (var s in horseSprites)
             spriteLookup[s.name] = s;
 
-        var nameMap = new Dictionary<string, string>
-        {
-            { "Head", "Head" }, { "Neck", "Neck" },
-            { "BodyFront", "BodyFront" }, { "BodyBack", "BodyBack" },
-            { "Tail", "Tail" }, { "Acc", "Acc" },
-        };
-
         var horseSRs = horseRoot.GetComponentsInChildren<SpriteRenderer>(true);
         foreach (var sr in horseSRs)
         {
             string goName = sr.gameObject.name;
-            if (nameMap.TryGetValue(goName, out string spriteName))
+            if (HorsePartNameMap.TryGetValue(goName, out string spriteName))
             {
                 if (spriteLookup.TryGetValue(spriteName, out var sprite))
                     sr.sprite = sprite;

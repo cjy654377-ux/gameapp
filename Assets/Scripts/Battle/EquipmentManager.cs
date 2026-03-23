@@ -87,6 +87,13 @@ public class EquipmentManager : MonoBehaviour
     const float ENHANCE_BOOST      = 1.3f;
     const int   DISMANTLE_GOLD_PER_RARITY = 50;
 
+    // 슬롯별 스탯 가중치
+    const float WEAPON_HP_WEIGHT  = 0.3f;
+    const float ARMOR_HP_WEIGHT   = 0.5f;
+    const float SHIELD_DEF_WEIGHT = 0.7f;
+    const float SHIELD_HP_WEIGHT  = 0.4f;
+    const float SHIELD_ATK_WEIGHT = 0.2f;
+
     // 강화 성공률 (rarity 1~4 기준, 5는 최대등급이라 강화 불가)
     static readonly float[] BASE_SUCCESS_RATE = { 0f, 1.0f, 0.90f, 0.75f, 0.55f, 0f };
 
@@ -321,18 +328,18 @@ public class EquipmentManager : MonoBehaviour
         {
             case EquipmentSlot.Weapon:
                 item.bonusAtk = BASE_ATK * rarity * levelFactor * randomMult;
-                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.3f;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * WEAPON_HP_WEIGHT;
                 item.bonusDef = 0f;
                 break;
             case EquipmentSlot.Armor:
                 item.bonusDef = BASE_DEF * rarity * levelFactor * randomMult;
-                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.5f;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * ARMOR_HP_WEIGHT;
                 item.bonusAtk = 0f;
                 break;
             default: // Shield 등
-                item.bonusDef = BASE_DEF * rarity * levelFactor * randomMult * 0.7f;
-                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.4f;
-                item.bonusAtk = BASE_ATK * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * 0.2f;
+                item.bonusDef = BASE_DEF * rarity * levelFactor * randomMult * SHIELD_DEF_WEIGHT;
+                item.bonusHp  = BASE_HP  * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * SHIELD_HP_WEIGHT;
+                item.bonusAtk = BASE_ATK * rarity * levelFactor * UnityEngine.Random.Range(STAT_RANDOM_MIN, STAT_RANDOM_MAX) * SHIELD_ATK_WEIGHT;
                 break;
         }
 
