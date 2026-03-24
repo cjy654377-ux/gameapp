@@ -751,7 +751,7 @@ public class MainHUD : MonoBehaviour
 
             var prt = panel.GetComponent<RectTransform>();
             prt.anchorMin = new Vector2(0, navRatio);
-            prt.anchorMax = new Vector2(1, 0.50f);
+            prt.anchorMax = new Vector2(1, 1f);
             prt.offsetMin = Vector2.zero;
             prt.offsetMax = Vector2.zero;
 
