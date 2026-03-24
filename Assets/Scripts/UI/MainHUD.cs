@@ -651,13 +651,13 @@ public class MainHUD : MonoBehaviour
             // center(전투) 탭은 위로 돌출
             if (i == 2)
             {
-                trt.offsetMin = new Vector2(1, -8);
-                trt.offsetMax = new Vector2(-1, -4);
+                trt.offsetMin = new Vector2(1, -6);
+                trt.offsetMax = new Vector2(-1, -1);
             }
             else
             {
-                trt.offsetMin = new Vector2(2, 4);
-                trt.offsetMax = new Vector2(-2, -4);
+                trt.offsetMin = new Vector2(1, 2);
+                trt.offsetMax = new Vector2(-1, -1);
             }
 
             // Active indicator (하단 골드 라인 — 5px)

@@ -18,7 +18,7 @@ public static class UIConstants
     public const float HUD_ProgressHeight = 5f;
 
     // Bottom Nav Bar
-    public const float NavBar_Height = 58f;
+    public const float NavBar_Height = 72f;
     public const float NavBar_IconSize = 20f;
     public const float NavBar_BorderTop = 1f;
 
