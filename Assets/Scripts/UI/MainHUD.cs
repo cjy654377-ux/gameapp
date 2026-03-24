@@ -239,7 +239,7 @@ public class MainHUD : MonoBehaviour
         CreateSafeAreaRoot();
         CreateHUDBar();
         CreateWaveBanner();
-        CreateKillCounter();
+        // CreateKillCounter(); — 킬 카운터 UI 제거
         CreateRevengeIcon();
 
         heroSelectPanel = safeAreaRoot.AddComponent<HeroSelectPanel>();
