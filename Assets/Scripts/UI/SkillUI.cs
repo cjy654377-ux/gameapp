@@ -391,16 +391,20 @@ public class SkillUI : MonoBehaviour
 
         bool anyActive = skills.Count > 0 && skills.Exists(s => s != null);
         if (noSkillText != null) noSkillText.gameObject.SetActive(!anyActive && !_isTabPanelOpen);
+        // 스킬 없으면 오토 버튼도 숨김
+        if (autoToggleButton != null) autoToggleButton.gameObject.SetActive(anyActive);
     }
 
     void UpdateCooldown(int slot, float remaining, float total)
     {
         if (slot < 0 || slot >= SLOT_COUNT) return;
+        // 슬롯이 비활성이면 업데이트 안 함
+        if (!slotObjects[slot].activeSelf) return;
 
         if (remaining <= 0f)
         {
             cooldownOverlays[slot].fillAmount = 0f;
-            cooldownTexts[slot].text = "<size=10>준비!</size>";
+            cooldownTexts[slot].text = "";  // "준비!" 텍스트 제거 — 깔끔하게
             cooldownTexts[slot].color = new Color(0.6f, 1f, 0.5f);
             slotBgs[slot].color = readyColors[slot];
         }

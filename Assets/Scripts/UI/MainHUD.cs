@@ -162,7 +162,7 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged += OnStageChanged;
             cachedStageMgr.OnBossSpawned += OnBossSpawned;
             cachedStageMgr.OnWaveCleared += OnWaveCleared;
-            // cachedStageMgr.OnRevengeStackChanged += UpdateRevengeUI; — 제거
+            cachedStageMgr.OnRevengeStackChanged += UpdateRevengeUI;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged += OnBattleStateChanged;
@@ -240,7 +240,7 @@ public class MainHUD : MonoBehaviour
         CreateHUDBar();
         CreateWaveBanner();
         CreateKillCounter();
-        // CreateRevengeIcon(); — 제거 (촌스러운 플로팅 UI)
+        CreateRevengeIcon();
 
         heroSelectPanel = safeAreaRoot.AddComponent<HeroSelectPanel>();
         heroSelectPanel.Init(safeAreaRoot.transform, () => enhancePanel?.Refresh());
@@ -568,19 +568,15 @@ public class MainHUD : MonoBehaviour
     void CreateRevengeIcon()
     {
         revengeIcon = UIHelper.MakeUI("RevengeIcon", safeAreaRoot.transform);
-        var bg = UIHelper.MakeSpritePanel("RevengeBG", revengeIcon.transform,
-            UISprites.BoxIcon1, new Color(0.5f, 0.05f, 0.05f, 0.9f));
-        UIHelper.FillParent(bg.GetComponent<RectTransform>());
-
+        // 배경 없는 심플 텍스트 (나무 버튼 제거)
         var rt = revengeIcon.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0, 0.5f);
-        rt.anchorMax = new Vector2(0, 0.5f);
-        rt.pivot = new Vector2(0, 0.5f);
-        rt.anchoredPosition = new Vector2(UIConstants.Spacing_Small, 22);
-        rt.sizeDelta = new Vector2(72, 22);
+        rt.anchorMin = new Vector2(0, 0.85f);
+        rt.anchorMax = new Vector2(0.3f, 0.9f);
+        rt.offsetMin = new Vector2(8, 0);
+        rt.offsetMax = Vector2.zero;
 
-        revengeText = UIHelper.MakeText("RevengeText", revengeIcon.transform, "복수자 x1",
-            UIConstants.Font_Tab, TextAlignmentOptions.Center, new Color(1f, 0.6f, 0.4f));
+        revengeText = UIHelper.MakeText("RevengeText", revengeIcon.transform, "",
+            10f, TextAlignmentOptions.MidlineLeft, new Color(1f, 0.4f, 0.3f));
         revengeText.fontStyle = FontStyles.Bold;
         UIHelper.AddTextShadow(revengeText);
         UIHelper.FillParent(revengeText.GetComponent<RectTransform>());
@@ -1439,7 +1435,7 @@ public class MainHUD : MonoBehaviour
             cachedStageMgr.OnStageChanged -= OnStageChanged;
             cachedStageMgr.OnBossSpawned -= OnBossSpawned;
             cachedStageMgr.OnWaveCleared -= OnWaveCleared;
-            // cachedStageMgr.OnRevengeStackChanged -= UpdateRevengeUI; — 제거
+            cachedStageMgr.OnRevengeStackChanged -= UpdateRevengeUI;
         }
         if (cachedBattleMgr != null)
             cachedBattleMgr.OnBattleStateChanged -= OnBattleStateChanged;
